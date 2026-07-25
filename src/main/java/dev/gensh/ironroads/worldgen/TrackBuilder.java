@@ -48,17 +48,14 @@ public final class TrackBuilder {
             return;  // соседний чанк положит это сам
         }
 
-        int nextPerpendicular = network.perpendicularAt(line, along + 1) + lateralOffset;
         int nextY = profiler.heightAt(line, along + 1);
-        TrackShape shape = chooseShape(line, x, z, perpendicular, nextPerpendicular, y, nextY);
+        TrackShape shape = chooseShape(line, x, z, y, nextY);
 
         BlockState track = AllBlocks.TRACK.getDefaultState().setValue(TrackBlock.SHAPE, shape);
         level.setBlock(new BlockPos(x, y, z), track, 2);
     }
 
-    private TrackShape chooseShape(Line line, int x, int z,
-                                   int perpendicular, int nextPerpendicular,
-                                   int y, int nextY) {
+    private TrackShape chooseShape(Line line, int x, int z, int y, int nextY) {
         if (isCrossingPoint(x, z)) {
             // Обе линии кладут сюда одно и то же, поэтому порядок записи
             // блоков внутри развязки не имеет значения.
@@ -76,14 +73,14 @@ public final class TrackBuilder {
             return alongZ ? TrackShape.AN : TrackShape.AW;
         }
 
-        // PD — ось (+x, +z), ND — (-x, +z). Для линии вдоль Z снос по X, для
-        // линии вдоль X снос по Z: в обоих случаях положительный снос даёт
-        // диагональ (+x, +z), поэтому ветвление по оси не нужно.
-        int drift = nextPerpendicular - perpendicular;
-        if (drift == 0) {
-            return alongZ ? TrackShape.ZO : TrackShape.XO;
-        }
-        return drift > 0 ? TrackShape.PD : TrackShape.ND;
+        // Диагоналей здесь быть не может, и это не упрощение, а требование
+        // Create. Концы стыка у прямого пути лежат в серединах граней, у
+        // диагонального — в углах блока. Они не совпадают, поэтому прямой и
+        // диагональный пути, поставленные рядом, не соединяются: получается
+        // «ёлочка» из несвязанных обрубков. Поворот в Create — это кривая
+        // Безье в данных блока, а не блок. Пока кривых нет, линия строго прямая
+        // (jitter = 0 в RailwayFeature).
+        return alongZ ? TrackShape.ZO : TrackShape.XO;
     }
 
     /**

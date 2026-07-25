@@ -1,6 +1,7 @@
 package dev.gensh.ironroads.worldgen;
 
 import com.mojang.serialization.Codec;
+import com.simibubi.create.AllBlocks;
 import dev.gensh.ironroads.geometry.HeightSampler;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
@@ -9,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -24,7 +26,15 @@ import java.util.concurrent.ConcurrentHashMap;
 public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
 
     private static final int SPACING = 768;
-    private static final int JITTER = 48;
+
+    /**
+     * Пока 0: линия обязана быть строго прямой. Виляние требует поворотов, а
+     * поворот в Create — кривая Безье в данных блока, не блок. Диагональными
+     * блоками прямую линию не изогнуть: они не стыкуются с прямыми. Значение
+     * оживёт, когда появится генерация кривых.
+     */
+    private static final int JITTER = 0;
+
     private static final int MAX_GRADE_RUN = 12;
 
     /** Полуширина полотна: 3 блока между путями плюс обочины. */
@@ -55,7 +65,12 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         TrackBuilder trackBuilder = new TrackBuilder(network, profiler);
 
         boolean placedAnything = false;
-        for (Line line : network.linesNear(chunkMinX + 8, chunkMinZ + 8, 8)) {
+        // Радиус обязан включать полуширину полотна: линия, чья осевая проходит
+        // за границей чанка, всё равно кладёт сюда часть насыпи. С прежним
+        // радиусом 8 такие полосы терялись — раньше это маскировал джиттер,
+        // раздувавший коридор поиска на 48 блоков.
+        int reach = 8 + BED_HALF_WIDTH;
+        for (Line line : network.linesNear(chunkMinX + 8, chunkMinZ + 8, reach)) {
             placedAnything |= placeSegment(level, network, profiler, trackBuilder,
                                            line, chunkMinX, chunkMinZ);
         }
@@ -95,8 +110,7 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                     continue;  // соседний чанк построит это сам
                 }
 
-                level.setBlock(new BlockPos(x, y - 1, z),
-                               Blocks.GRAVEL.defaultBlockState(), 2);
+                level.setBlock(new BlockPos(x, y - 1, z), bedBlock(offset), 2);
                 clearGauge(level, x, y, z);
                 placed = true;
             }
@@ -108,6 +122,17 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                                   chunkMinX, chunkMinZ);
         }
         return placed;
+    }
+
+    /**
+     * Полотно из блоков Create: под самими путями железнодорожный корпус,
+     * по краям андезитовый настил. Обочина шириной 2 блока с каждой стороны
+     * отделяет полотно от рельефа, чтобы насыпь читалась как насыпь.
+     */
+    private BlockState bedBlock(int offset) {
+        return Math.abs(offset) <= TrackBuilder.TRACK_OFFSET
+             ? AllBlocks.RAILWAY_CASING.getDefaultState()
+             : AllBlocks.ANDESITE_SCAFFOLD.getDefaultState();
     }
 
     /** Вырубает пространство над полотном: 4 блока по высоте. */
