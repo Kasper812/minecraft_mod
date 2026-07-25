@@ -560,8 +560,12 @@ h(t) = min по d из [-W, W] от ( smooth(t + d) + |d| / G )
 - Consumes: `Line`, `RailNetwork.perpendicularAt(Line, int)` из задачи 2
 - Produces:
   - `interface HeightSampler { int heightAt(int x, int z); }`
-  - `TrackProfiler(RailNetwork network, int maxGradeRun)`
-  - `int TrackProfiler.heightAt(HeightSampler terrain, Line line, int along)`
+  - `TrackProfiler(RailNetwork network, int maxGradeRun, HeightSampler terrain)`
+  - `int TrackProfiler.heightAt(Line line, int along)`
+
+Источник рельефа передаётся в конструктор, а не в метод: профайлер кэширует
+сглаженную высоту по узлам, и экземпляр, обслуживающий два разных рельефа,
+раздавал бы чужие значения.
 
 - [ ] **Step 1: Написать `HeightSampler.java`**
 
@@ -701,7 +705,7 @@ public final class TrackProfiler {
      * умноженный на maxGradeRun, иначе крутой обрыв не успеет размазаться
      * в допустимый уклон.
      */
-    private static final int ENVELOPE_RADIUS = 384;
+    private static final int ENVELOPE_RADIUS = 768;
 
     /**
      * Шаг разрежения при обходе окон.
@@ -761,7 +765,7 @@ public final class TrackProfiler {
 Run: `./gradlew test --tests '*TrackProfilerTest*'`
 Expected: PASS, 5 тестов.
 
-Если падает `narrowValleyIsBridgedNotFollowed` — увеличить `SMOOTH_RADIUS`. Если падает `gradeNeverExceedsLimit` — увеличить `ENVELOPE_RADIUS`, а не ослаблять проверку.
+Если падает `narrowValleyIsBridgedNotFollowed` — увеличить `SMOOTH_RADIUS`. Если падает `gradeNeverExceedsLimit` — увеличить `ENVELOPE_RADIUS`, а не ослаблять проверку: обрыв в 60 блоков при уклоне 1:12 размазывается на 720 блоков, поэтому радиус 384 упирался в собственный край. Актуальное значение 768 проверено прогоном.
 
 - [ ] **Step 6: Запустить весь набор тестов**
 
@@ -878,7 +882,7 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
 
         long seed = level.getSeed();
         RailNetwork network = new RailNetwork(seed, SPACING, JITTER);
-        TrackProfiler profiler = new TrackProfiler(network, MAX_GRADE_RUN);
+        TrackProfiler profiler = new TrackProfiler(network, MAX_GRADE_RUN, terrain);
         HeightSampler terrain = new ChunkGeneratorHeightSampler(
                 context.chunkGenerator(), level,
                 level.getLevel().getChunkSource().randomState());
@@ -903,7 +907,7 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         for (int step = 0; step < 16; step++) {
             int along = alongStart + step;
             int perpendicular = network.perpendicularAt(line, along);
-            int y = profiler.heightAt(terrain, line, along);
+            int y = profiler.heightAt(line, along);
 
             for (int offset = -BED_HALF_WIDTH; offset <= BED_HALF_WIDTH; offset++) {
                 int x = line.axis() == Line.Axis.Z ? perpendicular + offset : along;
@@ -1083,7 +1087,7 @@ public final class TrackBuilder {
                          int chunkMinX, int chunkMinZ) {
 
         int perpendicular = network.perpendicularAt(line, along) + lateralOffset;
-        int y = profiler.heightAt(terrain, line, along);
+        int y = profiler.heightAt(line, along);
 
         int x = line.axis() == Line.Axis.Z ? perpendicular : along;
         int z = line.axis() == Line.Axis.Z ? along : perpendicular;
@@ -1094,7 +1098,7 @@ public final class TrackBuilder {
         }
 
         int nextPerpendicular = network.perpendicularAt(line, along + 1) + lateralOffset;
-        int nextY = profiler.heightAt(terrain, line, along + 1);
+        int nextY = profiler.heightAt(line, along + 1);
 
         TrackShape shape = chooseShape(line, perpendicular, nextPerpendicular, y, nextY);
 
@@ -1189,7 +1193,7 @@ private boolean placeSegment(WorldGenLevel level, RailNetwork network,
     for (int step = 0; step < 16; step++) {
         int along = alongStart + step;
         int perpendicular = network.perpendicularAt(line, along);
-        int y = profiler.heightAt(terrain, line, along);
+        int y = profiler.heightAt(line, along);
 
         for (int offset = -BED_HALF_WIDTH; offset <= BED_HALF_WIDTH; offset++) {
             int x = line.axis() == Line.Axis.Z ? perpendicular + offset : along;
@@ -1949,7 +1953,7 @@ private boolean placeBranch(WorldGenLevel level, TrackProfiler profiler,
 
     boolean placed = false;
     for (int along = from; along != to + direction; along += direction) {
-        int y = profiler.heightAt(terrain, branchLine, along);
+        int y = profiler.heightAt(branchLine, along);
 
         for (int offset = -BRANCH_HALF_WIDTH; offset <= BRANCH_HALF_WIDTH; offset++) {
             int perpendicular = (branchAlongX ? branch.departureZ() : branch.departureX())
@@ -1977,7 +1981,7 @@ private boolean placeBranch(WorldGenLevel level, TrackProfiler profiler,
                               chunkMinX, chunkMinZ);
     }
 
-    int stationY = profiler.heightAt(terrain, branchLine, to);
+    int stationY = profiler.heightAt(branchLine, to);
     stationBuilder.build(level, branch, stationY, chunkMinX, chunkMinZ);
     return placed;
 }
@@ -2108,7 +2112,7 @@ RailNetwork network = new RailNetwork(seed,
         IronRoadsConfig.GRID_SPACING.get(),
         IronRoadsConfig.JITTER_AMPLITUDE.get());
 TrackProfiler profiler = new TrackProfiler(network,
-        IronRoadsConfig.MAX_GRADE_RUN.get());
+        IronRoadsConfig.MAX_GRADE_RUN.get(), terrain);
 SupportBuilder supportBuilder = new SupportBuilder(
         IronRoadsConfig.SUPPORT_SPACING.get(),
         IronRoadsConfig.VIADUCT_MAX_HEIGHT.get());
