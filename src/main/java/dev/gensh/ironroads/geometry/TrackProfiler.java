@@ -118,6 +118,11 @@ public final class TrackProfiler {
         return network;
     }
 
+    /** Рельеф, по которому построен профиль. Нужен строителям выемок и опор. */
+    public HeightSampler terrain() {
+        return terrain;
+    }
+
     /**
      * Высота полотна пути в точке along вдоль линии.
      *

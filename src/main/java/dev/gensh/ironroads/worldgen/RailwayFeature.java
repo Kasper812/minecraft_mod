@@ -1,13 +1,14 @@
 package dev.gensh.ironroads.worldgen;
 
 import com.mojang.serialization.Codec;
-import com.simibubi.create.AllBlocks;
+import dev.gensh.ironroads.geometry.HeightSampler;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
 import dev.gensh.ironroads.geometry.TrackProfiler;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -40,6 +41,9 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
 
     /** Смещение путей двухпутной магистрали от осевой линии. */
     public static final int TRACK_OFFSET = TrackBuilder.TRACK_OFFSET;
+
+    /** Минимальный просвет над путём на открытых участках. */
+    private static final int GAUGE_HEIGHT = 4;
 
     public RailwayFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
@@ -78,6 +82,8 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         boolean placed = false;
         int alongStart = line.axis() == Line.Axis.Z ? chunkMinZ : chunkMinX;
 
+        HeightSampler terrain = profiler.terrain();
+
         for (int step = 0; step < 16; step++) {
             int along = alongStart + step;
             int perpendicular = network.perpendicularAt(line, along);
@@ -96,10 +102,19 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                     continue;  // соседний чанк построит это сам
                 }
 
-                if (!gap) {
-                    level.setBlock(new BlockPos(x, y - 1, z), bedBlock(offset), 2);
+                int ground = terrain.heightAt(x, z);
+
+                if (ground - y >= TunnelBuilder.MIN_DEPTH) {
+                    TunnelBuilder.carve(level, x, y, z, offset, along, BED_HALF_WIDTH);
+                } else {
+                    clearToSky(level, x, y, z, ground);
+                    SupportBuilder.support(level, x, y, z, ground, offset, along,
+                                           BED_HALF_WIDTH);
                 }
-                clearGauge(level, x, y, z);
+
+                if (!gap) {
+                    level.setBlock(new BlockPos(x, y - 1, z), bedBlock(offset, x, y, z), 2);
+                }
                 placed = true;
             }
 
@@ -113,23 +128,41 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
     }
 
     /**
-     * Полотно из блоков Create: под самими путями железнодорожный корпус,
-     * по краям андезитовый настил. Обочина шириной 2 блока с каждой стороны
-     * отделяет полотно от рельефа, чтобы насыпь читалась как насыпь.
+     * Полотно: щебень под путями, кладка на обочинах. Обочина шириной 2 блока
+     * с каждой стороны отделяет полотно от рельефа, чтобы насыпь читалась как
+     * насыпь.
      */
-    private BlockState bedBlock(int offset) {
-        return Math.abs(offset) <= TrackBuilder.TRACK_OFFSET
-             ? AllBlocks.RAILWAY_CASING.getDefaultState()
-             : AllBlocks.ANDESITE_SCAFFOLD.getDefaultState();
+    private BlockState bedBlock(int offset, int x, int y, int z) {
+        Palette.Kind kind = Math.abs(offset) <= TrackBuilder.TRACK_OFFSET
+                          ? Palette.Kind.BALLAST
+                          : Palette.Kind.SHOULDER;
+        return Palette.pick(kind, x, y - 1, z);
     }
 
-    /** Вырубает пространство над полотном: 4 блока по высоте. */
-    private void clearGauge(WorldGenLevel level, int x, int y, int z) {
-        for (int dy = 0; dy < 4; dy++) {
-            BlockPos pos = new BlockPos(x, y + dy, z);
+    /**
+     * Открывает путь до неба: снимает всё от полотна до поверхности.
+     *
+     * Прежняя версия снимала ровно 4 блока вверх, поэтому на любом подъёме
+     * рельефа путь оказывался внутри холма — рельсы шли сквозь землю. Глубже
+     * MIN_DEPTH выемку не роют: там вместо каньона строится тоннель, поэтому
+     * высота расчистки ограничена сверху и стоимость остаётся ограниченной.
+     */
+    private void clearToSky(WorldGenLevel level, int x, int y, int z, int ground) {
+        int top = Math.max(y + GAUGE_HEIGHT, ground + 1);
+
+        for (int cy = y; cy <= top; cy++) {
+            BlockPos pos = new BlockPos(x, cy, z);
             if (!level.getBlockState(pos).isAir()) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
             }
+        }
+
+        // Над выемкой мог остаться песок или вода: первый осыплется в габарит,
+        // вторая зальёт путь. Снимаем и их.
+        BlockPos above = new BlockPos(x, top + 1, z);
+        if (level.getBlockState(above).getBlock() instanceof FallingBlock
+         || !level.getFluidState(above).isEmpty()) {
+            level.setBlock(above, Blocks.AIR.defaultBlockState(), 2);
         }
     }
 }
