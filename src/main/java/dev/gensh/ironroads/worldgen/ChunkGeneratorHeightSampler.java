@@ -6,8 +6,6 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.RandomState;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Высота рельефа без генерации чанков. getBaseHeight считает шумовую функцию
@@ -19,28 +17,20 @@ import java.util.concurrent.ConcurrentHashMap;
  * плотности. Дамп потоков зависшей игры упирался именно в NoiseRouter.mapAll
  * внутри NoiseChunk.&lt;init&gt;.
  *
- * Поэтому кеш здесь обязателен, а не желателен. Профиль опрашивает рельеф по
- * узлам с шагом 8, и соседние узлы делят почти все свои выборки: при радиусе
- * сглаживания 48 два соседних узла отличаются одной точкой из тринадцати.
+ * Кеша здесь намеренно нет: он живёт в TrackProfiler, то есть в геометрии, где
+ * инвариант «ни одна точка не спрашивается дважды» проверяется юнит-тестом
+ * (TrackProfilerCostTest) и держится при любом источнике рельефа. Второй кеш
+ * поверх этого только маскировал бы регрессию.
+ *
+ * Вывод для всех, кто добавляет сюда новых потребителей: не вызывать этот
+ * сэмплер в цикле по блокам. Внутри своего чанка высоту брать из готовой карты
+ * высот через LevelReader.getHeight — она уже посчитана и стоит чтения массива.
  */
 public final class ChunkGeneratorHeightSampler implements HeightSampler {
 
     private final ChunkGenerator generator;
     private final LevelHeightAccessor heightAccessor;
     private final RandomState randomState;
-
-    /**
-     * Ключ — упакованные координаты, значение — высота.
-     *
-     * ConcurrentHashMap, потому что worldgen многопоточный. Гонка безобидна:
-     * функция чистая, два потока запишут одно и то же.
-     *
-     * ponytail: размер не ограничен. Опрашиваются только точки вдоль линий с
-     * шагом 8, то есть примерно 200 записей на 96 блоков пути — при разумном
-     * исследовании мира это десятки тысяч записей. Если память станет
-     * проблемой, вводить LRU, а не сокращать радиус огибающей.
-     */
-    private final Map<Long, Integer> cache = new ConcurrentHashMap<>();
 
     public ChunkGeneratorHeightSampler(ChunkGenerator generator,
                                        LevelHeightAccessor heightAccessor,
@@ -52,14 +42,7 @@ public final class ChunkGeneratorHeightSampler implements HeightSampler {
 
     @Override
     public int heightAt(int x, int z) {
-        long key = ((long) x << 32) ^ (z & 0xFFFFFFFFL);
-        Integer hit = cache.get(key);
-        if (hit != null) {
-            return hit;
-        }
-        int height = generator.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG,
-                                             heightAccessor, randomState);
-        cache.put(key, height);
-        return height;
+        return generator.getBaseHeight(x, z, Heightmap.Types.WORLD_SURFACE_WG,
+                                       heightAccessor, randomState);
     }
 }

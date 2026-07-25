@@ -95,6 +95,12 @@ public final class TrackProfiler {
      */
     private final Map<Long, Double> smoothCache = new ConcurrentHashMap<>();
 
+    /**
+     * Кэш самих выборок рельефа по мировым координатам. Ловит перекрытие окон
+     * сглаживания: соседние узлы делят почти все свои точки.
+     */
+    private final Map<Long, Integer> terrainCache = new ConcurrentHashMap<>();
+
     /** Кэш высот развязок. Ключ — пара индексов линий (Z, X). */
     private final Map<Long, Double> crossingCache = new ConcurrentHashMap<>();
 
@@ -291,11 +297,28 @@ public final class TrackProfiler {
         return sum / count;
     }
 
-    /** Рельеф в точке линии — с учётом того, что линия виляет. */
+    /**
+     * Рельеф в точке линии — с учётом того, что линия виляет.
+     *
+     * Кеш здесь обязателен, а не желателен. Окна сглаживания соседних узлов
+     * перекрываются, и одна и та же точка попадает в них многократно; в игре
+     * за каждым таким обращением стоит getBaseHeight, строящий целый
+     * NoiseChunk. Кеш лежит в геометрии, а не в реализации HeightSampler,
+     * чтобы свойство «ни одна точка не спрашивается дважды» держалось при
+     * любом источнике рельефа и проверялось юнит-тестом.
+     */
     private int sampleTerrain(Line line, int along) {
         int perpendicular = network.perpendicularAt(line, along);
-        return line.axis() == Line.Axis.Z
-             ? terrain.heightAt(perpendicular, along)
-             : terrain.heightAt(along, perpendicular);
+        int x = line.axis() == Line.Axis.Z ? perpendicular : along;
+        int z = line.axis() == Line.Axis.Z ? along : perpendicular;
+
+        long key = ((long) x << 32) ^ (z & 0xFFFFFFFFL);
+        Integer hit = terrainCache.get(key);
+        if (hit != null) {
+            return hit;
+        }
+        int height = terrain.heightAt(x, z);
+        terrainCache.put(key, height);
+        return height;
     }
 }

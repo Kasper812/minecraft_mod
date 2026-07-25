@@ -2,7 +2,6 @@ package dev.gensh.ironroads.worldgen;
 
 import com.mojang.serialization.Codec;
 import dev.gensh.ironroads.IronRoads;
-import dev.gensh.ironroads.geometry.HeightSampler;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
 import dev.gensh.ironroads.geometry.TrackProfiler;
@@ -11,6 +10,7 @@ import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
@@ -96,8 +96,6 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         boolean placed = false;
         int alongStart = line.axis() == Line.Axis.Z ? chunkMinZ : chunkMinX;
 
-        HeightSampler terrain = profiler.terrain();
-
         for (int step = 0; step < 16; step++) {
             int along = alongStart + step;
             int perpendicular = network.perpendicularAt(line, along);
@@ -116,7 +114,12 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                     continue;  // соседний чанк построит это сам
                 }
 
-                int ground = terrain.heightAt(x, z);
+                // Высоту внутри своего чанка берём из уже посчитанной карты
+                // высот, а не через HeightSampler: тот идёт в getBaseHeight,
+                // который строит целый NoiseChunk на каждый вызов. На 9 колонок
+                // полотна и 16 шагов это 144 дорогих вызова на чанк, тогда как
+                // карта высот здесь уже готова и стоит чтения массива.
+                int ground = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z) - 1;
 
                 if (ground - y >= TunnelBuilder.MIN_DEPTH) {
                     TunnelBuilder.carve(level, x, y, z, offset, along, BED_HALF_WIDTH);
