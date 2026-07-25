@@ -48,6 +48,15 @@ public final class TrackProfiler {
      */
     private static final int STRIDE = 8;
 
+    /**
+     * Длина горизонтальной площадки. Обязана делить шаг сетки (768), иначе
+     * узел решётки попадёт в середину пандуса и развязка окажется на уклоне.
+     * Перепад между соседними площадками ограничен уклоном огибающей и не
+     * превышает SEGMENT / maxGradeRun, то есть пандус всегда влезает внутрь
+     * отрезка с запасом.
+     */
+    private static final int SEGMENT = 96;
+
     private final RailNetwork network;
     private final int maxGradeRun;
     private final HeightSampler terrain;
@@ -72,6 +81,13 @@ public final class TrackProfiler {
     /** Кэш высот развязок. Ключ — пара индексов линий (Z, X). */
     private final Map<Long, Double> crossingCache = new ConcurrentHashMap<>();
 
+    /**
+     * Кэш высот площадок по границам отрезков. Он же и главный ускоритель:
+     * огибающая считается дважды на отрезок длиной SEGMENT, а не на каждый
+     * блок пути.
+     */
+    private final Map<Long, Integer> levelCache = new ConcurrentHashMap<>();
+
     public TrackProfiler(RailNetwork network, int maxGradeRun, HeightSampler terrain) {
         if (maxGradeRun < 1) {
             throw new IllegalArgumentException("maxGradeRun должен быть положительным");
@@ -85,8 +101,63 @@ public final class TrackProfiler {
         return network;
     }
 
-    /** Высота полотна пути в точке along вдоль линии. */
+    /**
+     * Высота полотна пути в точке along вдоль линии.
+     *
+     * Профиль ступенчатый: внутри отрезка длиной SEGMENT он строго
+     * горизонтален, а вся разница высот между соседними отрезками собрана в
+     * один пандус в середине отрезка. Так устроены и настоящие дороги —
+     * площадки и явные уклоны между ними.
+     *
+     * Округлять непрерывную огибающую в каждой точке отдельно нельзя: около
+     * значения 70.5 соседние точки уходят то в 70, то в 71, и профиль
+     * превращается в пилу. Каждый её зубец — это два наклонных блока,
+     * встречающихся вершинами, а их концы стыка не совпадают: путь рвётся и
+     * поезд не проходит. Здесь округление происходит только на границах
+     * отрезков, а между ними высота меняется монотонно.
+     */
     public int heightAt(Line line, int along) {
+        int boundary = Math.floorDiv(along, SEGMENT);
+        int from = levelAt(line, boundary);
+        int to = levelAt(line, boundary + 1);
+        int rise = to - from;
+        if (rise == 0) {
+            return from;
+        }
+
+        // Наклонный путь Create поднимается на блок за блок — других уклонов в
+        // блоках не существует, поэтому длина пандуса равна перепаду.
+        int rampLength = Math.abs(rise);
+        int rampStart = boundary * SEGMENT + (SEGMENT - rampLength) / 2;
+        if (along <= rampStart) {
+            return from;
+        }
+        if (along >= rampStart + rampLength) {
+            return to;
+        }
+        return from + Integer.signum(rise) * (along - rampStart);
+    }
+
+    /**
+     * Высота площадки на границе отрезка. Границы кратны SEGMENT, а SEGMENT
+     * делит spacing, поэтому узлы решётки всегда попадают на границу — и
+     * развязка оказывается на горизонтальном участке, а не посреди пандуса.
+     */
+    private int levelAt(Line line, int boundary) {
+        long key = ((long) line.index() << 34)
+                 ^ ((long) (line.axis() == Line.Axis.Z ? 1 : 0) << 33)
+                 ^ (boundary & 0xFFFFFFFFL);
+        Integer hit = levelCache.get(key);
+        if (hit != null) {
+            return hit;
+        }
+        int value = (int) Math.round(anchoredHeightAt(line, boundary * SEGMENT));
+        levelCache.put(key, value);
+        return value;
+    }
+
+    /** Непрерывная высота: огибающая плюс привязка к развязкам. */
+    private double anchoredHeightAt(Line line, int along) {
         double best = envelopeAt(line, along);
 
         // Развязки. Каждый узел решётки добавляет в тот же минимум ещё одно
@@ -106,7 +177,7 @@ public final class TrackProfiler {
                 best = candidate;
             }
         }
-        return (int) Math.round(best);
+        return best;
     }
 
     /** Нижняя огибающая Липшица по узлам абсолютной сетки STRIDE. */

@@ -25,8 +25,9 @@ class TrackProfilerTest {
     }
 
     @Test
-    void gradeNeverExceedsLimit() {
-        // Обрыв в 60 блоков — профиль обязан размазать его в пологий уклон.
+    void heightChangesOneBlockAtATime() {
+        // Наклонный путь Create поднимается ровно на блок за блок; перепад в
+        // два блока за шаг уложить нечем.
         TrackProfiler p = profiler((x, z) -> z < 0 ? 60 : 120);
         int prev = p.heightAt(LINE, -800);
         for (int along = -799; along <= 800; along++) {
@@ -36,11 +37,54 @@ class TrackProfilerTest {
                        + " блоков за один блок пути на along=" + along);
             prev = cur;
         }
-        for (int along = -700; along <= 700; along += 5) {
-            int a = p.heightAt(LINE, along);
-            int b = p.heightAt(LINE, along + GRADE);
-            assertTrue(Math.abs(b - a) <= 1,
-                       "уклон круче 1:" + GRADE + " на отрезке от " + along);
+    }
+
+    @Test
+    void profileNeverSpikes() {
+        // Главная проверка: подъём не имеет права сразу переходить в спуск.
+        // Такой зубец — это два наклонных блока, встречающихся вершинами; их
+        // концы стыка не совпадают, путь рвётся и поезд не проходит.
+        TrackProfiler p = profiler((x, z) -> 80 + (int) (30 * Math.sin(z / 40.0)));
+        int changes = 0;
+        for (int along = -2000; along < 2000; along++) {
+            int first = p.heightAt(LINE, along + 1) - p.heightAt(LINE, along);
+            int second = p.heightAt(LINE, along + 2) - p.heightAt(LINE, along + 1);
+            if (first != 0) {
+                changes++;
+            }
+            if (first != 0 && second != 0) {
+                assertEquals(first, second,
+                             "перелом профиля на along=" + along
+                             + ": " + first + " затем " + second);
+            }
+        }
+        assertTrue(changes > 20,
+                   "профиль почти плоский (" + changes + " изменений), "
+                   + "проверка на переломы прошла вхолостую");
+    }
+
+    @Test
+    void averageGradeStaysGentle() {
+        // Пандусы крутые по необходимости, но между ними длинные площадки,
+        // поэтому средний уклон обязан остаться в пределах 1:GRADE.
+        TrackProfiler p = profiler((x, z) -> z < 0 ? 60 : 120);
+        int span = 96;
+        for (int along = -700; along <= 700; along += span) {
+            int rise = Math.abs(p.heightAt(LINE, along + span) - p.heightAt(LINE, along));
+            assertTrue(rise <= span / GRADE + 1,
+                       "средний уклон круче 1:" + GRADE + " на отрезке от " + along
+                       + ": подъём " + rise + " за " + span);
+        }
+    }
+
+    @Test
+    void crossingsSitOnLevelGround() {
+        // Развязка обязана быть горизонтальной: на уклоне пути двух линий
+        // сошлись бы на разных высотах.
+        TrackProfiler p = profiler((x, z) -> 80 + (int) (30 * Math.sin(z / 40.0)));
+        for (int offset = -3; offset <= 3; offset++) {
+            assertEquals(p.heightAt(LINE, 0), p.heightAt(LINE, offset),
+                         "узел решётки попал на пандус, смещение " + offset);
         }
     }
 
