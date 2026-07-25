@@ -1,6 +1,7 @@
 package dev.gensh.ironroads.worldgen;
 
 import com.mojang.serialization.Codec;
+import dev.gensh.ironroads.IronRoads;
 import dev.gensh.ironroads.geometry.HeightSampler;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
@@ -45,6 +46,9 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
     /** Минимальный просвет над путём на открытых участках. */
     private static final int GAUGE_HEIGHT = 4;
 
+    /** С этого времени постройка чанка считается выбросом и попадает в лог. */
+    private static final int SLOW_CHUNK_MILLIS = 50;
+
     public RailwayFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
     }
@@ -68,9 +72,19 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         // радиусом 8 такие полосы терялись — раньше это маскировал джиттер,
         // раздувавший коридор поиска на 48 блоков.
         int reach = 8 + BED_HALF_WIDTH;
+        long startedAt = System.nanoTime();
+
         for (Line line : network.linesNear(chunkMinX + 8, chunkMinZ + 8, reach)) {
             placedAnything |= placeSegment(level, network, profiler, trackBuilder,
                                            line, chunkMinX, chunkMinZ);
+        }
+
+        // Замер, а не догадка: стоимость этой фичи уже дважды оказывалась не
+        // там, где ожидалась. Порог отсекает шум — интересны только выбросы.
+        long millis = (System.nanoTime() - startedAt) / 1_000_000;
+        if (millis >= SLOW_CHUNK_MILLIS) {
+            IronRoads.LOGGER.debug("Чанк {},{} строился {} мс",
+                                   chunkMinX >> 4, chunkMinZ >> 4, millis);
         }
         return placedAnything;
     }
