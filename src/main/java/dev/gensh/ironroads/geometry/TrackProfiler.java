@@ -29,6 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class TrackProfiler {
 
+    /**
+     * Уклон между двумя горизонтальными площадками. Блоки стоят только на его
+     * концах, между ними разрыв под кривую Безье.
+     */
+    public record Ramp(int startAlong, int endAlong, int startHeight, int endHeight) {}
+
     /** Полуширина окна сглаживания. */
     private static final int SMOOTH_RADIUS = 48;
 
@@ -55,7 +61,18 @@ public final class TrackProfiler {
      * превышает SEGMENT / maxGradeRun, то есть пандус всегда влезает внутрь
      * отрезка с запасом.
      */
-    private static final int SEGMENT = 96;
+    public static final int SEGMENT = 96;
+
+    /**
+     * Во сколько раз уклон длиннее своего перепада. 4 даёт наклон около 1:4 —
+     * кривая Безье сгладит его в плавную дугу. Наклонными блоками такого не
+     * добиться: они поднимаются на блок за блок, то есть строго 45°, и пандус
+     * из них выглядит стеной.
+     */
+    private static final int SLOPE_RUN = 4;
+
+    /** Горизонтальный запас у границ отрезка, чтобы развязка не села на уклон. */
+    private static final int MIN_FLAT = 8;
 
     private final RailNetwork network;
     private final int maxGradeRun;
@@ -117,25 +134,50 @@ public final class TrackProfiler {
      * отрезков, а между ними высота меняется монотонно.
      */
     public int heightAt(Line line, int along) {
+        Ramp ramp = rampCovering(line, along);
+        if (ramp == null) {
+            return levelAt(line, Math.floorDiv(along, SEGMENT));
+        }
+        if (along <= ramp.startAlong()) {
+            return ramp.startHeight();
+        }
+        if (along >= ramp.endAlong()) {
+            return ramp.endHeight();
+        }
+        // Внутри разрыва путевых блоков нет — там ляжет кривая. Значение нужно
+        // только чтобы расчистить под неё габарит.
+        int span = ramp.endAlong() - ramp.startAlong();
+        return ramp.startHeight()
+             + (ramp.endHeight() - ramp.startHeight()) * (along - ramp.startAlong()) / span;
+    }
+
+    /**
+     * Уклон между площадками, в чей отрезок попадает точка, или null на ровном
+     * участке. Внутри уклона путевых блоков нет: их место занимает кривая
+     * Безье, натянутая между блоками на его концах.
+     */
+    public Ramp rampCovering(Line line, int along) {
         int boundary = Math.floorDiv(along, SEGMENT);
         int from = levelAt(line, boundary);
         int to = levelAt(line, boundary + 1);
-        int rise = to - from;
-        if (rise == 0) {
-            return from;
+        if (from == to) {
+            return null;
         }
+        int span = Math.min(Math.abs(to - from) * SLOPE_RUN, SEGMENT - 2 * MIN_FLAT);
+        int start = boundary * SEGMENT + (SEGMENT - span) / 2;
+        return new Ramp(start, start + span, from, to);
+    }
 
-        // Наклонный путь Create поднимается на блок за блок — других уклонов в
-        // блоках не существует, поэтому длина пандуса равна перепаду.
-        int rampLength = Math.abs(rise);
-        int rampStart = boundary * SEGMENT + (SEGMENT - rampLength) / 2;
-        if (along <= rampStart) {
-            return from;
-        }
-        if (along >= rampStart + rampLength) {
-            return to;
-        }
-        return from + Integer.signum(rise) * (along - rampStart);
+    /** Точка внутри разрыва: ставить сюда блок нельзя, он разорвёт кривую. */
+    public boolean isGap(Line line, int along) {
+        Ramp ramp = rampCovering(line, along);
+        return ramp != null && along > ramp.startAlong() && along < ramp.endAlong();
+    }
+
+    /** Блок на конце разрыва: он держит кривую, значит обязан иметь BlockEntity. */
+    public boolean isRampEnd(Line line, int along) {
+        Ramp ramp = rampCovering(line, along);
+        return ramp != null && (along == ramp.startAlong() || along == ramp.endAlong());
     }
 
     /**

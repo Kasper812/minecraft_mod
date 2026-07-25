@@ -78,6 +78,34 @@ class TrackProfilerTest {
     }
 
     @Test
+    void rampStaysInsideItsSegmentAndOffCrossings() {
+        TrackProfiler p = profiler((x, z) -> 80 + (int) (30 * Math.sin(z / 40.0)));
+        int ramps = 0;
+        for (int boundary = -20; boundary <= 20; boundary++) {
+            int start = boundary * 96;
+            TrackProfiler.Ramp ramp = p.rampCovering(LINE, start);
+            if (ramp == null) {
+                continue;
+            }
+            ramps++;
+            assertTrue(ramp.startAlong() > start,
+                       "разрыв упёрся в начало отрезка " + boundary);
+            assertTrue(ramp.endAlong() < start + 96,
+                       "разрыв упёрся в конец отрезка " + boundary);
+            assertEquals(ramp.startHeight(), p.heightAt(LINE, ramp.startAlong()));
+            assertEquals(ramp.endHeight(), p.heightAt(LINE, ramp.endAlong()));
+        }
+        assertTrue(ramps > 5, "уклонов почти нет (" + ramps + "), проверка вхолостую");
+
+        for (int node = -1536; node <= 1536; node += 768) {
+            for (int offset = -3; offset <= 3; offset++) {
+                assertFalse(p.isGap(LINE, node + offset),
+                            "развязка на " + node + " попала в разрыв");
+            }
+        }
+    }
+
+    @Test
     void crossingsSitOnLevelGround() {
         // Развязка обязана быть горизонтальной: на уклоне пути двух линий
         // сошлись бы на разных высотах.

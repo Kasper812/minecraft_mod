@@ -48,14 +48,20 @@ public final class TrackBuilder {
             return;  // соседний чанк положит это сам
         }
 
-        int nextY = profiler.heightAt(line, along + 1);
-        TrackShape shape = chooseShape(line, x, z, y, nextY);
+        // Внутри уклона блоков быть не должно: там натянется кривая Безье, и
+        // любой блок посередине её разорвёт.
+        if (profiler.isGap(line, along)) {
+            return;
+        }
 
-        BlockState track = AllBlocks.TRACK.getDefaultState().setValue(TrackBlock.SHAPE, shape);
+        BlockState track = AllBlocks.TRACK.getDefaultState()
+                .setValue(TrackBlock.SHAPE, chooseShape(line, x, z))
+                // Кривая живёт в BlockEntity, поэтому концам уклона он нужен.
+                .setValue(TrackBlock.HAS_BE, profiler.isRampEnd(line, along));
         level.setBlock(new BlockPos(x, y, z), track, 2);
     }
 
-    private TrackShape chooseShape(Line line, int x, int z, int y, int nextY) {
+    private TrackShape chooseShape(Line line, int x, int z) {
         if (isCrossingPoint(x, z)) {
             // Обе линии кладут сюда одно и то же, поэтому порядок записи
             // блоков внутри развязки не имеет значения.
@@ -64,16 +70,11 @@ public final class TrackBuilder {
 
         boolean alongZ = line.axis() == Line.Axis.Z;
 
-        if (nextY > y) {
-            // Подъём Create — 1:1. Профиль ставит такие блоки редко: при
-            // уклоне 1:12 между ними длинные горизонтальные полки.
-            return alongZ ? TrackShape.AS : TrackShape.AE;
-        }
-        if (nextY < y) {
-            return alongZ ? TrackShape.AN : TrackShape.AW;
-        }
-
-        // Диагоналей здесь быть не может, и это не упрощение, а требование
+        // Наклонных форм здесь тоже нет. Они поднимаются на блок за блок,
+        // то есть строго 45°, и пандус из них выглядит стеной. Плавный уклон
+        // в Create делается только кривой Безье.
+        //
+        // Диагоналей нет по другой причине, и это не упрощение, а требование
         // Create. Концы стыка у прямого пути лежат в серединах граней, у
         // диагонального — в углах блока. Они не совпадают, поэтому прямой и
         // диагональный пути, поставленные рядом, не соединяются: получается

@@ -25,7 +25,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
 
-    private static final int SPACING = 768;
+    // Открыты: проход при загрузке чанка обязан собрать ровно тот же профиль,
+    // иначе концы разрывов под кривые не совпадут с уложенными блоками.
+    public static final int SPACING = 768;
 
     /**
      * Пока 0: линия обязана быть строго прямой. Виляние требует поворотов, а
@@ -33,12 +35,15 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
      * блоками прямую линию не изогнуть: они не стыкуются с прямыми. Значение
      * оживёт, когда появится генерация кривых.
      */
-    private static final int JITTER = 0;
+    public static final int JITTER = 0;
 
-    private static final int MAX_GRADE_RUN = 12;
+    public static final int MAX_GRADE_RUN = 12;
 
     /** Полуширина полотна: 3 блока между путями плюс обочины. */
-    static final int BED_HALF_WIDTH = 4;
+    public static final int BED_HALF_WIDTH = 4;
+
+    /** Смещение путей двухпутной магистрали от осевой линии. */
+    public static final int TRACK_OFFSET = TrackBuilder.TRACK_OFFSET;
 
     /**
      * Профиль на каждый мир, а не на каждый чанк. Внутри него кэш высот, общий
@@ -101,6 +106,10 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
             int perpendicular = network.perpendicularAt(line, along);
             int y = profiler.heightAt(line, along);
 
+            // Под кривой насыпи нет: её держат балки самой кривой. Габарит
+            // всё равно расчищаем, иначе дуга уйдёт в рельеф.
+            boolean gap = profiler.isGap(line, along);
+
             for (int offset = -BED_HALF_WIDTH; offset <= BED_HALF_WIDTH; offset++) {
                 int x = line.axis() == Line.Axis.Z ? perpendicular + offset : along;
                 int z = line.axis() == Line.Axis.Z ? along : perpendicular + offset;
@@ -110,7 +119,9 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                     continue;  // соседний чанк построит это сам
                 }
 
-                level.setBlock(new BlockPos(x, y - 1, z), bedBlock(offset), 2);
+                if (!gap) {
+                    level.setBlock(new BlockPos(x, y - 1, z), bedBlock(offset), 2);
+                }
                 clearGauge(level, x, y, z);
                 placed = true;
             }
