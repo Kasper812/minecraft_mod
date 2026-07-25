@@ -60,6 +60,9 @@ public final class TrackProfiler {
      */
     private final Map<Long, Double> smoothCache = new HashMap<>();
 
+    /** Кэш высот развязок. Ключ — пара индексов линий (Z, X). */
+    private final Map<Long, Double> crossingCache = new HashMap<>();
+
     public TrackProfiler(RailNetwork network, int maxGradeRun, HeightSampler terrain) {
         if (maxGradeRun < 1) {
             throw new IllegalArgumentException("maxGradeRun должен быть положительным");
@@ -71,6 +74,30 @@ public final class TrackProfiler {
 
     /** Высота полотна пути в точке along вдоль линии. */
     public int heightAt(Line line, int along) {
+        double best = envelopeAt(line, along);
+
+        // Развязки. Каждый узел решётки добавляет в тот же минимум ещё одно
+        // липшицево слагаемое. Ровно в узле оно и побеждает, а поскольку обе
+        // пересекающиеся линии считают его из одной и той же пары огибающих,
+        // они приходят в развязку на одну высоту — иначе четыре ветви сходились
+        // бы на разных уровнях и путь на перекрёстке рвался бы.
+        // Слагаемое вида c + |n - t|/G само липшицево с константой 1/G, поэтому
+        // ограничение на уклон от его добавления не страдает.
+        int spacing = network.spacing();
+        int firstIndex = Math.floorDiv(along - ENVELOPE_RADIUS, spacing);
+        int lastIndex = Math.floorDiv(along + ENVELOPE_RADIUS, spacing);
+        for (int index = firstIndex; index <= lastIndex; index++) {
+            double candidate = crossingHeight(line, index)
+                             + (double) Math.abs(index * spacing - along) / maxGradeRun;
+            if (candidate < best) {
+                best = candidate;
+            }
+        }
+        return (int) Math.round(best);
+    }
+
+    /** Нижняя огибающая Липшица по узлам абсолютной сетки STRIDE. */
+    private double envelopeAt(Line line, int along) {
         int firstNode = Math.floorDiv(along - ENVELOPE_RADIUS, STRIDE) * STRIDE;
         int lastNode = Math.floorDiv(along + ENVELOPE_RADIUS, STRIDE) * STRIDE;
 
@@ -82,7 +109,31 @@ public final class TrackProfiler {
                 best = candidate;
             }
         }
-        return (int) Math.round(best);
+        return best;
+    }
+
+    /**
+     * Высота развязки в узле решётки, где линия index-й перпендикулярной
+     * магистрали скрещивается с данной. Симметрична по построению: обе линии
+     * берут минимум из одной и той же пары огибающих, так что от того, какая
+     * сторона спрашивает, результат не зависит.
+     */
+    private double crossingHeight(Line line, int crossingIndex) {
+        boolean alongZ = line.axis() == Line.Axis.Z;
+        int zIndex = alongZ ? line.index() : crossingIndex;
+        int xIndex = alongZ ? crossingIndex : line.index();
+
+        long key = ((long) zIndex << 32) ^ (xIndex & 0xFFFFFFFFL);
+        Double hit = crossingCache.get(key);
+        if (hit != null) {
+            return hit;
+        }
+        int spacing = network.spacing();
+        double value = Math.min(
+                envelopeAt(new Line(Line.Axis.Z, zIndex), xIndex * spacing),
+                envelopeAt(new Line(Line.Axis.X, xIndex), zIndex * spacing));
+        crossingCache.put(key, value);
+        return value;
     }
 
     private double cachedSmoothed(Line line, int node) {

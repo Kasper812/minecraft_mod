@@ -60,8 +60,26 @@ class TrackProfilerTest {
     @Test
     void narrowValleyIsBridgedNotFollowed() {
         // Узкое ущелье в 50 блоков глубиной: путь должен пройти поверху.
-        TrackProfiler p = profiler((x, z) -> (z > -20 && z < 20) ? 40 : 90);
-        assertTrue(p.heightAt(LINE, 0) > 70,
+        // Ущелье намеренно уведено от узла решётки: в узле высоту диктует
+        // развязка, и тест мерил бы уже не перелёт, а согласование линий.
+        TrackProfiler p = profiler((x, z) -> (z > 280 && z < 320) ? 40 : 90);
+        assertTrue(p.heightAt(LINE, 300) > 70,
                    "профиль нырнул в ущелье вместо того, чтобы его перелететь");
+    }
+
+    @Test
+    void crossingLinesAgreeOnHeight() {
+        // Обе магистрали обязаны прийти в узел решётки на одну высоту, иначе
+        // четыре ветви развязки сойдутся на разных уровнях и путь порвётся.
+        HeightSampler rough = (x, z) ->
+                80 + (int) (18 * Math.sin(x / 70.0) + 14 * Math.cos(z / 50.0));
+        TrackProfiler p = profiler(rough);
+        for (int i = -1; i <= 1; i++) {
+            for (int k = -1; k <= 1; k++) {
+                assertEquals(p.heightAt(new Line(Line.Axis.Z, i), k * 768),
+                             p.heightAt(new Line(Line.Axis.X, k), i * 768),
+                             "развязка (" + i + ", " + k + ") расходится по высоте");
+            }
+        }
     }
 }

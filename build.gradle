@@ -28,19 +28,21 @@ minecraft {
 }
 
 repositories {
-    maven { url = 'https://maven.tterrag.com/' }        // Create, Flywheel, Registrate
-    maven { url = 'https://maven.blamejared.com/' }     // JEI, транзитивно у Create
+    maven { url = 'https://maven.createmod.net' }       // Create
+    maven { url = 'https://maven.tterrag.com/' }        // Registrate
+    maven { url = 'https://maven.blamejared.com/' }     // JEI
     mavenCentral()                                       // JUnit
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
+    // Classifier "all" — толстый jar Create. Flywheel и Registrate внутри его
+    // НЕ лежат, но на compile-classpath они и не нужны: код мода обращается
+    // только к собственным классам Create, а блоки берёт из реестра по имени.
+    implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:all") {
         transitive = false
     }
-    implementation fg.deobf("com.jozufozu.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
-    implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
