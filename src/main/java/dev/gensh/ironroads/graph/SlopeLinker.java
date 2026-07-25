@@ -2,8 +2,10 @@ package dev.gensh.ironroads.graph;
 
 import com.simibubi.create.content.trains.track.BezierConnection;
 import com.simibubi.create.content.trains.track.ITrackBlock;
+import com.simibubi.create.content.trains.track.TrackBlock;
 import com.simibubi.create.content.trains.track.TrackBlockEntity;
 import com.simibubi.create.content.trains.track.TrackMaterial;
+import com.simibubi.create.content.trains.track.TrackPropagator;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
 import dev.gensh.ironroads.geometry.TrackProfiler;
@@ -58,6 +60,47 @@ final class SlopeLinker {
             }
         }
         return created;
+    }
+
+    /**
+     * Регистрирует пути чанка в графе Create.
+     *
+     * Перебирать блоки чанка нельзя: это до 98 тысяч чтений на чанк, и на
+     * загрузке мира сервер встаёт намертво. Геометрия детерминирована, поэтому
+     * позиции путей вычисляются — их ровно 32 на чанк, а для чанка без линий
+     * работа нулевая.
+     *
+     * @return сколько блоков пути зарегистрировано
+     */
+    int registerTracks(ServerLevel level, int chunkMinX, int chunkMinZ, int bedHalfWidth,
+                       int trackOffset) {
+        int count = 0;
+        for (Line line : network.linesNear(chunkMinX + 8, chunkMinZ + 8, 8 + bedHalfWidth)) {
+            int alongStart = line.axis() == Line.Axis.Z ? chunkMinZ : chunkMinX;
+
+            for (int step = 0; step < 16; step++) {
+                int along = alongStart + step;
+                if (profiler.isGap(line, along)) {
+                    continue;  // внутри уклона блоков нет, там кривая
+                }
+                int y = profiler.heightAt(line, along);
+
+                for (int side = -1; side <= 1; side += 2) {
+                    BlockPos pos = blockAt(line, along, y, side * trackOffset);
+                    if (pos.getX() < chunkMinX || pos.getX() >= chunkMinX + 16
+                     || pos.getZ() < chunkMinZ || pos.getZ() >= chunkMinZ + 16) {
+                        continue;
+                    }
+                    BlockState state = level.getBlockState(pos);
+                    if (!(state.getBlock() instanceof TrackBlock)) {
+                        continue;
+                    }
+                    TrackPropagator.onRailAdded(level, pos, state);
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /** Одна кривая: между блоками на концах разрыва для одного из двух путей. */
