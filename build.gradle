@@ -37,9 +37,14 @@ repositories {
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Classifier "all" — толстый jar Create. Flywheel и Registrate внутри его
-    // НЕ лежат, но на compile-classpath они и не нужны: код мода обращается
-    // только к собственным классам Create, а блоки берёт из реестра по имени.
+    // Classifier "all" — толстый jar Create. Flywheel, Registrate, Ponder и
+    // MixinExtras лежат в нём вложенными архивами (META-INF/jarjar), Forge
+    // распаковывает их сам, поэтому в рантайме Create полноценен и отдельные
+    // объявления не нужны.
+    //
+    // Но javac внутрь вложенных архивов не смотрит: на compile-classpath
+    // Registrate отсутствует. Отсюда и обращение к create:track через реестр
+    // вместо AllBlocks.TRACK — та константа типизирована BlockEntry.
     implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:all") {
         transitive = false
     }
