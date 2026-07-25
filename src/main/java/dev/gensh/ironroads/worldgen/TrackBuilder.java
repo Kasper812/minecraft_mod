@@ -1,17 +1,14 @@
 package dev.gensh.ironroads.worldgen;
 
+import com.simibubi.create.AllBlocks;
 import com.simibubi.create.content.trains.track.TrackBlock;
 import com.simibubi.create.content.trains.track.TrackShape;
 import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
 import dev.gensh.ironroads.geometry.TrackProfiler;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.WorldGenLevel;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Кладёт один путь Create вдоль линии. Форма блока выбирается по тому, как
@@ -24,31 +21,12 @@ public final class TrackBuilder {
     /** Смещение путей двухпутной магистрали от осевой линии. */
     static final int TRACK_OFFSET = 2;
 
-    private static final ResourceLocation TRACK_ID = new ResourceLocation("create", "track");
-
-    /**
-     * Блок пути берётся из реестра по имени, а не через AllBlocks: константы
-     * Registrate типизированы BlockEntry, а Registrate в толстом jar Create не
-     * лежит и на compile-classpath отсутствует.
-     */
-    private static final BlockState TRACK = trackState();
-
     private final RailNetwork network;
     private final TrackProfiler profiler;
 
     public TrackBuilder(RailNetwork network, TrackProfiler profiler) {
         this.network = network;
         this.profiler = profiler;
-    }
-
-    private static BlockState trackState() {
-        Block block = ForgeRegistries.BLOCKS.getValue(TRACK_ID);
-        if (block == null || block == Blocks.AIR) {
-            // Реестр блоков подставляет воздух вместо отсутствующего значения,
-            // поэтому без явной проверки Create без путей дал бы молча пустой мир.
-            throw new IllegalStateException(TRACK_ID + " не найден — Create не загружен");
-        }
-        return block.defaultBlockState();
     }
 
     /**
@@ -74,7 +52,8 @@ public final class TrackBuilder {
         int nextY = profiler.heightAt(line, along + 1);
         TrackShape shape = chooseShape(line, x, z, perpendicular, nextPerpendicular, y, nextY);
 
-        level.setBlock(new BlockPos(x, y, z), TRACK.setValue(TrackBlock.SHAPE, shape), 2);
+        BlockState track = AllBlocks.TRACK.getDefaultState().setValue(TrackBlock.SHAPE, shape);
+        level.setBlock(new BlockPos(x, y, z), track, 2);
     }
 
     private TrackShape chooseShape(Line line, int x, int z,

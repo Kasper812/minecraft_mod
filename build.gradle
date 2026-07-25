@@ -14,40 +14,51 @@ minecraft {
     mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
     copyIdeResources = true
     runs {
+        configureEach {
+            property 'forge.logging.console.level', 'debug'
+
+            // Обязательно при зависимости от модов с миксинами. refmap чужого
+            // мода отображает имена в SRG (resizeDisplay -> m_5741_), а в dev
+            // классы носят имена из parchment. Без обратного ремапа миксины
+            // Ponder и Flywheel падают на старте с "could not find any targets".
+            property 'mixin.env.remapRefMap', 'true'
+            property 'mixin.env.refMapRemappingFile',
+                     "${projectDir}/build/createSrgToMcp/output.srg"
+
+            mods { "${mod_id}" { source sourceSets.main } }
+        }
         client {
             workingDirectory project.file('run')
-            property 'forge.logging.console.level', 'debug'
-            mods { "${mod_id}" { source sourceSets.main } }
         }
         server {
             workingDirectory project.file('run-server')
-            property 'forge.logging.console.level', 'debug'
-            mods { "${mod_id}" { source sourceSets.main } }
         }
     }
 }
 
 repositories {
-    maven { url = 'https://maven.createmod.net' }       // Create
+    maven { url = 'https://maven.createmod.net' }       // Create, Ponder, Flywheel
     maven { url = 'https://maven.tterrag.com/' }        // Registrate
-    maven { url = 'https://maven.blamejared.com/' }     // JEI
-    mavenCentral()                                       // JUnit
+    mavenCentral()                                       // MixinExtras, JUnit
 }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
-    // Classifier "all" — толстый jar Create. Flywheel, Registrate, Ponder и
-    // MixinExtras лежат в нём вложенными архивами (META-INF/jarjar), Forge
-    // распаковывает их сам, поэтому в рантайме Create полноценен и отдельные
-    // объявления не нужны.
-    //
-    // Но javac внутрь вложенных архивов не смотрит: на compile-classpath
-    // Registrate отсутствует. Отсюда и обращение к create:track через реестр
-    // вместо AllBlocks.TRACK — та константа типизирована BlockEntry.
-    implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:all") {
+    // Classifier "slim" — Create без вложенных библиотек, они объявлены ниже
+    // по отдельности. Толстый "all" в dev-окружении не работает: ForgeGradle
+    // ремапит только внешний jar, вложенные архивы остаются с SRG-именами в
+    // refmap, и миксины Ponder падают на старте с "could not find any targets
+    // matching m_5741_". Каждая библиотека обязана пройти через fg.deobf сама.
+    implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
         transitive = false
     }
+    implementation fg.deobf("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
+    implementation fg.deobf("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
+    implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
+
+    // Минекрафтовых ссылок внутри нет, ремап не нужен.
+    implementation "io.github.llamalad7:mixinextras-forge:${mixinextras_version}"
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'

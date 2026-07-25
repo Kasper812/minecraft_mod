@@ -1,7 +1,7 @@
 package dev.gensh.ironroads.geometry;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Продольный профиль высоты пути.
@@ -54,14 +54,23 @@ public final class TrackProfiler {
 
     /**
      * Кэш сглаженной высоты по узлам сетки. Соседние точки пути делят почти
-     * все свои узлы, поэтому без кэша каждый блок стоил бы заново 192*13
-     * обращений к рельефу. Экземпляр живёт в пределах одного чанка, так что
-     * кэш не растёт бесконечно; на детерминированность он не влияет.
+     * все свои узлы, поэтому без кэша каждая точка стоила бы заново 193*13
+     * обращений к рельефу — а рельеф считает шумовую функцию колонкой и стоит
+     * дорого.
+     *
+     * Экземпляр обязан жить на весь мир, а не на чанк: узлы общие для всей
+     * линии, и пересоздание кэша на каждый чанк делает генерацию неиграбельно
+     * медленной. Отсюда и ConcurrentHashMap — worldgen многопоточный. На
+     * детерминированность кэш не влияет: значения чистые, гонка безобидна.
+     *
+     * ponytail: размер не ограничен. На линию длиной 30k блоков это ~4k
+     * записей, при разумном исследовании мира счёт не страшен. Если память
+     * станет проблемой — вводить LRU, а не урезать радиус огибающей.
      */
-    private final Map<Long, Double> smoothCache = new HashMap<>();
+    private final Map<Long, Double> smoothCache = new ConcurrentHashMap<>();
 
     /** Кэш высот развязок. Ключ — пара индексов линий (Z, X). */
-    private final Map<Long, Double> crossingCache = new HashMap<>();
+    private final Map<Long, Double> crossingCache = new ConcurrentHashMap<>();
 
     public TrackProfiler(RailNetwork network, int maxGradeRun, HeightSampler terrain) {
         if (maxGradeRun < 1) {
@@ -70,6 +79,10 @@ public final class TrackProfiler {
         this.network = network;
         this.maxGradeRun = maxGradeRun;
         this.terrain = terrain;
+    }
+
+    public RailNetwork network() {
+        return network;
     }
 
     /** Высота полотна пути в точке along вдоль линии. */

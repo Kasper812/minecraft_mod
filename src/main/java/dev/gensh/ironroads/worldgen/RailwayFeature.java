@@ -6,11 +6,15 @@ import dev.gensh.ironroads.geometry.Line;
 import dev.gensh.ironroads.geometry.RailNetwork;
 import dev.gensh.ironroads.geometry.TrackProfiler;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Ставит блоки железной дороги в пределах одного чанка.
@@ -26,6 +30,14 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
     /** Полуширина полотна: 3 блока между путями плюс обочины. */
     static final int BED_HALF_WIDTH = 4;
 
+    /**
+     * Профиль на каждый мир, а не на каждый чанк. Внутри него кэш высот, общий
+     * для всей линии; пересоздание на каждый чанк выбрасывало этот кэш и стоило
+     * ~17 тысяч обращений к шуму ландшафта на чанк — генерация мира вставала.
+     * Экземпляр фичи один на игру, поэтому карта живёт здесь; ключ — сид.
+     */
+    private final Map<Long, TrackProfiler> profilers = new ConcurrentHashMap<>();
+
     public RailwayFeature(Codec<NoneFeatureConfiguration> codec) {
         super(codec);
     }
@@ -38,11 +50,8 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
         int chunkMinX = origin.getX() & ~15;
         int chunkMinZ = origin.getZ() & ~15;
 
-        RailNetwork network = new RailNetwork(level.getSeed(), SPACING, JITTER);
-        HeightSampler terrain = new ChunkGeneratorHeightSampler(
-                context.chunkGenerator(), level,
-                level.getLevel().getChunkSource().randomState());
-        TrackProfiler profiler = new TrackProfiler(network, MAX_GRADE_RUN, terrain);
+        TrackProfiler profiler = profilerFor(context);
+        RailNetwork network = profiler.network();
         TrackBuilder trackBuilder = new TrackBuilder(network, profiler);
 
         boolean placedAnything = false;
@@ -51,6 +60,19 @@ public class RailwayFeature extends Feature<NoneFeatureConfiguration> {
                                            line, chunkMinX, chunkMinZ);
         }
         return placedAnything;
+    }
+
+    private TrackProfiler profilerFor(FeaturePlaceContext<NoneFeatureConfiguration> context) {
+        ServerLevel serverLevel = context.level().getLevel();
+        return profilers.computeIfAbsent(serverLevel.getSeed(), seed -> {
+            RailNetwork network = new RailNetwork(seed, SPACING, JITTER);
+            // Границы высоты берём у ServerLevel, а не у переданного
+            // WorldGenLevel: тот живёт один чанк, и держать его в кэше нельзя.
+            HeightSampler terrain = new ChunkGeneratorHeightSampler(
+                    context.chunkGenerator(), serverLevel,
+                    serverLevel.getChunkSource().randomState());
+            return new TrackProfiler(network, MAX_GRADE_RUN, terrain);
+        });
     }
 
     private boolean placeSegment(WorldGenLevel level, RailNetwork network,
