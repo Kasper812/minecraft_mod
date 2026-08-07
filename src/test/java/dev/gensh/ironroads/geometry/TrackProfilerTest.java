@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class TrackProfilerTest {
-
     private static final int GRADE = 12;
     private static final Line LINE = new Line(Line.Axis.Z, 0);
 
@@ -26,8 +25,6 @@ class TrackProfilerTest {
 
     @Test
     void heightChangesOneBlockAtATime() {
-        // Наклонный путь Create поднимается ровно на блок за блок; перепад в
-        // два блока за шаг уложить нечем.
         TrackProfiler p = profiler((x, z) -> z < 0 ? 60 : 120);
         int prev = p.heightAt(LINE, -800);
         for (int along = -799; along <= 800; along++) {
@@ -41,9 +38,6 @@ class TrackProfilerTest {
 
     @Test
     void profileNeverSpikes() {
-        // Главная проверка: подъём не имеет права сразу переходить в спуск.
-        // Такой зубец — это два наклонных блока, встречающихся вершинами; их
-        // концы стыка не совпадают, путь рвётся и поезд не проходит.
         TrackProfiler p = profiler((x, z) -> 80 + (int) (30 * Math.sin(z / 40.0)));
         int changes = 0;
         for (int along = -2000; along < 2000; along++) {
@@ -65,8 +59,6 @@ class TrackProfilerTest {
 
     @Test
     void averageGradeStaysGentle() {
-        // Пандусы крутые по необходимости, но между ними длинные площадки,
-        // поэтому средний уклон обязан остаться в пределах 1:GRADE.
         TrackProfiler p = profiler((x, z) -> z < 0 ? 60 : 120);
         int span = 96;
         for (int along = -700; along <= 700; along += span) {
@@ -105,10 +97,51 @@ class TrackProfilerTest {
         }
     }
 
+    /**
+     * Полотно строится по этому профилю, а поезд едет по BezierConnection, которую
+     * Create тянет между концами пандуса: кубика с горизонтальными касательными на
+     * концах. Пока профиль был хордой, кривая отходила от него почти на блок — на
+     * подъёме балласт вылезал на путь, на боковом уводе состав шёл сквозь стенку
+     * выемки. Профиль обязан совпадать с кривой, а не быть к ней близко.
+     */
+    @Test
+    void theRampFollowsTheBezierNotTheChord() {
+        TrackProfiler p = profiler((x, z) -> z < 0 ? 60 : 120);
+        int checked = 0;
+        int offChord = 0;
+
+        for (int boundary = -20; boundary <= 20; boundary++) {
+            TrackProfiler.Ramp ramp = p.rampCovering(LINE, boundary * 96);
+            if (ramp == null || ramp.startHeight() == ramp.endHeight()) {
+                continue;
+            }
+            int span = ramp.endAlong() - ramp.startAlong();
+            int rise = ramp.endHeight() - ramp.startHeight();
+
+            for (int along = ramp.startAlong(); along <= ramp.endAlong(); along++) {
+                double t = (double) (along - ramp.startAlong()) / span;
+                double bezier = ramp.startHeight() + rise * t * t * (3 - 2 * t);
+                double chord = ramp.startHeight() + rise * t;
+
+                assertTrue(Math.abs(p.heightAt(LINE, along) - bezier) <= 0.5 + 1e-9,
+                           "полотно разошлось с кривой на along=" + along
+                           + ": профиль " + p.heightAt(LINE, along)
+                           + ", кривая " + bezier);
+                if (Math.abs(bezier - chord) > 0.5) {
+                    offChord++;
+                }
+                checked++;
+            }
+        }
+        assertTrue(checked > 100,
+                   "пандусов почти нет (" + checked + " точек), проверка вхолостую");
+        assertTrue(offChord > 10,
+                   "кривая нигде заметно не отходит от хорды (" + offChord
+                   + " точек): проверка не отличила бы линейный профиль от кубики");
+    }
+
     @Test
     void crossingsSitOnLevelGround() {
-        // Развязка обязана быть горизонтальной: на уклоне пути двух линий
-        // сошлись бы на разных высотах.
         TrackProfiler p = profiler((x, z) -> 80 + (int) (30 * Math.sin(z / 40.0)));
         for (int offset = -3; offset <= 3; offset++) {
             assertEquals(p.heightAt(LINE, 0), p.heightAt(LINE, offset),
@@ -118,8 +151,6 @@ class TrackProfilerTest {
 
     @Test
     void profileIsPositionLocalNotPathDependent() {
-        // Один и тот же along, посчитанный разными экземплярами, обязан
-        // совпадать — иначе на границах чанков будут ступени.
         HeightSampler hilly = (x, z) -> 80 + (int) (25 * Math.sin(z / 90.0));
         TrackProfiler p = profiler(hilly);
         for (int along = -300; along <= 300; along += 7) {
@@ -131,9 +162,6 @@ class TrackProfilerTest {
 
     @Test
     void narrowValleyIsBridgedNotFollowed() {
-        // Узкое ущелье в 50 блоков глубиной: путь должен пройти поверху.
-        // Ущелье намеренно уведено от узла решётки: в узле высоту диктует
-        // развязка, и тест мерил бы уже не перелёт, а согласование линий.
         TrackProfiler p = profiler((x, z) -> (z > 280 && z < 320) ? 40 : 90);
         assertTrue(p.heightAt(LINE, 300) > 70,
                    "профиль нырнул в ущелье вместо того, чтобы его перелететь");
@@ -141,8 +169,6 @@ class TrackProfilerTest {
 
     @Test
     void crossingLinesAgreeOnHeight() {
-        // Обе магистрали обязаны прийти в узел решётки на одну высоту, иначе
-        // четыре ветви развязки сойдутся на разных уровнях и путь порвётся.
         HeightSampler rough = (x, z) ->
                 80 + (int) (18 * Math.sin(x / 70.0) + 14 * Math.cos(z / 50.0));
         TrackProfiler p = profiler(rough);

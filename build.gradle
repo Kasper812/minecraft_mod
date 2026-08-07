@@ -1,64 +1,58 @@
 plugins {
+    id 'java'
     id 'eclipse'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'org.parchmentmc.librarian.forgegradle' version '1.+'
+    id 'net.neoforged.moddev' version '2.0.143'
 }
 
 version = mod_version
 group = mod_group_id
 base { archivesName = mod_id }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
-minecraft {
-    mappings channel: 'parchment', version: "${parchment_version}-${minecraft_version}"
-    copyIdeResources = true
+neoForge {
+    version = neoforge_version
+
+    parchment {
+        minecraftVersion = minecraft_version
+        mappingsVersion = parchment_version
+    }
+
     runs {
         configureEach {
-            property 'forge.logging.console.level', 'debug'
-
-            // Обязательно при зависимости от модов с миксинами. refmap чужого
-            // мода отображает имена в SRG (resizeDisplay -> m_5741_), а в dev
-            // классы носят имена из parchment. Без обратного ремапа миксины
-            // Ponder и Flywheel падают на старте с "could not find any targets".
-            property 'mixin.env.remapRefMap', 'true'
-            property 'mixin.env.refMapRemappingFile',
-                     "${projectDir}/build/createSrgToMcp/output.srg"
-
-            mods { "${mod_id}" { source sourceSets.main } }
+            systemProperties.put 'ironroads.debug', 'false'
         }
         client {
-            workingDirectory project.file('run')
+            client()
+            gameDirectory = file('run')
         }
         server {
-            workingDirectory project.file('run-server')
+            server()
+            gameDirectory = file('run-server')
+        }
+    }
+
+    mods {
+        ironroads {
+            sourceSet sourceSets.main
         }
     }
 }
 
 repositories {
     maven { url = 'https://maven.createmod.net' }       // Create, Ponder, Flywheel
-    maven { url = 'https://maven.tterrag.com/' }        // Registrate
-    mavenCentral()                                       // MixinExtras, JUnit
+    // Registrate под 1.21 на maven.tterrag.com не выкладывался — там всё
+    // кончается на MC1.20. Отсюда его берёт и сам Create (см. его build.gradle
+    // ветки mc1.21.1/dev), поэтому репозиторий тот же, а не «какое-то зеркало».
+    maven { url = 'https://maven.ithundxr.dev/snapshots' }
+    mavenCentral()                                       // JUnit
 }
 
 dependencies {
-    minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
-
-    // Classifier "slim" — Create без вложенных библиотек, они объявлены ниже
-    // по отдельности. Толстый "all" в dev-окружении не работает: ForgeGradle
-    // ремапит только внешний jar, вложенные архивы остаются с SRG-именами в
-    // refmap, и миксины Ponder падают на старте с "could not find any targets
-    // matching m_5741_". Каждая библиотека обязана пройти через fg.deobf сама.
-    implementation fg.deobf("com.simibubi.create:create-${minecraft_version}:${create_version}:slim") {
-        transitive = false
-    }
-    implementation fg.deobf("net.createmod.ponder:Ponder-Forge-${minecraft_version}:${ponder_version}")
-    implementation fg.deobf("dev.engine-room.flywheel:flywheel-forge-${minecraft_version}:${flywheel_version}")
-    implementation fg.deobf("com.tterrag.registrate:Registrate:${registrate_version}")
-
-    // Минекрафтовых ссылок внутри нет, ремап не нужен.
-    implementation "io.github.llamalad7:mixinextras-forge:${mixinextras_version}"
+    // Транзитивно тянет Ponder, Flywheel и Registrate тех версий, что Create
+    // везёт внутри себя (META-INF/jarjar/metadata.json). Ремапа нет и не нужно:
+    // NeoForge и в dev, и в рантайме живёт на официальных именах Mojang.
+    implementation "com.simibubi.create:create-${minecraft_version}:${create_version}"
 
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -68,20 +62,6 @@ dependencies {
 test {
     useJUnitPlatform()
     testLogging { events 'passed', 'skipped', 'failed' }
-}
-
-tasks.named('jar') {
-    manifest {
-        attributes([
-            'Specification-Title'   : mod_id,
-            'Specification-Vendor'  : 'gensh',
-            'Specification-Version' : '1',
-            'Implementation-Title'  : project.name,
-            'Implementation-Version': project.jar.archiveVersion,
-            'Implementation-Vendor' : 'gensh'
-        ])
-    }
-    finalizedBy 'reobfJar'
 }
 
 tasks.withType(JavaCompile).configureEach {

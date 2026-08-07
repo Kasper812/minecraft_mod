@@ -3,62 +3,83 @@ package dev.gensh.ironroads.geometry;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Геометрия сети магистралей. Класс без состояния сверх параметров конструктора
- * и без единой зависимости от Minecraft — это условие тестируемости.
- *
- * Линии образуют сетку с шагом spacing. Каждая линия виляет на величину до
- * jitter блоков по детерминированному шуму, но в точках решётки (кратных
- * spacing) джиттер плавно гасится до нуля — так пересечения всегда попадают
- * ровно в узел решётки и обе линии сходятся без подгонки.
- */
 public final class RailNetwork {
+    private static final int ALIGN_PERIOD = 5120;
 
-    /** Период шума. Больше значение — длиннее и плавнее изгибы. */
-    private static final int JITTER_PERIOD = 400;
+    private static final int ALIGN_FINE_PERIOD = 1792;
 
-    /** Длина зоны гашения джиттера по обе стороны от узла решётки. */
-    private static final int CROSSING_FLAT = 64;
+    private static final double FINE_SHARE = 0.25;
+
+    private static final double ALIGN_GAIN = 2.0;
+
+    private static final int MIN_SPACING = 8 * TrackProfiler.SEGMENT;
 
     private final long seed;
     private final int spacing;
-    private final int jitter;
+    private final int alignment;
+    private final VillageSites villages;
+    private final VillageSites obstacles;
 
-    public RailNetwork(long seed, int spacing, int jitter) {
-        if (spacing < 4 * CROSSING_FLAT) {
-            throw new IllegalArgumentException(
-                "spacing должен быть не меньше " + (4 * CROSSING_FLAT));
+    public RailNetwork(long seed, int spacing, int alignment) {
+        this(seed, spacing, alignment, VillageSites.VANILLA);
+    }
+
+    public RailNetwork(long seed, int spacing, int alignment, VillageSites villages) {
+        this(seed, spacing, alignment, villages, villages);
+    }
+
+    public RailNetwork(long seed, int spacing, int alignment,
+                       VillageSites villages, VillageSites obstacles) {
+        if (spacing < MIN_SPACING) {
+            throw new IllegalArgumentException("spacing должен быть не меньше " + MIN_SPACING);
         }
-        if (jitter < 0) {
-            throw new IllegalArgumentException("jitter не может быть отрицательным");
+        if (alignment < 0) {
+            throw new IllegalArgumentException("alignment не может быть отрицательным");
         }
         this.seed = seed;
         this.spacing = spacing;
-        this.jitter = jitter;
+        this.alignment = alignment;
+        this.villages = villages;
+        this.obstacles = obstacles;
     }
 
     public int spacing() {
         return spacing;
     }
 
-    /** Перпендикулярная координата линии в точке along вдоль неё. */
-    public int perpendicularAt(Line line, int along) {
-        int base = Math.multiplyExact(line.index(), spacing);
-        if (jitter == 0) {
-            return base;
-        }
-        double noise = noise1D(lineSeed(line), (double) along / JITTER_PERIOD);
-        double offset = noise * jitter * crossingTaper(along);
-        return base + (int) Math.round(offset);
+    public VillageSites villages() {
+        return villages;
     }
 
-    /**
-     * Все линии, чей коридор попадает в квадрат радиуса radius вокруг точки.
-     * Коридор шире номинала на jitter, потому что линия внутри него виляет.
-     */
+    public VillageSites obstacles() {
+        return obstacles;
+    }
+
+    public long seed() {
+        return seed;
+    }
+
+    public int perpendicularAt(Line line, int along) {
+        int base = Math.multiplyExact(line.index(), spacing);
+        return line.isBranch() ? base + line.offset() : base;
+    }
+
+    public int alignmentAt(Line line, int along) {
+        if (line.isBranch() || alignment == 0) {
+            return 0;
+        }
+        long lineSeed = lineSeed(line);
+        double value = (1 - FINE_SHARE) * noise1D(lineSeed, (double) along / ALIGN_PERIOD)
+                     + FINE_SHARE * noise1D(mix(lineSeed ^ 0x2545F4914F6CDD1DL),
+                                            (double) along / ALIGN_FINE_PERIOD);
+
+        double swept = Math.max(-1.0, Math.min(1.0, value * ALIGN_GAIN));
+        return (int) Math.round(swept * alignment);
+    }
+
     public List<Line> linesNear(int blockX, int blockZ, int radius) {
         List<Line> result = new ArrayList<>(4);
-        int reach = radius + jitter;
+        int reach = radius + TrackProfiler.MAX_SHIFT;
         collect(result, Line.Axis.Z, blockX, reach);
         collect(result, Line.Axis.X, blockZ, reach);
         return result;
@@ -75,24 +96,9 @@ public final class RailNetwork {
         }
     }
 
-    /** Точка решётки, где магистрали пересекаются. */
     public boolean isCrossing(int blockX, int blockZ) {
         return Math.floorMod(blockX, spacing) == 0
             && Math.floorMod(blockZ, spacing) == 0;
-    }
-
-    /**
-     * Коэффициент 0..1: гасит джиттер вблизи узлов решётки, чтобы линия
-     * приходила в пересечение строго по базовой координате.
-     */
-    private double crossingTaper(int along) {
-        int distance = Math.floorMod(along, spacing);
-        distance = Math.min(distance, spacing - distance);
-        if (distance >= CROSSING_FLAT) {
-            return 1.0;
-        }
-        double t = (double) distance / CROSSING_FLAT;
-        return t * t * (3.0 - 2.0 * t);
     }
 
     private long lineSeed(Line line) {
@@ -100,7 +106,6 @@ public final class RailNetwork {
                         ^ ((long) line.index() * 0x165667B1L));
     }
 
-    /** Значение-шум с кубической интерполяцией, результат в [-1, 1]. */
     private static double noise1D(long lineSeed, double t) {
         int cell = (int) Math.floor(t);
         double f = t - cell;
@@ -115,7 +120,6 @@ public final class RailNetwork {
         return (h >>> 11) * 0x1.0p-53;
     }
 
-    /** splitmix64 — быстрый и хорошо перемешивающий финализатор. */
     private static long mix(long z) {
         z += 0x9E3779B97F4A7C15L;
         z = (z ^ (z >>> 30)) * 0xBF58476D1CE4E5B9L;

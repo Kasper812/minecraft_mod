@@ -7,14 +7,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * Проверяет разброс палитры, не поднимая Minecraft: та же splitmix64, что и в
- * Palette, вынесена сюда копией. Дублирование намеренное — тянуть ради теста
- * зависимость на классы блоков было бы дороже, чем восемь строк арифметики,
- * а свойства проверяются именно у хеша.
- */
 class PaletteHashTest {
-
     private static long hash(int x, int y, int z, int salt) {
         long h = x * 0x9E3779B97F4A7C15L
                ^ y * 0xBF58476D1CE4E5B9L
@@ -32,8 +25,6 @@ class PaletteHashTest {
 
     @Test
     void sameBlockAlwaysGetsSameMaterial() {
-        // Иначе на границе чанков пятна мха оборвались бы швом: соседние чанки
-        // генерируются в произвольном порядке.
         for (int i = 0; i < 500; i++) {
             assertEquals(index(i, 64, -i, 0, 4), index(i, 64, -i, 0, 4));
         }
@@ -41,8 +32,6 @@ class PaletteHashTest {
 
     @Test
     void neighbouringBlocksDoNotFormAPattern() {
-        // Полосатая насыпь выглядела бы хуже однотонной. Проверяем, что вдоль
-        // прямой material меняется, а не повторяется через шаг.
         int repeats = 0;
         int previous = index(0, 64, 0, 0, 4);
         for (int z = 1; z < 400; z++) {
@@ -52,8 +41,6 @@ class PaletteHashTest {
             }
             previous = current;
         }
-        // При четырёх вариантах совпадение подряд ожидается примерно в четверти
-        // случаев; вырождение в полосу или в константу отсекается с запасом.
         assertTrue(repeats > 50 && repeats < 200,
                    "разброс выродился: " + repeats + " повторов подряд из 399");
     }
@@ -71,8 +58,6 @@ class PaletteHashTest {
 
     @Test
     void differentKindsDifferOnTheSameBlock() {
-        // Соль по типу материала обязана расцеплять выборы: иначе щебень и
-        // обочина мшели бы синхронно, полосами поперёк полотна.
         int differences = 0;
         for (int z = 0; z < 200; z++) {
             if (index(0, 64, z, 0, 4) != index(0, 64, z, 1, 4)) {

@@ -1,0 +1,36 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+license = "MIT"
+
+[[mods]]
+modId = "ironroads"
+version = "0.1.0"
+displayName = "Iron Roads"
+description = "Бесконечная железнодорожная сеть на путях Create."
+
+# NeoForge читает этот блок и в собранном jar'е, и в dev-запуске, поэтому
+# атрибута манифеста MixinConfigs (обязательного на Forge 47) здесь больше нет.
+# Проверяется строкой "Registering mixin config: ironroads.mixins.json" в логе.
+[[mixins]]
+config = "ironroads.mixins.json"
+
+[[dependencies.ironroads]]
+    modId = "neoforge"
+    type = "required"
+    versionRange = "[21.1,)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.ironroads]]
+    modId = "minecraft"
+    type = "required"
+    versionRange = "[1.21.1,1.22)"
+    ordering = "NONE"
+    side = "BOTH"
+
+[[dependencies.ironroads]]
+    modId = "create"
+    type = "required"
+    versionRange = "[6.0,)"
+    ordering = "AFTER"
+    side = "BOTH"

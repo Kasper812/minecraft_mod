@@ -1,6 +1,17 @@
 package dev.gensh.ironroads.geometry;
 
-/** Одна линия сети. Для Axis.Z линия тянется вдоль Z, её изменяемая координата — X. */
-public record Line(Line.Axis axis, int index) {
+public record Line(Line.Axis axis, int index, int offset, int anchorAlong) {
     public enum Axis { X, Z }
+
+    public Line(Axis axis, int index) {
+        this(axis, index, 0, 0);
+    }
+
+    public boolean isBranch() {
+        return offset != 0;
+    }
+
+    public Axis crossAxis() {
+        return axis == Axis.Z ? Axis.X : Axis.Z;
+    }
 }

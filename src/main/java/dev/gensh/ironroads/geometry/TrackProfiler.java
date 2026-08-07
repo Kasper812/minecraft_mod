@@ -3,119 +3,83 @@ package dev.gensh.ironroads.geometry;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-/**
- * Продольный профиль высоты пути.
- *
- * Берётся нижняя огибающая Липшица по узлам фиксированной сетки:
- *
- *     h(t) = min по узлам n в окне от ( smooth(n) + |n - t| / G )
- *
- * Это наибольшая функция, не превышающая сглаженный рельеф и нигде не
- * нарушающая уклон 1/G.
- *
- * Узлы n кратны STRIDE в МИРОВЫХ координатах, а не отсчитываются от t.
- * Это принципиально. При сдвиге t множество узлов остаётся тем же, и из
- * неравенства треугольника |n - t1| <= |n - t2| + |t1 - t2| немедленно
- * следует |h(t1) - h(t2)| <= |t1 - t2| / G. Если бы окно ездило вместе с t,
- * набор сэмплов менялся бы на каждом шаге и профиль давал бы рывки.
- *
- * Из той же фиксированности следует позиционная локальность: значение в
- * точке не зависит от того, откуда мы начали считать, поэтому профиль
- * сходится на границах чанков без ступеней.
- *
- * Источник рельефа — поле, а не параметр метода: кэш узлов привязан к
- * экземпляру, и профайлер, обслуживающий два разных рельефа, раздавал бы
- * чужие значения.
- */
 public final class TrackProfiler {
-
-    /**
-     * Уклон между двумя горизонтальными площадками. Блоки стоят только на его
-     * концах, между ними разрыв под кривую Безье.
-     */
     public record Ramp(int startAlong, int endAlong, int startHeight, int endHeight) {}
 
-    /** Полуширина окна сглаживания. */
-    private static final int SMOOTH_RADIUS = 48;
+    private record Key(Line line, int at) {}
 
-    /**
-     * Полуширина окна огибающей. Обязана покрывать максимальный перепад,
-     * умноженный на maxGradeRun: при уклоне 1:12 обрыв в 60 блоков
-     * размазывается на 720. Меньшее окно упирается в свой край и даёт
-     * скачок высоты там, где обрыв выходит из зоны видимости.
-     */
-    private static final int ENVELOPE_RADIUS = 768;
+    private record ShiftKey(Line line, int boundary, int offset) {}
 
-    /**
-     * Шаг сетки узлов.
-     * ponytail: шаг 8 при радиусе 768 даёт 192 узла на точку вместо 1536.
-     * Разрежение не вредит плавности, потому что сетка абсолютная; оно лишь
-     * слегка приподнимает профиль. Уменьшать, если профиль окажется грубым.
-     */
-    private static final int STRIDE = 8;
+    private record CrossKey(int zIndex, int xIndex) {}
 
-    /**
-     * Длина горизонтальной площадки. Обязана делить шаг сетки (768), иначе
-     * узел решётки попадёт в середину пандуса и развязка окажется на уклоне.
-     * Перепад между соседними площадками ограничен уклоном огибающей и не
-     * превышает SEGMENT / maxGradeRun, то есть пандус всегда влезает внутрь
-     * отрезка с запасом.
-     */
+    private static final int SMOOTH_RADIUS = 64;
+
+    private static final int ENVELOPE_RADIUS = 512;
+
+    private static final int STRIDE = 32;
+
     public static final int SEGMENT = 96;
 
-    /**
-     * Во сколько раз уклон длиннее своего перепада. 4 даёт наклон около 1:4 —
-     * кривая Безье сгладит его в плавную дугу. Наклонными блоками такого не
-     * добиться: они поднимаются на блок за блок, то есть строго 45°, и пандус
-     * из них выглядит стеной.
-     */
-    private static final int SLOPE_RUN = 4;
+    private static final int SLOPE_RUN = 10;
 
-    /** Горизонтальный запас у границ отрезка, чтобы развязка не села на уклон. */
-    private static final int MIN_FLAT = 8;
+    private static final int MIN_FLAT = Junctions.REACH + 2;
+
+    private static final int MAX_SPAN = SEGMENT - 2 * MIN_FLAT;
+
+    /**
+     * Предельный увод линии от оси. По нему же считается коридор поиска линий
+     * ({@link RailNetwork#linesNear}): линия, ушедшая дальше, не нашлась бы при
+     * укладке своего чанка и просто не построилась бы.
+     */
+    public static final int MAX_SHIFT = 56;
+
+    private static final int TERRAIN_SHIFT = 40;
+
+    private static final int SHIFT_STEP = 8;
+
+    private static final int DETOUR_STEP = 20;
+
+    private static final int STRUCTURE_CLEARANCE = MAX_SHIFT;
+
+    private static final int DETOUR_LOOKAHEAD = 6 * SEGMENT;
+
+    private static final int SHIFT_GUARD = 1;
+
+    private static final int SHIFT_RUN = 8;
+
+    // Порог «здесь дорого идти прямо»: подъём в блоках на 64 блока пути. Ниже —
+    // трасса не ищет обход вовсе и не платит за выборки рельефа в стороне.
+    // Это главный регулятор цены профиля: 10 давало 385 выборок на первом чанке
+    // рваного рельефа против 133 на спокойном.
+    private static final int SHIFT_TROUBLE = 16;
+
+    private static final int SHIFT_GAIN = 4;
+
+    private static final int WATER_WEIGHT = 3;
 
     private final RailNetwork network;
+    private final BranchNetwork spurs;
     private final int maxGradeRun;
     private final HeightSampler terrain;
 
-    /**
-     * Кэш сглаженной высоты по узлам сетки. Соседние точки пути делят почти
-     * все свои узлы, поэтому без кэша каждая точка стоила бы заново 193*13
-     * обращений к рельефу — а рельеф считает шумовую функцию колонкой и стоит
-     * дорого.
-     *
-     * Экземпляр обязан жить на весь мир, а не на чанк: узлы общие для всей
-     * линии, и пересоздание кэша на каждый чанк делает генерацию неиграбельно
-     * медленной. Отсюда и ConcurrentHashMap — worldgen многопоточный. На
-     * детерминированность кэш не влияет: значения чистые, гонка безобидна.
-     *
-     * ponytail: размер не ограничен. На линию длиной 30k блоков это ~4k
-     * записей, при разумном исследовании мира счёт не страшен. Если память
-     * станет проблемой — вводить LRU, а не урезать радиус огибающей.
-     */
-    private final Map<Long, Double> smoothCache = new ConcurrentHashMap<>();
+    private final Map<Key, Double> smoothCache = new ConcurrentHashMap<>();
 
-    /**
-     * Кэш самих выборок рельефа по мировым координатам. Ловит перекрытие окон
-     * сглаживания: соседние узлы делят почти все свои точки.
-     */
     private final Map<Long, Integer> terrainCache = new ConcurrentHashMap<>();
 
-    /** Кэш высот развязок. Ключ — пара индексов линий (Z, X). */
-    private final Map<Long, Double> crossingCache = new ConcurrentHashMap<>();
+    private final Map<CrossKey, Double> crossingCache = new ConcurrentHashMap<>();
 
-    /**
-     * Кэш высот площадок по границам отрезков. Он же и главный ускоритель:
-     * огибающая считается дважды на отрезок длиной SEGMENT, а не на каждый
-     * блок пути.
-     */
-    private final Map<Long, Integer> levelCache = new ConcurrentHashMap<>();
+    private final Map<Key, Integer> levelCache = new ConcurrentHashMap<>();
+
+    private final Map<Key, Integer> shiftCache = new ConcurrentHashMap<>();
+
+    private final Map<ShiftKey, Integer> costCache = new ConcurrentHashMap<>();
 
     public TrackProfiler(RailNetwork network, int maxGradeRun, HeightSampler terrain) {
         if (maxGradeRun < 1) {
             throw new IllegalArgumentException("maxGradeRun должен быть положительным");
         }
         this.network = network;
+        this.spurs = new BranchNetwork(network);
         this.maxGradeRun = maxGradeRun;
         this.terrain = terrain;
     }
@@ -124,82 +88,263 @@ public final class TrackProfiler {
         return network;
     }
 
-    /** Рельеф, по которому построен профиль. Нужен строителям выемок и опор. */
     public HeightSampler terrain() {
         return terrain;
     }
 
-    /**
-     * Высота полотна пути в точке along вдоль линии.
-     *
-     * Профиль ступенчатый: внутри отрезка длиной SEGMENT он строго
-     * горизонтален, а вся разница высот между соседними отрезками собрана в
-     * один пандус в середине отрезка. Так устроены и настоящие дороги —
-     * площадки и явные уклоны между ними.
-     *
-     * Округлять непрерывную огибающую в каждой точке отдельно нельзя: около
-     * значения 70.5 соседние точки уходят то в 70, то в 71, и профиль
-     * превращается в пилу. Каждый её зубец — это два наклонных блока,
-     * встречающихся вершинами, а их концы стыка не совпадают: путь рвётся и
-     * поезд не проходит. Здесь округление происходит только на границах
-     * отрезков, а между ними высота меняется монотонно.
-     */
+    public int perpendicularAt(Line line, int along) {
+        return network.perpendicularAt(line, along) + shiftFor(line, along);
+    }
+
     public int heightAt(Line line, int along) {
         Ramp ramp = rampCovering(line, along);
         if (ramp == null) {
             return levelAt(line, Math.floorDiv(along, SEGMENT));
         }
-        if (along <= ramp.startAlong()) {
-            return ramp.startHeight();
-        }
-        if (along >= ramp.endAlong()) {
-            return ramp.endHeight();
-        }
-        // Внутри разрыва путевых блоков нет — там ляжет кривая. Значение нужно
-        // только чтобы расчистить под неё габарит.
-        int span = ramp.endAlong() - ramp.startAlong();
-        return ramp.startHeight()
-             + (ramp.endHeight() - ramp.startHeight()) * (along - ramp.startAlong()) / span;
+        return ease(ramp, along, ramp.startHeight(), ramp.endHeight());
     }
 
     /**
-     * Уклон между площадками, в чей отрезок попадает точка, или null на ровном
-     * участке. Внутри уклона путевых блоков нет: их место занимает кривая
-     * Безье, натянутая между блоками на его концах.
+     * Значение внутри разрыва под кривую.
+     *
+     * Не линейная интерполяция, а ровно та кубика, по которой Create тянет
+     * {@code BezierConnection} между концами пандуса: у неё на обоих концах
+     * горизонтальная касательная, и от хорды она отходит на 0.096 перепада — почти
+     * на блок при перепаде в восемь. Пока полотно строилось по хорде, а поезд ехал
+     * по кривой, на подъёме балласт вылезал на путь, а на боковом сдвиге состав шёл
+     * сквозь стенку выемки. Считаем то же, что и Create: расхождение исчезает по
+     * построению, а не становится маленьким.
+     *
+     * Побочный выигрыш ровно тот, что нужен дороге: у пандуса появились
+     * вертикальные сопряжения — уклон нарастает от нуля, а не ломается сразу.
      */
+    private static int ease(Ramp ramp, int along, int from, int to) {
+        if (along <= ramp.startAlong()) {
+            return from;
+        }
+        if (along >= ramp.endAlong()) {
+            return to;
+        }
+        double t = (double) (along - ramp.startAlong())
+                 / (ramp.endAlong() - ramp.startAlong());
+        return from + (int) Math.round((to - from) * t * t * (3 - 2 * t));
+    }
+
     public Ramp rampCovering(Line line, int along) {
         int boundary = Math.floorDiv(along, SEGMENT);
         int from = levelAt(line, boundary);
         int to = levelAt(line, boundary + 1);
-        if (from == to) {
+        int fromShift = shiftAt(line, boundary);
+        int toShift = shiftAt(line, boundary + 1);
+        if (from == to && fromShift == toShift) {
             return null;
         }
-        int span = Math.min(Math.abs(to - from) * SLOPE_RUN, SEGMENT - 2 * MIN_FLAT);
+        int span = spanFor(to - from, toShift - fromShift);
         int start = boundary * SEGMENT + (SEGMENT - span) / 2;
+
         return new Ramp(start, start + span, from, to);
     }
 
-    /** Точка внутри разрыва: ставить сюда блок нельзя, он разорвёт кривую. */
+    private int spanFor(int rise, int swing) {
+        int wanted = Math.max(Math.abs(rise) * SLOPE_RUN, Math.abs(swing) * SHIFT_RUN);
+        return Math.min(wanted, MAX_SPAN);
+    }
+
     public boolean isGap(Line line, int along) {
         Ramp ramp = rampCovering(line, along);
         return ramp != null && along > ramp.startAlong() && along < ramp.endAlong();
     }
 
-    /** Блок на конце разрыва: он держит кривую, значит обязан иметь BlockEntity. */
+    public int clearOfGap(Line line, int along, int direction) {
+        for (int step = 0; step < SEGMENT; step++) {
+            int at = along + direction * step;
+            if (!isGap(line, at)) {
+                return at;
+            }
+        }
+        return along;
+    }
+
+    /**
+     * Где на самом деле встанет остановка у деревни.
+     *
+     * <p>Платформу и станцию Create нельзя ставить в разрыв под кривую: там нет
+     * ни полотна, ни пути. Раньше от разрыва спасало то, что у остановки путь
+     * держали на оси, — но обход деревни как раз и делается разрывами, и это
+     * правило означало «деревню с остановкой не обходить никогда». Теперь
+     * остановка отъезжает вдоль пути до ближайшего целого места, одинаково у
+     * фичи и у сшивания.
+     */
+    public int haltAlong(Line line, int along) {
+        return clearOfGap(line, along, 1);
+    }
+
+    public boolean isReady(Line line, int along) {
+        int boundary = Math.floorDiv(along, SEGMENT);
+        return ready(line, boundary) && ready(line, boundary + 1);
+    }
+
+    // Сдвиг проверяется наравне с высотой: он тоже стоит выборок рельефа, и без
+    // этой проверки холодный сдвиг доставался бы серверному потоку, ради чего и
+    // заведён прогрев. У ветки сдвига нет и кеша для него тоже.
+    private boolean ready(Line line, int boundary) {
+        Key key = new Key(line, boundary);
+        return levelCache.containsKey(key)
+            && (line.isBranch() || shiftCache.containsKey(key));
+    }
+
     public boolean isRampEnd(Line line, int along) {
         Ramp ramp = rampCovering(line, along);
         return ramp != null && (along == ramp.startAlong() || along == ramp.endAlong());
     }
 
+    private int shiftFor(Line line, int along) {
+        if (line.isBranch()) {
+            return 0;
+        }
+        int boundary = Math.floorDiv(along, SEGMENT);
+        int from = shiftAt(line, boundary);
+        int to = shiftAt(line, boundary + 1);
+        if (from == to) {
+            return from;
+        }
+        // Той же кубикой, что и высота: боковой увод — вторая координата той же
+        // кривой Безье, и разъехаться им нельзя.
+        return ease(rampCovering(line, along), along, from, to);
+    }
+
+    private int shiftAt(Line line, int boundary) {
+        if (line.isBranch()) {
+            return 0;
+        }
+        Key key = new Key(line, boundary);
+        Integer hit = shiftCache.get(key);
+        if (hit != null) {
+            return hit;
+        }
+        int value = computeShift(line, boundary);
+        shiftCache.put(key, value);
+        return value;
+    }
+
+    private int computeShift(Line line, int boundary) {
+        int along = boundary * SEGMENT;
+        long structure = spurs.obstacleNear(line, along, DETOUR_LOOKAHEAD, STRUCTURE_CLEARANCE);
+        int cone = detourCone(line, along, structure);
+
+        int step = cone > 0 ? DETOUR_STEP : SHIFT_STEP;
+        int limit = shiftLimit(line, along, step, Math.max(TERRAIN_SHIFT, cone));
+        if (limit == 0) {
+            return 0;
+        }
+        int previous = clamp(shiftAt(line, boundary - 1), limit);
+
+        if (cone > 0) {
+            return towards(previous, detourSide(line, along, structure) * limit, step, limit);
+        }
+
+        int design = clamp(tangent(network.alignmentAt(line, along)), limit);
+
+        int cost = segmentCost(line, boundary, design);
+        if (cost <= SHIFT_TROUBLE) {
+            return towards(previous, design, SHIFT_STEP, limit);
+        }
+
+        int best = design;
+        int bestCost = cost;
+        for (int candidate : new int[] { design - SHIFT_STEP, design + SHIFT_STEP,
+                                         -limit, limit }) {
+            if (candidate == design || Math.abs(candidate) > limit) {
+                continue;
+            }
+            int candidateCost = segmentCost(line, boundary, candidate);
+            if (candidateCost + SHIFT_GAIN < bestCost) {
+                best = candidate;
+                bestCost = candidateCost;
+            }
+        }
+        return towards(previous, best, SHIFT_STEP, limit);
+    }
+
+    private static int tangent(int alignment) {
+        return Math.round((float) alignment / SHIFT_STEP) * SHIFT_STEP;
+    }
+
+    private static int towards(int previous, int target, int step, int limit) {
+        int move = Math.max(-step, Math.min(step, target - previous));
+        return clamp(previous + move, limit);
+    }
+
     /**
-     * Высота площадки на границе отрезка. Границы кратны SEGMENT, а SEGMENT
-     * делит spacing, поэтому узлы решётки всегда попадают на границу — и
-     * развязка оказывается на горизонтальном участке, а не посреди пандуса.
+     * Насколько увод разрешён здесь: и до развязки на решётке, и до стрелки путь
+     * обязан вернуться на ось, а вернуться он может не быстрее {@code step} за
+     * отрезок — отсюда линейный конус в обе стороны от обеих помех.
      */
+    private int shiftLimit(Line line, int along, int step, int cap) {
+        int spacing = network.spacing();
+        int distance = Math.floorMod(along, spacing);
+        distance = Math.min(distance, spacing - distance);
+        distance = Math.min(distance, spurs.turnoutDistance(line, along, DETOUR_LOOKAHEAD));
+
+        int room = step * (distance / SEGMENT - SHIFT_GUARD);
+        return Math.max(0, Math.min(cap, room));
+    }
+
+    private int detourCone(Line line, int along, long structure) {
+        if (structure == VillageSites.NONE) {
+            return 0;
+        }
+        boolean alongX = line.axis() == Line.Axis.X;
+        int structureAlong = alongX ? (int) (structure >> 32) : (int) structure;
+        int distance = Math.abs(structureAlong - along);
+
+        return STRUCTURE_CLEARANCE * (DETOUR_LOOKAHEAD - distance) / DETOUR_LOOKAHEAD;
+    }
+
+    private int detourSide(Line line, int along, long structure) {
+        boolean alongX = line.axis() == Line.Axis.X;
+        int structureSide = alongX ? (int) structure : (int) (structure >> 32);
+
+        return structureSide > network.perpendicularAt(line, along) ? -1 : 1;
+    }
+
+    private static int clamp(int value, int limit) {
+        return Math.max(-limit, Math.min(limit, value));
+    }
+
+    private int segmentCost(Line line, int boundary, int offset) {
+        ShiftKey key = new ShiftKey(line, boundary, offset);
+        Integer hit = costCache.get(key);
+        if (hit != null) {
+            return hit;
+        }
+        int start = boundary * SEGMENT;
+        int climb = 0;
+        int water = 0;
+        int previous = 0;
+
+        // Начало отрезка не щупаем: его уже прошёл предыдущий отрезок, а лишняя
+        // выборка на каждую полосу-кандидата — самая дорогая строчка в профиле.
+        for (int at = STRIDE; at <= SEGMENT; at += STRIDE) {
+            int perpendicular = network.perpendicularAt(line, start + at) + offset;
+            int x = line.axis() == Line.Axis.Z ? perpendicular : start + at;
+            int z = line.axis() == Line.Axis.Z ? start + at : perpendicular;
+
+            int height = sampleAt(x, z);
+            if (at > STRIDE) {
+                climb += Math.abs(height - previous);
+            }
+            previous = height;
+            water += terrain.waterDepth(x, z);
+        }
+
+        int value = climb + WATER_WEIGHT * water;
+        costCache.put(key, value);
+        return value;
+    }
+
     private int levelAt(Line line, int boundary) {
-        long key = ((long) line.index() << 34)
-                 ^ ((long) (line.axis() == Line.Axis.Z ? 1 : 0) << 33)
-                 ^ (boundary & 0xFFFFFFFFL);
+        Key key = new Key(line, boundary);
         Integer hit = levelCache.get(key);
         if (hit != null) {
             return hit;
@@ -209,21 +354,15 @@ public final class TrackProfiler {
         return value;
     }
 
-    /** Непрерывная высота: огибающая плюс привязка к развязкам. */
     private double anchoredHeightAt(Line line, int along) {
+        if (line.isBranch()) {
+            return branchHeightAt(line, along);
+        }
         double best = envelopeAt(line, along);
 
-        // Развязки. Каждый узел решётки добавляет в тот же минимум ещё одно
-        // липшицево слагаемое. Ровно в узле оно и побеждает, а поскольку обе
-        // пересекающиеся линии считают его из одной и той же пары огибающих,
-        // они приходят в развязку на одну высоту — иначе четыре ветви сходились
-        // бы на разных уровнях и путь на перекрёстке рвался бы.
-        // Слагаемое вида c + |n - t|/G само липшицево с константой 1/G, поэтому
-        // ограничение на уклон от его добавления не страдает.
         int spacing = network.spacing();
-        int firstIndex = Math.floorDiv(along - ENVELOPE_RADIUS, spacing);
-        int lastIndex = Math.floorDiv(along + ENVELOPE_RADIUS, spacing);
-        for (int index = firstIndex; index <= lastIndex; index++) {
+        int firstIndex = Math.floorDiv(along, spacing);
+        for (int index = firstIndex; index <= firstIndex + 1; index++) {
             double candidate = crossingHeight(line, index)
                              + (double) Math.abs(index * spacing - along) / maxGradeRun;
             if (candidate < best) {
@@ -233,7 +372,15 @@ public final class TrackProfiler {
         return best;
     }
 
-    /** Нижняя огибающая Липшица по узлам абсолютной сетки STRIDE. */
+    private double branchHeightAt(Line line, int along) {
+        int spacing = network.spacing();
+        Line main = new Line(line.crossAxis(), Math.floorDiv(line.anchorAlong(), spacing));
+        double junction = heightAt(main, line.index() * spacing + line.offset());
+        double reach = (double) Math.abs(along - line.anchorAlong()) / maxGradeRun;
+
+        return Math.max(junction - reach, Math.min(envelopeAt(line, along), junction + reach));
+    }
+
     private double envelopeAt(Line line, int along) {
         int firstNode = Math.floorDiv(along - ENVELOPE_RADIUS, STRIDE) * STRIDE;
         int lastNode = Math.floorDiv(along + ENVELOPE_RADIUS, STRIDE) * STRIDE;
@@ -249,18 +396,12 @@ public final class TrackProfiler {
         return best;
     }
 
-    /**
-     * Высота развязки в узле решётки, где линия index-й перпендикулярной
-     * магистрали скрещивается с данной. Симметрична по построению: обе линии
-     * берут минимум из одной и той же пары огибающих, так что от того, какая
-     * сторона спрашивает, результат не зависит.
-     */
     private double crossingHeight(Line line, int crossingIndex) {
         boolean alongZ = line.axis() == Line.Axis.Z;
         int zIndex = alongZ ? line.index() : crossingIndex;
         int xIndex = alongZ ? crossingIndex : line.index();
 
-        long key = ((long) zIndex << 32) ^ (xIndex & 0xFFFFFFFFL);
+        CrossKey key = new CrossKey(zIndex, xIndex);
         Double hit = crossingCache.get(key);
         if (hit != null) {
             return hit;
@@ -274,9 +415,7 @@ public final class TrackProfiler {
     }
 
     private double cachedSmoothed(Line line, int node) {
-        long key = ((long) line.index() << 34)
-                 ^ ((long) (line.axis() == Line.Axis.Z ? 1 : 0) << 33)
-                 ^ (node & 0xFFFFFFFFL);
+        Key key = new Key(smoothKey(line), node);
         Double hit = smoothCache.get(key);
         if (hit != null) {
             return hit;
@@ -286,7 +425,10 @@ public final class TrackProfiler {
         return value;
     }
 
-    /** Скользящее среднее рельефа вокруг узла сетки. */
+    private static Line smoothKey(Line line) {
+        return new Line(line.axis(), line.index(), line.offset(), 0);
+    }
+
     private double smoothedAt(Line line, int node) {
         double sum = 0;
         int count = 0;
@@ -297,21 +439,19 @@ public final class TrackProfiler {
         return sum / count;
     }
 
-    /**
-     * Рельеф в точке линии — с учётом того, что линия виляет.
-     *
-     * Кеш здесь обязателен, а не желателен. Окна сглаживания соседних узлов
-     * перекрываются, и одна и та же точка попадает в них многократно; в игре
-     * за каждым таким обращением стоит getBaseHeight, строящий целый
-     * NoiseChunk. Кеш лежит в геометрии, а не в реализации HeightSampler,
-     * чтобы свойство «ни одна точка не спрашивается дважды» держалось при
-     * любом источнике рельефа и проверялось юнит-тестом.
-     */
+    // Огибающая берёт ступенчатый сдвиг, а не интерполированный: интерполяция
+    // требует rampCovering, тот — levelAt, а levelAt приходит сюда за рельефом.
+    // Внутри разрыва выборка уходит от пути на несколько блоков вбок — сглаживанию
+    // на радиусе 64 это безразлично, а цикл разрывает.
     private int sampleTerrain(Line line, int along) {
-        int perpendicular = network.perpendicularAt(line, along);
+        int perpendicular = network.perpendicularAt(line, along)
+                          + shiftAt(line, Math.floorDiv(along, SEGMENT));
         int x = line.axis() == Line.Axis.Z ? perpendicular : along;
         int z = line.axis() == Line.Axis.Z ? along : perpendicular;
+        return sampleAt(x, z);
+    }
 
+    private int sampleAt(int x, int z) {
         long key = ((long) x << 32) ^ (z & 0xFFFFFFFFL);
         Integer hit = terrainCache.get(key);
         if (hit != null) {

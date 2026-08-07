@@ -5,22 +5,23 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class RailNetworkTest {
-
     private static final long SEED = 123456789L;
     private static final int SPACING = 768;
-    private static final int JITTER = 48;
+    private static final int ALIGNMENT = 40;
+
+    private static final int SEGMENT = TrackProfiler.SEGMENT;
 
     private RailNetwork net() {
-        return new RailNetwork(SEED, SPACING, JITTER);
+        return new RailNetwork(SEED, SPACING, ALIGNMENT);
     }
 
     @Test
     void sameSeedAndPositionGiveSameResult() {
         Line line = new Line(Line.Axis.Z, 3);
         for (int along = -2000; along <= 2000; along += 37) {
-            assertEquals(net().perpendicularAt(line, along),
-                         net().perpendicularAt(line, along),
-                         "перпендикуляр должен быть детерминирован");
+            assertEquals(net().alignmentAt(line, along),
+                         net().alignmentAt(line, along),
+                         "проектная ось должна быть детерминирована");
         }
     }
 
@@ -30,43 +31,56 @@ class RailNetworkTest {
         for (int m = -3; m <= 3; m++) {
             int along = m * SPACING;
             assertEquals(3 * SPACING, net().perpendicularAt(line, along),
-                         "в точке пересечения джиттер обязан быть нулевым");
+                         "ось линии не имеет права зависеть от точки");
         }
     }
 
     @Test
-    void jitterStaysWithinAmplitude() {
+    void alignmentStaysWithinAmplitude() {
         Line line = new Line(Line.Axis.Z, -2);
-        int base = -2 * SPACING;
         for (int along = -5000; along <= 5000; along++) {
-            int perp = net().perpendicularAt(line, along);
-            assertTrue(Math.abs(perp - base) <= JITTER,
-                       "смещение " + (perp - base) + " превысило амплитуду на along=" + along);
+            assertTrue(Math.abs(net().alignmentAt(line, along)) <= ALIGNMENT,
+                       "проектная ось ушла за амплитуду на along=" + along);
         }
     }
 
     @Test
-    void pathNeverTurnsSharperThanFortyFiveDegrees() {
+    void alignmentTurnsNoSharperThanTheProfileCanFollow() {
         Line line = new Line(Line.Axis.Z, 1);
         RailNetwork n = net();
-        int prev = n.perpendicularAt(line, -5000);
-        for (int along = -4999; along <= 5000; along++) {
-            int cur = n.perpendicularAt(line, along);
-            assertTrue(Math.abs(cur - prev) <= 1,
-                       "скачок " + (cur - prev) + " на along=" + along
-                       + ": путь нельзя уложить прямыми и диагоналями");
-            prev = cur;
+        int swings = 0;
+
+        for (int along = -5000; along + SEGMENT <= 5000; along += SEGMENT) {
+            int swing = n.alignmentAt(line, along + SEGMENT) - n.alignmentAt(line, along);
+            assertTrue(Math.abs(swing) <= 12,
+                       "увод " + swing + " блоков за отрезок на along=" + along
+                       + ": такой поворот не уложить кривой Безье");
+            if (swing != 0) {
+                swings++;
+            }
         }
+        assertTrue(swings > 50, "трасса почти не гуляет (" + swings + "), проверка вхолостую");
+    }
+
+    @Test
+    void alignmentActuallyLeavesTheAxis() {
+        Line line = new Line(Line.Axis.Z, 1);
+        int worst = 0;
+        for (int along = 0; along <= 30_000; along++) {
+            worst = Math.max(worst, Math.abs(net().alignmentAt(line, along)));
+        }
+        assertTrue(worst >= ALIGNMENT / 2,
+                   "трасса ушла от оси всего на " + worst + " блоков — это прямая");
     }
 
     @Test
     void differentSeedsGiveDifferentPaths() {
         Line line = new Line(Line.Axis.Z, 0);
-        RailNetwork a = new RailNetwork(1L, SPACING, JITTER);
-        RailNetwork b = new RailNetwork(2L, SPACING, JITTER);
+        RailNetwork a = new RailNetwork(1L, SPACING, ALIGNMENT);
+        RailNetwork b = new RailNetwork(2L, SPACING, ALIGNMENT);
         boolean anyDifference = false;
         for (int along = 100; along < 700; along++) {
-            if (a.perpendicularAt(line, along) != b.perpendicularAt(line, along)) {
+            if (a.alignmentAt(line, along) != b.alignmentAt(line, along)) {
                 anyDifference = true;
                 break;
             }

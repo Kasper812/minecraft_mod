@@ -1,67 +1,115 @@
 package dev.gensh.ironroads.worldgen;
 
+import dev.gensh.ironroads.geometry.TunnelProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LanternBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 
-/**
- * Закрытый тоннель там, где рельеф поднимается над путём слишком высоко для
- * открытой выемки.
- *
- * Сечение 7 блоков в ширину и 6 в высоту: по краям полотна стены из обделки,
- * между ними проход. Открытая выемка такой глубины превратила бы гору в
- * каньон, а узкий лаз выглядел бы норой.
- */
 final class TunnelBuilder {
+    /**
+     * Порода над обделкой, ниже которой тоннель не роем. Меньше двух блоков — и
+     * свод вылезает наружу каменным горбом посреди склона.
+     */
+    static final int MIN_COVER = 2;
 
-    /** Глубина, с которой выемка перестаёт иметь смысл. */
-    static final int MIN_DEPTH = 8;
+    /** Крылья портала за стеной обделки: щёковые стенки, врезающиеся в откос. */
+    private static final int PORTAL_WING = 2;
 
-    /** Высота прохода от полотна до свода. */
-    private static final int CLEARANCE = 6;
+    /** Карниз над аркой у самого устья. */
+    private static final int PARAPET = 1;
 
-    /** Шаг фонарей вдоль тоннеля. */
     private static final int LIGHT_SPACING = 8;
 
-    /** Высота, на которой фонарь висит в нише. */
-    private static final int LIGHT_HEIGHT = 3;
+    private static final int SHAFT_SPACING = 64;
+
+    private static final int SHAFT_MIN = 8;
+
+    /** Докуда сечение достаёт вбок от оси пути. */
+    static int reach(int halfWidth, boolean portal) {
+        return TunnelProfile.wallOffset(TunnelProfile.bore(halfWidth))
+             + (portal ? PORTAL_WING : 0);
+    }
 
     /**
-     * Обрабатывает одну колонку полотна.
+     * Одна колонка поперечника. Свод вычищается, всё остальное до верха обделки
+     * закладывается кладкой — сплошным слоем, а не одним кольцом: у кольца по
+     * диагонали остаётся щель, и там, где тоннель идёт под тонкой кровлей, в неё
+     * видно небо.
      *
-     * @param offset смещение колонки от осевой линии
-     * @param along  позиция вдоль линии — по ней расставляются фонари
+     * @param halfWidth полуширина полотна; выработка шире неё на BORE_MARGIN
+     * @param portal сечение устья — глухая стена с аркой вместо свода
+     * @param mouth  крайнее сечение устья, только у него карниз
      */
-    static void carve(WorldGenLevel level, int x, int y, int z, int offset, int along,
-                      int halfWidth) {
+    static void section(WorldGenLevel level, int x, int floorY, int railY, int z,
+                        int offset, int along, int halfWidth,
+                        boolean portal, boolean mouth) {
+        int bore = TunnelProfile.bore(halfWidth);
+        int crown = TunnelProfile.crownAt(offset, bore);
+        int top = railY + TunnelProfile.shellTop(bore) + (mouth ? PARAPET : 0);
+        Palette.Kind kind = portal ? Palette.Kind.PORTAL : Palette.Kind.LINING;
 
-        boolean wall = Math.abs(offset) == halfWidth;
-
-        for (int dy = 0; dy < CLEARANCE; dy++) {
-            BlockPos pos = new BlockPos(x, y + dy, z);
-            if (wall) {
-                level.setBlock(pos, Palette.pick(Palette.Kind.LINING, x, y + dy, z), 2);
-            } else if (!level.getBlockState(pos).isAir()) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+        for (int cy = floorY; cy <= top; cy++) {
+            BlockPos pos = new BlockPos(x, cy, z);
+            if (crown >= 0 && cy <= railY + crown) {
+                if (!level.getBlockState(pos).isAir()) {
+                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
+                }
+            } else {
+                level.setBlock(pos, Palette.pick(kind, x, cy, z), 2);
             }
         }
 
-        // Свод. Без него над проходом остаётся голая порода, и тоннель
-        // выглядит дырой, а не сооружением.
-        BlockPos crown = new BlockPos(x, y + CLEARANCE, z);
-        level.setBlock(crown, Palette.pick(Palette.Kind.LINING, x, y + CLEARANCE, z), 2);
+        if (!portal) {
+            lamp(level, x, railY, z, offset, along, bore);
+        }
+    }
 
-        if (!wall || Math.floorMod(along, LIGHT_SPACING) != 0) {
+    private static void lamp(WorldGenLevel level, int x, int railY, int z,
+                             int offset, int along, int bore) {
+        if (Math.abs(offset) != bore - 1
+         || Math.floorMod(along, LIGHT_SPACING) != 0) {
             return;
         }
-
-        // Фонарь в нише стены: висит на блоке обделки над собой, поэтому
-        // в габарит не лезет и не гаснет от обновления блока.
+        // Через один по сторонам: парные фонари напротив друг друга читаются как
+        // размеченная сетка, а не как обстановка тоннеля.
+        if ((Math.floorDiv(along, LIGHT_SPACING) & 1) == (offset > 0 ? 0 : 1)) {
+            return;
+        }
         BlockState lantern = Blocks.LANTERN.defaultBlockState()
                 .setValue(LanternBlock.HANGING, true);
-        level.setBlock(new BlockPos(x, y + LIGHT_HEIGHT, z), lantern, 2);
+        level.setBlock(new BlockPos(x, railY + TunnelProfile.crownAt(offset, bore), z),
+                       lantern, 2);
+    }
+
+    static boolean wantsShaft(int along) {
+        return Math.floorMod(along, SHAFT_SPACING) == 0;
+    }
+
+    /**
+     * Вентиляционный ствол на поверхность. Настоящие горные тоннели дышат через
+     * стволы, и столб света посреди перегона — самая заметная примета, что тоннель
+     * прорыт по правилам, а не выдолблен генератором. Ствол идёт по оси, между
+     * путями, поэтому габарит не трогает.
+     */
+    static void shaft(WorldGenLevel level, int x, int railY, int z, int halfWidth) {
+        int rock = level.getHeight(Heightmap.Types.OCEAN_FLOOR_WG, x, z);
+        int surface = level.getHeight(Heightmap.Types.WORLD_SURFACE_WG, x, z);
+        // Под водой ствол не роем: решётка не держит воду, и тоннель зальёт.
+        if (rock != surface) {
+            return;
+        }
+        int from = railY + TunnelProfile.shellTop(TunnelProfile.bore(halfWidth));
+        if (surface - 1 - from < SHAFT_MIN) {
+            return;
+        }
+        for (int cy = from; cy < surface - 1; cy++) {
+            level.setBlock(new BlockPos(x, cy, z), Blocks.AIR.defaultBlockState(), 2);
+        }
+        level.setBlock(new BlockPos(x, surface - 1, z),
+                       Blocks.IRON_BARS.defaultBlockState(), 2);
     }
 
     private TunnelBuilder() {}

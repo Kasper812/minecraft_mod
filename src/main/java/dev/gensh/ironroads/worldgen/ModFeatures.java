@@ -1,19 +1,18 @@
 package dev.gensh.ironroads.worldgen;
 
 import dev.gensh.ironroads.IronRoads;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.levelgen.feature.Feature;
 import net.minecraft.world.level.levelgen.feature.configurations.NoneFeatureConfiguration;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 public final class ModFeatures {
-
     public static final DeferredRegister<Feature<?>> FEATURES =
-            DeferredRegister.create(ForgeRegistries.FEATURES, IronRoads.MOD_ID);
+            DeferredRegister.create(Registries.FEATURE, IronRoads.MOD_ID);
 
-    public static final RegistryObject<Feature<NoneFeatureConfiguration>> RAILWAY =
+    public static final DeferredHolder<Feature<?>, RailwayFeature> RAILWAY =
             FEATURES.register("railway",
                     () -> new RailwayFeature(NoneFeatureConfiguration.CODEC));
 
