@@ -33,8 +33,8 @@ dependencies {
 tasks.processResources {
     val props = mapOf(
         "version" to project.version,
-        "minecraft_version" to property("minecraft_version"),
-        "loader_version" to property("loader_version")
+        "minecraft_version" to project.property("minecraft_version"),
+        "loader_version" to project.property("loader_version")
     )
     inputs.properties(props)
     filteringCharset = "UTF-8"
