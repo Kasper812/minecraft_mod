@@ -1,11 +1,17 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.network.message.send.LoiterConfigMessage
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
 import net.minecraft.client.GameNarrator
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -25,7 +31,7 @@ import org.lwjgl.glfw.GLFW
  */
 @Environment(EnvType.CLIENT)
 class LoiterConfigScreen(private val vehicle: VehicleEntity) :
-    Screen(GameNarrator.NO_TITLE) {
+    LegacyScreen(GameNarrator.NO_TITLE) {
 
     // ==================== Layout ====================
 
@@ -212,8 +218,7 @@ class LoiterConfigScreen(private val vehicle: VehicleEntity) :
     // ==================== Inner Button Classes ====================
 
     @Environment(EnvType.CLIENT)
-    private inner class ToggleButton(x: Int, y: Int, width: Int, height: Int) :
-        AbstractButton(x, y, width, height, Component.empty()) {
+    private inner class ToggleButton(x: Int, y: Int, width: Int, height: Int) : LegacyAbstractButton(x, y, width, height, Component.empty()) {
 
         override fun onPress() {
             this@LoiterConfigScreen.active = !this@LoiterConfigScreen.active
@@ -231,8 +236,7 @@ class LoiterConfigScreen(private val vehicle: VehicleEntity) :
     }
 
     @Environment(EnvType.CLIENT)
-    private inner class ConfirmButton(x: Int, y: Int, width: Int, height: Int) :
-        AbstractButton(x, y, width, height, Component.empty()) {
+    private inner class ConfirmButton(x: Int, y: Int, width: Int, height: Int) : LegacyAbstractButton(x, y, width, height, Component.empty()) {
 
         override fun onPress() {
             this@LoiterConfigScreen.sendLoiterConfigToServer()
@@ -249,8 +253,7 @@ class LoiterConfigScreen(private val vehicle: VehicleEntity) :
     }
 
     @Environment(EnvType.CLIENT)
-    private inner class TerrainCheckbox(x: Int, y: Int, size: Int) :
-        AbstractButton(x, y, size, size, Component.empty()) {
+    private inner class TerrainCheckbox(x: Int, y: Int, size: Int) : LegacyAbstractButton(x, y, size, size, Component.empty()) {
 
         override fun onPress() {
             this@LoiterConfigScreen.skipTerrain = !this@LoiterConfigScreen.skipTerrain

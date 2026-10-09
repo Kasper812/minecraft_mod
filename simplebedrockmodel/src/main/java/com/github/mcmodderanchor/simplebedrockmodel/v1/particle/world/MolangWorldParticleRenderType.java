@@ -19,7 +19,7 @@ public final class MolangWorldParticleRenderType {
         return switch (material) {
             case PARTICLES_OPAQUE -> SbmRenderTypes.particleOpaque(texture);
             case PARTICLES_ALPHA, PARTICLES_BLEND -> SbmRenderTypes.particleBlend(texture);
-            case PARTICLES_ADD -> SbmRenderTypes.particleAdd(texture);
+            case PARTICLES_ADD, ENERGY_SWIRL, PARTICLES_EMISSIVE -> SbmRenderTypes.particleAdd(texture);
         };
     }
 

@@ -2,7 +2,7 @@ package com.atsuishio.superbwarfare.mixins;
 
 import com.atsuishio.superbwarfare.entity.mixin.CupidLove;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.npc.Villager;
+import net.minecraft.world.entity.npc.villager.Villager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -33,7 +33,7 @@ public class VillagerMixin implements CupidLove {
 
     @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
     public void readAdditionalSaveData(CompoundTag pCompound, CallbackInfo ci) {
-        this.superbwarfare$cupidLove = pCompound.getBoolean("SuperbwarfareCupidLove");
+        this.superbwarfare$cupidLove = pCompound.getBooleanOr("SuperbwarfareCupidLove", false);
     }
 
     @Inject(method = "canBreed()Z", at = @At("HEAD"), cancellable = true)

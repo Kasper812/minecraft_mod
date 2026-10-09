@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.perk.Perk
 import com.atsuishio.superbwarfare.perk.PerkInstance
@@ -16,7 +18,7 @@ object HeadSeeker : Perk("head_seeker", Type.DAMAGE) {
         source: DamageSource
     ): Float {
         val tag = data.perk.getTag(this) ?: return super.getModifiedDamage(damage, data, instance, target, source)
-        if (DamageTypeTool.isHeadshotDamage(source) && tag.getInt("HeadSeeker") > 0) {
+        if (DamageTypeTool.isHeadshotDamage(source) && tag.getIntOr("HeadSeeker", 0) > 0) {
             return damage * (1.095f + 0.0225f * instance.level)
         }
         return super.getModifiedDamage(damage, data, instance, target, source)

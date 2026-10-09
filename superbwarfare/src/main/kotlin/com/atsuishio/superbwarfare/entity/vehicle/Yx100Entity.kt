@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType

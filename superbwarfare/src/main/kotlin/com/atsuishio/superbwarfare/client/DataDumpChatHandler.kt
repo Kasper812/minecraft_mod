@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.debug.DataDump
 import net.minecraft.network.chat.ClickEvent
 import net.minecraft.network.chat.Component
@@ -39,8 +41,8 @@ object DataDumpChatHandler {
         val path = directory.absolutePath
         if (!message.string.contains(path)) return message
 
-        val click = ClickEvent(ClickEvent.Action.OPEN_FILE, path)
-        val hover = HoverEvent(HoverEvent.Action.SHOW_TEXT, Component.translatable(PATH_HOVER_KEY))
+        val click = ClickEvent.OpenFile(path)
+        val hover = HoverEvent.ShowText(Component.translatable(PATH_HOVER_KEY))
 
         return attach(message, path, click, hover)
     }

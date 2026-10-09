@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.ammo_consumer_strategy.AmmoConsumeStrategy
 import com.atsuishio.superbwarfare.data.gun.ammo_consumer_strategy.InvalidAmmoStrategy
 import com.atsuishio.superbwarfare.capability.api.IItemHandler

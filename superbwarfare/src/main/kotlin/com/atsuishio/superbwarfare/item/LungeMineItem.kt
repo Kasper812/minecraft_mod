@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.renderer.item.LungeMineRenderer
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -11,7 +15,6 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.EquipmentSlotGroup
@@ -104,7 +107,7 @@ open class LungeMineItem : Item(Properties().stacksTo(4)), GeoItem, @Suppress("D
         return false
     }
 
-    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack?> {
+    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResult {
         val stack = playerIn.getItemInHand(handIn)
         if (playerIn is ServerPlayer) {
             playerIn.level()
@@ -113,9 +116,9 @@ open class LungeMineItem : Item(Properties().stacksTo(4)), GeoItem, @Suppress("D
         if (!playerIn.level().isClientSide()) {
             playerIn.addEffect(
                 MobEffectInstance(
-                    MobEffects.MOVEMENT_SPEED,
+                    MobEffects.SPEED,
                     100,
-                    (if (playerIn.hasEffect(MobEffects.MOVEMENT_SPEED)) playerIn.getEffect(MobEffects.MOVEMENT_SPEED)!!
+                    (if (playerIn.hasEffect(MobEffects.SPEED)) playerIn.getEffect(MobEffects.SPEED)!!
                         .amplifier else 0) + 2
                 )
             )
@@ -123,15 +126,10 @@ open class LungeMineItem : Item(Properties().stacksTo(4)), GeoItem, @Suppress("D
             ClientEventHandler.lungeSprint = 180
         }
         playerIn.cooldowns.addCooldown(stack.item, 300)
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
-    override fun canAttackBlock(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos,
-        player: Player
-    ): Boolean {
+    override fun canDestroyBlock(stack: ItemStack, state: BlockState, level: Level, pos: BlockPos, player: net.minecraft.world.entity.LivingEntity): Boolean {
         return false
     }
 

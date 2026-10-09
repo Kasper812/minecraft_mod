@@ -1,7 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.inventory.menu.SuperbItemInterfaceMenu
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -10,8 +14,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
 @Environment(EnvType.CLIENT)
-class SuperbItemInterfaceScreen(menu: SuperbItemInterfaceMenu, playerInventory: Inventory, title: Component) :
-    AbstractContainerScreen<SuperbItemInterfaceMenu>(menu, playerInventory, title) {
+class SuperbItemInterfaceScreen(menu: SuperbItemInterfaceMenu, playerInventory: Inventory, title: Component) : LegacyContainerScreen<SuperbItemInterfaceMenu>(menu, playerInventory, title) {
     init {
         this.imageHeight = 133
         this.inventoryLabelY = this.imageHeight - 94

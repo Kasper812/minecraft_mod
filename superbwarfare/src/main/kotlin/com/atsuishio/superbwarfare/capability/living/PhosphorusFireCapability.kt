@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.living
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.init.ModComponents
 import kotlinx.serialization.SerialName
@@ -17,12 +19,15 @@ data class PhosphorusFireCapability(
     var isOnFire: Boolean = false
 ) : Component, AutoSyncedComponent {
 
-    override fun readFromNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun readData(input: net.minecraft.world.level.storage.ValueInput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(input)
+        val registryLookup = input.lookup()
         if (tag.contains(TAG_PHOSPHORUS_FIRE)) {
-            this.isOnFire = tag.getBoolean(TAG_PHOSPHORUS_FIRE)
+            this.isOnFire = tag.getBooleanOr(TAG_PHOSPHORUS_FIRE, false)
         }
     }
-    override fun writeToNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun writeData(output: net.minecraft.world.level.storage.ValueOutput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(output)
         tag.putBoolean(TAG_PHOSPHORUS_FIRE, this.isOnFire)
     }
 

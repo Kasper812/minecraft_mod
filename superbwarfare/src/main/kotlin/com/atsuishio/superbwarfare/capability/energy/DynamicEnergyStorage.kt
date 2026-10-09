@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.energy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.api.EnergyStorage
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext
 import java.util.function.Supplier

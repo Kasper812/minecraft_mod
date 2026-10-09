@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.ammo
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.ChatFormatting
@@ -11,11 +15,13 @@ import net.minecraft.world.item.TooltipFlag
 class ShotgunAmmoBoxItem : AmmoSupplierItem(Ammo.SHOTGUN, 12, Properties()) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
+        super.appendHoverText(stack, context, tooltipDisplay, tooltipAdder, tooltipFlag)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.shotgun_ammo_box").withStyle(ChatFormatting.GRAY)
         )

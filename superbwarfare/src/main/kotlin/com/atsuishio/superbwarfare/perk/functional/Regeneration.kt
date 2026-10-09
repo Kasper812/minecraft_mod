@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.functional
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
 

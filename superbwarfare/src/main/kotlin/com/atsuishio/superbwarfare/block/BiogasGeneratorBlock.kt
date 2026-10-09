@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.block
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.BiogasGeneratorBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.mojang.serialization.MapCodec
@@ -20,7 +22,7 @@ import net.minecraft.world.level.block.state.BlockState
 
 @Suppress("OVERRIDE_DEPRECATION")
 open class BiogasGeneratorBlock :
-    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).requiresCorrectToolForDrops()) {
+    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).requiresCorrectToolForDrops()), com.atsuishio.portlib.item.LegacyBlockTooltip {
 
     override fun appendHoverText(
         stack: ItemStack,
@@ -45,11 +47,11 @@ open class BiogasGeneratorBlock :
         return BiogasGeneratorBlockEntity(pPos, pState)
     }
 
-    override fun <T : BlockEntity?> getTicker(
+    override fun <T : BlockEntity> getTicker(
         pLevel: Level,
         pState: BlockState,
-        pBlockEntityType: BlockEntityType<T?>
-    ): BlockEntityTicker<T?>? {
+        pBlockEntityType: BlockEntityType<T>
+    ): BlockEntityTicker<T>? {
         if (!pLevel.isClientSide) {
             return createTickerHelper(
                 pBlockEntityType, ModBlockEntities.BIOGAS_GENERATOR,

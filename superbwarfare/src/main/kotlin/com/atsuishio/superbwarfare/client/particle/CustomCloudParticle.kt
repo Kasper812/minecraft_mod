@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.particle
 
+import com.atsuishio.portlib.render.LegacyParticleRenderType as ParticleRenderType
+
+import com.atsuishio.portlib.render.LegacyTextureSheetParticle as TextureSheetParticle
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.*
 import net.minecraft.client.renderer.LevelRenderer
@@ -37,7 +43,8 @@ open class CustomCloudParticle protected constructor(
             z: Double,
             xSpeed: Double,
             ySpeed: Double,
-            zSpeed: Double
+            zSpeed: Double,
+            random: net.minecraft.util.RandomSource
         ): Particle {
             return CustomCloudParticle(
                 pLevel,
@@ -79,7 +86,7 @@ open class CustomCloudParticle protected constructor(
 
     public override fun getLightColor(partialTick: Float): Int {
         val blockpos = BlockPos.containing(this.x, this.y + 1, this.z)
-        val lightLevel = if (this.level.isLoaded(blockpos)) LevelRenderer.getLightColor(this.level, blockpos) else 0
+        val lightLevel = if (this.level.isLoaded(blockpos)) net.minecraft.util.LightCoordsUtil.getLightCoords(this.level, blockpos) else 0
         return if (light) 15728880 else lightLevel
     }
 

@@ -8,15 +8,15 @@ import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
 import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.resources.model.cuboid.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -235,7 +235,7 @@ public final class DragonTeethObjModelLoader {
                         : new Vector3f(geometricNormal);
             }
 
-            Direction nominalFace = Direction.getNearest(geometricNormal.x, geometricNormal.y, geometricNormal.z);
+            Direction nominalFace = Direction.getApproximateNearest(geometricNormal.x, geometricNormal.y, geometricNormal.z);
             emitter.cullFace(cullFace(transformedPositions, geometricNormal));
             emitter.nominalFace(nominalFace);
             emitter.colorIndex(-1);

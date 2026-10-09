@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.client.overlay.IFFOverlay.FRIENDLY_ARTILLERY
@@ -12,8 +14,8 @@ import com.atsuishio.superbwarfare.item.misc.firingParameters
 import com.atsuishio.superbwarfare.tools.*
 import com.atsuishio.superbwarfare.tools.FormatTool.format1D
 import com.atsuishio.superbwarfare.tools.VectorTool.lerpGetEntityBoundingBoxCenter
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
@@ -47,7 +49,6 @@ object DroneHudOverlay : CommonOverlay("drone_hud") {
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -60,7 +61,7 @@ object DroneHudOverlay : CommonOverlay("drone_hud") {
         val firstPerson =
             Minecraft.getInstance().options.cameraType == CameraType.FIRST_PERSON || Minecraft.getInstance().options.cameraType == CameraType.THIRD_PERSON_BACK
 
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using") && tag.getBoolean("Linked")) {
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false) && tag.getBooleanOr("Linked", false)) {
             if (firstPerson) {
                 guiGraphics.blit(CROSSHAIR, screenWidth / 2 - 16, screenHeight / 2 - 16, 0f, 0f, 32, 32, 32, 32)
                 guiGraphics.blit(DRONE_FOV, screenWidth / 2 + 100, screenHeight / 2 - 64, 0f, 0f, 64, 129, 64, 129)
@@ -101,7 +102,7 @@ object DroneHudOverlay : CommonOverlay("drone_hud") {
                     false
                 )
 
-                val entity = EntityFindUtil.findDrone(player.level(), tag.getString("LinkedDrone"))
+                val entity = EntityFindUtil.findDrone(player.level(), tag.getStringOr("LinkedDrone", ""))
 
                 if (entity != null) {
                     var lookAtEntity = false
@@ -252,7 +253,6 @@ object DroneHudOverlay : CommonOverlay("drone_hud") {
                     RenderSystem.disableDepthTest()
                     RenderSystem.depthMask(false)
                     RenderSystem.enableBlend()
-                    RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                     RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.SRC_ALPHA,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -285,10 +285,10 @@ object DroneHudOverlay : CommonOverlay("drone_hud") {
                     if (offStack.`is`(ModItems.ARTILLERY_INDICATOR)) {
                         val tags =
                             NBTTool.getTag(offStack)
-                                .getList(ArtilleryIndicatorItem.TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+                                .getListOrEmpty(ArtilleryIndicatorItem.TAG_CANNON)
                         for (m in tags.indices) {
-                            val tag = tags.getCompound(m)
-                            val e = EntityFindUtil.findEntity(player.level(), tag.getString("UUID"))
+                            val tag = tags.getCompoundOrEmpty(m)
+                            val e = EntityFindUtil.findEntity(player.level(), tag.getStringOr("UUID", ""))
                             if (e != null && e.position().canBeSeen()) {
                                 val posF = lerpGetEntityBoundingBoxCenter(e, partialTick)
                                 val pointF = posF.worldToScreen()

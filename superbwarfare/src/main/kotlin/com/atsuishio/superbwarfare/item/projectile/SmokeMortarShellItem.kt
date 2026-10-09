@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.MortarShellEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -27,15 +31,17 @@ class SmokeMortarShellItem : MortarShellItem(), IDyeableSmokeItem {
     }
 
     override fun getColor(stack: ItemStack): Int {
-        return if (stack.tag != null && stack.tag!!.contains(TAG_COLOR)) stack.tag!!.getInt(TAG_COLOR) else 0xFFFFFF
+        return if (stack.tag != null && stack.tag!!.contains(TAG_COLOR)) stack.tag!!.getIntOr(TAG_COLOR, 0) else 0xFFFFFF
     }
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.m18_smoke_grenade").withStyle(ChatFormatting.GRAY)
                 .append(Component.empty().withStyle(ChatFormatting.RESET))

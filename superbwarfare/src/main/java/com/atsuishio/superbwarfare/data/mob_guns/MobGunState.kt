@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.mob_guns
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.data.mob_guns.MobGunState.ammo
 import com.atsuishio.superbwarfare.data.mob_guns.MobGunState.selectionKey
@@ -28,7 +30,7 @@ object MobGunState {
     fun selectionKey(entity: Entity): String? {
         val data = entity.persistentData
         if (!data.contains(SELECTION_KEY_TAG)) return null
-        return data.getString(SELECTION_KEY_TAG).ifEmpty { null }
+        return data.getStringOr(SELECTION_KEY_TAG, "").ifEmpty { null }
     }
 
     fun setSelectionKey(entity: Entity, key: String) {
@@ -40,7 +42,7 @@ object MobGunState {
     }
 
     /** 生物备弹池剩余数量 */
-    fun ammo(entity: Entity): Int = entity.persistentData.getInt(AMMO_TAG).coerceAtLeast(0)
+    fun ammo(entity: Entity): Int = entity.persistentData.getIntOr(AMMO_TAG, 0).coerceAtLeast(0)
 
     fun setAmmo(entity: Entity, count: Int) {
         val value = count.coerceAtLeast(0)

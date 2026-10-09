@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -15,7 +19,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.Direction
 import net.minecraft.resources.Identifier
 
-class EDDRenderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<EDDEntity>(renderManager) {
+class EDDRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<EDDEntity>(renderManager) {
     override fun render(
         entity: EDDEntity,
         yaw: Float,

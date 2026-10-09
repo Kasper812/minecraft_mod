@@ -1,10 +1,10 @@
 package com.atsuishio.superbwarfare.mixins;
 
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.atsuishio.portlib.gui.LegacyRenderSystem;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.FogRenderer;
+import net.minecraft.client.renderer.fog.FogRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -40,7 +40,7 @@ public abstract class FogRendererMixin {
         fogGreen = 0.1F;
         fogBlue = 0.1F;
 
-        RenderSystem.clearColor(0.1F, 0.1F, 0.1F, 0.0F);
-        RenderSystem.setShaderFogColor(0.1F, 0.1F, 0.1F, 1.0F);
+        LegacyRenderSystem.clearColor(0.1F, 0.1F, 0.1F, 0.0F);
+        LegacyRenderSystem.setShaderFogColor(0.1F, 0.1F, 0.1F, 1.0F);
     }
 }

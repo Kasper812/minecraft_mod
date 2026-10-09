@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.api.event.ProjectileHitEvent.HitBlock
 import com.atsuishio.superbwarfare.api.event.ProjectileHitEvent.HitEntity
@@ -41,9 +49,9 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Entity.RemovalReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile
 import net.minecraft.world.level.ChunkPos
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.Level
@@ -168,7 +176,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
 
     constructor(entityType: EntityType<out ThrowableItemProjectile>, shooter: Entity?, level: Level) :
             super(entityType, level) {
-        this.owner = shooter
+        this.setOwner(shooter)
         if (shooter != null) {
             this.setPos(shooter.x, shooter.eyeY - 0.1, shooter.z)
         }
@@ -178,51 +186,55 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         this.noCulling = true
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("Damage")) {
-            this.damageValue = compound.getFloat("Damage")
+            this.damageValue = compound.getFloatOr("Damage", 0f)
         }
         if (compound.contains("ExplosionDamage")) {
-            this.explosionDamageValue = compound.getFloat("ExplosionDamage")
+            this.explosionDamageValue = compound.getFloatOr("ExplosionDamage", 0f)
         }
         if (compound.contains("Radius")) {
-            this.explosionRadiusValue = compound.getFloat("Radius")
+            this.explosionRadiusValue = compound.getFloatOr("Radius", 0f)
         }
         if (compound.contains("Durability")) {
-            this.durability = compound.getInt("Durability")
+            this.durability = compound.getIntOr("Durability", 0)
         }
         if (compound.contains("Life")) {
-            this.lifeValue = compound.getInt("Life")
+            this.lifeValue = compound.getIntOr("Life", 0)
         }
         if (compound.contains("SyncedTick")) {
-            this.syncedTick = compound.getInt("SyncedTick")
+            this.syncedTick = compound.getIntOr("SyncedTick", 0)
         }
         if (compound.contains("UnderwaterMotionScale")) {
-            this.underwaterMotionScaleValue = compound.getFloat("UnderwaterMotionScale")
+            this.underwaterMotionScaleValue = compound.getFloatOr("UnderwaterMotionScale", 0f)
         }
         if (compound.contains("ExplosionDestroy")) {
-            this.explosionDestroyValue = compound.getBoolean("ExplosionDestroy")
+            this.explosionDestroyValue = compound.getBooleanOr("ExplosionDestroy", false)
         }
         if (compound.contains("ProjectileSplitCount")) {
-            this.projectileSplitCountValue = compound.getInt("ProjectileSplitCount")
+            this.projectileSplitCountValue = compound.getIntOr("ProjectileSplitCount", 0)
         }
         if (compound.contains("ProjectileSplitAmount")) {
-            this.projectileSplitAmountValue = compound.getInt("ProjectileSplitAmount")
+            this.projectileSplitAmountValue = compound.getIntOr("ProjectileSplitAmount", 0)
         }
 
-        val listTag = compound.getList("CustomPotionEffects", 10)
+        val listTag = compound.getListOrEmpty("CustomPotionEffects")
         for (i in listTag.indices) {
-            val compoundTag = listTag.getCompound(i)
-            val instance = MobEffectInstance.load(compoundTag)
+            val compoundTag = listTag.getCompoundOrEmpty(i)
+            val instance = legacyLoadEffect(compoundTag)
             if (instance != null) {
                 this.effectsValue.add(instance)
             }
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
 
         if (this.damageValue > 0) {
             compound.putFloat("Damage", this.damageValue)
@@ -319,7 +331,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
 
             for (entityResult in entityResults) {
                 val entity = entityResult.entity
-                val shooter = this.owner
+                val shooter = this.getOwner()
                 // 跳过无法伤害的玩家
                 if (entity is Player && shooter is Player && !shooter.canHarmPlayer(entity)) continue
                 if (entity == shooter || entity == shooter?.vehicle) continue
@@ -363,8 +375,8 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
             this.y <= level.maxBuildHeight
         ) {
             val currentChunkPos = this.chunkPosition()
-            val nextChunkPos = ChunkPos(BlockPos.containing(position().add(deltaMovement)))
-            val nextNextChunkPos = ChunkPos(BlockPos.containing(position().add(deltaMovement.scale(2.0))))
+            val nextChunkPos = ChunkPos.containing(BlockPos.containing(position().add(deltaMovement)))
+            val nextNextChunkPos = ChunkPos.containing(BlockPos.containing(position().add(deltaMovement.scale(2.0))))
             ProjectileChunkSavedData.queueForceLoad(level, currentChunkPos)
             if (nextChunkPos != currentChunkPos) {
                 ProjectileChunkSavedData.queueForceLoad(level, nextChunkPos)
@@ -449,8 +461,8 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         if (result is ExtendedEntityRayTraceResult) {
             val entity = result.entity
 
-            if (this.owner is Player) {
-                if (entity.hasIndirectPassenger(this.owner!!)) {
+            if (this.getOwner() is Player) {
+                if (entity.hasIndirectPassenger(this.getOwner()!!)) {
                     return
                 }
             }
@@ -472,7 +484,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         val headshot = result.headshot
         val legShot = result.legShot
 
-        if (postEvent(HitEntity(this.owner, this, result)).isCanceled) return
+        if (postEvent(HitEntity(this.getOwner(), this, result)).isCanceled) return
 
         if (entity is EnderDragonPart) {
             entity = entity.parentMob
@@ -480,12 +492,12 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
 
         if (entity is LivingEntity) {
             if (isBeast()) {
-                beastKill(this.owner, entity)
+                beastKill(this.getOwner(), entity)
                 return
             }
         }
 
-        val shooter = this.owner
+        val shooter = this.getOwner()
         if (headshot) {
             if (shooter is ServerPlayer) {
                 val holder = Holder.direct(ModSounds.HEADSHOT)
@@ -530,7 +542,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
                     if (!entity.level().isClientSide()) {
                         entity.forceApplyEffect(
                             MobEffectInstance(
-                                MobEffects.MOVEMENT_SLOWDOWN,
+                                MobEffects.SLOWNESS,
                                 20,
                                 2,
                                 false,
@@ -554,7 +566,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         val face = result.direction
         val state = level.getBlockState(pos)
         val location = result.location
-        if (postEvent(HitBlock(pos, state, face, this.owner, this, location)).isCanceled) return
+        if (postEvent(HitBlock(pos, state, face, this.getOwner(), this, location)).isCanceled) return
         state.onProjectileHit(level, state, result, this)
 
         this.afterHitBlock(result)
@@ -587,9 +599,9 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         if (damage > 0) {
             entity.forceHurt(
                 if (isHeadshot)
-                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.owner)
+                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.getOwner())
                 else
-                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.owner),
+                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.getOwner()),
                 damage * headShotModifier
             )
             entity.invulnerableTime = 0
@@ -614,11 +626,11 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         }
     }
 
-    protected fun surfaceNormal(result: BlockHitResult): Vec3 = Vec3.atLowerCornerOf(result.direction.normal)
+    protected fun surfaceNormal(result: BlockHitResult): Vec3 = Vec3.atLowerCornerOf(result.direction.unitVec3i)
 
     open fun buildExplosion(vec3: Vec3): CustomExplosion.Builder {
         return CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(explosionDamageValue)
             .radius(explosionRadiusValue)
             .position(vec3)
@@ -627,9 +639,9 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
     }
 
     open fun causeRangedEffects(vec3: Vec3) {
-        if (this.owner == null) return
+        if (this.getOwner() == null) return
         if (this.level() is ServerLevel) {
-            val entities = SeekTool.Builder(this.owner!!)
+            val entities = SeekTool.Builder(this.getOwner()!!)
                 .withinRange(vec3, explosionRadiusValue.toDouble())
                 .notItsVehicle()
                 .baseFilter()
@@ -651,7 +663,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
                             it.isVisible,
                             it.showIcon()
                         )
-                        (entity as LivingEntity).forceApplyEffect(instance, this.owner)
+                        (entity as LivingEntity).forceApplyEffect(instance, this.getOwner())
                     }
                 }
         }
@@ -692,7 +704,7 @@ abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSyn
         repeat(amount) { index ->
             val child = createSplitProjectile(level) ?: return
 
-            child.owner = this.owner
+            child.setOwner(this.getOwner())
             child.setPos(spawnPos.x, spawnPos.y + child.bbHeight / 2, spawnPos.z)
             child.setDamage(getDamage() * SPLIT_INHERIT_RATE)
             child.setExplosionDamage(getExplosionDamage() * SPLIT_INHERIT_RATE)

@@ -1,5 +1,14 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.entity.EntityReference
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
@@ -36,7 +45,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
 
     constructor(owner: LivingEntity?, level: Level) : this(ModEntities.CLAYMORE, level) {
         if (owner != null) {
-            this.setOwnerUUID(owner.getUUID())
+            this.ownerUUID = owner.getUUID()
         }
     }
 
@@ -54,7 +63,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
         return !this.isRemoved
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         val damage = DAMAGE_MODIFIER.compute(this, source, amount)
 
         if (source.entity != null) {
@@ -80,22 +89,24 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
         level.playSound(null, this.onPos, ModSounds.HIT, SoundSource.PLAYERS, 1f, 1f)
         this.entityData.set(HEALTH, this.entityData.get(HEALTH) - damage)
 
-        return super.hurt(source, damage)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     fun isOwnedBy(pEntity: LivingEntity?): Boolean {
-        return pEntity === this.owner
+        return pEntity === this.getOwner()
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putFloat("Health", this.entityData.get(HEALTH))
         compound.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         if (this.ownerUUID != null) {
@@ -103,20 +114,22 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
         }
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         if (compound.contains("Health")) {
-            this.entityData.set(HEALTH, compound.getFloat("Health"))
+            this.entityData.set(HEALTH, compound.getFloatOr("Health", 0f))
         }
 
         if (compound.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, compound.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, compound.getStringOr("LastAttacker", ""))
         }
 
         var uuid: UUID?
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -132,13 +145,13 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
 
         if (uuid != null) {
             try {
-                this.setOwnerUUID(uuid)
+                this.ownerUUID = uuid
             } catch (_: Throwable) {
             }
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (this.isOwnedBy(player) && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -149,7 +162,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -170,7 +183,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
                 Entity::class.java,
                 AABB(center, center).inflate(2.5 / 2.0),
             ) { true }) {
-                val condition = this.owner !== target
+                val condition = this.getOwner() !== target
                         && (target is LivingEntity || target is VehicleEntity)
                         && target !is TargetEntity
                         && !(target is Player && (target.isCreative || target.isSpectator))
@@ -239,7 +252,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
 
     private fun triggerExplode() {
         CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(ExplosionConfig.CLAYMORE_EXPLOSION_DAMAGE.get().toFloat())
             .radius(ExplosionConfig.CLAYMORE_EXPLOSION_RADIUS.get().toFloat())
             .explode()
@@ -255,7 +268,7 @@ open class ClaymoreEntity(type: EntityType<ClaymoreEntity>, level: Level) : Enti
         @JvmField
         protected val OWNER_UUID: EntityDataAccessor<Optional<UUID>> = SynchedEntityData.defineId(
             ClaymoreEntity::class.java,
-            EntityDataSerializers.OPTIONAL_UUID
+            com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID
         )
 
         @JvmField

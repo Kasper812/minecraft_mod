@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.particle
 
+import com.atsuishio.portlib.render.LegacyParticleRenderType as ParticleRenderType
+
+import com.atsuishio.portlib.render.LegacyTextureSheetParticle as TextureSheetParticle
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.*
 import net.fabricmc.api.EnvType
@@ -45,7 +51,8 @@ open class CustomSmokeParticle protected constructor(
             z: Double,
             xSpeed: Double,
             ySpeed: Double,
-            zSpeed: Double
+            zSpeed: Double,
+            random: net.minecraft.util.RandomSource
         ): Particle {
             return CustomSmokeParticle(
                 pLevel,

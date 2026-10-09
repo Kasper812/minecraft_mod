@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.utils
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.data.vehicle.subdata.DestroyInfo
@@ -106,7 +108,7 @@ object VehicleDestroyUtils {
                 repeat(VehicleConfig.AIR_CRASH_EXPLOSION_COUNT.get()) {
                     val tempAttacker = if (entity === vehicle.lastAttacker) null else vehicle.lastAttacker
                     entity.invulnerableTime = 0
-                    entity.hurt(
+                    entity.hurtOrSimulate(
                         ModDamageTypes.causeAirCrashDamage(vehicle.level().registryAccess(), null, tempAttacker),
                         VehicleConfig.AIR_CRASH_EXPLOSION_DAMAGE.get().toFloat()
                     )
@@ -125,7 +127,7 @@ object VehicleDestroyUtils {
             repeat(VehicleConfig.SELF_EXPLOSION_COUNT.get()) {
                 val tempAttacker = if (entity === vehicle.lastAttacker) null else vehicle.lastAttacker
                 entity.invulnerableTime = 0
-                entity.hurt(
+                entity.hurtOrSimulate(
                     ModDamageTypes.causeVehicleExplosionDamage(
                         vehicle.level().registryAccess(),
                         null,

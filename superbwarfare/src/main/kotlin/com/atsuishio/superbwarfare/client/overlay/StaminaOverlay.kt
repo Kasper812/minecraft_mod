@@ -1,11 +1,13 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.util.Mth
@@ -28,7 +30,6 @@ object StaminaOverlay : CommonOverlay("stamina") {
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -44,7 +45,7 @@ object StaminaOverlay : CommonOverlay("stamina") {
 
         RenderHelper.fill(
             guiGraphics,
-            RenderType.guiOverlay(),
+            null,
             w.toFloat() / 2 - 90,
             (h - 23).toFloat(),
             w.toFloat() / 2 + 90,
@@ -54,7 +55,7 @@ object StaminaOverlay : CommonOverlay("stamina") {
         )
         RenderHelper.fill(
             guiGraphics,
-            RenderType.guiOverlay(),
+            null,
             w.toFloat() / 2 - 90,
             (h - 23).toFloat(),
             (w / 2f + 90 - 1.8 * ClientEventHandler.stamina).toFloat(),

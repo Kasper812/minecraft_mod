@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.energy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModDataComponents
 import net.minecraft.world.item.ItemStack
 import team.reborn.energy.api.EnergyStorage

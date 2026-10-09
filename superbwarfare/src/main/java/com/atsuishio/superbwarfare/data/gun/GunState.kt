@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunState.Companion.isNewerRevision
 import com.atsuishio.superbwarfare.data.gun.GunState.Companion.locked
 import com.atsuishio.superbwarfare.serialization.decodeFromCompoundTag

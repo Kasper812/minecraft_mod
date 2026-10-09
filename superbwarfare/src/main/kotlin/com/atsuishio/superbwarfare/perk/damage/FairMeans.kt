@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -15,7 +17,7 @@ object FairMeans : Perk("fair_means", Type.DAMAGE) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
         with(GunProp) {
-            if (tag.getBoolean("FairMeans")) {
+            if (tag.getBooleanOr("FairMeans", false)) {
                 modifier[DAMAGE] *= (1.5 + 0.225 * modifier.data.perk.getLevel(this@FairMeans))
             } else {
                 modifier[DAMAGE] *= (0.2 + 0.04 * modifier.data.perk.getLevel(this@FairMeans))
@@ -33,10 +35,10 @@ object FairMeans : Perk("fair_means", Type.DAMAGE) {
         val tag = data.perk.getTag(this) ?: return
         if (data.get(GunProp.BYPASSES_ARMOR) > 0) {
             if (source.`is`(ModTags.DamageTypes.PROJECTILE_ABSOLUTE)) {
-                tag.putBoolean("FairMeans", !tag.getBoolean("FairMeans"))
+                tag.putBoolean("FairMeans", !tag.getBooleanOr("FairMeans", false))
             }
         } else if (source.`is`(ModTags.DamageTypes.PROJECTILE)) {
-            tag.putBoolean("FairMeans", !tag.getBoolean("FairMeans"))
+            tag.putBoolean("FairMeans", !tag.getBooleanOr("FairMeans", false))
         }
     }
 }

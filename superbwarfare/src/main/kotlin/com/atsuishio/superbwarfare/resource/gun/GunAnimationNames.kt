@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * 近战动作动画名（`MeleeActions.Animation`）的拼接规则
  */

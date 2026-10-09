@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.inventory.menu
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.world.SimpleContainer
 import net.minecraft.world.entity.player.Inventory
@@ -70,7 +72,7 @@ abstract class AbstractVehicleContainerMenu(type: MenuType<*>?, id: Int, invento
 
     override fun stillValid(pPlayer: Player): Boolean {
         if (vehicle == null) return false
-        return vehicle.isAlive && pPlayer.canInteractWithEntity(this.vehicle, 3.0)
+        return vehicle.isAlive && pPlayer.isWithinEntityInteractionRange(this.vehicle, 3.0)
     }
 
     class VehicleSlot(

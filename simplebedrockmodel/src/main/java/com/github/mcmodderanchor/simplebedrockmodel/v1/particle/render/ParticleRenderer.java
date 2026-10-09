@@ -15,6 +15,8 @@ import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.resources.Identifier;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
+import org.joml.Matrix3f;
+import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.data.component.ParticleAppearanceLighting;
 
 import java.util.List;
 
@@ -64,9 +66,18 @@ public final class ParticleRenderer {
         Matrix4f emitterTransform = emitter.getEmitterTransform();
         boolean localPos = emitter.isLocalPosition();
         boolean localRot = emitter.isLocalRotation();
+        Matrix4f pose = poseStack.last().pose();
+        Matrix3f normal = poseStack.last().normal();
+
+        // 光照：存在 particle_appearance_lighting 组件时按环境光照（传入 light）着色，否则自发光恒满亮度
+        boolean hasLighting = definition.findComponent(ParticleAppearanceLighting.class) != null;
+        int particleLight = hasLighting ? light : net.minecraft.util.LightCoordsUtil.FULL_BRIGHT;
 
         for (ParticleInstance particle : particles) {
-            BillboardHelper.renderBillboard(particle, poseStack, consumer, light, mode,
+            Matrix4f effectivePose = (localPos && !particle.fpDetached)
+                    ? new Matrix4f(pose).mul(emitterTransform)
+                    : pose;
+            BillboardHelper.renderBillboard(particle, poseStack, consumer, particleLight, mode,
                     emitterTransform, localPos, localRot, cameraPitch, cameraRoll, cameraRotation);
         }
     }
@@ -80,6 +91,8 @@ public final class ParticleRenderer {
             case PARTICLES_ALPHA -> RenderTypes.entityTranslucent(texture);
             case PARTICLES_BLEND -> RenderTypes.entityTranslucent(texture);
             case PARTICLES_ADD -> ParticleRenderType.additiveParticle(texture);
+            case ENERGY_SWIRL -> RenderTypes.energySwirl(texture, 1, 1);
+            case PARTICLES_EMISSIVE -> ParticleRenderType.emissiveParticle(texture);
         };
     }
 }

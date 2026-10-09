@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.thermoo
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.server.level.ServerPlayer
 
 object ThermooCompatHandler {

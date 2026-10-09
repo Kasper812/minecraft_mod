@@ -21,9 +21,6 @@
     "client": [
       "com.atsuishio.superbwarfare.client.SuperbWarfareFabricClient"
     ],
-    "fabric-datagen": [
-      "com.atsuishio.superbwarfare.datagen.DataGenerators"
-    ],
     "cardinal-components": [
       "com.atsuishio.superbwarfare.init.ModComponents"
     ]

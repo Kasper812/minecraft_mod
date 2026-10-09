@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModRecipes
 import com.atsuishio.superbwarfare.item.container.ContainerBlockItem
@@ -15,7 +17,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 import javax.annotation.ParametersAreNonnullByDefault
 
-class VehicleResetRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) {
+class VehicleResetRecipe(private val bookCategory: CraftingBookCategory = CraftingBookCategory.MISC) : CustomRecipe() {
+    override fun category(): CraftingBookCategory = bookCategory
+
     override fun matches(input: CraftingInput, pLevel: Level): Boolean {
         var kit = ItemStack.EMPTY
         var container = ItemStack.EMPTY
@@ -40,7 +44,7 @@ class VehicleResetRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCatego
     }
 
     @ParametersAreNonnullByDefault
-    override fun assemble(input: CraftingInput, registries: HolderLookup.Provider): ItemStack {
+    override fun assemble(input: CraftingInput): ItemStack {
         var kit = ItemStack.EMPTY
         var container = ItemStack.EMPTY
 
@@ -65,8 +69,8 @@ class VehicleResetRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCatego
             val data = container.get(DataComponents.BLOCK_ENTITY_DATA)
             val tag = if (data != null) data.copyTag() else CompoundTag()
             if (tag.contains("EntityType")) {
-                val type = tag.getString("EntityType")
-                val entityType = EntityType.byString(type).orElse(null)
+                val type = tag.getStringOr("EntityType", "")
+                val entityType = entityTypeByString(type).orElse(null)
                 if (entityType != null) {
                     return ContainerBlockItem.createInstance(entityType)
                 }
@@ -75,11 +79,8 @@ class VehicleResetRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCatego
         return ItemStack.EMPTY
     }
 
-    override fun canCraftInDimensions(pWidth: Int, pHeight: Int): Boolean {
-        return pWidth * pHeight >= 2
-    }
 
-    override fun getSerializer(): RecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<out CustomRecipe> {
         return ModRecipes.VEHICLE_RESET_SERIALIZER
     }
 }

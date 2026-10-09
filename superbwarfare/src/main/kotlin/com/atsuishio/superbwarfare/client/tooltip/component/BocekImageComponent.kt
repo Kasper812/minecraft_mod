@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.tooltip.component
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.world.item.ItemStack
 
 class BocekImageComponent(width: Int, height: Int, stack: ItemStack) : GunImageComponent(width, height, stack) {

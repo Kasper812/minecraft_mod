@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.armor
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod
@@ -10,6 +12,7 @@ import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBed
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.resources.Identifier
@@ -44,7 +47,7 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
                 for (frame in 0 until CYCLE_TICKS) {
                     val hueShift = frame.toFloat() / CYCLE_TICKS
                     val framePixels = createHueShiftedFrame(sourceImage, hueShift)
-                    val frameTexture = DynamicTexture(framePixels)
+                    val frameTexture = DynamicTexture({ "superbwarfare" }, framePixels)
                     val frameLoc = Mod.loc("textures/bedrock/vehicle/happiest_ghast_glass_flow_$frame")
                     mc.textureManager.register(frameLoc, frameTexture)
                     flowFrames[frame] = frameLoc
@@ -147,25 +150,18 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         }
     }
 
-    override fun renderToBuffer(
+    override fun renderArmorToBuffer(
         poseStack: PoseStack,
-        buffer: VertexConsumer,
+        bufferSource: MultiBufferSource,
         light: Int,
         packedOverlay: Int,
-        color: Int
+        r: Float,
+        g: Float,
+        b: Float,
+        a: Float
     ) {
-        val mc = mc
-        val bufferSource = mc.renderBuffers().bufferSource()
-        val partialTick = mc.deltaFrameTime
-        val r = ARGB.red(color) / 255f
-        val g = ARGB.green(color) / 255f
-        val b = ARGB.blue(color) / 255f
-        val a = ARGB.alpha(color) / 255f
-
         poseStack.pushPose()
-        if (this.livingEntity != null && this.equipmentSlot != null && this.original != null) {
-            scaleModelForBaby(poseStack, this.livingEntity, partialTick, this.equipmentSlot, this.original)
-        }
+        this.currentSlot?.let { scaleModelForBaby(poseStack, it) }
 
         this.instance.renderToBuffer(
             poseStack,

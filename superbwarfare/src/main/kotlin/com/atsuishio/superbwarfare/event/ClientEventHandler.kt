@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.api.event.ClientGunFireEvent
 import com.atsuishio.superbwarfare.api.event.ClientVehicleFireEvent
@@ -66,7 +68,7 @@ import net.minecraft.util.Mth
 import net.minecraft.util.RandomSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.*
-import net.minecraft.world.entity.npc.AbstractVillager
+import net.minecraft.world.entity.npc.villager.AbstractVillager
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.ClipContext
@@ -82,7 +84,7 @@ import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW
 import software.bernie.geckolib.animation.AnimationProcessor
 import software.bernie.geckolib.cache.`object`.GeoBone
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import java.util.*
 import kotlin.experimental.or
 import kotlin.math.*
@@ -966,8 +968,8 @@ object ClientEventHandler {
         // 正在游戏内控制载具或无人机
         if (!notInGame && (vehicle is VehicleEntity && vehicle.firstPassenger == player) ||
             (stack.`is`(ModItems.MONITOR) && tag != null
-                    && tag.getBoolean(MonitorItem.USING)
-                    && tag.getBoolean(MonitorItem.LINKED))
+                    && tag.getBooleanOr(MonitorItem.USING, false)
+                    && tag.getBooleanOr(MonitorItem.LINKED, false))
         ) {
             if (ModKeyMappings.MOVE_LEFT.isDown) {
                 keys = keys or 0b000000001
@@ -1121,7 +1123,7 @@ object ClientEventHandler {
             val maxGuidedRange = data.get(GunProp.MAX_GUIDED_RANGE)
             val canGuidedByRadar = data.get(GunProp.CAN_GUIDED_BY_RADAR)
             val affectedByStealthTarget = data.get(GunProp.AFFECTED_BY_STEALTH_TARGET)
-            val cameraPos = mc.gameRenderer.mainCamera().position
+            val cameraPos = mc.gameRenderer.mainCamera().position()
 
             if (zoomTime > 0.7) {
                 nearestEntity = SeekTool.Builder(player)
@@ -1338,7 +1340,7 @@ object ClientEventHandler {
         // 搜索范围
         val seekRange = seekWeaponInfo.seekRange
         // 视角位置
-        val cameraPos = mc.gameRenderer.mainCamera().position
+        val cameraPos = mc.gameRenderer.mainCamera().position()
         // 搜寻方向
         val seekVec = vehicle.getSeekVec(player, 1f) ?: return
         // 最小目标高度
@@ -2362,12 +2364,12 @@ object ClientEventHandler {
     @JvmStatic
     fun computeCameraAngles(event: CameraAnglesContext) {
         if (clientLevel == null) return
-        val entity = event.camera.entity as? LivingEntity ?: return
+        val entity = event.camera.entity() as? LivingEntity ?: return
         val player = localPlayer ?: return
         val stack = entity.mainHandItem
 
-        if (stack.`is`(ModItems.MONITOR) && NBTTool.getTag(stack).getBoolean("Using")
-            && NBTTool.getTag(stack).getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && NBTTool.getTag(stack).getBooleanOr("Using", false)
+            && NBTTool.getTag(stack).getBooleanOr("Linked", false)
         ) {
             handleDroneCamera(event, entity)
         }
@@ -2433,7 +2435,7 @@ object ClientEventHandler {
 
     private fun handleDroneCamera(event: CameraAnglesContext, entity: LivingEntity) {
         val stack = entity.mainHandItem
-        val drone = EntityFindUtil.findDrone(entity.level(), NBTTool.getTag(stack).getString("LinkedDrone")) ?: return
+        val drone = EntityFindUtil.findDrone(entity.level(), NBTTool.getTag(stack).getStringOr("LinkedDrone", "")) ?: return
         cameraRoll =
             drone.getRoll(event.partialTick.toFloat() * (1 - (drone.getPitch(event.partialTick.toFloat()) / 90)))
     }
@@ -2473,10 +2475,10 @@ object ClientEventHandler {
 
         val stack = player.mainHandItem
         val tag = NBTTool.getTag(stack)
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using")
-            && tag.getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false)
+            && tag.getBooleanOr("Linked", false)
         ) {
-            if (EntityFindUtil.findDrone(player.level(), tag.getString("LinkedDrone")) != null) {
+            if (EntityFindUtil.findDrone(player.level(), tag.getStringOr("LinkedDrone", "")) != null) {
                 return true
             }
         }
@@ -2828,7 +2830,7 @@ object ClientEventHandler {
         }
 
         boltMove = if (firePosTimer > 0 && firePosTimer <= 0.5) {
-            1.2 * Mth.sin(2 * Mth.PI * firePosTimer.toFloat()).toDouble()
+            1.2 * com.atsuishio.portlib.util.LegacyMth.sin(2 * Mth.PI * firePosTimer.toFloat()).toDouble()
         } else {
             0.0
         }
@@ -3100,9 +3102,9 @@ object ClientEventHandler {
         if (entity.hasEffect(ModMobEffects.SHOCK) && mc.options.cameraType == CameraType.FIRST_PERSON) {
             val shakeStrength = DisplayConfig.SHOCK_SCREEN_SHAKE.get().toFloat() / 100.0f
             if (shakeStrength <= 0.0f) return
-            event.yaw = mc.gameRenderer.mainCamera().yRot +
+            event.yaw = mc.gameRenderer.mainCamera().yRot() +
                     Mth.nextDouble(RandomSource.create(), -3.0, 3.0).toFloat() * shakeStrength
-            event.pitch = mc.gameRenderer.mainCamera().xRot +
+            event.pitch = mc.gameRenderer.mainCamera().xRot() +
                     Mth.nextDouble(RandomSource.create(), -3.0, 3.0).toFloat() * shakeStrength
         }
     }
@@ -3357,8 +3359,8 @@ object ClientEventHandler {
             lastY = player.yRot
         }
 
-        if (stack.`is`(ModItems.MONITOR) && NBTTool.getTag(stack).getBoolean("Using")
-            && NBTTool.getTag(stack).getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && NBTTool.getTag(stack).getBooleanOr("Using", false)
+            && NBTTool.getTag(stack).getBooleanOr("Linked", false)
         ) {
             droneFovLerp = Mth.lerp(0.1 * getDelta(), droneFovLerp, droneFov)
             event.fov /= droneFovLerp
@@ -3425,8 +3427,8 @@ object ClientEventHandler {
         }
 
         val tag = NBTTool.getTag(stack)
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using")
-            && tag.getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false)
+            && tag.getBooleanOr("Linked", false)
         ) {
             return true
         }

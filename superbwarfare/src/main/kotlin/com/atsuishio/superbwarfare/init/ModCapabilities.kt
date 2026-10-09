@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.ChargingStationBlockEntity
 import com.atsuishio.superbwarfare.block.entity.BlueprintResearchTableBlockEntity
@@ -31,11 +33,11 @@ object ModCapabilities {
 
     @JvmField
     val ITEM_HANDLER_BLOCK: BlockApiLookup<IItemHandler, Direction?> =
-        BlockApiLookup.get(Mod.loc("item_handler"), IItemHandler::class.java, Direction::class.java)
+        BlockApiLookup.get(Mod.loc("item_handler"), IItemHandler::class.java, Direction::class.java) as BlockApiLookup<IItemHandler, Direction?>
 
     @JvmField
     val ITEM_HANDLER_ENTITY: EntityApiLookup<IItemHandler, Void?> =
-        EntityApiLookup.get(Mod.loc("item_handler"), IItemHandler::class.java, Void::class.java)
+        EntityApiLookup.get(Mod.loc("item_handler"), IItemHandler::class.java, Void::class.java) as EntityApiLookup<IItemHandler, Void?>
 
     @JvmStatic
     fun init() {

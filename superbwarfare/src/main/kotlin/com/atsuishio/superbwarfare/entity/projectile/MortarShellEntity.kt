@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModMobEffects
@@ -115,8 +123,10 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
         return ModItems.MORTAR_SHELL
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
 
         if (this.potion != Potions.WATER.value() && this.potion != null) {
             compound.putString(
@@ -133,32 +143,34 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
         compound.putFloat("BColor", this.blue)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
 
-        if (compound.contains("Potion", 8)) {
-            val tagName = compound.getString("Potion")
-            this.potion = BuiltInRegistries.POTION.get(Identifier.parse(tagName))
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+
+        if (compound.contains("Potion")) {
+            val tagName = compound.getStringOr("Potion", "")
+            this.potion = BuiltInRegistries.POTION.getValue(Identifier.parse(tagName))
         }
 
         if (compound.contains("RColor")) {
-            this.red = compound.getFloat("RColor")
+            this.red = compound.getFloatOr("RColor", 0f)
         }
         if (compound.contains("GColor")) {
-            this.green = compound.getFloat("GColor")
+            this.green = compound.getFloatOr("GColor", 0f)
         }
         if (compound.contains("BColor")) {
-            this.blue = compound.getFloat("BColor")
+            this.blue = compound.getFloatOr("BColor", 0f)
         }
     }
 
     override fun afterHitEntity(result: EntityHitResult) {
         if (this.tickCount <= 1) return
-        if (this.owner == null) return
+        if (this.getOwner() == null) return
 
         if (!this.level().isClientSide()) {
             when (type) {
-                Type.WP -> this.causeWPEffect(result.getLocation(), this.owner!!)
+                Type.WP -> this.causeWPEffect(result.getLocation(), this.getOwner()!!)
                 Type.SMOKE -> this.releaseSmoke()
                 else -> {}
             }
@@ -170,9 +182,9 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
     }
 
     override fun afterHitBlock(result: BlockHitResult) {
-        if (!this.level().isClientSide() && this.owner != null) {
+        if (!this.level().isClientSide() && this.getOwner() != null) {
             when (type) {
-                Type.WP -> causeWPEffect(result.getLocation(), this.owner!!)
+                Type.WP -> causeWPEffect(result.getLocation(), this.getOwner()!!)
                 Type.SMOKE -> releaseSmoke()
                 else -> {}
             }
@@ -206,7 +218,7 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
                             ModMobEffects.PHOSPHORUS_FIRE,
                             (300 - 30 * dis).toInt(),
                             max(explosionRadiusValue - dis, 0.0).toInt()
-                        ), this.owner
+                        ), this.getOwner()
                     )
                 }
         }
@@ -255,7 +267,7 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
             )
 
             if (hitResult.type == HitResult.Type.BLOCK) {
-                releaseWp(owner)
+                releaseWp(getOwner())
             }
         }
     }
@@ -291,7 +303,7 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
 
         cloud.duration = this.explosionDamageValue.toInt()
         cloud.radius = this.explosionRadiusValue
-        val owner = this.owner
+        val owner = this.getOwner()
         if (owner is LivingEntity) {
             cloud.owner = owner
         }

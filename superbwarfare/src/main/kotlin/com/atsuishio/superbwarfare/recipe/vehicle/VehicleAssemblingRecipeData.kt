@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.DataLoader.processValue
 import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.data.StringOrObject

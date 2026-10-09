@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.AttachmentConfig
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.attachment.AttachmentSlots
@@ -28,7 +30,7 @@ class Attachment(private val gun: GunData) {
      * @param type the attachment slot to query.
      * @return slot index, or 0 if empty.
      */
-    fun get(type: AttachmentType): Int = attachment.getInt(type.attachmentName)
+    fun get(type: AttachmentType): Int = attachment.getIntOr(type.attachmentName, 0)
 
     /**
      * Legacy integer writer kept for code that still uses old attachment ids.
@@ -37,7 +39,7 @@ class Attachment(private val gun: GunData) {
      * @param value legacy slot index.
      */
     fun set(type: AttachmentType, value: Int) {
-        if (attachment.getInt(type.attachmentName) == value) return  // no-op: unchanged
+        if (attachment.getIntOr(type.attachmentName, 0) == value) return  // no-op: unchanged
         attachment.putInt(type.attachmentName, value)
         gun.invalidateProperties()
     }
@@ -48,9 +50,9 @@ class Attachment(private val gun: GunData) {
     fun id(type: AttachmentType): Identifier? {
         val tag = attachment.get(type.attachmentName) ?: return null
         return when (tag.id) {
-            Tag.TAG_STRING -> Identifier.tryParse(attachment.getString(type.attachmentName))
+            Tag.TAG_STRING -> Identifier.tryParse(attachment.getStringOr(type.attachmentName, ""))
             Tag.TAG_COMPOUND -> Identifier.tryParse(
-                attachment.getCompound(type.attachmentName).readId()
+                attachment.getCompoundOrEmpty(type.attachmentName).readId()
             )
 
             else -> null
@@ -63,9 +65,9 @@ class Attachment(private val gun: GunData) {
     private fun getTag(type: AttachmentType): CompoundTag? {
         val tag = attachment.get(type.attachmentName) ?: return null
         return when (tag.id) {
-            Tag.TAG_COMPOUND -> attachment.getCompound(type.attachmentName)
+            Tag.TAG_COMPOUND -> attachment.getCompoundOrEmpty(type.attachmentName)
             Tag.TAG_STRING -> CompoundTag().apply {
-                putString("Id", attachment.getString(type.attachmentName))
+                putString("Id", attachment.getStringOr(type.attachmentName, ""))
             }
 
             else -> null
@@ -76,9 +78,9 @@ class Attachment(private val gun: GunData) {
         val name = type.attachmentName
         val current = attachment.get(name)
         val tag = when (current?.id) {
-            Tag.TAG_COMPOUND -> attachment.getCompound(name)
+            Tag.TAG_COMPOUND -> attachment.getCompoundOrEmpty(name)
             Tag.TAG_STRING -> CompoundTag().apply {
-                putString("Id", attachment.getString(name))
+                putString("Id", attachment.getStringOr(name, ""))
             }
 
             else -> CompoundTag()
@@ -100,7 +102,7 @@ class Attachment(private val gun: GunData) {
      */
     fun getTagIfCompound(type: AttachmentType): CompoundTag? =
         if (attachment.get(type.attachmentName)?.id == Tag.TAG_COMPOUND) {
-            attachment.getCompound(type.attachmentName)
+            attachment.getCompoundOrEmpty(type.attachmentName)
         } else {
             null
         }
@@ -172,7 +174,7 @@ class Attachment(private val gun: GunData) {
     fun getRotation(type: AttachmentType): Double {
         val tag = getTag(type) ?: return 0.0
         if (!tag.contains("Rotation")) return 0.0
-        return tag.getDouble("Rotation").coerceIn(0.0, 360.0)
+        return tag.getDoubleOr("Rotation", 0.0).coerceIn(0.0, 360.0)
     }
 
     fun setRotation(type: AttachmentType, rotation: Double) {
@@ -188,7 +190,7 @@ class Attachment(private val gun: GunData) {
     fun getOffset(type: AttachmentType): Double {
         val tag = getTag(type) ?: return 0.0
         if (!tag.contains("Offset")) return 0.0
-        return tag.getDouble("Offset")
+        return tag.getDoubleOr("Offset", 0.0)
     }
 
     fun setOffset(type: AttachmentType, offset: Double) {
@@ -210,7 +212,7 @@ class Attachment(private val gun: GunData) {
         val tag = getTag(type) ?: return NO_LASER_COLOR
         if (!tag.contains("LaserColor")) return NO_LASER_COLOR
 
-        val color = tag.getInt("LaserColor")
+        val color = tag.getIntOr("LaserColor", 0)
         return if (color in 0..LASER_COLOR_MASK) color else NO_LASER_COLOR
     }
 
@@ -278,7 +280,7 @@ class Attachment(private val gun: GunData) {
     fun getZoom(type: AttachmentType): Double? {
         val tag = getTag(type) ?: return null
         if (!tag.contains("Zoom")) return null
-        return tag.getDouble("Zoom")
+        return tag.getDoubleOr("Zoom", 0.0)
     }
 
     fun setZoom(type: AttachmentType, zoom: Double) {
@@ -288,7 +290,7 @@ class Attachment(private val gun: GunData) {
 
     fun scopeMode(type: AttachmentType): Int {
         val tag = getTag(type) ?: return 0
-        return if (tag.contains("Mode")) tag.getInt("Mode").coerceAtLeast(0) else 0
+        return if (tag.contains("Mode")) tag.getIntOr("Mode", 0).coerceAtLeast(0) else 0
     }
 
     fun setScopeMode(type: AttachmentType, mode: Int) {
@@ -364,6 +366,6 @@ data class AttachmentInstance(
 )
 
 private fun CompoundTag.readId(): String {
-    val id = getString("Id")
-    return id.ifBlank { getString("Name") }
+    val id = getStringOr("Id", "")
+    return id.ifBlank { getStringOr("Name", "") }
 }

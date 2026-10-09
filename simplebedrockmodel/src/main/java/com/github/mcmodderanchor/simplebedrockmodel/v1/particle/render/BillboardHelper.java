@@ -122,7 +122,7 @@ public final class BillboardHelper {
                 .setColor(particle.r, particle.g, particle.b, particle.a)
                 .setUv(u, v)
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(LightCoordsUtil.FULL_BRIGHT)
+                .setLight(light)
                 .setNormal(pose, 0, 1, 0);
     }
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.config.server.MiscConfig
@@ -38,8 +40,8 @@ object VehicleTeamOverlay : CommonOverlay("vehicle_team") {
 
         val stack = player.mainHandItem
         val usingDrone = stack.`is`(ModItems.MONITOR)
-                && NBTTool.getTag(stack).getBoolean("Using")
-                && NBTTool.getTag(stack).getBoolean("Linked")
+                && NBTTool.getTag(stack).getBooleanOr("Using", false)
+                && NBTTool.getTag(stack).getBooleanOr("Linked", false)
 
         val poseStack = guiGraphics.pose()
         if (!usingDrone) {
@@ -168,16 +170,16 @@ object VehicleTeamOverlay : CommonOverlay("vehicle_team") {
 
                 guiGraphics.drawString(font, Component.literal(range), -font.width(range) / 2, 7, color, false)
 
-                RenderHelper.fill(guiGraphics, RenderType.guiOverlay(), -40.5f, -2f, 40.5f, 2f, 0f, -0x80000000)
-                RenderHelper.fill(guiGraphics, RenderType.guiOverlay(), -41.5f, -3f, -40.5f, 3f, 0f, argb)
-                RenderHelper.fill(guiGraphics, RenderType.guiOverlay(), -40.5f, -3f, 40.5f, -2f, 0f, argb)
-                RenderHelper.fill(guiGraphics, RenderType.guiOverlay(), -40.5f, 2f, 40.5f, 3f, 0f, argb)
-                RenderHelper.fill(guiGraphics, RenderType.guiOverlay(), 40.5f, -3f, 41.5f, 3f, 0f, argb)
+                RenderHelper.fill(guiGraphics, null, -40.5f, -2f, 40.5f, 2f, 0f, -0x80000000)
+                RenderHelper.fill(guiGraphics, null, -41.5f, -3f, -40.5f, 3f, 0f, argb)
+                RenderHelper.fill(guiGraphics, null, -40.5f, -3f, 40.5f, -2f, 0f, argb)
+                RenderHelper.fill(guiGraphics, null, -40.5f, 2f, 40.5f, 3f, 0f, argb)
+                RenderHelper.fill(guiGraphics, null, 40.5f, -3f, 41.5f, 3f, 0f, argb)
                 val health = lookingEntity.health
                 val maxHealth = lookingEntity.getMaxHealth()
                 RenderHelper.fill(
                     guiGraphics,
-                    RenderType.guiOverlay(),
+                    null,
                     -40f,
                     -1.5f,
                     -40 + 80 * ((if (lookingEntity.isWreck) (health + maxHealth) else health) / maxHealth),

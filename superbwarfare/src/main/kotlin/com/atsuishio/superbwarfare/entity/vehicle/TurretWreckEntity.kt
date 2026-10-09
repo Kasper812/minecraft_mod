@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.client.lighting.VehicleLightingHandler
 import com.atsuishio.superbwarfare.client.particle.CustomCloudOption
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
@@ -41,8 +49,8 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.MoverType
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.Boat
-import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.entity.vehicle.boat.Boat
+import net.minecraft.world.entity.vehicle.minecart.Minecart
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.entity.EntityTypeTest
@@ -55,7 +63,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
     companion object {
         @JvmField
         val QUATERNION: EntityDataAccessor<Quaternionf> =
-            SynchedEntityData.defineId(TurretWreckEntity::class.java, EntityDataSerializers.QUATERNION)
+            SynchedEntityData.defineId(TurretWreckEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.QUATERNIONF)
 
         @JvmField
         val VEHICLE_NAME: EntityDataAccessor<String> =
@@ -93,7 +101,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
         }
     open var lastDamageStamp: Long = 0
 
-    override fun canBeCollidedWith(): Boolean {
+    override fun canBeCollidedWith(other: Entity?): Boolean {
         return true
     }
 
@@ -105,7 +113,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
         return !this.isRemoved
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         var computedAmount = amount
         computedAmount = DAMAGE_MODIFIER.compute(this, source, computedAmount)
         entityData.set(HEALTH, entityData.get(HEALTH) - computedAmount)
@@ -149,7 +157,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
             this.lastDamageSource = source
             this.lastDamageStamp = level().gameTime
         }
-        return super.hurt(source, computedAmount)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -160,21 +168,25 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         entityData.set(
             QUATERNION,
             Quaternionf(
-                compound.getFloat("Qx"),
-                compound.getFloat("Qy"),
-                compound.getFloat("Qz"),
-                compound.getFloat("Qw")
+                compound.getFloatOr("Qx", 0f),
+                compound.getFloatOr("Qy", 0f),
+                compound.getFloatOr("Qz", 0f),
+                compound.getFloatOr("Qw", 0f)
             )
         )
-        entityData.set(VEHICLE_NAME, compound.getString("VehicleName"))
-        entityData.set(HEALTH, compound.getFloat("Health"))
+        entityData.set(VEHICLE_NAME, compound.getStringOr("VehicleName", ""))
+        entityData.set(HEALTH, compound.getFloatOr("Health", 0f))
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         val q = entityData.get(QUATERNION)
         compound.putFloat("Qx", q.x())
         compound.putFloat("Qy", q.y())
@@ -323,7 +335,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
                     if (random > chance) return@forEach
 
                     val name = entry.name
-                    val item = BuiltInRegistries.ITEM.get(Identifier.parse(name))
+                    val item = BuiltInRegistries.ITEM.getValue(Identifier.parse(name))
                     val count = entry.count
                     val entity = ItemEntity(level(), x, (y + 1), z, ItemStack(item, count))
                     entity.setPickUpDelay(10)
@@ -400,7 +412,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
                     this.level().playSound(null, this, ModSounds.VEHICLE_STRIKE, this.soundSource, 1f, 1f)
                 }
                 this.bounceVertical(
-                    Direction.getNearest(
+                    Direction.getApproximateNearest(
                         this.deltaMovement.x(),
                         this.deltaMovement.y(),
                         this.deltaMovement.z()
@@ -411,7 +423,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
 
         if (this.horizontalCollision) {
             this.bounceHorizontal(
-                Direction.getNearest(
+                Direction.getApproximateNearest(
                     this.deltaMovement.x(),
                     this.deltaMovement.y(),
                     this.deltaMovement.z()
@@ -492,7 +504,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
             this.level().playSound(null, this, ModSounds.VEHICLE_STRIKE, this.soundSource, 1f, 1f)
 
             if (entity is LivingEntity) {
-                entity.hurt(
+                entity.hurtOrSimulate(
                     ModDamageTypes.causeVehicleStrikeDamage(
                         this.level().registryAccess(),
                         this, this

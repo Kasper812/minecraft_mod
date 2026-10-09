@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
@@ -21,10 +23,10 @@ data class VehicleMovementMessage(val keys: Short) : ServerPacketPayload() {
         val vehicle = if (entity is VehicleEntity && entity.getFirstPassenger() === player) {
             entity
         } else if (stack.`is`(ModItems.MONITOR)
-            && tag.getBoolean("Using")
-            && tag.getBoolean("Linked")
+            && tag.getBooleanOr("Using", false)
+            && tag.getBooleanOr("Linked", false)
         ) {
-            EntityFindUtil.findDrone(player.level(), tag.getString("LinkedDrone")) ?: return
+            EntityFindUtil.findDrone(player.level(), tag.getStringOr("LinkedDrone", "")) ?: return
         } else return
 
         vehicle.processInput(keys)

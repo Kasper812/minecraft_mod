@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import com.atsuishio.portlib.render.legacy.LegacyBlockEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -15,7 +19,7 @@ import net.minecraft.core.Direction
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
-class VehicleAssemblingTableBlockEntityRenderer : BlockEntityRenderer<VehicleAssemblingTableBlockEntity> {
+class VehicleAssemblingTableBlockEntityRenderer : LegacyBlockEntityRenderer<VehicleAssemblingTableBlockEntity> {
     override fun render(
         blockEntity: VehicleAssemblingTableBlockEntity,
         partialTick: Float,
@@ -47,7 +51,7 @@ class VehicleAssemblingTableBlockEntityRenderer : BlockEntityRenderer<VehicleAss
             packedOverlay
         )
 
-        if (blockEntity.level?.isNight == true) {
+        if (blockEntity.level?.isNight() == true) {
             instance.renderToBuffer(
                 poseStack,
                 buffer.getBuffer(RenderTypes.eyes(TEXTURE_E)),
@@ -60,11 +64,11 @@ class VehicleAssemblingTableBlockEntityRenderer : BlockEntityRenderer<VehicleAss
     }
 
     override fun shouldRender(blockEntity: VehicleAssemblingTableBlockEntity, cameraPos: Vec3): Boolean {
-        return blockEntity.blockState.getValue(VehicleAssemblingTableBlock.BLOCK_PART) == BlockPart.FLB
+        return true
     }
 
-    override fun shouldRenderOffScreen(blockEntity: VehicleAssemblingTableBlockEntity): Boolean {
-        return blockEntity.blockState.getValue(VehicleAssemblingTableBlock.BLOCK_PART) == BlockPart.FLB
+    override fun shouldRenderOffScreen(): Boolean {
+        return true
     }
 
     companion object {

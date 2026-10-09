@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.IVehicleInteract
@@ -17,10 +19,12 @@ import net.minecraft.world.item.TooltipFlag
 class VehicleDamageAnalyzerItem : Item(Properties().stacksTo(1).rarity(Rarity.UNCOMMON)), IVehicleInteract {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.vehicle_damage_analyzer").withStyle(ChatFormatting.GRAY)
         )

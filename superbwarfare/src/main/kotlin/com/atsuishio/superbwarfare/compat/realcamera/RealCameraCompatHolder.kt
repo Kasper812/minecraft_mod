@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.realcamera
 
+import com.atsuishio.superbwarfare.port.*
+
 object RealCameraCompatHolder {
     @JvmStatic
     fun hasMod(): Boolean = false

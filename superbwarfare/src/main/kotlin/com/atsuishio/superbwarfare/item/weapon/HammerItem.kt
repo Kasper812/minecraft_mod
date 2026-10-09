@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.init.ModTags
@@ -14,15 +16,15 @@ import net.minecraft.world.Container
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.SwordItem
-import net.minecraft.world.item.Tier
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ToolMaterial
 import net.minecraft.world.item.TooltipFlag
 import org.joml.Math
 
-open class HammerItem(tier: Tier, attackDamage: Int, attackSpeed: Float, properties: Properties) :
-    SwordItem(tier, properties.attributes(createAttributes(tier, attackDamage, attackSpeed))) {
+open class HammerItem(tier: ToolMaterial, attackDamage: Int, attackSpeed: Float, properties: Properties) :
+    Item(properties.sword(tier, attackDamage.toFloat(), attackSpeed)) {
 
-    constructor(tier: Tier, attackDamage: Int, attackSpeed: Float, maxDamage: Int) : this(
+    constructor(tier: ToolMaterial, attackDamage: Int, attackSpeed: Float, maxDamage: Int) : this(
         tier,
         attackDamage,
         attackSpeed,
@@ -32,18 +34,20 @@ open class HammerItem(tier: Tier, attackDamage: Int, attackSpeed: Float, propert
     @Environment(EnvType.CLIENT)
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         TooltipTool.addHideText(
             tooltipComponents,
-            Component.translatable("des.superbwarfare.hammer", NBTTool.getTag(stack).getInt("CraftCount"))
+            Component.translatable("des.superbwarfare.hammer", NBTTool.getTag(stack).getIntOr("CraftCount", 0))
                 .withStyle(ChatFormatting.GRAY)
         )
     }
 
-    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
+    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity) {
         attacker.level().playSound(
             null,
             target.onPos,
@@ -52,7 +56,7 @@ open class HammerItem(tier: Tier, attackDamage: Int, attackSpeed: Float, propert
             1f,
             ((2 * Math.random() - 1) * 0.1f + 1.0f).toFloat()
         )
-        return super.hurtEnemy(stack, target, attacker)
+        super.hurtEnemy(stack, target, attacker)
     }
 
     companion object {
@@ -61,7 +65,7 @@ open class HammerItem(tier: Tier, attackDamage: Int, attackSpeed: Float, propert
             val stack = itemstack.copy()
 
             val tag = NBTTool.getTag(stack)
-            tag.putInt("CraftCount", tag.getInt("CraftCount") + 1)
+            tag.putInt("CraftCount", tag.getIntOr("CraftCount", 0) + 1)
             NBTTool.saveTag(stack, tag)
 
             if (!itemstack.isDamageableItem) return stack

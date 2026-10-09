@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.debug
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.DataCodec
 import com.atsuishio.superbwarfare.data.DataLoader

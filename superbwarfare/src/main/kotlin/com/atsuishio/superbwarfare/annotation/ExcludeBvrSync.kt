@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.annotation
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * 标记一个 [net.minecraft.network.syncher.EntityDataAccessor] 字段，
  * 使其对应的 NBT 条目在超视距同步包中被移除，以节省带宽。

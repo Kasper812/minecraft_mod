@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.CustomData
 import com.atsuishio.superbwarfare.item.gun.EmptyGunItem
 import com.atsuishio.superbwarfare.item.gun.GunItem

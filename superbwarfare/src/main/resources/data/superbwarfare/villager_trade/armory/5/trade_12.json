@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 42
+  },
+  "gives": {
+    "id": "superbwarfare:magnificent_howl"
+  },
+  "max_uses": 4,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

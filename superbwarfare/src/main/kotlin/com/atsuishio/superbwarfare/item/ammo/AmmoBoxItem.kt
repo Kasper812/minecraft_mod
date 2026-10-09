@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.ammo
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.init.ModComponents
 import com.atsuishio.superbwarfare.init.ModDataComponents
@@ -14,7 +18,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.SlotAccess
 import net.minecraft.world.entity.player.Player
@@ -83,11 +86,11 @@ open class AmmoBoxItem : Item(Properties().stacksTo(1)) {
         }
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
 
         if (hand == InteractionHand.OFF_HAND) {
-            return InteractionResultHolder.fail(stack)
+            return InteractionResult.FAIL
         }
 
         player.cooldowns.addCooldown(this, 10)
@@ -127,7 +130,7 @@ open class AmmoBoxItem : Item(Properties().stacksTo(1)) {
             }
         }
 
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     // ToDo: Usar luego en evento custom o Mixin
@@ -158,10 +161,12 @@ open class AmmoBoxItem : Item(Properties().stacksTo(1)) {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val type = stack.ammoBoxData.type
 
         tooltipComponents.add(Component.translatable("des.superbwarfare.ammo_box").withStyle(ChatFormatting.GRAY))

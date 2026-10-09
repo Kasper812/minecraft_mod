@@ -1,12 +1,13 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
@@ -57,17 +58,17 @@ abstract class AbstractDeployerItem(properties: Properties) : Item(properties) {
         }
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val itemstack = player.getItemInHand(hand)
         val hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY)
         if (hitResult.type != HitResult.Type.BLOCK) {
-            return InteractionResultHolder.pass(itemstack)
+            return InteractionResult.PASS
         } else if (level !is ServerLevel) {
-            return InteractionResultHolder.success(itemstack)
+            return InteractionResult.SUCCESS
         } else {
             val blockpos = hitResult.blockPos
             if (level.getBlockState(blockpos).block !is LiquidBlock) {
-                return InteractionResultHolder.pass(itemstack)
+                return InteractionResult.PASS
             } else if (level.mayInteract(player, blockpos)
                 && player.mayUseItemAt(blockpos, hitResult.direction, itemstack)
             ) {
@@ -85,9 +86,9 @@ abstract class AbstractDeployerItem(properties: Properties) : Item(properties) {
 
                 player.awardStat(Stats.ITEM_USED.get(this))
                 level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position())
-                return InteractionResultHolder.consume(itemstack)
+                return InteractionResult.CONSUME
             } else {
-                return InteractionResultHolder.fail(itemstack)
+                return InteractionResult.FAIL
             }
         }
     }

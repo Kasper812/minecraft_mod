@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import com.atsuishio.portlib.render.legacy.LegacyBlockEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.block.ChargingStationBlock
@@ -14,7 +18,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
 @Environment(EnvType.CLIENT)
-class ChargingStationBlockEntityRenderer : BlockEntityRenderer<ChargingStationBlockEntity> {
+class ChargingStationBlockEntityRenderer : LegacyBlockEntityRenderer<ChargingStationBlockEntity> {
     override fun render(
         pBlockEntity: ChargingStationBlockEntity,
         pPartialTick: Float,
@@ -92,7 +96,7 @@ class ChargingStationBlockEntityRenderer : BlockEntityRenderer<ChargingStationBl
         pPoseStack.popPose()
     }
 
-    override fun shouldRenderOffScreen(pBlockEntity: ChargingStationBlockEntity): Boolean {
+    override fun shouldRenderOffScreen(): Boolean {
         return true
     }
 

@@ -1,18 +1,20 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.Tom6Entity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import com.atsuishio.portlib.render.MultiBufferSource
-import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.TntMinecartRenderer
 import net.minecraft.world.level.block.Blocks
 
 class Tom6Renderer(manager: EntityRendererProvider.Context) : GeoVehicleRenderer<Tom6Entity>(manager) {
 
-    private val blockRenderer: BlockRenderDispatcher = manager.blockRenderDispatcher
+    private val blockModelResolver: net.minecraft.client.renderer.block.BlockModelResolver = manager.blockModelResolver
+    private val melonModel = net.minecraft.client.renderer.block.BlockModelRenderState()
 
     override fun renderCustomPart(
         entity: Tom6Entity,
@@ -32,14 +34,10 @@ class Tom6Renderer(manager: EntityRendererProvider.Context) : GeoVehicleRenderer
             poseStack.mulPose(Axis.YP.rotationDegrees(-90.0f))
             poseStack.translate(-0.5, -0.5, 0.5)
             poseStack.mulPose(Axis.YP.rotationDegrees(90.0f))
-            TntMinecartRenderer.renderWhiteSolidBlock(
-                this.blockRenderer,
-                Blocks.MELON.defaultBlockState(),
-                poseStack,
-                buffer,
-                packedLight,
-                false
-            )
+            blockModelResolver.update(melonModel, Blocks.MELON.defaultBlockState(), net.minecraft.client.renderer.entity.TntRenderer.BLOCK_DISPLAY_CONTEXT)
+            com.atsuishio.portlib.render.LegacyRenderHelpers.collectorOf(buffer)?.let {
+                TntMinecartRenderer.submitWhiteSolidBlock(melonModel, poseStack, it, packedLight, false, 0)
+            }
             poseStack.popPose()
             poseStack.popPose()
         }

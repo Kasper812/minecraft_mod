@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.entity.projectile.MedicalKitEntity
 import com.atsuishio.superbwarfare.init.ModEntities
@@ -10,7 +14,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.effect.MobEffectInstance
 import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.Entity
@@ -19,7 +22,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.item.UseAnim
+import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.level.Level
 import org.joml.Math
 
@@ -27,19 +30,21 @@ import org.joml.Math
 open class MedicalKitItem : Item(Properties().stacksTo(16)) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.medical_kit").withStyle(ChatFormatting.GRAY))
     }
 
-    override fun use(level: Level, player: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, handIn: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(handIn)
 
         if (player.isShiftKeyDown) {
             if (!MiscConfig.THROW_MEDICAL_KIT.get()) {
-                return InteractionResultHolder.fail(stack)
+                return InteractionResult.FAIL
             }
 
             if (!level.isClientSide) {
@@ -61,17 +66,17 @@ open class MedicalKitItem : Item(Properties().stacksTo(16)) {
             }
 
             player.cooldowns.addCooldown(this, 25)
-            return InteractionResultHolder.success(stack)
+            return InteractionResult.SUCCESS
         } else if (player.health < player.maxHealth) {
             player.startUsingItem(handIn)
-            return InteractionResultHolder.success(stack)
+            return InteractionResult.SUCCESS
         }
 
-        return InteractionResultHolder.fail(stack)
+        return InteractionResult.FAIL
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim {
-        return UseAnim.BOW
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation {
+        return ItemUseAnimation.BOW
     }
 
     override fun finishUsingItem(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity): ItemStack {

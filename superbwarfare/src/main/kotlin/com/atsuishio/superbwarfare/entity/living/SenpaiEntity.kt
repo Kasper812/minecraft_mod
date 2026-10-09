@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.living
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.animation.entity.SenpaiAnimationInstance
@@ -51,7 +59,7 @@ open class SenpaiEntity(type: EntityType<SenpaiEntity>, level: Level) : Monster(
     override fun finalizeSpawn(
         level: ServerLevelAccessor,
         difficulty: DifficultyInstance,
-        spawnType: MobSpawnType,
+        spawnType: EntitySpawnReason,
         spawnGroupData: SpawnGroupData?
     ): SpawnGroupData? {
         this.runner = Math.random() < 0.3
@@ -77,14 +85,18 @@ open class SenpaiEntity(type: EntityType<SenpaiEntity>, level: Level) : Monster(
         return super.finalizeSpawn(level, difficulty, spawnType, spawnGroupData)
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putBoolean("Runner", this.runner)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        this.runner = compound.getBoolean("Runner")
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        this.runner = compound.getBooleanOr("Runner", false)
     }
 
     override fun getEyeY(): Double =
@@ -159,7 +171,7 @@ open class SenpaiEntity(type: EntityType<SenpaiEntity>, level: Level) : Monster(
         ++this.deathTime
         if (this.deathTime == 540) {
             this.remove(RemovalReason.KILLED)
-            this.dropExperience(null)
+            (this.level() as? net.minecraft.server.level.ServerLevel)?.let { this.dropExperience(it, null) }
         }
     }
 

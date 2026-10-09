@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.entity.vehicle.MortarEntity
 import com.atsuishio.superbwarfare.entity.vehicle.SodayoPickUpRocketEntity
@@ -27,15 +29,15 @@ object ArtilleryIndicatorFireMessage : ServerPacketPayload() {
         if (!stack.`is`(ModItems.ARTILLERY_INDICATOR)) return
 
         val mainTag = NBTTool.getTag(stack)
-        val tags = mainTag.getList(ArtilleryIndicatorItem.TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+        val tags = mainTag.getListOrEmpty(ArtilleryIndicatorItem.TAG_CANNON)
         if (tags.isEmpty()) {
             mainTag.remove(ArtilleryIndicatorItem.TAG_TYPE)
             return
         }
 
         for (i in tags.indices) {
-            val tag = tags.getCompound(i)
-            val entity = EntityFindUtil.findEntity(player.level(), tag.getString("UUID"))
+            val tag = tags.getCompoundOrEmpty(i)
+            val entity = EntityFindUtil.findEntity(player.level(), tag.getStringOr("UUID", ""))
 
             if (entity is VehicleEntity && entity.isWreck) continue
 

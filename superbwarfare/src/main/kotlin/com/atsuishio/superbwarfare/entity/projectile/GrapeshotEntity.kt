@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.*
 import com.atsuishio.superbwarfare.tools.ParticleTool
 import com.atsuishio.superbwarfare.tools.VectorTool.randomSpreadVec
@@ -47,7 +49,7 @@ open class GrapeshotEntity : FastThrowableProjectile {
         val headShotModifier = if (isHeadshot) this.getHeadShot() else 1f
         if (damage > 0) {
             entity.forceHurt(
-                ModDamageTypes.causeGrapeShotHitDamage(this.level().registryAccess(), this, this.owner),
+                ModDamageTypes.causeGrapeShotHitDamage(this.level().registryAccess(), this, this.getOwner()),
                 damage * headShotModifier
             )
             entity.invulnerableTime = 0

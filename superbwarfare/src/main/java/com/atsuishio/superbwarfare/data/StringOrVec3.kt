@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedVec3
 import com.atsuishio.superbwarfare.serialization.kserializer.Vec3Serializer
 import kotlinx.serialization.KSerializer

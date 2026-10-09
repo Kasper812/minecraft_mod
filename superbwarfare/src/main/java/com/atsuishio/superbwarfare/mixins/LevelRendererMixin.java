@@ -1,7 +1,7 @@
 package com.atsuishio.superbwarfare.mixins;
 
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.atsuishio.portlib.gui.LegacyRenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
@@ -32,8 +32,8 @@ public class LevelRendererMixin {
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;applyModelViewMatrix()V", ordinal = 0, shift = At.Shift.AFTER))
     private void onStartRenderLevel(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightCoordsUtil lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
-        ClientEventHandler.modelViewMatrix = RenderSystem.getModelViewMatrix();
-        ClientEventHandler.projectionMatrix = RenderSystem.getProjectionMatrix();
+        ClientEventHandler.modelViewMatrix = LegacyRenderSystem.getModelViewMatrix();
+        ClientEventHandler.projectionMatrix = LegacyRenderSystem.getProjectionMatrix();
     }
 
     // TODO 找到真正把实体渲染在世界中的位置进行mixin

@@ -127,7 +127,7 @@ public enum Ammo {
 
     // NBTTag
     public int get(CompoundTag tag) {
-        return tag.getInt(this.serializationName);
+        return tag.getIntOr(this.serializationName, 0);
     }
 
     public boolean set(CompoundTag tag, int count) {

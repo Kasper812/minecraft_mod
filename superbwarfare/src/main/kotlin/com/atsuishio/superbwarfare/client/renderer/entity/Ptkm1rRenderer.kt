@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -18,7 +22,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 
-class Ptkm1rRenderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<Ptkm1rEntity>(renderManager) {
+class Ptkm1rRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<Ptkm1rEntity>(renderManager) {
     override fun shouldShowName(pEntity: Ptkm1rEntity): Boolean {
         return false
     }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.Prop
 import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.data.gun.melee.MeleeAction

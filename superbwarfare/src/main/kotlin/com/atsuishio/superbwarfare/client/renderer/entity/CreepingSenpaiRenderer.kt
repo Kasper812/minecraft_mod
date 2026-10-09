@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -19,8 +23,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.Direction
 import net.minecraft.resources.Identifier
 
-class CreepingSenpaiRenderer(renderManager: EntityRendererProvider.Context) :
-    EntityRenderer<CreepingSenpaiEntity>(renderManager) {
+class CreepingSenpaiRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<CreepingSenpaiEntity>(renderManager) {
     init {
         this.shadowRadius = 0.5f
     }

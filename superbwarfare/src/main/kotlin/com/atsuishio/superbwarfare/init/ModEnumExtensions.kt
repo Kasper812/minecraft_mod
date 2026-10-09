@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import net.minecraft.client.model.HumanoidModel
 import net.minecraft.client.model.HumanoidModel.ArmPose
@@ -65,8 +67,7 @@ object ModEnumExtensions {
         val repairToolPose: ArmPose get() = REPAIR_TOOL_POSE
 
         @JvmStatic
-        fun applyArmPose(model: HumanoidModel<*>) {
-            val pose = model.rightArmPose
+        fun applyArmPose(model: HumanoidModel<*>, pose: ArmPose) {
 
             when (pose) {
                 SUPERBWARFARE_LUNGE_MINE_POSE -> {

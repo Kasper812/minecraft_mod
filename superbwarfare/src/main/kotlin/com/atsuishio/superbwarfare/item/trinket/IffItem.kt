@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.trinket
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.SyncConfig
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.network.message.receive.EntityRelationSyncMessage
@@ -7,9 +11,9 @@ import com.atsuishio.superbwarfare.network.message.receive.PlayerInfoSyncMessage
 import com.atsuishio.superbwarfare.tools.SeekTool
 import com.atsuishio.superbwarfare.tools.ServerSyncedEntityHandler
 import com.atsuishio.superbwarfare.tools.sendPacketTo
-import dev.emi.trinkets.api.SlotReference
-import dev.emi.trinkets.api.TrinketItem
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.SlotReference
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketItem
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
@@ -28,10 +32,12 @@ open class IffItem : TrinketItem(Properties().stacksTo(1)) {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.iff_1").withStyle(ChatFormatting.GRAY))
     }
 

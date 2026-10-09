@@ -1,10 +1,11 @@
 package com.atsuishio.superbwarfare.inventory.menu
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.ChargingStationBlockEntity
 import com.atsuishio.superbwarfare.init.ModMenuTypes
 import com.atsuishio.superbwarfare.network.dataslot.ContainerEnergyData
 import com.atsuishio.superbwarfare.network.dataslot.SimpleEnergyData
-import net.fabricmc.fabric.api.registry.FuelRegistry
 import team.reborn.energy.api.EnergyStorageUtil
 import net.minecraft.core.component.DataComponents
 import net.minecraft.world.Container
@@ -61,7 +62,7 @@ open class ChargingStationMenu @JvmOverloads constructor(
                     if (!this.moveItemStackTo(itemstack1, 1, 2, true)) {
                         return ItemStack.EMPTY
                     }
-                } else if (FuelRegistry.INSTANCE.get(itemstack1.item) != null || itemstack1.get(DataComponents.FOOD) != null) {
+                } else if (level.fuelValues().isFuel(itemstack1) || itemstack1.get(DataComponents.FOOD) != null) {
                     if (!this.moveItemStackTo(itemstack1, 0, 1, false)) {
                         return ItemStack.EMPTY
                     }

@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.vehicle.base
 
+import net.minecraft.world.entity.Entity
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.Mod
@@ -67,7 +77,7 @@ import com.google.common.collect.ImmutableList
 import com.mojang.math.Axis
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext
 import kotlinx.serialization.json.floatOrNull
 import kotlinx.serialization.json.jsonPrimitive
@@ -103,7 +113,7 @@ import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.projectile.AbstractArrow
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.entity.projectile.ProjectileUtil
 import net.minecraft.world.entity.vehicle.DismountHelper
@@ -739,7 +749,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
     open fun openMenu(player: Player) {
         if (player is ServerPlayer) {
             player.openMenu(
-                object : ExtendedScreenHandlerFactory<Int> {
+                object : ExtendedMenuProvider<Int> {
                     override fun getScreenOpeningData(player: ServerPlayer) = this@VehicleEntity.id
 
                     override fun getDisplayName() = Component.translatable(this@VehicleEntity.type.descriptionId)
@@ -840,7 +850,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         (pPassenger as PersistentDataAccessor).`superbwarfare$getPersistentData`().putInt(TAG_SEAT_INDEX, index)
 
         (this as EntityAccessor).setPassengers(
-            ImmutableList.copyOf(orderedPassengers.stream().filter { obj: Entity? -> Objects.nonNull(obj) }.toList())
+            ImmutableList.copyOf(orderedPassengers.filterNotNull())
         )
         this.gameEvent(GameEvent.ENTITY_MOUNT, pPassenger)
 
@@ -861,8 +871,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
         orderedPassengers[index] = null
         (this as EntityAccessor).setPassengers(
-            ImmutableList.copyOf(orderedPassengers.stream().filter { obj: Entity? -> Objects.nonNull(obj) }
-                .toList())
+            ImmutableList.copyOf(orderedPassengers.filterNotNull())
         )
 
         (pPassenger as EntityAccessor).setBoardingCooldown(60)
@@ -961,7 +970,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
      * @return 座位索引
      */
     open fun getTagSeatIndex(entity: Entity) =
-        (entity as PersistentDataAccessor).`superbwarfare$getPersistentData`().getInt(TAG_SEAT_INDEX)
+        (entity as PersistentDataAccessor).`superbwarfare$getPersistentData`().getIntOr(TAG_SEAT_INDEX, 0)
 
     open val thirdPersonCameraPosition: Vec3
         get() {
@@ -1609,23 +1618,25 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         gunXRotO = gunXRot
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         VehicleData.from(this).update()
-        override = compound.getString("Override")
-        skinId = compound.getString("SkinId")
+        override = compound.getStringOr("Override", "")
+        skinId = compound.getStringOr("SkinId", "")
 
         // GunData
-        val state = compound.getCompound("WeaponState")
+        val state = compound.getCompoundOrEmpty("WeaponState")
         val newMap = mutableMapOf<String, GunData>()
         val vehicleId = VehicleData.getRegistryId(this.type)
         for (key in state.allKeys) {
-            var tag = state.getCompound(key)
+            var tag = state.getCompoundOrEmpty(key)
 
             tag = tag.copy()
             tag.putString("id", "superbwarfare:vehicle_gun")
             tag.putInt("count", 1)
 
-            ItemStack.parse(this.level().registryAccess(), tag)
+            legacyParseItem(this.level().registryAccess(), tag)
                 .ifPresent { stack ->
                     // Ensure the baseline id is present even for stacks saved before this existed.
                     GunData.setDefaultDataId(stack, VehicleData.weaponDefaultDataId(vehicleId, key))
@@ -1635,42 +1646,42 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         gunDataMap = newMap
 
         health = if (compound.contains("Health")) {
-            compound.getFloat("Health")
+            compound.getFloatOr("Health", 0f)
         } else {
             this.getMaxHealth()
         }
 
         turretHealth = if (compound.contains("TurretHealth")) {
-            compound.getFloat("TurretHealth")
+            compound.getFloatOr("TurretHealth", 0f)
         } else this.getTurretMaxHealth()
         leftWheelHealth = if (compound.contains("LeftWheelHealth")) {
-            compound.getFloat("LeftWheelHealth")
+            compound.getFloatOr("LeftWheelHealth", 0f)
         } else this.getLeftWheelMaxHealth()
         rightWheelHealth = if (compound.contains("RightWheelHealth")) {
-            compound.getFloat("RightWheelHealth")
+            compound.getFloatOr("RightWheelHealth", 0f)
         } else this.getRightWheelMaxHealth()
         mainEngineHealth = if (compound.contains("MainEngineHealth")) {
-            compound.getFloat("MainEngineHealth")
+            compound.getFloatOr("MainEngineHealth", 0f)
         } else this.getMainEngineMaxHealth()
         subEngineHealth = if (compound.contains("SubEngineHealth")) {
-            compound.getFloat("SubEngineHealth")
+            compound.getFloatOr("SubEngineHealth", 0f)
         } else this.getSubEngineMaxHealth()
 
-        turretDamaged = compound.getBoolean("TurretDamaged")
-        leftWheelDamaged = compound.getBoolean("LeftWheelDamaged")
-        rightWheelDamaged = compound.getBoolean("RightWheelDamaged")
-        mainEngineDamaged = compound.getBoolean("MainEngineDamaged")
-        subEngineDamaged = compound.getBoolean("SubEngineDamaged")
+        turretDamaged = compound.getBooleanOr("TurretDamaged", false)
+        leftWheelDamaged = compound.getBooleanOr("LeftWheelDamaged", false)
+        rightWheelDamaged = compound.getBooleanOr("RightWheelDamaged", false)
+        mainEngineDamaged = compound.getBooleanOr("MainEngineDamaged", false)
+        subEngineDamaged = compound.getBooleanOr("SubEngineDamaged", false)
 
-        power = compound.getFloat("Power")
-        decoyCount = compound.getInt("DecoyCount")
-        decoyReloadCoolDown = compound.getInt("DecoyReloadCoolDown")
-        synchedGearRot = compound.getFloat("GearRot")
-        gearUp = compound.getBoolean("GearUp")
-        propellerRot = compound.getFloat("PropellerRot")
-        chargeProgress = compound.getFloat("ChargeProgress")
-        lastAttackerUUID = compound.getString("LastAttacker")
-        lastDriverUUID = compound.getString("LastDriver")
+        power = compound.getFloatOr("Power", 0f)
+        decoyCount = compound.getIntOr("DecoyCount", 0)
+        decoyReloadCoolDown = compound.getIntOr("DecoyReloadCoolDown", 0)
+        synchedGearRot = compound.getFloatOr("GearRot", 0f)
+        gearUp = compound.getBooleanOr("GearUp", false)
+        propellerRot = compound.getFloatOr("PropellerRot", 0f)
+        chargeProgress = compound.getFloatOr("ChargeProgress", 0f)
+        lastAttackerUUID = compound.getStringOr("LastAttacker", "")
+        lastDriverUUID = compound.getStringOr("LastDriver", "")
 
         val dogTagTag = compound.get("DogTagIcon")
         val list = mutableListOf<List<Short>>()
@@ -1685,16 +1696,16 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         }
         dogTagIcon = list
 
-        serverYaw = compound.getFloat("ServerYaw")
-        serverPitch = compound.getFloat("ServerPitch")
+        serverYaw = compound.getFloatOr("ServerYaw", 0f)
+        serverPitch = compound.getFloatOr("ServerPitch", 0f)
 
         // Restore turret & gun orientation from NBT
         if (compound.contains("TurretYRot")) {
-            turretYRot = compound.getFloat("TurretYRot")
-            turretXRot = compound.getFloat("TurretXRot")
-            gunYRot = compound.getFloat("GunYRot")
-            gunXRot = compound.getFloat("GunXRot")
-            turretYRotLock = compound.getFloat("TurretYRotLock")
+            turretYRot = compound.getFloatOr("TurretYRot", 0f)
+            turretXRot = compound.getFloatOr("TurretXRot", 0f)
+            gunYRot = compound.getFloatOr("GunYRot", 0f)
+            gunXRot = compound.getFloatOr("GunXRot", 0f)
+            turretYRotLock = compound.getFloatOr("TurretYRotLock", 0f)
 
             turretYRotO = turretYRot
             turretXRotO = turretXRot
@@ -1704,13 +1715,13 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
         // Restore flight modes from NBT
         if (compound.contains("HoverMode")) {
-            hoverMode = compound.getBoolean("HoverMode")
+            hoverMode = compound.getBooleanOr("HoverMode", false)
         }
 
-        isWreck = compound.getBoolean("IsWreck")
-        sympatheticDetonated = compound.getBoolean("SympatheticDetonated")
-        turretBurned = compound.getBoolean("TurretBurned")
-        turretBurnTimer = compound.getInt("TurretBurnTimer")
+        isWreck = compound.getBooleanOr("IsWreck", false)
+        sympatheticDetonated = compound.getBooleanOr("SympatheticDetonated", false)
+        turretBurned = compound.getBooleanOr("TurretBurned", false)
+        turretBurnTimer = compound.getIntOr("TurretBurnTimer", 0)
 
         val selectedWeaponTag = compound.get("SelectedWeapon")
         val selected = if (selectedWeaponTag is IntArrayTag) {
@@ -1733,43 +1744,45 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
         this.resizeItems()
         if (compound.contains("Inventory")) {
-            this.inventory.deserializeNBT(level().registryAccess(), compound.getCompound("Inventory"))
+            this.inventory.deserializeNBT(level().registryAccess(), compound.getCompoundOrEmpty("Inventory"))
         } else {
             val items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY)
-            ContainerHelper.loadAllItems(compound, items, level().registryAccess())
+            com.atsuishio.portlib.nbt.LegacyNbt.loadAllItems(compound, items, level().registryAccess())
             this.inventory.setItems(items)
         }
 
-        locked = compound.getBoolean("Locked")
+        locked = compound.getBooleanOr("Locked", false)
 
         if (compound.contains("LoiterX")) {
             loiterParams = Quaternionf(
-                compound.getFloat("LoiterX"),
-                compound.getFloat("LoiterY"),
-                compound.getFloat("LoiterZ"),
-                compound.getFloat("LoiterR")
+                compound.getFloatOr("LoiterX", 0f),
+                compound.getFloatOr("LoiterY", 0f),
+                compound.getFloatOr("LoiterZ", 0f),
+                compound.getFloatOr("LoiterR", 0f)
             )
         }
         if (compound.contains("LoiterActive")) {
-            loiterActive = compound.getBoolean("LoiterActive")
+            loiterActive = compound.getBooleanOr("LoiterActive", false)
         }
 
         // 加载牵引列表：优先新格式，回退旧格式
         if (compound.contains("TowingUUIDs")) {
-            val listTag = compound.getList("TowingUUIDs", Tag.TAG_STRING.toInt())
+            val listTag = compound.getListOrEmpty("TowingUUIDs")
             val list = mutableListOf<String>()
             for (i in listTag.indices) {
-                list.add(listTag.getString(i))
+                list.add(listTag.getStringOr(i, ""))
             }
             towingUUIDs = list
         } else if (compound.contains("TowingUUID")) {
-            val oldUuid = compound.getString("TowingUUID")
+            val oldUuid = compound.getStringOr("TowingUUID", "")
             towingUUIDs = if (oldUuid.isNotBlank()) mutableListOf(oldUuid) else mutableListOf()
         }
-        towedByUUID = compound.getString("TowedByUUID")
+        towedByUUID = compound.getStringOr("TowedByUUID", "")
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         checkSeatsSize()
 
         compound.putFloat("Health", health)
@@ -1789,7 +1802,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
         val listTag = ListTag()
         dogTagIcon.forEach {
-            listTag.add(IntArrayTag(it.toShortArray().map { num -> num.toInt() }))
+            listTag.add(IntArrayTag(it.toShortArray().map { num -> num.toInt() }.toIntArray()))
         }
         compound.put("DogTagIcon", listTag)
 
@@ -1804,10 +1817,10 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
             stackTag.remove("id")
             stackTag.remove("Count")
 
-            if (stackTag.contains("tag", Tag.TAG_COMPOUND.toInt())) {
-                val itemTag = stackTag.getCompound("tag")
-                if (itemTag.contains("GunData", Tag.TAG_COMPOUND.toInt())) {
-                    val gunTag = itemTag.getCompound("GunData")
+            if (stackTag.contains("tag")) {
+                val itemTag = stackTag.getCompoundOrEmpty("tag")
+                if (itemTag.contains("GunData")) {
+                    val gunTag = itemTag.getCompoundOrEmpty("GunData")
                     gunTag.remove("BackupAmmoCount")
                 }
             }
@@ -1854,7 +1867,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         compound.putBoolean("HoverMode", hoverMode)
 
         if (this.maxPassengers > 0) {
-            compound.putIntArray("SelectedWeapon", selectedWeapon)
+            compound.putIntArray("SelectedWeapon", selectedWeapon.toIntArray())
         }
 
         if (this.hasEnergyStorage()) {
@@ -1941,7 +1954,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
     private fun Player.isFakePlayer(): Boolean = javaClass.simpleName.contains("FakePlayer")
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (player.vehicle === this) return InteractionResult.PASS
 
         val mainStack = player.mainHandItem
@@ -1965,12 +1978,12 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         if (mainStack.item is NameTagItem && mainStack.hasCustomHoverName()) {
             this.customName = mainStack.hoverName
             mainStack.shrink(1)
-            return InteractionResult.sidedSuccess(this.level().isClientSide())
+            return InteractionResult.SUCCESS
         }
 
         if (this.hasMenu() && player.isShiftKeyDown) {
             this.openMenu(player)
-            return InteractionResult.sidedSuccess(player.level().isClientSide)
+            return InteractionResult.SUCCESS
         }
 
         if (!player.isShiftKeyDown
@@ -2048,7 +2061,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         VehicleVecUtils.setDriverAngle(this, player)
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         if (source.`is`(ModTags.DamageTypes.VEHICLE_IMMUNE)) return false
 
         if (DamageTypeTool.isGunDamage(source)
@@ -2118,7 +2131,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
             ModCriteriaTriggers.VEHICLE_HURT.trigger(entity, source, computedAmount)
         }
 
-        return super.hurt(source, computedAmount)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
     /**
@@ -2216,10 +2229,10 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
      *   <li><b>Ground vehicles</b>: Checked every 4 ticks (0.2s lag is imperceptible).</li>
      * </ul>
      */
-    override fun updateInWaterStateAndDoFluidPushing(): Boolean {
+    override fun updateFluidInteraction(): Boolean {
         // Safety guard: execute standard logic during entity constructor initialization
         if (!isInitialized) {
-            return super.updateInWaterStateAndDoFluidPushing()
+            return super.updateFluidInteraction()
         }
 
         val interval = when {
@@ -2235,7 +2248,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
             return isInWater
         }
 
-        return super.updateInWaterStateAndDoFluidPushing()
+        return super.updateFluidInteraction()
     }
 
     private fun isInFluidType(fallback: Boolean, matches: (net.minecraft.world.level.material.FluidState) -> Boolean): Boolean {
@@ -2316,7 +2329,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
     override fun lavaHurt() {
         if (tickCount % 10 == 0) {
-            this.hurt(this.damageSources().lava(), 4.0f)
+            this.hurtOrSimulate(this.damageSources().lava(), 4.0f)
         }
     }
 
@@ -2332,7 +2345,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         )
     }
 
-    override fun canBeCollidedWith(): Boolean {
+    override fun canBeCollidedWith(other: Entity?): Boolean {
         return this.enableAABB()
     }
 
@@ -2852,8 +2865,8 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
                 }
 
                 val yaw = this.yRot
-                val sinYaw = Mth.sin(yaw * Mth.DEG_TO_RAD)
-                val cosYaw = Mth.cos(yaw * Mth.DEG_TO_RAD)
+                val sinYaw = com.atsuishio.portlib.util.LegacyMth.sin(yaw * Mth.DEG_TO_RAD)
+                val cosYaw = com.atsuishio.portlib.util.LegacyMth.cos(yaw * Mth.DEG_TO_RAD)
 
                 val forward = Vec3(-sinYaw.toDouble(), 0.0, cosYaw.toDouble())
                 val right = Vec3(-cosYaw.toDouble(), 0.0, -sinYaw.toDouble())
@@ -2932,8 +2945,8 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
      * @param chunkPos target chunk position
      */
     private fun keepChunkLoaded(chunkPos: ChunkPos) {
-        (level() as ServerLevel).chunkSource.addRegionTicket(
-            TicketType.POST_TELEPORT, chunkPos, 3, this.id
+        (level() as ServerLevel).chunkSource.addTicketWithRadius(
+            com.atsuishio.superbwarfare.init.ModTicketTypes.VEHICLE, chunkPos, 3
         )
     }
 
@@ -2946,12 +2959,12 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
      * vehicle is stationary or moving slowly within one chunk boundary.
      */
     open fun keepChunkLoaded(position: Vec3) {
-        val currentChunk = ChunkPos(BlockPos.containing(position))
+        val currentChunk = ChunkPos.containing(BlockPos.containing(position))
         keepChunkLoaded(currentChunk)
 
         // Only add a second ticket when the look-ahead position is in a different chunk.
         val aheadPos = position.add(deltaMovement.normalize().scale(16.0))
-        val aheadChunk = ChunkPos(BlockPos.containing(aheadPos))
+        val aheadChunk = ChunkPos.containing(BlockPos.containing(aheadPos))
         if (aheadChunk != currentChunk) {
             keepChunkLoaded(aheadChunk)
         }
@@ -4045,7 +4058,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
             serverPitch = xRot
         }
 
-        if (isControlledByLocalInstance) {
+        if (isLocalInstanceAuthoritative) {
             interpolationSteps = 0
             syncPacketPositionCodec(x, y, z)
         }
@@ -4068,7 +4081,32 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         --interpolationSteps
     }
 
-    override fun lerpTo(x: Double, y: Double, z: Double, yRot: Float, xRot: Float, steps: Int) {
+    private val legacyInterpolation: InterpolationHandler = object : InterpolationHandler(this) {
+        override fun interpolateTo(position: Vec3, yRot: Float, xRot: Float) {
+            this@VehicleEntity.lerpTo(position.x, position.y, position.z, yRot, xRot, 10)
+        }
+
+        override fun position(): Vec3 =
+            if (this@VehicleEntity.interpolationSteps > 0) Vec3(this@VehicleEntity.xO, this@VehicleEntity.yO, this@VehicleEntity.zO)
+            else this@VehicleEntity.position()
+
+        override fun yRot(): Float = this@VehicleEntity.serverYaw
+
+        override fun xRot(): Float = this@VehicleEntity.serverPitch
+
+        override fun hasActiveInterpolation(): Boolean = this@VehicleEntity.interpolationSteps > 0
+
+        override fun interpolate() {
+        }
+
+        override fun cancel() {
+            this@VehicleEntity.interpolationSteps = 0
+        }
+    }
+
+    override fun getInterpolation(): InterpolationHandler = legacyInterpolation
+
+    open fun lerpTo(x: Double, y: Double, z: Double, yRot: Float, xRot: Float, steps: Int) {
         this.xO = x
         this.yO = y
         this.zO = z
@@ -4656,7 +4694,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
             val block = blockstate.block
             if (pPos.y != vec3.y) {
-                block.updateEntityAfterFallOn(this.level(), this)
+                this.deltaMovement = this.deltaMovement.multiply(1.0, 0.0, 1.0)
             }
 
             if (this.onGround()) {
@@ -4687,7 +4725,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
             if (this.vehicleType == VehicleType.AIRPLANE
                 && ((synchedGearRot > 0.15 && this !is Tom6Entity) || Mth.abs(this.roll) > 20 || Mth.abs(xRot) > 30)
             ) {
-                this.hurt(
+                this.hurtOrSimulate(
                     ModDamageTypes.causeVehicleStrikeDamage(
                         this.level().registryAccess(),
                         this,
@@ -4696,14 +4734,14 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
                     if (isWreck) 0f else ((8 + Mth.abs(this.roll * 0.2f)) * (lastTickSpeed - 0.4) * (lastTickSpeed - 0.4)).toFloat()
                 )
                 this.bounceVertical(
-                    Direction.getNearest(
+                    Direction.getApproximateNearest(
                         this.deltaMovement.x(),
                         this.deltaMovement.y(),
                         this.deltaMovement.z()
                     ).opposite
                 )
             } else if (Mth.abs(lastTickVerticalSpeed.toFloat()) > 0.4) {
-                this.hurt(
+                this.hurtOrSimulate(
                     ModDamageTypes.causeVehicleStrikeDamage(
                         this.level().registryAccess(),
                         this,
@@ -4715,7 +4753,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
                     this.level().playSound(null, this, ModSounds.VEHICLE_STRIKE, this.soundSource, 1f, 1f)
                 }
                 this.bounceVertical(
-                    Direction.getNearest(
+                    Direction.getApproximateNearest(
                         this.deltaMovement.x(),
                         this.deltaMovement.y(),
                         this.deltaMovement.z()
@@ -4725,7 +4763,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         }
 
         if (this.horizontalCollision) {
-            this.hurt(
+            this.hurtOrSimulate(
                 ModDamageTypes.causeVehicleStrikeDamage(
                     this.level().registryAccess(),
                     this,
@@ -4733,7 +4771,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
                 ), (18 * ((lastTickSpeed - 0.2) * (lastTickSpeed - 0.2))).toFloat()
             )
             this.bounceHorizontal(
-                Direction.getNearest(
+                Direction.getApproximateNearest(
                     this.deltaMovement.x(),
                     this.deltaMovement.y(),
                     this.deltaMovement.z()
@@ -4791,15 +4829,15 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
     open fun crushEntities() = VehicleMotionUtils.crushEntities(this)
 
     open fun getForwardDirection(): Vector3f = Vector3f(
-        Mth.sin(-yRot * (Math.PI.toFloat() / 180)),
+        com.atsuishio.portlib.util.LegacyMth.sin(-yRot * (Math.PI.toFloat() / 180)),
         0.0f,
-        Mth.cos(yRot * (Math.PI.toFloat() / 180))
+        com.atsuishio.portlib.util.LegacyMth.cos(yRot * (Math.PI.toFloat() / 180))
     ).normalize()
 
     open fun getRightDirection(): Vector3f = Vector3f(
-        Mth.cos(-yRot * (Math.PI.toFloat() / 180)),
+        com.atsuishio.portlib.util.LegacyMth.cos(-yRot * (Math.PI.toFloat() / 180)),
         0.0f,
-        Mth.sin(yRot * (Math.PI.toFloat() / 180))
+        com.atsuishio.portlib.util.LegacyMth.sin(yRot * (Math.PI.toFloat() / 180))
     ).normalize()
 
     open fun getEngineSound(): SoundEvent? = this.computed().engineSound
@@ -4874,10 +4912,10 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
     open var towingUUIDs: MutableList<String>
         get() {
             val tag = entityData.get(TOWING_UUIDS)
-            val listTag = tag.getList("list", Tag.TAG_STRING.toInt())
+            val listTag = tag.getListOrEmpty("list")
             val result = mutableListOf<String>()
             for (i in listTag.indices) {
-                result.add(listTag.getString(i))
+                result.add(listTag.getStringOr(i, ""))
             }
             return result
         }
@@ -5381,7 +5419,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         /** 盘旋参数四元数: x=centerX, y=centerZ, z=altitude, w=radius */
         @JvmField
         val LOITER_PARAMS: EntityDataAccessor<Quaternionf> =
-            SynchedEntityData.defineId(VehicleEntity::class.java, EntityDataSerializers.QUATERNION)
+            SynchedEntityData.defineId(VehicleEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.QUATERNIONF)
 
         /** 盘旋功能开关 */
         @JvmField
@@ -5392,7 +5430,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         /** 正在牵引的实体UUID列表（支持多目标牵引） */
         @JvmField
         val TOWING_UUIDS: EntityDataAccessor<CompoundTag> =
-            SynchedEntityData.defineId(VehicleEntity::class.java, EntityDataSerializers.COMPOUND_TAG)
+            SynchedEntityData.defineId(VehicleEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.COMPOUND_TAG)
 
         /** 正在被牵引的载具UUID */
         @JvmField

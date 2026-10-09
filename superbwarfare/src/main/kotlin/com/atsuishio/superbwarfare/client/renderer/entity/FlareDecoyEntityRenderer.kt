@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -15,7 +19,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
 
-class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : EntityRenderer<FlareDecoyEntity>(pContext) {
+class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : LegacyEntityRenderer<FlareDecoyEntity>(pContext) {
     override fun getBlockLightLevel(pEntity: FlareDecoyEntity, pPos: BlockPos): Int {
         return 15
     }

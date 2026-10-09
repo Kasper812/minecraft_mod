@@ -1,5 +1,14 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.entity.EntityReference
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
@@ -62,29 +71,31 @@ open class Tm62Entity : Entity, OwnableEntity {
         return !this.isRemoved
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         var amount = amount
         amount = DAMAGE_MODIFIER.compute(this, source, amount)
         if (source.entity != null) {
             this.entityData.set(LAST_ATTACKER_UUID, source.entity!!.getStringUUID())
         }
         this.entityData.set(HEALTH, this.entityData.get(HEALTH) - amount)
-        return super.hurt(source, amount)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     fun isOwnedBy(pEntity: LivingEntity?): Boolean {
-        return pEntity === this.owner
+        return pEntity === this.getOwner()
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putFloat("Health", this.entityData.get(HEALTH))
         compound.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         compound.putBoolean("Fuse", this.entityData.get(FUSE))
@@ -93,24 +104,26 @@ open class Tm62Entity : Entity, OwnableEntity {
         }
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         if (compound.contains("Health")) {
-            this.entityData.set(HEALTH, compound.getFloat("Health"))
+            this.entityData.set(HEALTH, compound.getFloatOr("Health", 0f))
         }
 
         if (compound.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, compound.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, compound.getStringOr("LastAttacker", ""))
         }
 
         if (compound.contains("Fuse")) {
-            this.entityData.set(FUSE, compound.getBoolean("Fuse"))
+            this.entityData.set(FUSE, compound.getBooleanOr("Fuse", false))
         }
 
         var uuid: UUID?
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -132,7 +145,7 @@ open class Tm62Entity : Entity, OwnableEntity {
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (this.isOwnedBy(player) && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -143,7 +156,7 @@ open class Tm62Entity : Entity, OwnableEntity {
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -216,7 +229,7 @@ open class Tm62Entity : Entity, OwnableEntity {
                     trigger = true
                     doDamage(
                         entity, causeCustomExplosionDamage(
-                            level().registryAccess(), this, this.owner
+                            level().registryAccess(), this, this.getOwner()
                         ), ExplosionConfig.TM_62_EXPLOSION_DAMAGE.get().toFloat()
                     )
                     break
@@ -241,7 +254,7 @@ open class Tm62Entity : Entity, OwnableEntity {
 
     private fun triggerExplode() {
         CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(ExplosionConfig.TM_62_EXPLOSION_DAMAGE.get().toFloat())
             .radius(ExplosionConfig.TM_62_EXPLOSION_RADIUS.get().toFloat())
             .explode()
@@ -263,7 +276,7 @@ open class Tm62Entity : Entity, OwnableEntity {
 
         @JvmField
         protected val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(Tm62Entity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(Tm62Entity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         protected val LAST_ATTACKER_UUID: EntityDataAccessor<String> =

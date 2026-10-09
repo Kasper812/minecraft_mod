@@ -1,0 +1,13 @@
+{
+  "wants": {
+    "id": "superbwarfare:mortar_shell",
+    "count": 3
+  },
+  "gives": {
+    "id": "minecraft:emerald",
+    "count": 2
+  },
+  "max_uses": 32,
+  "xp": 5,
+  "reputation_discount": 0.05
+}

@@ -1,5 +1,14 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.entity.EntityReference
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
@@ -50,7 +59,7 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
 
     constructor(owner: LivingEntity?, level: Level) : super(ModEntities.PTKM_1R, level) {
         if (owner != null) {
-            this.setOwnerUUID(owner.getUUID())
+            this.ownerUUID = owner.getUUID()
         }
     }
 
@@ -67,28 +76,30 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
         return !this.isRemoved
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         val damage = DAMAGE_MODIFIER.compute(this, source, amount)
         if (source.entity != null) {
             this.entityData.set(LAST_ATTACKER_UUID, source.entity!!.getStringUUID())
         }
         this.entityData.set(HEALTH, this.entityData.get(HEALTH) - damage)
-        return super.hurt(source, damage)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     fun isOwnedBy(pEntity: LivingEntity?): Boolean {
-        return pEntity === this.owner
+        return pEntity === this.getOwner()
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putFloat("Health", this.entityData.get(HEALTH))
         compound.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         compound.putString("Target", this.entityData.get(TARGET_UUID))
@@ -97,23 +108,25 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
         }
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         if (compound.contains("Health")) {
-            this.entityData.set(HEALTH, compound.getFloat("Health"))
+            this.entityData.set(HEALTH, compound.getFloatOr("Health", 0f))
         }
 
         if (compound.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, compound.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, compound.getStringOr("LastAttacker", ""))
         }
         if (compound.contains("Target")) {
-            this.entityData.set(TARGET_UUID, compound.getString("Target"))
+            this.entityData.set(TARGET_UUID, compound.getStringOr("Target", ""))
         }
 
         var uuid: UUID?
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -129,13 +142,13 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
 
         if (uuid != null) {
             try {
-                this.setOwnerUUID(uuid)
+                this.ownerUUID = uuid
             } catch (_: Throwable) {
             }
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (this.isOwnedBy(player) && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -146,7 +159,7 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -205,12 +218,12 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
             for (entity in list) {
                 val condition =
                     entity.onGround()
-                            && this.owner !== entity
+                            && this.getOwner() !== entity
                             && !(entity is Player && (entity.isCreative || entity.isSpectator))
                             && !entity.isShiftKeyDown
                             && ((entity.boundingBox.size > 1.5 || entity is VehicleEntity || entity is SenpaiEntity) && entity.deltaMovement.lengthSqr() > 0.009)
-                            && this.owner?.vehicle !== entity
-                            && (!ExplosionConfig.FRIENDLY_MINES.get() || !SeekTool.IS_FRIENDLY.test(this.owner, entity))
+                            && this.getOwner()?.vehicle !== entity
+                            && (!ExplosionConfig.FRIENDLY_MINES.get() || !SeekTool.IS_FRIENDLY.test(this.getOwner(), entity))
                 if (!condition) continue
 
                 target = entity.stringUUID
@@ -254,7 +267,7 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
     private fun shoot(entity: Entity?, distance: Double) {
         val level = this.level()
         if (level is ServerLevel) {
-            val ptkmProjectile = PtkmProjectileEntity(this.owner, level)
+            val ptkmProjectile = PtkmProjectileEntity(this.getOwner(), level)
             ptkmProjectile.setDamage(ExplosionConfig.PTKM_1R_PROJECTILE_HIT_DAMAGE.get().toFloat())
             ptkmProjectile.setExplosionDamage(ExplosionConfig.PTKM_1R_PROJECTILE_EXPLOSION_DAMAGE.get().toFloat())
             ptkmProjectile.setExplosionRadius(ExplosionConfig.PTKM_1R_PROJECTILE_EXPLOSION_RADIUS.get().toFloat())
@@ -296,7 +309,7 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
         CustomExplosion.Builder(this)
             .damage(ExplosionConfig.PTKM_1R_EXPLOSION_DAMAGE.get().toFloat())
             .radius(ExplosionConfig.PTKM_1R_EXPLOSION_RADIUS.get().toFloat())
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .explode()
 
         this.discard()
@@ -307,7 +320,7 @@ open class Ptkm1rEntity : Entity, OwnableEntity {
 
         @JvmField
         protected val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(Ptkm1rEntity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(Ptkm1rEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         protected val LAST_ATTACKER_UUID: EntityDataAccessor<String> =

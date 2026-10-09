@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 64
+  },
+  "gives": {
+    "id": "superbwarfare:fair_means"
+  },
+  "max_uses": 4,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.inventory.menu
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.entity.vehicle.VehicleAssemblingTableVehicleEntity
@@ -98,7 +100,7 @@ open class VehicleAssemblingMenu @JvmOverloads constructor(
         }
     }
 
-    fun getRecipeById(id: Identifier, recipeManager: RecipeManager): VehicleAssemblingRecipe? {
+    fun getRecipeById(id: Identifier, recipeManager: com.atsuishio.superbwarfare.port.LegacyRecipeView): VehicleAssemblingRecipe? {
         val recipe = recipeManager.byKey(id).orElse(null) ?: return null
         val recipeValue = recipe.value()
         if (recipeValue is VehicleAssemblingRecipe) {

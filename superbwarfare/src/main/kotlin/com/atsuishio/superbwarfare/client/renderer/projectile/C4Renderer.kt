@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -18,7 +22,7 @@ import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 
-class C4Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<C4Entity>(renderManager) {
+class C4Renderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<C4Entity>(renderManager) {
     init {
         this.shadowRadius = 0f
     }

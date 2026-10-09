@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -18,8 +22,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 
-class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) :
-    EntityRenderer<DPSGeneratorEntity>(renderManager) {
+class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<DPSGeneratorEntity>(renderManager) {
     override fun getTextureLocation(pEntity: DPSGeneratorEntity): Identifier {
         return TEXTURES[pEntity.generatorLevel.coerceIn(0, 7)]
     }

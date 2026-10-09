@@ -1,13 +1,15 @@
 package com.atsuishio.superbwarfare.client.map
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.screens.TacticalMapScreen.Companion.SelBox
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
@@ -147,7 +149,6 @@ class AttackModeHandler {
 
         // Attack cursor icon
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         if (directAmmo <= 0 || outOfRange) {
             RenderSystem.setShaderColor(0.5f, 0.15f, 0.1f, 0.7f)
         } else {
@@ -245,7 +246,6 @@ class AttackModeHandler {
         val scale = CoordinateConverter.scaleFromZoom(zoom)
 
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         for ((i, pos) in targetQueue.withIndex()) {
             val sx = CoordinateConverter.worldToScreenX(pos.x + 0.5, mapCenterX, viewBlockX, scale)
             val sy = CoordinateConverter.worldToScreenY(pos.z + 0.5, mapCenterY, viewBlockZ, scale)

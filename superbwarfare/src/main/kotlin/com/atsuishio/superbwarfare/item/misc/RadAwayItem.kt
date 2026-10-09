@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.mobeffect.RadiationMobEffect
 import net.minecraft.ChatFormatting
@@ -7,13 +11,12 @@ import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.item.UseAnim
+import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.level.Level
 
 @RegistryName("rad_away")
@@ -21,19 +24,21 @@ class RadAwayItem : Item(Properties().stacksTo(16)) {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.rad_away").withStyle(ChatFormatting.GRAY))
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
-        if (RadiationMobEffect.getLevel(player) <= 0) return InteractionResultHolder.fail(stack)
+        if (RadiationMobEffect.getLevel(player) <= 0) return InteractionResult.FAIL
 
         player.startUsingItem(hand)
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     override fun finishUsingItem(stack: ItemStack, level: Level, entity: LivingEntity): ItemStack {
@@ -58,7 +63,7 @@ class RadAwayItem : Item(Properties().stacksTo(16)) {
         return super.finishUsingItem(stack, level, entity)
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim = UseAnim.DRINK
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation = ItemUseAnimation.DRINK
 
     override fun getUseDuration(
         stack: ItemStack,

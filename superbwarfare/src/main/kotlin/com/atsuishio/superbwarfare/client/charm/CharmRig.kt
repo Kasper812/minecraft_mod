@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.charm
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.attachment.BedrockAttachmentModel
 import com.atsuishio.superbwarfare.data.attachment.AttachmentSlots.Bones
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.baked.LocalCubeBounds

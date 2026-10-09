@@ -1,12 +1,14 @@
 package com.atsuishio.superbwarfare.item.trinket
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.tools.NBTTool
-import dev.emi.trinkets.api.SlotReference
-import dev.emi.trinkets.api.TrinketItem
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.SlotReference
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketItem
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
@@ -17,10 +19,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.phys.Vec3
 
 @RegistryName("parachute")
-class ParachuteItem : TrinketItem(Properties().stacksTo(1).durability(600)) {
-    override fun isValidRepairItem(stack: ItemStack, repairCandidate: ItemStack): Boolean {
-        return repairCandidate.`is`(Items.PHANTOM_MEMBRANE)
-    }
+class ParachuteItem : TrinketItem(Properties().stacksTo(1).durability(600).repairable(net.minecraft.world.item.Items.PHANTOM_MEMBRANE)) {
 
     override fun canEquip(stack: ItemStack, slot: SlotReference, entity: LivingEntity): Boolean {
         return TrinketsApi.getTrinketComponent(entity)
@@ -32,7 +31,7 @@ class ParachuteItem : TrinketItem(Properties().stacksTo(1).durability(600)) {
         val tag = NBTTool.getTag(stack)
 
         if (entity !is Player) {
-            if (!tag.getBoolean(TAG_OPEN) && entity.deltaMovement.y < -0.6 && entity.fallDistance > 4) {
+            if (!tag.getBooleanOr(TAG_OPEN, false) && entity.deltaMovement.y < -0.6 && entity.fallDistance > 4) {
                 tag.putBoolean(TAG_OPEN, true)
 
                 entity.level().playSound(
@@ -48,7 +47,7 @@ class ParachuteItem : TrinketItem(Properties().stacksTo(1).durability(600)) {
             }
         }
 
-        if (tag.getBoolean(TAG_OPEN)) {
+        if (tag.getBooleanOr(TAG_OPEN, false)) {
             val level = entity.level()
 
             if (
@@ -108,7 +107,7 @@ class ParachuteItem : TrinketItem(Properties().stacksTo(1).durability(600)) {
                 .map { component ->
                     component.getEquipped(ModItems.PARACHUTE)
                         .any { pair ->
-                            NBTTool.getTag(pair.b).getBoolean(TAG_OPEN)
+                            NBTTool.getTag(pair.b).getBooleanOr(TAG_OPEN, false)
                         }
                 }
                 .orElse(false)!!

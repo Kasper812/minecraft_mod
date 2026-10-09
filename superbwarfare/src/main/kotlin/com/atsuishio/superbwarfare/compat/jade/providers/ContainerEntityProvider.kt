@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade.providers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.ContainerBlock.Companion.canOpen
 import com.atsuishio.superbwarfare.block.ContainerBlock.Companion.getEntityTranslationKey
@@ -17,11 +19,11 @@ import kotlin.math.ceil
 object ContainerEntityProvider : IBlockComponentProvider {
     private val ID = loc("container_entity")
 
-    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig?) {
+    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig) {
         val container = blockAccessor.blockEntity as ContainerBlockEntity
 
         // 实体名称显示
-        val registerName = EntityType.getKey(container.entityType).toString()
+        val registerName = EntityType.getKey(container.entityType ?: return).toString()
         val translationKey = getEntityTranslationKey(registerName)
         iTooltip.add(
             Component.translatable(translationKey ?: "des.superbwarfare.container.empty")
@@ -29,7 +31,7 @@ object ContainerEntityProvider : IBlockComponentProvider {
         )
 
         // 所需尺寸显示
-        val entityType = EntityType.byString(registerName).orElse(null)
+        val entityType = entityTypeByString(registerName).orElse(null)
         if (entityType != null) {
             var w = ceil((entityType.dimensions.width / 2).toDouble()).toFloat() * 2
             if (w.toInt() % 2 == 0) w++

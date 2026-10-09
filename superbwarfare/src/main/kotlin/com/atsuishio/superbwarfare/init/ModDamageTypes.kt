@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import net.minecraft.core.Holder
 import net.minecraft.core.RegistryAccess
@@ -55,32 +57,32 @@ object ModDamageTypes {
     // @formatter:off
     @JvmStatic
     fun causeGunFireDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_FIRE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_FIRE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeGunFireHeadshotDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_FIRE_HEADSHOT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_FIRE_HEADSHOT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeMineDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(MINE), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(MINE), attacker)
     }
 
     @JvmStatic
     fun causeShockDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SHOCK), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(SHOCK), attacker)
     }
 
     @JvmStatic
     fun causeBurnDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(BURN), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(BURN), attacker)
     }
 
     @JvmStatic
     fun causeRepairToolDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(REPAIR_TOOL), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(REPAIR_TOOL), attacker)
     }
 
     /**
@@ -88,7 +90,7 @@ object ModDamageTypes {
      */
     @JvmStatic
     fun causeProjectileExplosionDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(PROJECTILE_EXPLOSION), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(PROJECTILE_EXPLOSION), directEntity, attacker)
     }
 
     /**
@@ -96,37 +98,37 @@ object ModDamageTypes {
      */
     @JvmStatic
     fun causeProjectileHitDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(PROJECTILE_HIT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(PROJECTILE_HIT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeProjectileHitHeadshotDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(PROJECTILE_HIT_HEADSHOT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(PROJECTILE_HIT_HEADSHOT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeGunFireAbsoluteDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_FIRE_ABSOLUTE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_FIRE_ABSOLUTE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeGunFireHeadshotAbsoluteDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_FIRE_HEADSHOT_ABSOLUTE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_FIRE_HEADSHOT_ABSOLUTE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeGrapeShotHitDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GRAPESHOT_HIT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GRAPESHOT_HIT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeSuperStarHitDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SUPER_STAR_HIT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(SUPER_STAR_HIT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeSuperStarSlashDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(SUPER_STAR_SLASH), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(SUPER_STAR_SLASH), directEntity, attacker)
     }
 
     /**
@@ -137,13 +139,13 @@ object ModDamageTypes {
      */
     @JvmStatic
     fun causeGunMeleeDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_MELEE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_MELEE), directEntity, attacker)
     }
 
     /** 枪械近战打头伤害 */
     @JvmStatic
     fun causeGunMeleeHeadshotDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(GUN_MELEE_HEADSHOT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(GUN_MELEE_HEADSHOT), directEntity, attacker)
     }
 
     /**
@@ -151,67 +153,67 @@ object ModDamageTypes {
      */
     @JvmStatic
     fun causeCustomExplosionDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(CUSTOM_EXPLOSION), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(CUSTOM_EXPLOSION), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeDroneHitDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(DRONE_HIT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(DRONE_HIT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeLaserDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(LASER), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LASER), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeLaserStaticDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(LASER_STATIC), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LASER_STATIC), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeLaserHeadshotDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(LASER_HEADSHOT), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LASER_HEADSHOT), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeVehicleStrikeDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(VEHICLE_STRIKE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(VEHICLE_STRIKE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeAirCrashDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(AIR_CRASH), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(AIR_CRASH), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeLungeMineDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(LUNGE_MINE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(LUNGE_MINE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeVehicleExplosionDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(VEHICLE_EXPLOSION), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(VEHICLE_EXPLOSION), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeBeastDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(BEAST), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(BEAST), directEntity, attacker)
     }
 
     @JvmStatic
     fun causePhosphorusFireDamage(registryAccess: RegistryAccess, directEntity: Entity?, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(PHOSPHORUS_FIRE), directEntity, attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(PHOSPHORUS_FIRE), directEntity, attacker)
     }
 
     @JvmStatic
     fun causeRadiationDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(RADIATION), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(RADIATION), attacker)
     }
 
     @JvmStatic
     fun causeAmmoConsumptionDamage(registryAccess: RegistryAccess, attacker: Entity?): DamageSource {
-        return DamageMessages(registryAccess.registry(Registries.DAMAGE_TYPE).get().getHolderOrThrow(AMMO_CONSUMPTION), attacker)
+        return DamageMessages(registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE).getOrThrow(AMMO_CONSUMPTION), attacker)
     }
     // @formatter:on
 

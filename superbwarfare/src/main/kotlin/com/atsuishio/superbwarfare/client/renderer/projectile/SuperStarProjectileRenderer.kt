@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -17,8 +21,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
 import kotlin.math.min
 
-class SuperStarProjectileRenderer(pContext: EntityRendererProvider.Context) :
-    EntityRenderer<SuperStarProjectileEntity>(pContext) {
+class SuperStarProjectileRenderer(pContext: EntityRendererProvider.Context) : LegacyEntityRenderer<SuperStarProjectileEntity>(pContext) {
     override fun getBlockLightLevel(pEntity: SuperStarProjectileEntity, pPos: BlockPos): Int {
         return 15
     }
@@ -33,7 +36,7 @@ class SuperStarProjectileRenderer(pContext: EntityRendererProvider.Context) :
     ) {
         pMatrixStack.pushPose()
         pMatrixStack.translate(0.0, min(-0.75 + pEntity.tickCount * 0.05, 0.0), 0.0)
-        val viewXRot = mc.gameRenderer.mainCamera().xRot > 0
+        val viewXRot = mc.gameRenderer.mainCamera().xRot() > 0
         pMatrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation())
         pMatrixStack.mulPose(Axis.XP.rotationDegrees(if (viewXRot) -90f else 90f))
         pMatrixStack.translate(0f, -1f, 0f)

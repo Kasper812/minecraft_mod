@@ -1,8 +1,14 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.event.ClientEventHandler
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -13,7 +19,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
 @Environment(EnvType.CLIENT)
-open class MissilePosInputScreen : Screen(Component.translatable("container.superbwarfare.missile_pos_input")) {
+open class MissilePosInputScreen : LegacyScreen(Component.translatable("container.superbwarfare.missile_pos_input")) {
     lateinit var posX: EditBox
     lateinit var posY: EditBox
     lateinit var posZ: EditBox
@@ -103,8 +109,7 @@ open class MissilePosInputScreen : Screen(Component.translatable("container.supe
     }
 
     @Environment(EnvType.CLIENT)
-    internal inner class DoneButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) :
-        AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    internal inner class DoneButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun onPress() {
             if (!this@MissilePosInputScreen.init) return
             if (this@MissilePosInputScreen.minecraft != null) {

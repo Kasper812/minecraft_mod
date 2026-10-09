@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.level.redstone.Orientation
+
+import net.minecraft.util.RandomSource
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.BlueprintResearchTableBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.mojang.serialization.MapCodec
@@ -36,13 +46,13 @@ import net.minecraft.world.phys.shapes.VoxelShape
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 class BlueprintResearchTableBlock :
-    BaseEntityBlock(Properties.of().strength(2f).pushReaction(PushReaction.BLOCK)) {
+    BaseEntityBlock(Properties.of().strength(2f).pushReaction(PushReaction.BLOCK)), com.atsuishio.portlib.item.LegacyBlockTooltip {
     companion object {
         @JvmField
         val PART: EnumProperty<BedPart> = BlockStateProperties.BED_PART
 
         @JvmField
-        val FACING: DirectionProperty = BlockStateProperties.HORIZONTAL_FACING
+        val FACING: EnumProperty<Direction> = BlockStateProperties.HORIZONTAL_FACING
 
         // 虽然这个是enabled，但是应该反转取值
         @JvmField
@@ -140,7 +150,7 @@ class BlueprintResearchTableBlock :
         return BlueprintResearchTableBlockEntity(pPos, pState)
     }
 
-    override fun <T : BlockEntity?> getTicker(
+    override fun <T : BlockEntity> getTicker(
         pLevel: Level,
         pState: BlockState,
         pBlockEntityType: BlockEntityType<T>
@@ -154,24 +164,14 @@ class BlueprintResearchTableBlock :
         }
         return null
     }
-
-    override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
         pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val entity = pLevel.getBlockEntity(pPos)
-            if (entity is BlueprintResearchTableBlockEntity) {
-                if (pLevel is ServerLevel) {
-                    Containers.dropContents(pLevel, pPos, entity)
-                }
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-        }
-        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston)
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     /**
@@ -210,7 +210,7 @@ class BlueprintResearchTableBlock :
                 state.setValue(PART, BedPart.HEAD),
                 3
             )
-            worldIn.blockUpdated(pos, Blocks.AIR)
+            worldIn.updateNeighborsAt(pos, Blocks.AIR)
             state.updateNeighbourShapes(worldIn, pos, 3)
         }
     }
@@ -233,14 +233,16 @@ class BlueprintResearchTableBlock :
 
     override fun updateShape(
         state: BlockState,
-        direction: Direction,
-        facingState: BlockState,
-        level: LevelAccessor,
+        level: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         pos: BlockPos,
-        neighborPos: BlockPos
-    ): BlockState {
+        direction: Direction,
+        neighborPos: BlockPos,
+        facingState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         return if (direction != oppositeDirection(state.getValue(PART), state.getValue(FACING))) {
-            super.updateShape(state, direction, facingState, level, pos, neighborPos)
+            super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, facingState, randomSource)
         } else {
             if (facingState.`is`(this) && facingState.getValue(PART) != state.getValue(PART)) state else Blocks.AIR.defaultBlockState()
         }
@@ -251,10 +253,10 @@ class BlueprintResearchTableBlock :
         level: Level,
         pos: BlockPos,
         block: Block,
-        fromPos: BlockPos,
+        orientation: Orientation?,
         isMoving: Boolean
     ) {
-        super.neighborChanged(state, level, pos, block, fromPos, isMoving)
+        super.neighborChanged(state, level, pos, block, orientation, isMoving)
         val part = state.getValue(PART)
         if (part == BedPart.FOOT) return
 

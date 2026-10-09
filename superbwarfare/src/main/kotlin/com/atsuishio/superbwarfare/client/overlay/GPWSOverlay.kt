@@ -1,13 +1,15 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.overlay.GPWSOverlay.FORWARD_LOOK_DISTANCE
 import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineInfo.Aircraft
 import com.atsuishio.superbwarfare.data.vehicle.subdata.EngineType
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.tools.localPlayer
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.player.Player
@@ -138,7 +140,6 @@ object GPWSOverlay : CommonOverlay("gpws") {
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

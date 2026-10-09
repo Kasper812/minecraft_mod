@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.network.message.receive.ModVersionSyncMessage
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -26,7 +28,7 @@ object ModVersionEventHandler {
     fun register() {
         ServerLifecycleEvents.SERVER_STARTED.register { server ->
             val current = FabricLoader.getInstance().getModContainer(Mod.MODID).orElseThrow().metadata.version.friendlyString
-            val data = server.overworld().dataStorage.computeIfAbsent(VERSION_DATA_FACTORY, VERSION_DATA_FILE)
+            val data = server.overworld().dataStorage.computeIfAbsent(VERSION_DATA_FACTORY)
 
             serverPreviousVersion = data.version
             serverCurrentVersion = current
@@ -55,21 +57,22 @@ object ModVersionEventHandler {
 
 private const val VERSION_DATA_FILE = "superbwarfare_mod_version"
 
-private val VERSION_DATA_FACTORY = SavedData.Factory(
+private val VERSION_DATA_FACTORY = legacySavedDataType(
+    VERSION_DATA_FILE,
     { ModVersionSavedData() },
-    ModVersionSavedData::load,
-    null
+    { ModVersionSavedData.load(it) },
+    { it.save(CompoundTag()) }
 )
 
 private class ModVersionSavedData(var version: String? = null) : SavedData() {
-    override fun save(tag: CompoundTag, registries: HolderLookup.Provider): CompoundTag {
+    fun save(tag: CompoundTag, registries: HolderLookup.Provider? = null): CompoundTag {
         version?.let { tag.putString("Version", it) }
         return tag
     }
 
     companion object {
-        fun load(tag: CompoundTag, registries: HolderLookup.Provider) = ModVersionSavedData(
-            tag.getString("Version").takeIf { tag.contains("Version", Tag.TAG_STRING.toInt()) && it.isNotBlank() }
+        fun load(tag: CompoundTag, registries: HolderLookup.Provider? = null) = ModVersionSavedData(
+            tag.getStringOr("Version", "").takeIf { tag.contains("Version") && it.isNotBlank() }
         )
     }
 }

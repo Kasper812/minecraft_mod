@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation
 
+import com.atsuishio.superbwarfare.port.*
+
 import java.util.function.Function
 import kotlin.math.pow
 import kotlin.math.sqrt

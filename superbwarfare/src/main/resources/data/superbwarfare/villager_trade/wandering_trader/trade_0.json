@@ -1,0 +1,17 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 16
+  },
+  "gives": {
+    "id": "superbwarfare:small_container",
+    "components": {
+      "minecraft:container_loot": {
+        "loot_table": "superbwarfare:containers/blueprints"
+      }
+    }
+  },
+  "max_uses": 10,
+  "xp": 0,
+  "reputation_discount": 0.05
+}

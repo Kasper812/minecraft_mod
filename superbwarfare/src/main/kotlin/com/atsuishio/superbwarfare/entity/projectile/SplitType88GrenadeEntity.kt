@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -53,15 +61,19 @@ open class SplitType88GrenadeEntity : BounceProjectile, BasicGeoProjectileEntity
         this.explosionRadiusValue = ExplosionConfig.SPLIT_TYPE_88_GRENADE_EXPLOSION_RADIUS.get().toFloat()
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putInt("Fuse", this.fuse)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("Fuse")) {
-            this.fuse = compound.getInt("Fuse")
+            this.fuse = compound.getIntOr("Fuse", 0)
         }
     }
 
@@ -90,7 +102,7 @@ open class SplitType88GrenadeEntity : BounceProjectile, BasicGeoProjectileEntity
     override fun afterHitEntity(result: EntityHitResult) {
         if (result !is ExtendedEntityRayTraceResult) return
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (entity == owner || entity == this.vehicle) return
         val speedE = this.deltaMovement.length()
         if (speedE > 0.1) {
@@ -108,7 +120,7 @@ open class SplitType88GrenadeEntity : BounceProjectile, BasicGeoProjectileEntity
             }
         }
         this.bounce(
-            Direction.getNearest(
+            Direction.getApproximateNearest(
                 this.deltaMovement.x(),
                 this.deltaMovement.y(),
                 this.deltaMovement.z()

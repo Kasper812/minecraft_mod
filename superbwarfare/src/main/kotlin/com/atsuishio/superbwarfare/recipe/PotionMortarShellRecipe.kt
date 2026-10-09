@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModRecipes
 import net.minecraft.core.HolderLookup
@@ -14,7 +16,9 @@ import net.minecraft.world.item.crafting.RecipeSerializer
 import net.minecraft.world.level.Level
 import javax.annotation.ParametersAreNonnullByDefault
 
-class PotionMortarShellRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) {
+class PotionMortarShellRecipe(private val bookCategory: CraftingBookCategory = CraftingBookCategory.MISC) : CustomRecipe() {
+    override fun category(): CraftingBookCategory = bookCategory
+
     override fun matches(input: CraftingInput, pLevel: Level): Boolean {
         if (input.width() == 3 && input.height() == 3) {
             for (i in 0..<input.width()) {
@@ -43,7 +47,7 @@ class PotionMortarShellRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pC
     }
 
     @ParametersAreNonnullByDefault
-    override fun assemble(input: CraftingInput, registries: HolderLookup.Provider): ItemStack {
+    override fun assemble(input: CraftingInput): ItemStack {
         val stack = input.getItem(1 + input.width())
         if (!stack.`is`(Items.LINGERING_POTION)) {
             return ItemStack.EMPTY
@@ -58,11 +62,8 @@ class PotionMortarShellRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pC
         }
     }
 
-    override fun canCraftInDimensions(pWidth: Int, pHeight: Int): Boolean {
-        return pWidth >= 2 && pHeight >= 2
-    }
 
-    override fun getSerializer(): RecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<out CustomRecipe> {
         return ModRecipes.POTION_MORTAR_SHELL_SERIALIZER
     }
 }

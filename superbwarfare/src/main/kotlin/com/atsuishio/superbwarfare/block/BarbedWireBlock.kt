@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.entity.InsideBlockEffectApplier
+
+import net.minecraft.util.RandomSource
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.registries.Registries
@@ -16,7 +26,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.material.Fluids
@@ -29,7 +39,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 open class BarbedWireBlock : Block(
     Properties.of().ignitedByLava().forceSolidOn().instrument(NoteBlockInstrument.BASS)
         .sound(SoundType.WOOD).strength(10f, 2f)
-        .noCollission().speedFactor(0.01f).noOcclusion()
+        .noCollision().speedFactor(0.01f).noOcclusion()
         .isRedstoneConductor { _, _, _ -> false }
 ) {
     init {
@@ -40,7 +50,9 @@ open class BarbedWireBlock : Block(
         )
     }
 
-    override fun propagatesSkylightDown(state: BlockState, reader: BlockGetter, pos: BlockPos): Boolean {
+    override fun propagatesSkylightDown(
+        state: BlockState
+    ): Boolean  {
         return true
     }
 
@@ -53,7 +65,7 @@ open class BarbedWireBlock : Block(
         return Shapes.empty()
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING, WATERLOGGED)
     }
 
@@ -78,26 +90,35 @@ open class BarbedWireBlock : Block(
 
     override fun updateShape(
         state: BlockState,
-        facing: Direction,
-        facingState: BlockState,
-        world: LevelAccessor,
+        world: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         currentPos: BlockPos,
-        facingPos: BlockPos
-    ): BlockState {
+        facing: Direction,
+        facingPos: BlockPos,
+        facingState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         if (state.getValue(WATERLOGGED)) {
-            world.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
+            scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
         }
-        return super.updateShape(state, facing, facingState, world, currentPos, facingPos)
+        return super.updateShape(state, world, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource)
     }
 
-    override fun entityInside(blockstate: BlockState, world: Level, pos: BlockPos, entity: Entity) {
-        super.entityInside(blockstate, world, pos, entity)
+    override fun entityInside(
+        blockstate: BlockState,
+        world: Level,
+        pos: BlockPos,
+        entity: Entity,
+        effectApplier: InsideBlockEffectApplier,
+        isPrecise: Boolean
+    ) {
+        super.entityInside(blockstate, world, pos, entity, effectApplier, isPrecise)
         if (entity is LivingEntity) {
             entity.makeStuckInBlock(Blocks.AIR.defaultBlockState(), Vec3(0.15, 0.04, 0.15))
-            entity.hurt(
+            entity.hurtOrSimulate(
                 DamageSource(
-                    world.registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                        .getHolderOrThrow(DamageTypes.CACTUS)
+                    world.registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(DamageTypes.CACTUS)
                 ), 2f
             )
         }
@@ -108,6 +129,6 @@ open class BarbedWireBlock : Block(
         val WATERLOGGED: BooleanProperty = BlockStateProperties.WATERLOGGED
 
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
     }
 }

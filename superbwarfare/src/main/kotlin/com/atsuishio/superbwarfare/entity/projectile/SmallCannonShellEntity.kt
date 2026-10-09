@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModDamageTypes.causeProjectileHitDamage
@@ -66,7 +68,7 @@ open class SmallCannonShellEntity(type: EntityType<out SmallCannonShellEntity>, 
 
     private fun causeExplode(vec3: Vec3, hitEntity: Boolean) {
         CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(explosionDamageValue)
             .radius(explosionRadiusValue)
             .position(vec3)
@@ -81,7 +83,7 @@ open class SmallCannonShellEntity(type: EntityType<out SmallCannonShellEntity>, 
         if (aa) {
             crushProjectile(deltaMovement)
         }
-        if (owner != null && distanceToSqr(owner!!) > 1048576) {
+        if (getOwner() != null && distanceToSqr(getOwner()!!) > 1048576) {
             if (level() is ServerLevel) {
                 causeExplode(position())
             }
@@ -103,7 +105,7 @@ open class SmallCannonShellEntity(type: EntityType<out SmallCannonShellEntity>, 
             if (target != null) {
                 causeExplode(target.position(), false)
                 if (target is DestroyableProjectile) {
-                    val owner = this.owner
+                    val owner = this.getOwner()
                     if (owner is LivingEntity) {
                         if (owner is ServerPlayer) {
                             owner.level().playSound(
@@ -118,7 +120,7 @@ open class SmallCannonShellEntity(type: EntityType<out SmallCannonShellEntity>, 
                         }
                     }
                     target.forceHurt(
-                        causeProjectileHitDamage(this.level().registryAccess(), this, owner),
+                        causeProjectileHitDamage(this.level().registryAccess(), this, getOwner()),
                         damageValue
                     )
                 } else {

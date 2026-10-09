@@ -12,6 +12,8 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.render.CameraSta
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import com.atsuishio.portlib.render.BuiltinItemRendererRegistry;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;
@@ -396,7 +398,11 @@ public class FirstPersonRenderHandler {
         );
         event.setCanceled(true);
 
-        renderParticlesIfAny(event);
+        // 渲染器声明在模型渲染窗口内自行渲染粒子（如需要模板剔除）时，
+        // 跳过事件末尾的自动渲染，避免双重绘制
+        if (!renderer.renderParticlesInModelWindow()) {
+            renderParticlesIfAny(event);
+        }
     }
 
     /**
@@ -404,8 +410,22 @@ public class FirstPersonRenderHandler {
      * <p>
      * 主副手各在自己的 {@code RenderHandEvent} pass 内渲染自己那组发射器——两手 pass 的
      * poseStack 基准不同，必须按手渲染，不可跨手共用基准。
+     * <p>
+     * 渲染器若声明在模型渲染窗口内自行渲染（{@link IFPGeoItemRenderer#renderParticlesInModelWindow()}），
+     * 本方法不会在此处被调用，由渲染器在模板窗口内调用 {@link #renderParticlesNow}。
      */
     private static void renderParticlesIfAny(RenderHandEvent event) {
+        renderParticlesNow(event.getHand(), event.getPoseStack(), event.getMultiBufferSource(),
+                event.getPackedLight(), event.getPartialTick());
+    }
+
+    /**
+     * 立即渲染指定手的活跃粒子。供模组在枪体模板窗口内调用（如让粒子被镜内剔除）。
+     * <p>
+     * 调用方需持有与该手枪体渲染一致的 {@code poseStack} / {@code bufferSource}。
+     */
+    public static void renderParticlesNow(InteractionHand hand, PoseStack poseStack, MultiBufferSource bufferSource,
+                                          int light, float partialTick) {
         if (PARTICLE_SYSTEM.getParticleCount() == 0) {
             return;
         }
@@ -416,11 +436,11 @@ public class FirstPersonRenderHandler {
         Matrix4f cameraRotation = buildCameraRotation(camera, cameraRollRad);
 
         PARTICLE_SYSTEM.render(
-                event.getHand(),
-                event.getPoseStack(),
-                event.getMultiBufferSource(),
-                event.getPackedLight(),
-                event.getPartialTick(),
+                hand,
+                poseStack,
+                bufferSource,
+                light,
+                partialTick,
                 cameraPitchRad, cameraRollRad, cameraRotation
         );
     }

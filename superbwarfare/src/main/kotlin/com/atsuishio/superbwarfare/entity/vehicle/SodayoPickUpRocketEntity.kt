@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.projectile.MediumRocketEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArtilleryEntity
@@ -50,12 +58,14 @@ open class SodayoPickUpRocketEntity(type: EntityType<SodayoPickUpRocketEntity>, 
         builder.define(LOADED_AMMO, list)
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         setChanged()
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val stack = player.mainHandItem
         val lookingObb = getLookingObb(player, player.getEntityReach())
         val level = this.level()
@@ -67,7 +77,7 @@ open class SodayoPickUpRocketEntity(type: EntityType<SodayoPickUpRocketEntity>, 
                 for (i in barrelObbs.indices) {
                     if (lookingObb === barrelObbs[i]) {
                         if (getItems()[i].isEmpty) {
-                            return super.interact(player, hand)
+                            return super.interact(player, hand, location)
                         } else {
                             player.addItem(getItems()[i].copyWithCount(1))
                             val vec3 = vector3dToVec3(barrelObbs[i].center)
@@ -147,7 +157,7 @@ open class SodayoPickUpRocketEntity(type: EntityType<SodayoPickUpRocketEntity>, 
             }
         }
 
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     fun lookingAtBarrel(player: Player): Boolean {
@@ -242,7 +252,7 @@ open class SodayoPickUpRocketEntity(type: EntityType<SodayoPickUpRocketEntity>, 
             EntityTypeTest.forClass(Entity::class.java),
             ab
         ) { it !== this }) {
-            entity.hurt(causeBurnDamage(entity.level().registryAccess(), player), 30 - 2 * entity.distanceTo(this))
+            entity.hurtOrSimulate(causeBurnDamage(entity.level().registryAccess(), player), 30 - 2 * entity.distanceTo(this))
             val force = 4 - 0.7 * entity.distanceTo(this)
             entity.push(-force * barrelVector.x, -force * barrelVector.y, -force * barrelVector.z)
         }

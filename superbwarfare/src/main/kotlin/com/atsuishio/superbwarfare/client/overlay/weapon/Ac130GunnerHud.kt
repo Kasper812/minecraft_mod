@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay.weapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.client.overlay.OverlayTraceHandler
@@ -11,12 +13,12 @@ import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleVecUtils
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.atsuishio.superbwarfare.tools.FormatTool.format0D
 import com.atsuishio.superbwarfare.tools.mc
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.math.Axis
 import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.core.BlockPos
 import net.minecraft.network.chat.Component
@@ -96,7 +98,6 @@ class Ac130GunnerHud {
                 RenderSystem.disableDepthTest()
                 RenderSystem.depthMask(false)
                 RenderSystem.enableBlend()
-                RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                 RenderSystem.blendFuncSeparate(
                     GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

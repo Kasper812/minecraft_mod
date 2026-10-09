@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.mixin
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.LivingEntity

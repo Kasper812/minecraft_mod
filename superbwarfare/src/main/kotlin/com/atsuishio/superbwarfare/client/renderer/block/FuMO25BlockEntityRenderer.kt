@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import com.atsuishio.portlib.render.legacy.LegacyBlockEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -11,7 +15,7 @@ import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.util.Mth
 
-class FuMO25BlockEntityRenderer : BlockEntityRenderer<FuMO25BlockEntity> {
+class FuMO25BlockEntityRenderer : LegacyBlockEntityRenderer<FuMO25BlockEntity> {
     override fun render(
         blockEntity: FuMO25BlockEntity,
         partialTick: Float,

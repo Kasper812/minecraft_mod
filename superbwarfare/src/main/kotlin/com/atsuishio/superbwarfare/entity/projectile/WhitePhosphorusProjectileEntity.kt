@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.*
 import com.atsuishio.superbwarfare.network.message.receive.ClientIndicatorMessage
 import com.atsuishio.superbwarfare.tools.SeekTool
@@ -46,7 +48,7 @@ open class WhitePhosphorusProjectileEntity : FastThrowableProjectile {
         val headShotModifier = if (isHeadshot) this.getHeadShot() else 1f
         if (damage > 0) {
             entity.forceHurt(
-                ModDamageTypes.causeBurnDamage(this.level().registryAccess(), this.owner),
+                ModDamageTypes.causeBurnDamage(this.level().registryAccess(), this.getOwner()),
                 damage * headShotModifier
             )
             entity.invulnerableTime = 0
@@ -58,14 +60,14 @@ open class WhitePhosphorusProjectileEntity : FastThrowableProjectile {
         if (entity is LivingEntity && !entity.level().isClientSide()) {
             entity.forceApplyEffect(
                 MobEffectInstance(ModMobEffects.PHOSPHORUS_FIRE, 200, 4),
-                owner
+                getOwner()
             )
         }
         super.afterHitEntity(result)
     }
 
     override fun afterHitBlock(result: BlockHitResult) {
-        val owner = this.owner
+        val owner = this.getOwner()
         if (owner != null) {
             causeWPEffect(result.getLocation(), owner)
         }
@@ -87,7 +89,7 @@ open class WhitePhosphorusProjectileEntity : FastThrowableProjectile {
                     val dis = pos.distanceTo(it.position())
                     if (!checkNoClip(it, pos)) return@forEach
 
-                    val owner = this.owner
+                    val owner = this.getOwner()
                     it.forceHurt(ModDamageTypes.causeBurnDamage(this.level().registryAccess(), owner), 1f)
                     it.invulnerableTime = 0
 
@@ -96,7 +98,7 @@ open class WhitePhosphorusProjectileEntity : FastThrowableProjectile {
                             ModMobEffects.PHOSPHORUS_FIRE,
                             (300 - 30 * dis).toInt(),
                             max(explosionRadiusValue - dis, 0.0).toInt()
-                        ), this.owner
+                        ), this.getOwner()
                     )
 
                     if (owner is ServerPlayer) {

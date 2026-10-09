@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.ClaymoreEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -9,7 +13,6 @@ import net.minecraft.core.dispenser.DefaultDispenseItemBehavior
 import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -19,7 +22,7 @@ import net.minecraft.world.phys.Vec3
 
 @RegistryName("claymore_mine")
 open class ClaymoreMineItem : Item(Properties()), DispenserLaunchable {
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
 
         if (!level.isClientSide) {
@@ -42,7 +45,7 @@ open class ClaymoreMineItem : Item(Properties()), DispenserLaunchable {
             stack.shrink(1)
         }
 
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     override fun getLaunchBehavior(): DispenseItemBehavior {

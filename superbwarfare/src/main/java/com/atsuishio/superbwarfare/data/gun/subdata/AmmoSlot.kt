@@ -1,11 +1,13 @@
 package com.atsuishio.superbwarfare.data.gun.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 class AmmoSlot(private val tag: CompoundTag) {
 
     private val slot: CompoundTag
-        get() = tag.getCompound(AMMO_SLOT)
+        get() = tag.getCompoundOrEmpty(AMMO_SLOT)
 
     private fun getOrCreateSlot(): CompoundTag {
         if (!tag.contains(AMMO_SLOT)) {
@@ -15,12 +17,12 @@ class AmmoSlot(private val tag: CompoundTag) {
     }
 
     fun getAmmo(slot: String): Int {
-        val arr = this.slot.getIntArray(slot)
+        val arr = this.slot.getIntArray(slot).orElse(IntArray(0))
         return if (arr.size > 0) arr[0] else 0
     }
 
     fun getVirtualAmmo(slot: String): Int {
-        val arr = this.slot.getIntArray(slot)
+        val arr = this.slot.getIntArray(slot).orElse(IntArray(0))
         return if (arr.size > 1) arr[1] else 0
     }
 

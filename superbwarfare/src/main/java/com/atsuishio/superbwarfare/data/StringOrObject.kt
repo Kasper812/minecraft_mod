@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.serialization.serializersModule
 import kotlinx.serialization.*
 import kotlinx.serialization.encoding.Decoder

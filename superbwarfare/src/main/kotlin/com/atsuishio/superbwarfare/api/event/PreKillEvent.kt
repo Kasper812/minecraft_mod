@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.api.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.LivingEntity
 import org.jetbrains.annotations.ApiStatus

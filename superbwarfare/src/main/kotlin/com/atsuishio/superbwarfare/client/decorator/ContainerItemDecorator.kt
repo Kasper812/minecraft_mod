@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.decorator
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -7,7 +9,7 @@ import com.atsuishio.superbwarfare.item.container.ContainerBlockItem
 import com.atsuishio.superbwarfare.tools.clientLevel
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.core.component.DataComponents
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
@@ -24,7 +26,7 @@ class ContainerItemDecorator {
         val tag = stack.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag() ?: return false
         if (!tag.contains("EntityType")) return false
 
-        val typeString = tag.getString("EntityType")
+        val typeString = tag.getStringOr("EntityType", "")
 
         // 优先检查自定义载具截图（textures/vehicle_icon/container/<vehicleId>.png）
         val customIcon = getCustomIcon(stack)
@@ -40,7 +42,7 @@ class ContainerItemDecorator {
         if (ICON_CACHE.containsKey(typeString)) {
             icon = ICON_CACHE[typeString]
         } else {
-            val entityType = EntityType.byString(typeString).orElse(null) ?: return false
+            val entityType = entityTypeByString(typeString).orElse(null) ?: return false
             val level = clientLevel ?: return false
             val entity: Entity? = entityType.create(level)
             if (entity !is VehicleEntity) return false
@@ -71,7 +73,7 @@ class ContainerItemDecorator {
         fun getCustomIcon(stack: ItemStack): Identifier? {
             val tag = stack.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag() ?: return null
             if (!tag.contains("EntityType")) return null
-            val entityType = tag.getString("EntityType")
+            val entityType = tag.getStringOr("EntityType", "")
             val id = Identifier.tryParse(entityType) ?: return null
             val vehicleId = id.path
 

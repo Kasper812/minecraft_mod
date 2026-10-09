@@ -76,7 +76,7 @@ public class Ql1031ItemRenderer extends CustomGunRenderer<Ql1031Item> {
                 }
 
                 if (this.renderPerspective == ItemDisplayContext.FIRST_PERSON_RIGHT_HAND) {
-                    if (data.attachment.get(AttachmentType.SCOPE) == 2 && !tag.getBoolean("ScopeAlt") && (name.equals("hidden") || name.equals("qianzhunxingzu"))) {
+                    if (data.attachment.get(AttachmentType.SCOPE) == 2 && !tag.getBooleanOr("ScopeAlt", false) && (name.equals("hidden") || name.equals("qianzhunxingzu"))) {
                         bone.setHidden(ClientEventHandler.zoomPos > 0.7 && ClientEventHandler.zoom);
                     }
                     // 这里的 "Barrel" 是旧 GeckoLib 模型里的骨骼名（枪口配件位），不是槽位标识
@@ -106,7 +106,7 @@ public class Ql1031ItemRenderer extends CustomGunRenderer<Ql1031Item> {
                         }
 
                         case 2 -> {
-                            if (tag.getBoolean("ScopeAlt")) {
+                            if (tag.getBooleanOr("ScopeAlt", false)) {
                                 AnimationHelper.handleZoomCrossHair(currentBuffer, renderType, name, stack, bone, buffer, 0, 0.34, 30, 0.25f, 255, 0, 0, 255, "delta", false);
                                 renderHoldProgress(stack, name, bone, buffer, 0, 0.353f, -0.12, 0.015f);
                             } else {

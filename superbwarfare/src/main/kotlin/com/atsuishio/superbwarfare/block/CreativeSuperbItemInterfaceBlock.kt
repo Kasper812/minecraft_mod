@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.CreativeSuperbItemInterfaceBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.mojang.serialization.MapCodec
@@ -24,7 +28,7 @@ class CreativeSuperbItemInterfaceBlock : SuperbItemInterfaceBlock() {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltipComponents: MutableList<Component>,
         tooltipFlag: TooltipFlag
     ) {
@@ -67,23 +71,14 @@ class CreativeSuperbItemInterfaceBlock : SuperbItemInterfaceBlock() {
             return InteractionResult.CONSUME
         }
     }
-
-    override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
-        pIsMoving: Boolean
+        pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val blockEntity = pLevel.getBlockEntity(pPos)
-            if (blockEntity is CreativeSuperbItemInterfaceBlockEntity) {
-                Containers.dropContents(pLevel, pPos, blockEntity)
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-
-            super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving)
-        }
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     companion object {

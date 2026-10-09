@@ -41,6 +41,19 @@ public final class SbmPipelines {
             "ENTITIES_TRANSLUCENT"
     );
 
+    public static final RenderPipeline ENTITY_EMISSIVE_ADDITIVE = register(
+            RenderPipeline.builder(RenderPipelines.ENTITY_EMISSIVE_SNIPPET)
+                    .withLocation(id("pipeline/entity_emissive_additive"))
+                    .withShaderDefine("ALPHA_CUTOUT", 0.1F)
+                    .withShaderDefine("PER_FACE_LIGHTING")
+                    .withBindGroupLayout(BindGroupLayouts.SAMPLER1)
+                    .withColorTargetState(new ColorTargetState(Optional.of(BlendFunction.LIGHTNING), GpuFormat.RGBA8_UNORM, ColorTargetState.WRITE_COLOR))
+                    .withDepthStencilState(new DepthStencilState(CompareOp.GREATER_THAN_OR_EQUAL, true))
+                    .withCull(false)
+                    .build(),
+            "ENTITIES_TRANSLUCENT"
+    );
+
     public static final RenderPipeline PARTICLE_OPAQUE = register(
             RenderPipeline.builder(RenderPipelines.PARTICLE_SNIPPET)
                     .withLocation(id("pipeline/particle_opaque"))

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.data.gun.ShootParameters
 import com.atsuishio.superbwarfare.data.vehicle.DefaultVehicleData
@@ -36,15 +38,15 @@ open class Tom6Entity(type: EntityType<Tom6Entity>, world: Level) : VehicleEntit
         return super.computeProperties(data, rawData)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
-        val data = weaponData ?: return super.interact(player, hand)
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
+        val data = weaponData ?: return super.interact(player, hand, location)
 
         if (hasMelon) {
-            return super.interact(player, hand)
+            return super.interact(player, hand, location)
         } else {
             val stack = player.mainHandItem
             if (!data.selectedAmmoConsumer().isAmmoItem(stack)) {
-                return super.interact(player, hand)
+                return super.interact(player, hand, location)
             }
 
             val level = level()

@@ -1,5 +1,8 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
 import com.atsuishio.superbwarfare.init.ModItems
@@ -16,7 +19,7 @@ import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 
@@ -27,10 +30,11 @@ class GunPerksCategory(helper: IGuiHelper) : IRecipeCategory<ItemStack> {
     override fun draw(
         recipe: ItemStack,
         recipeSlotsView: IRecipeSlotsView,
-        guiGraphics: GuiGraphics,
+        extractor: GuiGraphicsExtractor,
         mouseX: Double,
         mouseY: Double
     ) {
+        val guiGraphics = GuiGraphics.of(extractor)
         val name = recipe.getHoverName()
         guiGraphics.drawString(
             mc.font, name,

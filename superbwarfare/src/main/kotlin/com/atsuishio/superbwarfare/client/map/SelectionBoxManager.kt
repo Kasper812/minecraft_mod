@@ -1,8 +1,10 @@
 package com.atsuishio.superbwarfare.client.map
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.screens.TacticalMapScreen.Companion.SelBox
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import kotlin.math.abs
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.client.*
 
 val CLIENT_CONFIG_BUILDER = ModConfigBuilder()

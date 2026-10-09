@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import com.atsuishio.portlib.render.legacy.LegacyBlockEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -15,7 +19,7 @@ import net.minecraft.world.level.block.state.properties.BedPart
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
 
-class BlueprintResearchTableBlockEntityRenderer : BlockEntityRenderer<BlueprintResearchTableBlockEntity> {
+class BlueprintResearchTableBlockEntityRenderer : LegacyBlockEntityRenderer<BlueprintResearchTableBlockEntity> {
     override fun render(
         blockEntity: BlueprintResearchTableBlockEntity,
         partialTick: Float,
@@ -69,8 +73,8 @@ class BlueprintResearchTableBlockEntityRenderer : BlockEntityRenderer<BlueprintR
         return pBlockEntity.blockState.getValue(BlueprintResearchTableBlock.PART) == BedPart.FOOT
     }
 
-    override fun shouldRenderOffScreen(blockEntity: BlueprintResearchTableBlockEntity): Boolean {
-        return blockEntity.blockState.getValue(BlueprintResearchTableBlock.PART) == BedPart.FOOT
+    override fun shouldRenderOffScreen(): Boolean {
+        return true
     }
 
     companion object {

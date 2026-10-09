@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.Blu43Entity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -8,7 +12,6 @@ import net.minecraft.core.dispenser.BlockSource
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -19,7 +22,7 @@ import kotlin.random.Random
 
 @RegistryName("blu_43_mine")
 class Blu43MineItem : Item(Properties()), DispenserLaunchable {
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
 
         if (!level.isClientSide) {
@@ -43,7 +46,7 @@ class Blu43MineItem : Item(Properties()), DispenserLaunchable {
             stack.shrink(1)
         }
 
-        return InteractionResultHolder.success(stack)
+        return InteractionResult.SUCCESS
     }
 
     override fun getLaunchBehavior() = object : DefaultDispenseItemBehavior() {

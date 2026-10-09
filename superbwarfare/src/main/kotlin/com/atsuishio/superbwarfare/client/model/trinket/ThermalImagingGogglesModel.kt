@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.trinket
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.google.common.collect.ImmutableList
 import com.mojang.blaze3d.vertex.PoseStack
@@ -14,10 +16,10 @@ import net.minecraft.client.model.geom.builders.LayerDefinition
 import net.minecraft.world.entity.LivingEntity
 
 @Suppress("unused", "UnusedVariable", "LocalVariableName")
-class ThermalImagingGogglesModel(root: ModelPart) : HumanoidModel<LivingEntity>(root) {
+class ThermalImagingGogglesModel(root: ModelPart) {
     val bone: ModelPart = root.getChild("bone")
 
-    override fun renderToBuffer(
+    fun renderToBuffer(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
         packedLight: Int,
@@ -27,19 +29,12 @@ class ThermalImagingGogglesModel(root: ModelPart) : HumanoidModel<LivingEntity>(
         bone.render(poseStack, vertexConsumer, packedLight, packedOverlay, color)
     }
 
-    override fun headParts(): Iterable<ModelPart> {
-        return ImmutableList.of(this.head)
-    }
-
-    override fun bodyParts(): Iterable<ModelPart> {
-        return ImmutableList.of()
-    }
 
     companion object {
         // This layer location should be baked with EntityRendererProvider.Context in the entity renderer and passed into this model's constructor
         val LAYER_LOCATION: ModelLayerLocation = ModelLayerLocation(loc("thermal_imaging_goggles"), "main")
         fun createBodyLayer(): LayerDefinition {
-            val meshdefinition = createMesh(CubeDeformation(0.0f), 0.0f)
+            val meshdefinition = net.minecraft.client.model.HumanoidModel.createMesh(CubeDeformation(0.0f), 0.0f)
             val partdefinition = meshdefinition.root
 
             val bone = partdefinition.addOrReplaceChild(

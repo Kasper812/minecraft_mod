@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
 import com.atsuishio.superbwarfare.data.gun.value.AttachmentType
@@ -40,7 +42,7 @@ data class SwitchScopeMessage(val scroll: Double) : ServerPacketPayload() {
             data.attachment.cycleScopeMode(AttachmentType.SCOPE, scroll)
         } else {
             val tag = data.tag()
-            tag.putBoolean("ScopeAlt", !tag.getBoolean("ScopeAlt"))
+            tag.putBoolean("ScopeAlt", !tag.getBooleanOr("ScopeAlt", false))
         }
         data.save()
         SoundTool.playLocalSound(player, ModSounds.ADJUST_FOV, 1f, 0.7f)

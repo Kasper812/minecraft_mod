@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle.base
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.data.gun.melee.ProjectileMarker
@@ -36,6 +44,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.EntityReference
 import net.minecraft.world.entity.OwnableEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Projectile
@@ -65,7 +74,7 @@ open class AutoAimableEntity(type: EntityType<*>, world: Level) : VehicleEntity(
     open val threatConfig: TowerAI.ThreatConfig
         get() = TowerAI.ThreatConfig()
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val stack = player.mainHandItem
         if (player.isCrouching && !isWreck && !this.locked && !stack.`is`(ModTags.Items.TOOLS_CROWBAR)) {
             if (this.optionalOwnerUUID.isEmpty) {
@@ -84,14 +93,14 @@ open class AutoAimableEntity(type: EntityType<*>, world: Level) : VehicleEntity(
                         0.5f, 1f
                     )
                 }
-                return InteractionResult.sidedSuccess(this.level().isClientSide())
+                return InteractionResult.SUCCESS
             } else {
                 return InteractionResult.PASS
             }
         }
 
         targetUUID = ""
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     override fun onCrowbarInteract(
@@ -121,16 +130,18 @@ open class AutoAimableEntity(type: EntityType<*>, world: Level) : VehicleEntity(
         }
     }
 
-    open fun setOwnerUUID(pUuid: UUID?) {
-        optionalOwnerUUID = Optional.ofNullable(pUuid)
-    }
+    open var ownerUUID: UUID?
+        get() = optionalOwnerUUID.orElse(null)
+        set(pUuid) {
+            optionalOwnerUUID = Optional.ofNullable(pUuid)
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return optionalOwnerUUID.orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
 
         compound.putBoolean("Active", active)
         if (optionalOwnerUUID.isPresent) {
@@ -138,16 +149,18 @@ open class AutoAimableEntity(type: EntityType<*>, world: Level) : VehicleEntity(
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
 
-        active = compound.getBoolean("Active")
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+
+        active = compound.getBooleanOr("Active", false)
 
         var uuid: UUID?
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -509,7 +522,7 @@ open class AutoAimableEntity(type: EntityType<*>, world: Level) : VehicleEntity(
 
         @JvmField
         val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(AutoAimableEntity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(AutoAimableEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         val TARGET_UUID: EntityDataAccessor<String> =

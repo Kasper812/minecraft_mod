@@ -1,9 +1,11 @@
 package com.atsuishio.superbwarfare.client.decorator
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.item.container.LuckyContainerBlockItem
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.core.component.DataComponents
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
@@ -16,7 +18,7 @@ class LuckyContainerItemDecorator {
         if (stack.item !is LuckyContainerBlockItem) return false
         val tag = stack.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag() ?: return false
         if (!tag.contains("Icon")) return false
-        val iconTag = tag.getString("Icon")
+        val iconTag = tag.getStringOr("Icon", "")
         val icon = Identifier.tryParse(iconTag) ?: return false
 
         val pose = guiGraphics.pose()

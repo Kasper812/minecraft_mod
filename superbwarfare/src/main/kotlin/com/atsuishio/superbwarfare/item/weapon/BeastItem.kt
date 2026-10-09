@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.entity.living.DPSGeneratorEntity
 import com.atsuishio.superbwarfare.entity.living.TargetEntity
@@ -29,40 +31,35 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.item.SwordItem
-import net.minecraft.world.item.Tiers
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ToolMaterial
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.item.component.Unbreakable
 import net.minecraft.world.level.gameevent.GameEvent
 import javax.annotation.ParametersAreNonnullByDefault
 
 @RegistryName("beast")
-open class BeastItem : SwordItem(
-    Tiers.NETHERITE, CustomDamageProperty(false)
+open class BeastItem : Item(
+    CustomDamageProperty(false)
         .stacksTo(1)
         .rarity(ModRarities.LEGENDARY)
-        .component(DataComponents.UNBREAKABLE, Unbreakable(false))
+        .sword(ToolMaterial.NETHERITE, 3f, -2.4f)
+        .let { com.atsuishio.portlib.item.LegacyItemProperties.removeComponent(it, net.minecraft.core.component.DataComponents.ENCHANTABLE) }
+        .let { com.atsuishio.portlib.item.LegacyItemProperties.removeComponent(it, net.minecraft.core.component.DataComponents.REPAIRABLE) }
 ) {
-    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
+    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity) {
         beastKill(attacker, target)
-        return true
-    }
-
-    override fun isEnchantable(stack: ItemStack): Boolean {
-        return false
-    }
-
-    override fun isValidRepairItem(stack: ItemStack, repairCandidate: ItemStack): Boolean {
-        return false
+        return
     }
 
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.beast").withColor(0xa56855))
     }
 
@@ -87,7 +84,7 @@ open class BeastItem : SwordItem(
             if (target.level().isClientSide) return
 
             if (target is TargetEntity) {
-                target.hurt(
+                target.hurtOrSimulate(
                     ModDamageTypes.causeBeastDamage(target.level().registryAccess(), attacker, attacker),
                     114514F
                 )
@@ -95,7 +92,7 @@ open class BeastItem : SwordItem(
             }
 
             if (target is DPSGeneratorEntity) {
-                target.hurt(
+                target.hurtOrSimulate(
                     ModDamageTypes.causeBeastDamage(target.level().registryAccess(), attacker, attacker),
                     114514F
                 )
@@ -120,7 +117,7 @@ open class BeastItem : SwordItem(
                 )
 
                 val box = target.boundingBox
-                (attacker.level() as ServerLevel).sendParticles<SimpleParticleType?>(
+                (attacker.level() as ServerLevel).sendParticles(
                     ParticleTypes.DAMAGE_INDICATOR,
                     target.x, target.y + .5, target.z,
                     1000,

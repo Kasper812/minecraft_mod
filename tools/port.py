@@ -46,6 +46,10 @@ SIMPLE = [
     (r"\bLightTexture\b(?=[\s;])", "LightCoordsUtil"),
     (r"\bnet\.minecraft\.Util\b", "net.minecraft.util.Util"),
     (r"\.options\.hideGui\b", ".gui.hud.isHidden()"),
+    (r"\.registryOrThrow\(", ".lookupOrThrow("),
+    (r"\.registry\(([\w.]+)\)\.(?:get|orElseThrow)\(\)", r".lookupOrThrow(\1)"),
+    (r"\.getHolderOrThrow\(", ".getOrThrow("),
+    (r"\.getHolder\(", ".get("),
     (r"\bgetTimer\(\)", "getDeltaTracker()"),
     (r"\bgetMainCamera\(\)", "mainCamera()"),
     (r"\bgameRenderer\.mainCamera\b(?!\()", "gameRenderer.mainCamera()"),
@@ -71,8 +75,31 @@ def add_import(src, imp, kotlin):
     return src[:pos] + "\n" + line + "\n" + src[pos:]
 
 
+GUI_KT = [
+    (r"^import net\.minecraft\.client\.gui\.GuiGraphics$", "import com.atsuishio.portlib.gui.GuiGraphics"),
+    (r"^import com\.mojang\.blaze3d\.systems\.RenderSystem$", "import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem"),
+    (r"^import com\.mojang\.blaze3d\.platform\.GlStateManager$", "import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager"),
+    (r"^import net\.minecraft\.client\.gui\.LayeredDraw$", "import com.atsuishio.portlib.gui.LegacyHudLayer"),
+    (r"\bLayeredDraw\.Layer\b", "LegacyHudLayer"),
+    (r"\bLayeredDraw\.Z_SEPARATION\b", "LegacyHudLayer.Z_SEPARATION"),
+    (r"^\s*RenderSystem\.setShader\s*\{[^}\n]*\}\s*$\n", ""),
+    (r"^\s*RenderSystem\.setShader\(\s*GameRenderer::\w+\s*\)\s*$\n", ""),
+    (r"(?<![\w.])options\.hideGui\b", "net.minecraft.client.Minecraft.getInstance().gui.hud.isHidden()"),
+]
+GUI_JAVA = [
+    (r"^import net\.minecraft\.client\.gui\.GuiGraphics;$", "import com.atsuishio.portlib.gui.GuiGraphics;"),
+    (r"^import com\.mojang\.blaze3d\.systems\.RenderSystem;$", "import com.atsuishio.portlib.gui.LegacyRenderSystem;"),
+    (r"^import com\.mojang\.blaze3d\.platform\.GlStateManager;$", "import com.atsuishio.portlib.gui.LegacyGlStateManager;"),
+    (r"(?<![\w.])RenderSystem\.", "LegacyRenderSystem."),
+    (r"(?<![\w.])GlStateManager\.", "LegacyGlStateManager."),
+    (r"^\s*LegacyRenderSystem\.setShader\(\s*GameRenderer::\w+\s*\);\s*$\n", ""),
+]
+
+
 def migrate(src, kotlin):
     out = src
+    for pat, rep in (GUI_KT if kotlin else GUI_JAVA):
+        out = re.sub(pat, rep, out, flags=re.M)
     for pat, rep in SIMPLE:
         out = re.sub(pat, rep, out)
     for old, new in RT_RENAMES.items():

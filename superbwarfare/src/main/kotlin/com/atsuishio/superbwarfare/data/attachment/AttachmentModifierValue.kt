@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.map
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler
 import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType
@@ -9,20 +11,18 @@ import com.atsuishio.superbwarfare.init.ModTags
 import com.atsuishio.superbwarfare.tools.EntityFindUtil
 import com.atsuishio.superbwarfare.tools.localPlayer
 import com.mojang.authlib.GameProfile
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.Tesselator
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.math.Axis
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.components.PlayerFaceRenderer
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.Boat
+import net.minecraft.world.entity.vehicle.boat.Boat
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.levelgen.Heightmap
 import net.minecraft.world.phys.Vec3
@@ -65,15 +65,15 @@ class MapEntityRenderer {
         private val ICON_MISSILE = loc("textures/overlay/tactical_map/vehicle/missile.png")
         private val ICON_MAID = loc("textures/overlay/tactical_map/vehicle/maid.png")
 
-        private val playerFaceCache = WeakHashMap<UUID, Identifier>()
+        private val playerFaceCache = WeakHashMap<UUID, java.util.function.Supplier<net.minecraft.world.entity.player.PlayerSkin>>()
 
         /** 绘制玩家头像贴图，优先使用缓存，缺失时从 SkinManager 获取 */
         fun drawPlayerFace(guiGraphics: GuiGraphics, uuid: java.util.UUID, name: String, x: Int, y: Int, size: Int) {
             val skin = playerFaceCache.getOrPut(uuid) {
                 val gameProfile = GameProfile(uuid, name)
-                Minecraft.getInstance().skinManager.getInsecureSkin(gameProfile).texture
+                Minecraft.getInstance().skinManager.createLookup(gameProfile, false)
             }
-            PlayerFaceRenderer.draw(guiGraphics, skin, x, y, size)
+            net.minecraft.client.gui.components.PlayerFaceExtractor.extractRenderState(guiGraphics.extractor(), skin.get(), x, y, size)
         }
 
         /** Liang-Barsky 线裁剪到地图可视区域，返回本地虚线坐标范围 */
@@ -515,8 +515,6 @@ class MapEntityRenderer {
     ) {
         val radars = ClientSyncedEntityHandler.getSyncedRadars(level)
         if (radars.isEmpty()) return
-
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         for (radar in radars) {
             if (radar.showIcon) {
                 val rx = CoordinateConverter.worldToScreenX(radar.pos.x, mapCenterX, viewBlockX, scale).toFloat()
@@ -539,8 +537,6 @@ class MapEntityRenderer {
     ) {
         val radars = ClientSyncedEntityHandler.getSyncedRadars(level)
         if (radars.isEmpty()) return
-
-        RenderSystem.setShader { GameRenderer.getPositionShader() }
         for (radar in radars) {
             val rx = CoordinateConverter.worldToScreenX(radar.pos.x, mapCenterX, viewBlockX, scale).toFloat()
             val ry = CoordinateConverter.worldToScreenY(radar.pos.z, mapCenterY, viewBlockZ, scale).toFloat()
@@ -567,7 +563,6 @@ class MapEntityRenderer {
         pose.pushPose()
         pose.translate(cx, cy, 0f)
 
-        val tess = Tesselator.getInstance()
         // TODO tess.builder
 //        val buf = tess.builder
         val arcPixels = sweepDeg / 180f * PI.toFloat() * radius
@@ -638,8 +633,6 @@ class MapEntityRenderer {
                 true
             )
         }
-
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val time = System.currentTimeMillis() / 1000.0
         val breathScale = (1.0 + 0.25 * sin(time * 4.0)).toFloat()

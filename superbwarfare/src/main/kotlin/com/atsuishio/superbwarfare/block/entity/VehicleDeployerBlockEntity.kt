@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.block.VehicleDeployerBlock
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import net.minecraft.core.BlockPos
@@ -18,19 +26,27 @@ open class VehicleDeployerBlockEntity(pPos: BlockPos, pBlockState: BlockState) :
     @JvmField
     var entityData: CompoundTag = CompoundTag()
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
         if (this.entityData.contains("EntityType")) {
-            tag.putString("EntityType", this.entityData.getString("EntityType"))
+            tag.putString("EntityType", this.entityData.getStringOr("EntityType", ""))
         }
         if (this.entityData.contains("Entity")) {
-            tag.put("Entity", this.entityData.getCompound("Entity"))
+            tag.put("Entity", this.entityData.getCompoundOrEmpty("Entity"))
         }
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
 
         this.entityData = tag.copy()
     }
@@ -39,12 +55,12 @@ open class VehicleDeployerBlockEntity(pPos: BlockPos, pBlockState: BlockState) :
         val level = this.level ?: return
 
         if (this.entityData.contains("EntityType")) {
-            val entityType = EntityType.byString(entityData.getString("EntityType")).orElse(null) ?: return
+            val entityType = entityTypeByString(entityData.getStringOr("EntityType", "")).orElse(null) ?: return
 
             val entity = entityType.create(level) ?: return
 
             if (entityData.contains("Entity")) {
-                val entityTag = entityData.getCompound("Entity").copy()
+                val entityTag = entityData.getCompoundOrEmpty("Entity").copy()
                 entityTag.remove("UUID")
                 entity.load(entityTag)
             }

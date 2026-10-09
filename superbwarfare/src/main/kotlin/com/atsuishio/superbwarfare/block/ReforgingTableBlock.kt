@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.util.RandomSource
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.inventory.menu.ReforgingTableMenu
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -19,7 +27,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.material.Fluids
@@ -32,8 +40,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 open class ReforgingTableBlock : Block(
     Properties.of().instrument(NoteBlockInstrument.BASEDRUM).sound(SoundType.STONE).strength(2f)
         .lightLevel { _ -> 4 }
-        .hasPostProcess { _, _, _ -> true }
-        .emissiveRendering { _, _, _ -> true }
+        .emissiveRendering { _ -> true }
 ) {
     init {
         this.registerDefaultState(
@@ -59,15 +66,17 @@ open class ReforgingTableBlock : Block(
         }
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING, WATERLOGGED)
     }
 
-    override fun propagatesSkylightDown(state: BlockState, reader: BlockGetter, pos: BlockPos): Boolean {
+    override fun propagatesSkylightDown(
+        state: BlockState
+    ): Boolean  {
         return true
     }
 
-    override fun getLightBlock(state: BlockState, worldIn: BlockGetter, pos: BlockPos): Int {
+    override fun getLightDampening(state: BlockState): Int {
         return 0
     }
 
@@ -118,16 +127,18 @@ open class ReforgingTableBlock : Block(
 
     override fun updateShape(
         state: BlockState,
-        facing: Direction,
-        facingState: BlockState,
-        world: LevelAccessor,
+        world: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         currentPos: BlockPos,
-        facingPos: BlockPos
-    ): BlockState {
+        facing: Direction,
+        facingPos: BlockPos,
+        facingState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         if (state.getValue(WATERLOGGED)) {
-            world.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
+            scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
         }
-        return super.updateShape(state, facing, facingState, world, currentPos, facingPos)
+        return super.updateShape(state, world, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource)
     }
 
     override fun getMenuProvider(pState: BlockState, pLevel: Level, pPos: BlockPos): MenuProvider? {
@@ -145,7 +156,7 @@ open class ReforgingTableBlock : Block(
         val WATERLOGGED: BooleanProperty = BlockStateProperties.WATERLOGGED
 
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
         private val CONTAINER_TITLE: Component = Component.translatable("container.superbwarfare.reforging_table")
     }
 }

@@ -1,8 +1,10 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.gun.GeoGunModel
 import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.render.CameraStateCache
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -190,7 +192,7 @@ object BedrockBoneCoordinateTool {
         viewPoint: Vec3,
         camera: Camera
     ): Vec3 {
-        return camera.position.add(viewPointToWorldOffset(viewPoint, camera))
+        return camera.position().add(viewPointToWorldOffset(viewPoint, camera))
     }
 
     /**
@@ -334,8 +336,8 @@ object BedrockBoneCoordinateTool {
     @JvmStatic
     fun cameraRotationInverse(camera: Camera): Matrix4f {
         return Matrix4f()
-            .rotationX(Mth.DEG_TO_RAD * camera.xRot)
-            .rotateY(Mth.DEG_TO_RAD * (camera.yRot + 180f))
+            .rotationX(Mth.DEG_TO_RAD * camera.xRot())
+            .rotateY(Mth.DEG_TO_RAD * (camera.yRot() + 180f))
             .rotateZ(CameraStateCache.getCameraRollRadians())
             .invert()
     }

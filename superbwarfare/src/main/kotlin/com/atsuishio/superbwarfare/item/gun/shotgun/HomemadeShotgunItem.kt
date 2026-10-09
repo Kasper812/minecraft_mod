@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.gun.shotgun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.ShootParameters
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.gun.GeoGunItemV2

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.block.property
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.util.StringRepresentable

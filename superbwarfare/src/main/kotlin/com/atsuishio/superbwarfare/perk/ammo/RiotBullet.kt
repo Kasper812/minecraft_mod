@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.ammo
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.perk.AmmoPerk
 import com.atsuishio.superbwarfare.perk.PerkInstance
@@ -11,7 +13,7 @@ import net.minecraft.world.entity.monster.Vex
 
 object RiotBullet : AmmoPerk(
     Builder("riot_bullet", Type.AMMO).bypassArmorRate(-0.3).damageRate(0.9).speedRate(0.8).slug().rgb(70, 35, 230)
-        .mobEffect(MobEffects.MOVEMENT_SLOWDOWN).mobEffect(MobEffects.WEAKNESS)
+        .mobEffect(MobEffects.SLOWNESS).mobEffect(MobEffects.WEAKNESS)
 ) {
     override fun getModifiedDamage(
         damage: Float,

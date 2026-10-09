@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.js
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.ProjectileEntity
 import com.atsuishio.superbwarfare.network.message.receive.ClientMotionSyncMessage
 import com.atsuishio.superbwarfare.tools.CustomExplosion

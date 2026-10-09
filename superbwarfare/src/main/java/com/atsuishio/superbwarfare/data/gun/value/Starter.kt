@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 /**
@@ -12,7 +14,7 @@ open class Starter(private val tag: CompoundTag, name: String) {
      * 检测当前状态是否应该开始
      */
     open fun shouldStart(): Boolean {
-        return tag.getBoolean(name)
+        return tag.getBooleanOr(name, false)
     }
 
     /**

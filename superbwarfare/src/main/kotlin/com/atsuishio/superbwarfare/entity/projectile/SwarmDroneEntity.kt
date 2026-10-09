@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.animation.entity.BasicProjectileAnimationInstance
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -78,15 +80,15 @@ open class SwarmDroneEntity(type: EntityType<out SwarmDroneEntity>, level: Level
             }
         }
 
-        val owner = this.owner
+        val owner = this.getOwner()
         if (tickCount > 10 && owner != null) {
-            val targetPos: Vec3?
+            val targetPos: Vec3
             if (getGuideType() == 0 && entity != null) {
                 val targetVec = Vec3(entity.deltaMovement.x, 0.0, entity.deltaMovement.z)
                 targetPos = entity.eyePosition.add(targetVec)
                 this.setTargetPos(targetPos)
             } else if (this.getTargetPos() != null) {
-                targetPos = this.getTargetPos()
+                targetPos = this.getTargetPos()!!
             } else {
                 val result = owner.level().clip(
                     ClipContext(

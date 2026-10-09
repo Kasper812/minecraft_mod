@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.stack
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModDataComponents
 import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
@@ -32,7 +34,7 @@ object ItemStackStorage : GunStackStorage {
 
     @Suppress("DEPRECATION")
     private fun legacyTag(stack: ItemStack): CompoundTag? =
-        stack.get(DataComponents.CUSTOM_DATA)?.unsafe
+        stack.get(DataComponents.CUSTOM_DATA)?.copyTag()
 
     override fun rootTag(stack: ItemStack): CompoundTag {
         component(stack)?.let { return it.tag }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.SpawnConfig
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.mob_guns.GunDropData
@@ -18,8 +20,7 @@ import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.Mob
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
-import net.minecraft.world.level.GameRules
-
+import net.minecraft.world.level.gamerules.GameRules
 object EntityUseGunEventHandler {
 
     /** Reproduces EntityJoinLevelEvent, including its loaded-from-disk state. */
@@ -54,10 +55,10 @@ object EntityUseGunEventHandler {
         if (vanillaDrops.isNotEmpty()) drops.removeAll(vanillaDrops.toSet())
 
         val drop = MobGunData.from(mob)?.selection?.spawn?.drop
-        if (drop.effectivePlayerKillOnly && mob.lastHurtByPlayerTime <= 0) return
+        if (drop.effectivePlayerKillOnly && mob.lastHurtByPlayerMemoryTime <= 0) return
 
         val level = mob.level() as? ServerLevel ?: return
-        if (!level.gameRules.getBoolean(GameRules.RULE_DOMOBLOOT)) return
+        if (!level.gameRules.get(GameRules.MOB_DROPS)) return
 
         val chance = drop.effectiveChance
         if (chance <= 0.0 || mob.level().random.nextDouble() >= chance) return

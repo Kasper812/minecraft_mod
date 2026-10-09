@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.vehicle_skin
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.CustomData
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.google.common.cache.CacheBuilder

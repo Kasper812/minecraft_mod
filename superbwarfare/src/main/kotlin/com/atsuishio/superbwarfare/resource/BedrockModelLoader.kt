@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.renderer.gun.GunEmissiveTextures
 import com.atsuishio.superbwarfare.resource.model.*
 import net.fabricmc.api.EnvType

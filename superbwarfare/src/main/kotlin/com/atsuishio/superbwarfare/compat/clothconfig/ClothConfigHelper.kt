@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.clothconfig
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.compat.clothconfig.client.ControlClothConfig
 import com.atsuishio.superbwarfare.compat.clothconfig.client.DisplayClothConfig
 import com.atsuishio.superbwarfare.compat.clothconfig.client.KillMessageClothConfig

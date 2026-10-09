@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.AircraftCatapultBlock
 import com.atsuishio.superbwarfare.entity.misc.CatapultShuttleEntity
 import com.atsuishio.superbwarfare.init.ModBlocks
@@ -9,7 +11,6 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -61,21 +62,21 @@ open class CatapultShuttleItem : AbstractDeployerItem(Properties().rarity(Rarity
         }
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val itemstack = player.getItemInHand(hand)
         val hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY)
         if (hitResult.type != HitResult.Type.BLOCK) {
-            return InteractionResultHolder.pass(itemstack)
+            return InteractionResult.PASS
         } else if (level !is ServerLevel) {
-            return InteractionResultHolder.success(itemstack)
+            return InteractionResult.SUCCESS
         } else {
             val blockpos = hitResult.blockPos
             val blockstate = level.getBlockState(blockpos)
 
-            if (!blockstate.`is`(ModBlocks.AIRCRAFT_CATAPULT)) return InteractionResultHolder.pass(itemstack)
+            if (!blockstate.`is`(ModBlocks.AIRCRAFT_CATAPULT)) return InteractionResult.PASS
 
             if (blockstate.block !is LiquidBlock) {
-                return InteractionResultHolder.pass(itemstack)
+                return InteractionResult.PASS
             } else if (level.mayInteract(player, blockpos)
                 && player.mayUseItemAt(blockpos, hitResult.direction, itemstack)
             ) {
@@ -94,9 +95,9 @@ open class CatapultShuttleItem : AbstractDeployerItem(Properties().rarity(Rarity
 
                 player.awardStat(Stats.ITEM_USED.get(this))
                 level.gameEvent(player, GameEvent.ENTITY_PLACE, entity.position())
-                return InteractionResultHolder.consume(itemstack)
+                return InteractionResult.CONSUME
             } else {
-                return InteractionResultHolder.fail(itemstack)
+                return InteractionResult.FAIL
             }
         }
     }

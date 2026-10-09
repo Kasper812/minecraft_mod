@@ -30,7 +30,7 @@ public class LaunchableEntityTool {
 
         return TagDataParser.parseObject(launchableData, name -> switch (name) {
             case "@sbw:damage" -> DoubleTag.valueOf(data.damage());
-            case "@sbw:owner" -> data.shooter() != null ? NbtUtils.createUUID(data.shooter()) : null;
+            case "@sbw:owner" -> data.shooter() != null ? com.atsuishio.portlib.nbt.LegacyNbt.createUUID(data.shooter()) : null;
             case "@sbw:owner_string_lower" -> data.shooter() != null
                     ? StringTag.valueOf(data.shooter().toString().replace("-", "").toLowerCase(Locale.ROOT))
                     : null;

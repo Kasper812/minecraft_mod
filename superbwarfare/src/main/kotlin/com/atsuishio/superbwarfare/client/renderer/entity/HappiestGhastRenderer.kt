@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod
@@ -103,7 +105,7 @@ class HappiestGhastRenderer(manager: EntityRendererProvider.Context) : BasicVehi
                 for (frame in 0 until CYCLE_TICKS) {
                     val hueShift = frame.toFloat() / CYCLE_TICKS
                     val framePixels = createHueShiftedFrame(sourceImage, hueShift)
-                    val frameTexture = DynamicTexture(framePixels)
+                    val frameTexture = DynamicTexture({ "superbwarfare" }, framePixels)
                     val frameLoc = Mod.loc("textures/bedrock/vehicle/happiest_ghast_glass_flow_$frame")
                     mc.textureManager.register(frameLoc, frameTexture)
                     flowFrames[frame] = frameLoc

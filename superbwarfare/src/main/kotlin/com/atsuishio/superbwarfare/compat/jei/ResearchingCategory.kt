@@ -1,5 +1,8 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModTags
@@ -15,7 +18,7 @@ import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
@@ -33,9 +36,6 @@ class ResearchingCategory(helper: IGuiHelper) : IRecipeCategory<ResearchingRecip
         .setTextureSize(256, 128)
         .buildAnimated(100, IDrawableAnimated.StartDirection.LEFT, false)
 
-    @Deprecated("Deprecated in Java")
-    @Suppress("removal")
-    override fun getBackground(): IDrawable = this.background
 
     override fun getWidth(): Int = 138
 
@@ -50,11 +50,13 @@ class ResearchingCategory(helper: IGuiHelper) : IRecipeCategory<ResearchingRecip
     override fun draw(
         recipe: ResearchingRecipe,
         recipeSlotsView: IRecipeSlotsView,
-        guiGraphics: GuiGraphics,
+        extractor: GuiGraphicsExtractor,
         mouseX: Double,
         mouseY: Double
     ) {
-        this.progress.draw(guiGraphics, 5, 24)
+        val guiGraphics = GuiGraphics.of(extractor)
+        this.background.draw(extractor, 0, 0)
+        this.progress.draw(extractor, 5, 24)
 
         guiGraphics.drawString(
             mc.font,
@@ -97,7 +99,7 @@ class ResearchingCategory(helper: IGuiHelper) : IRecipeCategory<ResearchingRecip
         builder.addSlot(RecipeIngredientRole.INPUT, 11, 32).addIngredients(recipe.input)
         builder.addSlot(RecipeIngredientRole.INPUT, 99, 3).addIngredients(recipe.base)
         builder.addSlot(RecipeIngredientRole.INPUT, 119, 3).addIngredients(recipe.addition)
-        builder.addSlot(RecipeIngredientRole.CATALYST, 60, 32).addIngredients(recipe.special)
+        builder.addSlot(RecipeIngredientRole.CRAFTING_STATION, 60, 32).addIngredients(recipe.special)
 
         val result = recipe.result
         if (!result.isRandom()) {
@@ -111,7 +113,7 @@ class ResearchingCategory(helper: IGuiHelper) : IRecipeCategory<ResearchingRecip
         }
 
         builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 11, 3)
-            .addIngredients(Ingredient.of(ModTags.Items.RESEARCH_FUEL))
+            .addIngredients(Ingredient.of(net.minecraft.core.registries.BuiltInRegistries.ITEM.getOrThrow(ModTags.Items.RESEARCH_FUEL)))
     }
 
     companion object {

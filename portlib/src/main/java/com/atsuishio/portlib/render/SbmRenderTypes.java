@@ -20,6 +20,15 @@ public final class SbmRenderTypes {
                     .sortOnUpload()
                     .createRenderSetup()));
 
+    private static final Function<Identifier, RenderType> ENTITY_EMISSIVE_ADDITIVE = Util.memoize(t -> RenderType.create(
+            "sbm_entity_emissive_additive",
+            RenderSetup.builder(SbmPipelines.ENTITY_EMISSIVE_ADDITIVE)
+                    .withTexture("Sampler0", t)
+                    .useLightmap()
+                    .useOverlay()
+                    .sortOnUpload()
+                    .createRenderSetup()));
+
     private SbmRenderTypes() {
     }
 
@@ -47,5 +56,9 @@ public final class SbmRenderTypes {
 
     public static RenderType entityTranslucentAdditive(Identifier texture) {
         return ENTITY_TRANSLUCENT_ADDITIVE.apply(texture);
+    }
+
+    public static RenderType entityEmissiveAdditive(Identifier texture) {
+        return ENTITY_EMISSIVE_ADDITIVE.apply(texture);
     }
 }

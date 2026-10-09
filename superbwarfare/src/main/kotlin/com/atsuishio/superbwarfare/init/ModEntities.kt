@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.init
 
+import net.minecraft.core.registries.Registries
+
+import net.minecraft.resources.ResourceKey
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.config.server.SpawnConfig
 import com.atsuishio.superbwarfare.entity.living.CreepingSenpaiEntity
@@ -415,7 +421,7 @@ object ModEntities {
         name: String,
         entityTypeBuilder: EntityType.Builder<T>
     ): EntityType<T> =
-        Registry.register(BuiltInRegistries.ENTITY_TYPE, Mod.loc(name), entityTypeBuilder.build(name))
+        Registry.register(BuiltInRegistries.ENTITY_TYPE, Mod.loc(name), entityTypeBuilder.build(ResourceKey.create(Registries.ENTITY_TYPE, Mod.loc(name))))
 
     private fun <T : Entity> misc(
         entity: (EntityType<T>, Level) -> T

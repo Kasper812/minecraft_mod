@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.recipe
 
+import net.minecraft.world.item.crafting.RecipeBookCategories
+
+import net.minecraft.world.item.crafting.RecipeBookCategory
+
+import net.minecraft.world.item.crafting.PlacementInfo
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.init.ModRecipes
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedIngredient
@@ -89,24 +97,31 @@ class ResearchingRecipe(
 
     override fun matches(container: RecipeInput, level: Level): Boolean {
         if (container.size() < 4) return false
-        return input.test(container.getItem(0))
-                && base.test(container.getItem(1))
-                && addition.test(container.getItem(2))
-                && special.test(container.getItem(3))
+        return LegacyIngredients.test(input, container.getItem(0))
+                && LegacyIngredients.test(base, container.getItem(1))
+                && LegacyIngredients.test(addition, container.getItem(2))
+                && LegacyIngredients.test(special, container.getItem(3))
     }
 
-    override fun assemble(input: RecipeInput, registries: HolderLookup.Provider): ItemStack =
+    override fun assemble(input: RecipeInput): ItemStack =
         result.getResult().copy()
 
     override fun isSpecial() = true
 
-    override fun canCraftInDimensions(pWidth: Int, pHeight: Int) = true
+    fun getResultItem(registries: HolderLookup.Provider? = null): ItemStack = result.getResult().copy()
 
-    override fun getResultItem(registries: HolderLookup.Provider): ItemStack = result.getResult().copy()
+    override fun getSerializer(): RecipeSerializer<ResearchingRecipe> = ModRecipes.RESEARCHING_SERIALIZER
 
-    override fun getSerializer(): RecipeSerializer<*> = ModRecipes.RESEARCHING_SERIALIZER
+    override fun getType(): RecipeType<ResearchingRecipe> = ModRecipes.RESEARCHING_TYPE
 
-    override fun getType(): RecipeType<*> = ModRecipes.RESEARCHING_TYPE
+    override fun showNotification(): Boolean = false
+
+    override fun group(): String = ""
+
+    override fun placementInfo(): PlacementInfo = PlacementInfo.NOT_PLACEABLE
+
+    override fun recipeBookCategory(): RecipeBookCategory = RecipeBookCategories.CRAFTING_MISC
+
 
     /** 配方产物，由 kotlinx.serialization 从 `result` 字段反序列化。 */
     @Serializable
@@ -139,7 +154,7 @@ class ResearchingRecipe(
                     stackTag.put("components", tag)
                     stackTag.putString("id", itemKey.toString())
                     stackTag.putInt("count", count)
-                    resultStack = ItemStack.parseOptional(RegistryAccess.EMPTY, stackTag)
+                    resultStack = legacyParseItemOptional(RegistryAccess.EMPTY, stackTag)
                 } else {
                     resultStack = ItemStack(itemValue, count)
                 }
@@ -156,7 +171,7 @@ class ResearchingRecipe(
             if (list != null && list!!.isNotEmpty()) return list!!
             if (tag.isEmpty()) return mutableListOf()
 
-            val itemTag = BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, Identifier.parse(tag)))
+            val itemTag = BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, Identifier.parse(tag)))
                 .map { items -> items.map { it.value() } }
                 .getOrNull()
                 ?: return mutableListOf()
@@ -182,13 +197,13 @@ class ResearchingRecipe(
         }
     }
 
-    object Serializer : RecipeSerializer<ResearchingRecipe> {
+    object Serializer {
         @Serializable
         private data class RecipeData(
-            @SerialName("input") val input: SerializedIngredient = Ingredient.EMPTY,
-            @SerialName("base") val base: SerializedIngredient = Ingredient.EMPTY,
-            @SerialName("addition") val addition: SerializedIngredient = Ingredient.EMPTY,
-            @SerialName("special") val special: SerializedIngredient = Ingredient.EMPTY,
+            @SerialName("input") val input: SerializedIngredient = LegacyIngredients.EMPTY,
+            @SerialName("base") val base: SerializedIngredient = LegacyIngredients.EMPTY,
+            @SerialName("addition") val addition: SerializedIngredient = LegacyIngredients.EMPTY,
+            @SerialName("special") val special: SerializedIngredient = LegacyIngredients.EMPTY,
             @SerialName("selectable") val selectable: Boolean = false,
             @SerialName("color") val color: Int = 0,
             @SerialName("time") val time: Int = 1200,
@@ -228,10 +243,10 @@ class ResearchingRecipe(
             StreamCodec.of(this::toNetwork, this::fromNetwork)
 
         fun fromNetwork(buffer: RegistryFriendlyByteBuf): ResearchingRecipe {
-            val input = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
-            val base = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
-            val addition = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
-            val special = Ingredient.CONTENTS_STREAM_CODEC.decode(buffer)
+            val input = LegacyIngredients.STREAM_CODEC.decode(buffer)
+            val base = LegacyIngredients.STREAM_CODEC.decode(buffer)
+            val addition = LegacyIngredients.STREAM_CODEC.decode(buffer)
+            val special = LegacyIngredients.STREAM_CODEC.decode(buffer)
             val selectable = buffer.readBoolean()
             val color = buffer.readInt()
             val time = buffer.readInt()
@@ -247,10 +262,10 @@ class ResearchingRecipe(
         }
 
         fun toNetwork(buffer: RegistryFriendlyByteBuf, recipe: ResearchingRecipe) {
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.input)
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.base)
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.addition)
-            Ingredient.CONTENTS_STREAM_CODEC.encode(buffer, recipe.special)
+            LegacyIngredients.STREAM_CODEC.encode(buffer, recipe.input)
+            LegacyIngredients.STREAM_CODEC.encode(buffer, recipe.base)
+            LegacyIngredients.STREAM_CODEC.encode(buffer, recipe.addition)
+            LegacyIngredients.STREAM_CODEC.encode(buffer, recipe.special)
             buffer.writeBoolean(recipe.selectable)
             buffer.writeInt(recipe.color)
             buffer.writeInt(recipe.time)
@@ -265,8 +280,7 @@ class ResearchingRecipe(
             }
         }
 
-        override fun codec(): MapCodec<ResearchingRecipe> = CODEC
-
-        override fun streamCodec(): StreamCodec<RegistryFriendlyByteBuf, ResearchingRecipe> = STREAM_CODEC
+        @JvmField
+        val INSTANCE: RecipeSerializer<ResearchingRecipe> = RecipeSerializer(CODEC, STREAM_CODEC)
     }
 }

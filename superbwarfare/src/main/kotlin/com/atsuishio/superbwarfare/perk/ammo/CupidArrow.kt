@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.ammo
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.entity.mixin.CupidLove
 import com.atsuishio.superbwarfare.perk.AmmoPerk
@@ -14,7 +16,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.ai.behavior.VillagerMakeLove
 import net.minecraft.world.entity.animal.Animal
-import net.minecraft.world.entity.npc.Villager
+import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.schedule.Activity
 
@@ -37,7 +39,7 @@ object CupidArrow : AmmoPerk(Builder("cupid_arrow", Type.AMMO).damageRate(0.0).s
 
                 if (it.canBreed()) {
                     it.brain.setActiveActivityIfPossible(Activity.IDLE)
-                    it.brain.addActivity(Activity.IDLE, ImmutableList.of(Pair.of(1, VillagerMakeLove())))
+                    it.brain.addActivity(Activity.IDLE, ImmutableList.of(Pair.of(1, VillagerMakeLove())), com.google.common.collect.ImmutableSet.of(), com.google.common.collect.ImmutableSet.of())
                 }
             }
             if (perkLevel >= 10) {

@@ -1,16 +1,16 @@
 package com.atsuishio.superbwarfare.client.renderer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler
 import com.atsuishio.superbwarfare.config.server.SyncConfig
 import com.atsuishio.superbwarfare.tools.clientLevel
 import com.atsuishio.superbwarfare.tools.mc
-import com.mojang.blaze3d.shaders.FogShape
-import com.mojang.blaze3d.systems.RenderSystem
-import com.mojang.blaze3d.vertex.VertexSorting
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.renderer.LevelRenderer
 import net.minecraft.core.BlockPos
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+import com.atsuishio.portlib.render.world.WorldRenderContext
+import com.atsuishio.portlib.render.world.WorldRenderEvents
 import org.joml.Matrix4f
 
 /**
@@ -42,18 +42,6 @@ object SyncedEntityWorldRenderer {
 
         bufferSource.endBatch()
 
-        val savedProj = Matrix4f(RenderSystem.getProjectionMatrix())
-        val savedFogStart = RenderSystem.getShaderFogStart()
-        val savedFogEnd = RenderSystem.getShaderFogEnd()
-        val savedFogShape = RenderSystem.getShaderFogShape()
-
-        val extendedProj = createExtendedProjection(savedProj)
-        RenderSystem.setProjectionMatrix(extendedProj, VertexSorting.DISTANCE_TO_ORIGIN)
-
-        RenderSystem.setShaderFogStart(savedFogEnd)
-        RenderSystem.setShaderFogEnd(SyncConfig.MAX_RENDER_DISTANCE.get().toFloat())
-        RenderSystem.setShaderFogShape(FogShape.SPHERE)
-
         try {
             for (entity in uniqueEntities) {
                 if (level.getEntity(entity.id) != null) continue
@@ -73,18 +61,18 @@ object SyncedEntityWorldRenderer {
                 iy = entity.y + entry.velocity.y * elapsedTicks
                 iz = entity.z + entry.velocity.z * elapsedTicks
 
-                val dx = ix - camera.position.x
-                val dy = iy - camera.position.y
-                val dz = iz - camera.position.z
+                val dx = ix - camera.position().x
+                val dy = iy - camera.position().y
+                val dz = iz - camera.position().z
                 val distSq = dx * dx + dy * dy + dz * dz
                 if (distSq > SyncConfig.MAX_RENDER_DISTANCE.get() * SyncConfig.MAX_RENDER_DISTANCE.get()) continue
 
                 val blockPos = BlockPos.containing(ix, iy, iz)
-                val packedLight = LevelRenderer.getLightColor(level, blockPos)
+                val packedLight = net.minecraft.util.LightCoordsUtil.getLightCoords(level, blockPos)
 
-                val relX = ix - camera.position.x
-                val relY = iy - camera.position.y
-                val relZ = iz - camera.position.z
+                val relX = ix - camera.position().x
+                val relY = iy - camera.position().y
+                val relZ = iz - camera.position().z
 
                 dispatcher.render(
                     entity,
@@ -100,10 +88,6 @@ object SyncedEntityWorldRenderer {
             }
         } finally {
             bufferSource.endBatch()
-            RenderSystem.setProjectionMatrix(savedProj, VertexSorting.DISTANCE_TO_ORIGIN)
-            RenderSystem.setShaderFogStart(savedFogStart)
-            RenderSystem.setShaderFogEnd(savedFogEnd)
-            RenderSystem.setShaderFogShape(savedFogShape)
         }
     }
 

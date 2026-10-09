@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -13,8 +15,8 @@ import com.atsuishio.superbwarfare.tools.NBTTool
 import com.atsuishio.superbwarfare.tools.VectorTool.lerpGetEntityBoundingBoxCenter
 import com.atsuishio.superbwarfare.tools.canBeSeen
 import com.atsuishio.superbwarfare.tools.worldToScreen
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
@@ -45,7 +47,6 @@ object SpyglassRangeOverlay : CommonOverlay("spyglass_range") {
                 RenderSystem.disableDepthTest()
                 RenderSystem.depthMask(false)
                 RenderSystem.enableBlend()
-                RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                 RenderSystem.blendFuncSeparate(
                     GlStateManager.SourceFactor.SRC_ALPHA,
                     GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -90,10 +91,10 @@ object SpyglassRangeOverlay : CommonOverlay("spyglass_range") {
                 }
 
                 // 火炮位置
-                val tags = NBTTool.getTag(stack).getList(ArtilleryIndicatorItem.TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+                val tags = NBTTool.getTag(stack).getListOrEmpty(ArtilleryIndicatorItem.TAG_CANNON)
                 for (m in tags.indices) {
-                    val tag = tags.getCompound(m)
-                    val entity = EntityFindUtil.findEntity(player.level(), tag.getString("UUID"))
+                    val tag = tags.getCompoundOrEmpty(m)
+                    val entity = EntityFindUtil.findEntity(player.level(), tag.getStringOr("UUID", ""))
                     if (entity != null) {
                         val posF = lerpGetEntityBoundingBoxCenter(entity, partialTick)
                         val pointF = posF.worldToScreen()

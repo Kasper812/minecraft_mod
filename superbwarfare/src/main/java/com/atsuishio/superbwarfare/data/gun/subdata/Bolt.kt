@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.value.StateBooleanValue
 import com.atsuishio.superbwarfare.data.gun.value.StateIntValue

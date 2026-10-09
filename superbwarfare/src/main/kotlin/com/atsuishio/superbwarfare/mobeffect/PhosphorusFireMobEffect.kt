@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mobeffect
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.PersistentDataAccessor
 import com.atsuishio.superbwarfare.capability.living.PhosphorusFireCapability
 import com.atsuishio.superbwarfare.init.ModDamageTypes
@@ -19,16 +21,16 @@ object PhosphorusFireMobEffect : MobEffect(MobEffectCategory.HARMFUL, 0xB1C1F2) 
     const val TAG_PHOSPHORUS_FIRE_COUNT = "SbwPhosphorusFireCount"
     const val TAG_PHOSPHORUS_FIRE_ATTACKER = "SbwPhosphorusFireAttacker"
 
-    override fun applyEffectTick(entity: LivingEntity, amplifier: Int): Boolean {
+    override fun applyEffectTick(serverLevel: net.minecraft.server.level.ServerLevel, entity: LivingEntity, amplifier: Int): Boolean {
         val data = persistentData(entity)
 
         val attacker = if (data.contains(TAG_PHOSPHORUS_FIRE_ATTACKER)) {
-            entity.level().getEntity(data.getInt(TAG_PHOSPHORUS_FIRE_ATTACKER))
+            entity.level().getEntity(data.getIntOr(TAG_PHOSPHORUS_FIRE_ATTACKER, 0))
         } else {
             null
         }
 
-        val fireCount = data.getInt(TAG_PHOSPHORUS_FIRE_COUNT)
+        val fireCount = data.getIntOr(TAG_PHOSPHORUS_FIRE_COUNT, 0)
         val fireLevel = fireCount / 4
 
         var damage = 1f + 0.5f * amplifier +

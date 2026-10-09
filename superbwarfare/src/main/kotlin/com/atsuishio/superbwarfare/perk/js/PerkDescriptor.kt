@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.js
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.perk.Perk
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder

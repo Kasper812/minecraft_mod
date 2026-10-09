@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade.providers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.CatapultControllerBlock
 import net.minecraft.network.chat.Component
@@ -12,7 +14,7 @@ import snownee.jade.api.config.IPluginConfig
 object CatapultControllerProvider : IBlockComponentProvider {
     private val ID = loc("catapult_controller")
 
-    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig?) {
+    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig) {
         iTooltip.add(
             Component.translatable(
                 "message.superbwarfare.catapult_power",

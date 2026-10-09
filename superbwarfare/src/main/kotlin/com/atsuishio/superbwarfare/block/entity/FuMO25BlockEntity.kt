@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.FuMO25Block
 import com.atsuishio.superbwarfare.config.server.SyncConfig
@@ -90,17 +98,21 @@ open class FuMO25BlockEntity(pPos: BlockPos, pBlockState: BlockState) :
         }
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
 
         val energyTag = tag.get("Energy")
         if (energyTag != null) {
             energyStorage.deserializeNBT(registries, energyTag)
         }
-        this.type = FuncType.entries[tag.getInt("Type").coerceIn(0, 3)]
-        this.powered = tag.getBoolean("Powered")
-        this.tick = tag.getInt("Tick")
-        this.tickO = tag.getInt("TickO")
+        this.type = FuncType.entries[tag.getIntOr("Type", 0).coerceIn(0, 3)]
+        this.powered = tag.getBooleanOr("Powered", false)
+        this.tick = tag.getIntOr("Tick", 0)
+        this.tickO = tag.getIntOr("TickO", 0)
 
         if (tag.contains("OwnerUUID")) {
             this.ownerUUID = tag.getUUID("OwnerUUID")
@@ -108,8 +120,10 @@ open class FuMO25BlockEntity(pPos: BlockPos, pBlockState: BlockState) :
     }
 
     @ParametersAreNonnullByDefault
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+        val tag = LegacyNbt.tagOf(output)
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
         tag.put("Energy", energyStorage.serializeNBT(registries))
         tag.putInt("Type", this.type.ordinal)
@@ -142,9 +156,7 @@ open class FuMO25BlockEntity(pPos: BlockPos, pBlockState: BlockState) :
     }
 
     override fun getUpdateTag(registries: HolderLookup.Provider): CompoundTag {
-        val tag = CompoundTag()
-        this.saveAdditional(tag, registries)
-        return tag
+        return this.saveCustomOnly(registries)
     }
 
     override fun getUpdatePacket(): Packet<ClientGamePacketListener> {
@@ -260,13 +272,13 @@ open class FuMO25BlockEntity(pPos: BlockPos, pBlockState: BlockState) :
 //            // 测试粒子
 //            if (level is ServerLevel) {
 //
-//                val f2 = Mth.sin((blockEntity.tick - 60) * (Math.PI.toFloat() / 180f)).toDouble()
-//                val f3 = -Mth.cos((blockEntity.tick - 60) * (Math.PI.toFloat() / 180f)).toDouble()
+//                val f2 = com.atsuishio.portlib.util.LegacyMth.sin((blockEntity.tick - 60) * (Math.PI.toFloat() / 180f)).toDouble()
+//                val f3 = -com.atsuishio.portlib.util.LegacyMth.cos((blockEntity.tick - 60) * (Math.PI.toFloat() / 180f)).toDouble()
 //
 //                val dir1 = Vec3(f2, 0.0, f3)
 //
-//                val f4 = Mth.sin((blockEntity.tick + 60) * (Math.PI.toFloat() / 180f)).toDouble()
-//                val f5 = -Mth.cos((blockEntity.tick + 60) * (Math.PI.toFloat() / 180f)).toDouble()
+//                val f4 = com.atsuishio.portlib.util.LegacyMth.sin((blockEntity.tick + 60) * (Math.PI.toFloat() / 180f)).toDouble()
+//                val f5 = -com.atsuishio.portlib.util.LegacyMth.cos((blockEntity.tick + 60) * (Math.PI.toFloat() / 180f)).toDouble()
 //
 //                val dir2 = Vec3(f4, 0.0, f5)
 //

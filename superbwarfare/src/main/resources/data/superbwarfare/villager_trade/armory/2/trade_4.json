@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 16
+  },
+  "gives": {
+    "id": "superbwarfare:marlin_blueprint"
+  },
+  "max_uses": 8,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

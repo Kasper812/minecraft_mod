@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.DataLoader
 import com.atsuishio.superbwarfare.serialization.decodeFromCompoundTag
 import com.atsuishio.superbwarfare.serialization.encodeToCompoundTag
@@ -27,7 +29,8 @@ fun <T : Any> serializerToMapCodec(serializer: KSerializer<T>): MapCodec<T> {
             val map = HashMap<U, U>()
             for (key in nbt.allKeys) {
                 val value = nbt.get(key) ?: continue
-                map[ops.createString(key)] = NbtOps.INSTANCE.convertTo(ops, value)
+                @Suppress("UNCHECKED_CAST")
+                map[ops.createString(key)] = NbtOps.INSTANCE.convertTo(ops as DynamicOps<Any>, value) as U
             }
             return ops.mergeToMap(prefix, map)
         }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModDamageTypes
 import com.atsuishio.superbwarfare.init.ModDamageTypes.causeCustomExplosionDamage
@@ -61,9 +63,9 @@ open class PtkmProjectileEntity : FastThrowableProjectile, BasicGeoProjectileEnt
 
             entity.forceHurt(
                 if (isHeadshot)
-                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.owner)
+                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.getOwner())
                 else
-                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.owner),
+                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.getOwner()),
                 finalDamage
             )
             entity.invulnerableTime = 0
@@ -163,7 +165,7 @@ open class PtkmProjectileEntity : FastThrowableProjectile, BasicGeoProjectileEnt
 
     fun explode(pos: Vec3) {
         CustomExplosion.Builder(this)
-            .damageSource(causeCustomExplosionDamage(level().registryAccess(), this, this.owner))
+            .damageSource(causeCustomExplosionDamage(level().registryAccess(), this, this.getOwner()))
             .damage(explosionDamageValue)
             .radius(explosionRadiusValue)
             .position(pos)

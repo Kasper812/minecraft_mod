@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.ContainerBlock.Companion.getEntityTranslationKey
 import com.atsuishio.superbwarfare.client.RenderHelper
@@ -19,15 +23,15 @@ import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
 import com.google.common.collect.Lists
 import com.google.common.collect.Maps
-import com.mojang.blaze3d.platform.GlStateManager
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
 import com.mojang.blaze3d.platform.Lighting
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap
 import net.minecraft.ChatFormatting
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.Renderable
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -52,8 +56,7 @@ import kotlin.math.min
 /**
  * Code based on TaC-Z
  */
-class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: Inventory, pTitle: Component) :
-    AbstractContainerScreen<VehicleAssemblingMenu>(pMenu, pPlayerInventory, pTitle) {
+class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: Inventory, pTitle: Component) : LegacyContainerScreen<VehicleAssemblingMenu>(pMenu, pPlayerInventory, pTitle) {
 
     private val recipes: MutableMap<VehicleAssemblingRecipe.Category?, MutableList<Identifier?>?> =
         Maps.newLinkedHashMap()
@@ -91,7 +94,7 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
         val recipeList = recipeManager.getAllRecipesFor(ModRecipes.VEHICLE_ASSEMBLING_TYPE)
 
         for (recipe in recipeList) {
-            this.recipes.computeIfAbsent(recipe.value().category) { _ -> Lists.newArrayList() }!!.add(recipe.id())
+            this.recipes.computeIfAbsent(recipe.value().category) { _ -> Lists.newArrayList() }!!.add(recipe.id().identifier())
         }
         this.currentRecipes = this.recipes[this.currentCategory]
     }
@@ -187,7 +190,7 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
             val ingredient = ingredients[i]
             var count = 0
 
-            for (stack in player.getInventory().items) {
+            for (stack in player.getInventory().nonEquipmentItems) {
                 if (!stack.isEmpty && ingredient.ingredient.test(stack)) {
                     count += stack.count
                 }
@@ -412,7 +415,7 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
                     return@OnPress
                 }
             }
-            sendPacketToServer(AssembleVehicleMessage(this.currentRecipe!!.id, this.menu.containerId))
+            sendPacketToServer(AssembleVehicleMessage(this.currentRecipe!!.id.identifier(), this.menu.containerId))
         }))
     }
 
@@ -476,11 +479,11 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
             val tag = data?.copyTag()
 
             if (tag != null && tag.contains("EntityType")) {
-                val key = tag.getString("EntityType")
+                val key = tag.getStringOr("EntityType", "")
                 if (entityNameCache == key && entityCache != null) {
                     renderEntity = entityCache
                 } else {
-                    renderEntity = EntityType.byString(key)
+                    renderEntity = entityTypeByString(key)
                         .map { it.create(level) }
                         .orElse(null)
                     if (renderEntity != null) {
@@ -495,133 +498,94 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
         }
 
         if (renderEntity == null) {
-            renderDefaultItemModel(stack)
+            renderDefaultItemModel(guiGraphics, stack)
         } else {
             renderEntityModel(guiGraphics, renderEntity)
         }
     }
 
-    private fun renderDefaultItemModel(stack: ItemStack) {
+    private fun renderDefaultItemModel(guiGraphics: GuiGraphics, stack: ItemStack) {
         val rotationPeriod = 8f
         val width = 240
         val height = 99
         val rotPitch = 15f
 
-        val window = Minecraft.getInstance().window
-        val windowGuiScale = window.guiScale
-        val scissorX = ((this.leftPos + 114) * windowGuiScale).toInt()
-        val scissorY = (window.height - (this.topPos + height) * windowGuiScale).toInt()
-        val scissorW = (width * windowGuiScale).toInt()
-        val scissorH = (height * windowGuiScale).toInt()
-        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH)
-
-        Minecraft.getInstance().textureManager.getTexture(TextureAtlas.LOCATION_BLOCKS).setFilter(false, false)
-        RenderSystem.setShaderTexture(0, TextureAtlas.LOCATION_BLOCKS)
-        RenderSystem.enableBlend()
-        RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA)
-        RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
-
-        val posestack = RenderSystem.getModelViewStack()
-        posestack.pushMatrix()
         val oldVec = modelPosAnimator.oldValue()
         val newVec = modelPosAnimator.newValue()
         val xOffset = modelPosAnimator.lerp(oldVec.x, newVec.x, System.currentTimeMillis())
         val yOffset = modelPosAnimator.lerp(oldVec.y, newVec.y, System.currentTimeMillis())
-        posestack.translate(this.leftPos + xOffset, this.topPos + yOffset - 20, 200f)
-        posestack.translate(8.0f, 8.0f, 0.0f)
-        posestack.scale(1f, -1f, 1f)
         val currentScale =
             scaleAnimator.lerp(scaleAnimator.oldValue(), scaleAnimator.newValue(), System.currentTimeMillis())
-        posestack.scale(currentScale, currentScale, currentScale)
-
         val rot =
             (System.currentTimeMillis() % ((rotationPeriod * 1000f).toInt()).toLong()).toFloat() * (360f / (rotationPeriod * 1000f))
+        val left = this.leftPos
+        val top = this.topPos
 
-        posestack.rotate(Axis.XP.rotationDegrees(rotPitch))
-        posestack.rotate(Axis.YP.rotationDegrees(rot))
-        RenderSystem.applyModelViewMatrix()
-        val tmpPose = PoseStack()
-        val bufferSource = Minecraft.getInstance().renderBuffers().bufferSource()
-        Lighting.setupForFlatItems()
-
-        Minecraft.getInstance().itemRenderer.renderStatic(
-            stack,
-            ItemDisplayContext.FIXED,
-            15728880,
-            OverlayTexture.NO_OVERLAY,
-            tmpPose,
-            bufferSource,
-            null,
-            0
-        )
-
-        bufferSource.endBatch()
-        RenderSystem.enableDepthTest()
-        Lighting.setupFor3DItems()
-        posestack.popMatrix()
-        RenderSystem.applyModelViewMatrix()
-        RenderSystem.disableScissor()
+        guiGraphics.render3D(left + 114, top, left + 114 + width, top + height) { posestack, buffers ->
+            posestack.pushPose()
+            posestack.translate(left + xOffset, top + yOffset - 20, 200f)
+            posestack.translate(8.0f, 8.0f, 0.0f)
+            posestack.scale(1f, -1f, 1f)
+            posestack.scale(currentScale, currentScale, currentScale)
+            posestack.mulPose(Axis.XP.rotationDegrees(rotPitch))
+            posestack.mulPose(Axis.YP.rotationDegrees(rot))
+            com.atsuishio.portlib.render.LegacyLighting.setupForFlatItems()
+            Minecraft.getInstance().itemRenderer.renderStatic(
+                stack,
+                ItemDisplayContext.FIXED,
+                15728880,
+                OverlayTexture.NO_OVERLAY,
+                posestack,
+                buffers,
+                null,
+                0
+            )
+            posestack.popPose()
+        }
     }
 
     private fun renderEntityModel(guiGraphics: GuiGraphics, renderEntity: Entity?) {
         if (renderEntity == null) return
 
-        val posestack = guiGraphics.pose()
-
         val width = 240
         val height = 99
 
-        val window = Minecraft.getInstance().window
-        val windowGuiScale = window.guiScale
-
-        val scissorX = ((this.leftPos + 114) * windowGuiScale).toInt()
-        val scissorY = (window.height - (this.topPos + height) * windowGuiScale).toInt()
-        val scissorW = (width * windowGuiScale).toInt()
-        val scissorH = (height * windowGuiScale).toInt()
-        RenderSystem.enableScissor(scissorX, scissorY, scissorW, scissorH)
-
-        posestack.pushPose()
         val oldVec = modelPosAnimator.oldValue()
         val newVec = modelPosAnimator.newValue()
         val xOffset = modelPosAnimator.lerp(oldVec.x, newVec.x, System.currentTimeMillis())
         val yOffset = modelPosAnimator.lerp(oldVec.y, newVec.y, System.currentTimeMillis())
-        posestack.translate(this.leftPos + xOffset, this.topPos + yOffset, 50f)
         val currentScale =
             scaleAnimator.lerp(scaleAnimator.oldValue(), scaleAnimator.newValue(), System.currentTimeMillis())
-        posestack.scale(currentScale, currentScale, -currentScale)
-
         val size = renderEntity.boundingBox.getSize().toFloat()
         val resizeScale = 1f / max(size, 1.25f)
-        posestack.scale(resizeScale, resizeScale, resizeScale)
-
-        Lighting.setupForEntityInInventory()
-        val entityrenderdispatcher = Minecraft.getInstance().entityRenderDispatcher
-
         val rotationPeriod = 12f
         val rotPitch = 195f
         val rot =
             (System.currentTimeMillis() % ((rotationPeriod * 1000f).toInt()).toLong()).toFloat() * (360f / (rotationPeriod * 1000f))
+        val left = this.leftPos
+        val top = this.topPos
 
-        posestack.mulPose(Axis.XP.rotationDegrees(rotPitch))
-        posestack.mulPose(Axis.YP.rotationDegrees(rot))
-
-        entityrenderdispatcher.setRenderShadow(false)
-        entityrenderdispatcher.render(
-            renderEntity,
-            0.0,
-            0.0,
-            0.0,
-            0f,
-            1f,
-            posestack,
-            guiGraphics.bufferSource(),
-            15728880
-        )
-        guiGraphics.flush()
-        entityrenderdispatcher.setRenderShadow(true)
-        posestack.popPose()
-        Lighting.setupFor3DItems()
-        RenderSystem.disableScissor()
+        guiGraphics.render3D(left + 114, top, left + 114 + width, top + height) { posestack, buffers ->
+            posestack.pushPose()
+            posestack.translate(left + xOffset, top + yOffset, 50f)
+            posestack.scale(currentScale, currentScale, -currentScale)
+            posestack.scale(resizeScale, resizeScale, resizeScale)
+            com.atsuishio.portlib.render.LegacyLighting.setupForEntityInInventory()
+            posestack.mulPose(Axis.XP.rotationDegrees(rotPitch))
+            posestack.mulPose(Axis.YP.rotationDegrees(rot))
+            Minecraft.getInstance().entityRenderDispatcher.render(
+                renderEntity,
+                0.0,
+                0.0,
+                0.0,
+                0f,
+                1f,
+                posestack,
+                buffers,
+                15728880
+            )
+            posestack.popPose()
+        }
     }
 
     fun renderRecipeInfo(
@@ -637,8 +601,8 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
             val data = stack.get(DataComponents.BLOCK_ENTITY_DATA)
             val tag = data?.copyTag()
             if (tag != null && tag.contains("EntityType")) {
-                val key = tag.getString("EntityType")
-                val entityType = EntityType.byString(key).orElse(null)
+                val key = tag.getStringOr("EntityType", "")
+                val entityType = entityTypeByString(key).orElse(null)
                 if (entityType != null) {
                     this.renderContainerInfo(key, guiGraphics, mouseX, mouseY)
                     renderItemName = false
@@ -664,8 +628,8 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
         }
 
         val modName = Component.translatableWithFallback(
-            "info." + holder.id().namespace + ".mod_id",
-            holder.id().namespace
+            "info." + holder.id().identifier().namespace + ".mod_id",
+            holder.id().identifier().namespace
         )
         val modInfo = Component.translatable(
             "container.superbwarfare.mod_info",

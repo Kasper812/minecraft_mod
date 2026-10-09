@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
@@ -71,7 +73,7 @@ object OverlayTraceHandler {
     @JvmStatic
     fun handleCameraTrace(player: Player) {
         val camera = mc.gameRenderer.mainCamera()
-        var viewPos = camera.position
+        var viewPos = camera.position()
         var viewVec = Vec3(camera.lookVector)
         val distance = try {
             VehicleConfig.VEHICLE_INFO_DISPLAY_DISTANCE.get().toDouble()

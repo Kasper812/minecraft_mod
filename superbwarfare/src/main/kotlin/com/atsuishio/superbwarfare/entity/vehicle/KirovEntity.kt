@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 
 import com.atsuishio.superbwarfare.client.particle.CustomFlareOption
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity

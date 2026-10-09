@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -14,8 +18,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 
-class SteelCoilRenderer(renderManager: EntityRendererProvider.Context) :
-    EntityRenderer<SteelCoilEntity>(renderManager) {
+class SteelCoilRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<SteelCoilEntity>(renderManager) {
 
     override fun render(
         entity: SteelCoilEntity,

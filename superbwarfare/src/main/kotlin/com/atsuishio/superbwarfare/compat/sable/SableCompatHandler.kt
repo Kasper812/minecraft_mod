@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.sable
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.IAdvancedHitDetection
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.Explosion

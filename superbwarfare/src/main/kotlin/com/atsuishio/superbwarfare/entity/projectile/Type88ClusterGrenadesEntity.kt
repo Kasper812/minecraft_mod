@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -75,7 +77,7 @@ open class Type88ClusterGrenadesEntity : BounceProjectile, BasicGeoProjectileEnt
     override fun afterHitEntity(result: EntityHitResult) {
         if (result !is ExtendedEntityRayTraceResult) return
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (entity == owner || entity == this.vehicle) return
         val speedE = this.deltaMovement.length()
         if (speedE > 0.1) {
@@ -93,7 +95,7 @@ open class Type88ClusterGrenadesEntity : BounceProjectile, BasicGeoProjectileEnt
             }
         }
         this.bounce(
-            Direction.getNearest(
+            Direction.getApproximateNearest(
                 this.deltaMovement.x(),
                 this.deltaMovement.y(),
                 this.deltaMovement.z()
@@ -105,7 +107,7 @@ open class Type88ClusterGrenadesEntity : BounceProjectile, BasicGeoProjectileEnt
     override fun canSplit(): Boolean = true
 
     override fun createSplitProjectile(level: Level): FastThrowableProjectile =
-        SplitType88GrenadeEntity(this.owner, level)
+        SplitType88GrenadeEntity(this.getOwner(), level)
 
 //    override fun splitSpeed(radius: Float): Float = super.splitSpeed(radius)
 

@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.ContainerBlock
 import com.atsuishio.superbwarfare.client.animation.block.ContainerBlockAnimationInstance
@@ -42,15 +50,19 @@ open class ContainerBlockEntity(pos: BlockPos, state: BlockState) :
     var tick: Int = 0
     var opened: Boolean = false
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
         loadFromTag(tag)
     }
 
     // 保存额外DataComponent以确保正确生成掉落物
     override fun collectImplicitComponents(components: DataComponentMap.Builder) {
         super.collectImplicitComponents(components)
-        components.set(DataComponents.BLOCK_ENTITY_DATA, CustomData.of(saveToTag()))
+        components.set(DataComponents.BLOCK_ENTITY_DATA, net.minecraft.world.item.component.TypedEntityData.of(this.type, saveToTag()))
     }
 
     private fun saveToTag(): CompoundTag {
@@ -62,13 +74,13 @@ open class ContainerBlockEntity(pos: BlockPos, state: BlockState) :
 
     private fun loadFromTag(tag: CompoundTag) {
         if (tag.contains("EntityType")) {
-            this.entityType = EntityType.byString(tag.getString("EntityType")).orElse(null)
+            this.entityType = entityTypeByString(tag.getStringOr("EntityType", "")).orElse(null)
         }
         if (tag.contains("Entity") && this.entityTag == null && this.entityType != null) {
-            this.entityTag = tag.getCompound("Entity")
+            this.entityTag = tag.getCompoundOrEmpty("Entity")
         }
-        this.tick = tag.getInt("Tick")
-        this.opened = tag.getBoolean("Opened")
+        this.tick = tag.getIntOr("Tick", 0)
+        this.opened = tag.getBooleanOr("Opened", false)
     }
 
     private fun saveDataToTag(tag: CompoundTag) {
@@ -84,8 +96,12 @@ open class ContainerBlockEntity(pos: BlockPos, state: BlockState) :
         tag.putBoolean("Opened", this.opened)
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
         saveDataToTag(tag)
     }
 
@@ -97,15 +113,15 @@ open class ContainerBlockEntity(pos: BlockPos, state: BlockState) :
         return this.saveWithFullMetadata(registries)
     }
 
-    override fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
-        super.saveToItem(stack, registries)
+    open fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
+        legacySaveToItem(stack, registries)
 
         val tag = CompoundTag()
         val entityType = this.entityType
         if (entityType != null) {
             tag.putString("EntityType", EntityType.getKey(entityType).toString())
         }
-        BlockItem.setBlockEntityData(stack, this.type, tag)
+        legacySetBlockEntityData(stack, this.type, tag)
     }
 
     companion object {

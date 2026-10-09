@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.RegistryName
 
 @RegistryName("knife_seitengewehr_84")

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.CustomDamageProperty
@@ -10,14 +12,15 @@ import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Items
-import net.minecraft.world.item.SwordItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.ToolMaterial
 import org.joml.Math
 
 @RegistryName("steel_pipe")
-class SteelPipeItem : SwordItem(
-    ModItemTier.STEEL, CustomDamageProperty(810).attributes(createAttributes(ModItemTier.STEEL, 4, -3f))
+class SteelPipeItem : Item(
+    CustomDamageProperty(810).sword(ModItemTier.STEEL.material, 4f, -3f)
 ) {
-    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
+    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity) {
         attacker.level().playSound(
             null,
             target.onPos,
@@ -27,7 +30,7 @@ class SteelPipeItem : SwordItem(
             ((2 * Math.random() - 1) * 0.1f + 1.0f).toFloat()
         )
 
-        val result = super.hurtEnemy(stack, target, attacker)
+        super.hurtEnemy(stack, target, attacker)
         stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND)
 
         if (stack.isEmpty) {
@@ -36,6 +39,6 @@ class SteelPipeItem : SwordItem(
                 ItemStack(Holder.direct(Items.STICK), 1, stack.componentsPatch)
             )
         }
-        return result
+
     }
 }

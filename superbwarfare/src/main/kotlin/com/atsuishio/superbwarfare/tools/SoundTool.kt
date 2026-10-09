@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.network.message.receive.SoundClientMessage
 import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
@@ -50,7 +52,7 @@ object SoundTool {
     fun playLocalSound(player: ServerPlayer, sound: SoundEvent, source: SoundSource, volume: Float, pitch: Float) {
         sendPacketTo(
             player, ClientboundSoundPacket(
-                Holder.Direct(sound),
+                Holder.direct(sound),
                 source, player.x, player.y, player.z, volume, pitch, player.level().random.nextLong()
             )
         )

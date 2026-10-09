@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.google.gson.annotations.SerializedName
 import com.maydaymemory.mae.control.runner.*
 import java.util.*

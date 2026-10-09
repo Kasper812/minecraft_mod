@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -67,7 +69,7 @@ open class HandGrenadeEntity : BounceProjectile, BasicGeoProjectileEntity {
     override fun afterHitEntity(result: EntityHitResult) {
         if (result !is ExtendedEntityRayTraceResult) return
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (entity == owner || entity == this.vehicle) return
         val speedE = this.deltaMovement.length()
         if (speedE > 0.1) {
@@ -85,7 +87,7 @@ open class HandGrenadeEntity : BounceProjectile, BasicGeoProjectileEntity {
             }
         }
         this.bounce(
-            Direction.getNearest(
+            Direction.getApproximateNearest(
                 this.deltaMovement.x(),
                 this.deltaMovement.y(),
                 this.deltaMovement.z()

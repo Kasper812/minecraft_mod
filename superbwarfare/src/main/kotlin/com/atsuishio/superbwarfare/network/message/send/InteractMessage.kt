@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.PayloadContext
@@ -10,7 +12,7 @@ import com.atsuishio.superbwarfare.tools.TraceTool
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.ItemInteractionResult
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
@@ -23,11 +25,11 @@ object InteractMessage : ServerPacketPayload() {
         val tag = NBTTool.getTag(stack)
 
         if (stack.`is`(ModItems.MONITOR)
-            && tag.getBoolean("Using")
-            && tag.getBoolean("Linked")
+            && tag.getBooleanOr("Using", false)
+            && tag.getBooleanOr("Linked", false)
             && !player.cooldowns.isOnCooldown(stack.item)
         ) {
-            val drone = EntityFindUtil.findDrone(player.level(), tag.getString("LinkedDrone")) ?: return
+            val drone = EntityFindUtil.findDrone(player.level(), tag.getStringOr("LinkedDrone", "")) ?: return
 
             val looking = Vec3.atLowerCornerOf(
                 player.level().clip(
@@ -54,7 +56,7 @@ object InteractMessage : ServerPacketPayload() {
                     ), Direction.UP, blockPos
                 )
             )
-            if (result == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION) {
+            if (result == InteractionResult.TRY_WITH_EMPTY_HAND) {
                 player.level().getBlockState(blockPos).useWithoutItem(
                     player.level(),
                     player,

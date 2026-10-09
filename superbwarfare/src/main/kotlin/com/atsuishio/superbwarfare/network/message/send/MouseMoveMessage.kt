@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
@@ -23,8 +25,8 @@ data class MouseMoveMessage(val speedX: Double, val speedY: Double) : ServerPack
         val stack = player.mainHandItem
         val tag = NBTTool.getTag(stack)
 
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using") && tag.getBoolean("Linked")) {
-            val drone = EntityFindUtil.findDrone(player.level(), tag.getString("LinkedDrone"))
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false) && tag.getBooleanOr("Linked", false)) {
+            val drone = EntityFindUtil.findDrone(player.level(), tag.getStringOr("LinkedDrone", ""))
             if (drone != null) {
                 if (drone.getController() == null) {
                     drone.setController(player)

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.api.event.RegisterContainersEvent
 import com.atsuishio.superbwarfare.item.container.LuckyContainerBlockItem
@@ -8,8 +10,8 @@ import com.atsuishio.superbwarfare.item.material.BatteryItem
 import com.atsuishio.superbwarfare.item.misc.ArmorPlateItem
 import com.atsuishio.superbwarfare.item.projectile.C4BombItem
 import com.atsuishio.superbwarfare.item.weapon.ElectricBatonItem
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup
-import net.fabricmc.fabric.api.itemgroup.v1.ItemGroupEvents
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab
+import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.Registry
@@ -33,7 +35,7 @@ object ModTabs {
     @JvmField
     val GUN_TAB: CreativeModeTab = register(
         "guns",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.guns"))
             .icon { ItemStack(ModItems.TASER) }
             .displayItems { _, output ->
@@ -59,7 +61,7 @@ object ModTabs {
     @JvmField
     val ATTACHMENT_TAB: CreativeModeTab = register(
         "attachment",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.attachment"))
             .icon { ItemStack(ModItems.MAGAZINE_EXTEND_PRO) }
             .displayItems { _, output ->
@@ -71,7 +73,7 @@ object ModTabs {
     @JvmField
     val PERK_TAB: CreativeModeTab = register(
         "perk",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.perk"))
             .icon { ItemStack(ModItems.AP_BULLET) }
             .displayItems { _, output ->
@@ -84,7 +86,7 @@ object ModTabs {
     @JvmField
     val AMMO_TAB: CreativeModeTab = register(
         "ammo",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.ammo"))
             .icon { ItemStack(ModItems.SHOTGUN_AMMO_BOX) }
             .displayItems { param, output ->
@@ -112,7 +114,7 @@ object ModTabs {
     @JvmField
     val ITEM_TAB: CreativeModeTab = register(
         "item",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.item"))
             .icon { ItemStack(ModItems.TARGET_DEPLOYER) }
             .displayItems { _, output ->
@@ -136,7 +138,7 @@ object ModTabs {
     @JvmField
     val BLOCK_TAB: CreativeModeTab = register(
         "block",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.block"))
             .icon { ItemStack(ModItems.SANDBAG) }
             .displayItems { _, output ->
@@ -148,7 +150,7 @@ object ModTabs {
     @JvmField
     val VEHICLE_TAB: CreativeModeTab = register(
         "vehicle",
-        FabricItemGroup.builder()
+        FabricCreativeModeTab.builder()
             .title(Component.translatable("item_group.superbwarfare.vehicle"))
             .icon { ItemStack(ModItems.CONTAINER) }
             .displayItems { _, output ->
@@ -176,7 +178,7 @@ object ModTabs {
             Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, Mod.loc(name), tabs.getValue(name))
         }
 
-        ItemGroupEvents.modifyEntriesEvent(CreativeModeTabs.SPAWN_EGGS).register { entries ->
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS).register { entries ->
             entries.accept(ModItems.SENPAI_SPAWN_EGG)
             entries.accept(ModItems.CREEPING_SENPAI_SPAWN_EGG)
             entries.accept(ModItems.STEEL_COIL_SPAWN_EGG)

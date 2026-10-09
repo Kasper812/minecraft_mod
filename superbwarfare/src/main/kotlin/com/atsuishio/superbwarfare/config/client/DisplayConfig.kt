@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.buildClientConfig
 import com.atsuishio.superbwarfare.config.client.DisplayConfig.MELEE_HITBOX_RENDER
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.serialization.kserializer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.google.common.io.ByteStreams
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.Serializable

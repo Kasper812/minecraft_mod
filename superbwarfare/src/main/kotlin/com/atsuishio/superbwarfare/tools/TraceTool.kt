@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModTags
 import net.minecraft.core.BlockPos
@@ -11,7 +13,7 @@ import net.minecraft.world.entity.projectile.ProjectileUtil
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.*
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import java.util.function.Predicate
 import kotlin.math.floor
 import kotlin.math.max
@@ -31,7 +33,7 @@ object TraceTool {
                 val pos = hitResult.getLocation()
                 hitResult = BlockHitResult.miss(
                     pos,
-                    Direction.getNearest(eyePos.x, eyePos.y, eyePos.z),
+                    Direction.getApproximateNearest(eyePos.x, eyePos.y, eyePos.z),
                     BlockPos.containing(pos)
                 )
             }
@@ -50,7 +52,7 @@ object TraceTool {
             if (distanceToTarget > distance || distanceToTarget > entityReach * entityReach) {
                 hitResult = BlockHitResult.miss(
                     targetPos,
-                    Direction.getNearest(viewVec.x, viewVec.y, viewVec.z),
+                    Direction.getApproximateNearest(viewVec.x, viewVec.y, viewVec.z),
                     BlockPos.containing(targetPos)
                 )
             } else if (distanceToTarget < distance) {
@@ -184,7 +186,7 @@ object TraceTool {
             if (distance > blockReach * blockReach) {
                 hitResult = BlockHitResult.miss(
                     hitResult.getLocation(),
-                    Direction.getNearest(pos.x, pos.y, pos.z),
+                    Direction.getApproximateNearest(pos.x, pos.y, pos.z),
                     BlockPos.containing(hitResult.getLocation())
                 )
             }
@@ -207,7 +209,7 @@ object TraceTool {
             if (distanceToTarget > distance || distanceToTarget > entityReach * entityReach) {
                 hitResult = BlockHitResult.miss(
                     targetPos,
-                    Direction.getNearest(viewVec.x, viewVec.y, viewVec.z),
+                    Direction.getApproximateNearest(viewVec.x, viewVec.y, viewVec.z),
                     BlockPos.containing(targetPos)
                 )
             } else if (distanceToTarget < distance) {
@@ -231,7 +233,7 @@ object TraceTool {
             if (distance > blockReach * blockReach) {
                 hitResult = BlockHitResult.miss(
                     hitResult.getLocation(),
-                    Direction.getNearest(pos.x, pos.y, pos.z),
+                    Direction.getApproximateNearest(pos.x, pos.y, pos.z),
                     BlockPos.containing(hitResult.getLocation())
                 )
             }
@@ -253,7 +255,7 @@ object TraceTool {
             if (distanceToTarget > distance || distanceToTarget > entityReach * entityReach) {
                 hitResult = BlockHitResult.miss(
                     targetPos,
-                    Direction.getNearest(viewVec.x, viewVec.y, viewVec.z),
+                    Direction.getApproximateNearest(viewVec.x, viewVec.y, viewVec.z),
                     BlockPos.containing(targetPos)
                 )
             } else if (distanceToTarget < distance) {

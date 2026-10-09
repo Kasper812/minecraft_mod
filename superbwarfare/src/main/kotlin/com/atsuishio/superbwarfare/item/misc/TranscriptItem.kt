@@ -1,12 +1,15 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModDataComponents
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.tools.FormatTool
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -17,10 +20,12 @@ import net.minecraft.world.level.Level
 open class TranscriptItem : Item(Properties().stacksTo(1)) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.transcript").withStyle(ChatFormatting.GRAY))
         addScoresText(stack, tooltipComponents)
     }
@@ -57,11 +62,11 @@ open class TranscriptItem : Item(Properties().stacksTo(1)) {
         )
     }
 
-    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResult {
         if (pPlayer.isCrouching) {
             val stack = pPlayer.getItemInHand(pUsedHand)
             stack.set(ModDataComponents.TRANSCRIPT_SCORE, listOf())
-            return InteractionResultHolder.success(stack)
+            return InteractionResult.SUCCESS
         }
         return super.use(pLevel, pPlayer, pUsedHand)
     }

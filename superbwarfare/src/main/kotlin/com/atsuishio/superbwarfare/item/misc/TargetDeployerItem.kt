@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.living.TargetEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -9,9 +11,8 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.stats.Stats
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
-import net.minecraft.world.entity.MobSpawnType
+import net.minecraft.world.entity.EntitySpawnReason
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -56,7 +57,7 @@ class TargetDeployerItem : Item(Properties()) {
                 itemstack,
                 context.player,
                 pos,
-                MobSpawnType.SPAWN_EGG,
+                EntitySpawnReason.SPAWN_ITEM_USE,
                 true,
                 blockpos != pos && direction == Direction.UP
             )
@@ -71,17 +72,17 @@ class TargetDeployerItem : Item(Properties()) {
         }
     }
 
-    override fun use(pLevel: Level, pPlayer: Player, pHand: InteractionHand): InteractionResultHolder<ItemStack?> {
+    override fun use(pLevel: Level, pPlayer: Player, pHand: InteractionHand): InteractionResult {
         val itemstack = pPlayer.getItemInHand(pHand)
         val blockhitresult = getPlayerPOVHitResult(pLevel, pPlayer, ClipContext.Fluid.SOURCE_ONLY)
         if (blockhitresult.type != HitResult.Type.BLOCK) {
-            return InteractionResultHolder.pass<ItemStack?>(itemstack)
+            return InteractionResult.PASS
         } else if (pLevel !is ServerLevel) {
-            return InteractionResultHolder.success<ItemStack?>(itemstack)
+            return InteractionResult.SUCCESS
         } else {
             val blockpos = blockhitresult.blockPos
             if (pLevel.getBlockState(blockpos).block !is LiquidBlock) {
-                return InteractionResultHolder.pass<ItemStack?>(itemstack)
+                return InteractionResult.PASS
             } else if (pLevel.mayInteract(pPlayer, blockpos) && pPlayer.mayUseItemAt(
                     blockpos,
                     blockhitresult.direction,
@@ -96,13 +97,13 @@ class TargetDeployerItem : Item(Properties()) {
                         IS_TARGET
                     ).isEmpty()
                 ) {
-                    return InteractionResultHolder.fail(itemstack)
+                    return InteractionResult.FAIL
                 }
 
                 val entity = ModEntities.TARGET
-                    .spawn(pLevel, itemstack, pPlayer, blockpos, MobSpawnType.SPAWN_EGG, false, false)
+                    .spawn(pLevel, itemstack, pPlayer, blockpos, EntitySpawnReason.SPAWN_ITEM_USE, false, false)
                 if (entity == null) {
-                    return InteractionResultHolder.pass<ItemStack?>(itemstack)
+                    return InteractionResult.PASS
                 } else {
                     entity.facePlayer(pPlayer)
                     if (!pPlayer.abilities.instabuild) {
@@ -111,10 +112,10 @@ class TargetDeployerItem : Item(Properties()) {
 
                     pPlayer.awardStat(Stats.ITEM_USED.get(this))
                     pLevel.gameEvent(pPlayer, GameEvent.ENTITY_PLACE, entity.position())
-                    return InteractionResultHolder.consume(itemstack)
+                    return InteractionResult.CONSUME
                 }
             } else {
-                return InteractionResultHolder.fail(itemstack)
+                return InteractionResult.FAIL
             }
         }
     }

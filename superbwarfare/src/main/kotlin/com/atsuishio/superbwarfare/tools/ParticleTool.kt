@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.client.particle.CannonMuzzleFlareOption
@@ -41,7 +43,7 @@ object ParticleTool {
         level: ServerLevel, particle: T, x: Double, y: Double, z: Double, count: Int,
         xOffset: Double, yOffset: Double, zOffset: Double, speed: Double, force: Boolean, viewer: ServerPlayer
     ) {
-        level.sendParticles(viewer, particle, force, x, y, z, count, xOffset, yOffset, zOffset, speed)
+        level.sendParticles(viewer, particle, force, false, x, y, z, count, xOffset, yOffset, zOffset, speed)
     }
 
     @JvmStatic
@@ -153,7 +155,7 @@ object ParticleTool {
             val speedX = random.nextGaussian() * maxSpeed
             val speedY = random.nextGaussian() * maxSpeed
             val speedZ = random.nextGaussian() * maxSpeed
-            level.addParticle(particle, true, x + dx, y + dy, z + dz, speedX, speedY, speedZ)
+            level.addParticle(particle, true, false, x + dx, y + dy, z + dz, speedX, speedY, speedZ)
         }
     }
 
@@ -164,7 +166,7 @@ object ParticleTool {
         level: Level, particle: ParticleOptions, x: Double, y: Double, z: Double,
         xSpeed: Double, ySpeed: Double, zSpeed: Double
     ) {
-        level.addParticle(particle, true, x, y, z, xSpeed, ySpeed, zSpeed)
+        level.addParticle(particle, true, false, x, y, z, xSpeed, ySpeed, zSpeed)
     }
 
     //@formatter:off
@@ -214,7 +216,7 @@ object ParticleTool {
         sendParticleClient(level, ParticleTypes.EXPLOSION, x, y, z, 2, 0.05, 0.05, 0.05, 1.0)
         sendParticleClient(level, ParticleTypes.LARGE_SMOKE, x, y, z, 1, 0.2, 0.2, 0.2, 0.02)
         sendParticleClient(level, ModParticleTypes.FIRE_STAR, x, y, z, 7, 0.0, 0.0, 0.0, 0.4)
-        sendParticleClient(level, ParticleTypes.FLASH, x, y, z, 1, 0.0, 0.0, 0.0, 20.0)
+        sendParticleClient(level, net.minecraft.core.particles.ColorParticleOption.create(net.minecraft.core.particles.ParticleTypes.FLASH, -1), x, y, z, 1, 0.0, 0.0, 0.0, 20.0)
     }
 
     private fun spawnSmallExplosionParticlesInternal(level: Level, pos: Vec3) {
@@ -432,7 +434,7 @@ object ParticleTool {
     @JvmStatic
     fun cannonHitParticles(serverLevel: ServerLevel, pos: Vec3) {
         sendParticle(serverLevel, ParticleTypes.EXPLOSION, pos.x, pos.y, pos.z, 2, 0.5, 0.5, 0.5, 1.0, true)
-        sendParticle(serverLevel, ParticleTypes.FLASH, pos.x, pos.y, pos.z, 2, 0.2, 0.2, 0.2, 10.0, true)
+        sendParticle(serverLevel, net.minecraft.core.particles.ColorParticleOption.create(net.minecraft.core.particles.ParticleTypes.FLASH, -1), pos.x, pos.y, pos.z, 2, 0.2, 0.2, 0.2, 10.0, true)
         sendParticle(serverLevel, ModParticleTypes.FIRE_STAR, pos.x, pos.y, pos.z, 15, 0.0, 0.0, 0.0, 1.5, true)
     }
 

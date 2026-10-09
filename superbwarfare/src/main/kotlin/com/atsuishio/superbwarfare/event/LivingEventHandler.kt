@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.api.event.PreKillEvent.Indicator
 import com.atsuishio.superbwarfare.api.event.PreKillEvent.SendKillMessage
 import com.atsuishio.superbwarfare.config.common.GameplayConfig
@@ -83,7 +85,7 @@ object LivingEventHandler {
             && vehicle.isEnclosed(entity)
         ) {
             if (!source.`is`(ModTags.DamageTypes.VEHICLE_NOT_ABSORB)) {
-                vehicle.hurt(source, amount)
+                vehicle.hurtOrSimulate(source, amount)
             }
             return true
         }
@@ -122,7 +124,7 @@ object LivingEventHandler {
             } else {
                 val rate = vehicle.getSeat(entity)?.damageAbsorbRate ?: 0.0f
                 if (!source.`is`(ModTags.DamageTypes.VEHICLE_NOT_ABSORB)) {
-                    vehicle.hurt(source, rate.coerceIn(0f, 1f) * amount)
+                    vehicle.hurtOrSimulate(source, rate.coerceIn(0f, 1f) * amount)
                 }
 
                 return amount * (1 - rate).coerceIn(0f, 1f)
@@ -156,7 +158,7 @@ object LivingEventHandler {
 
         val tag = NBTTool.getTag(armor)
         if (armor != ItemStack.EMPTY && tag.contains("ArmorPlate")) {
-            val armorValue = tag.getDouble("ArmorPlate")
+            val armorValue = tag.getDoubleOr("ArmorPlate", 0.0)
             tag.putDouble("ArmorPlate", max(armorValue - damage, 0.0))
             NBTTool.saveTag(armor, tag)
             damage = max(damage - armorValue, 0.0)
@@ -399,7 +401,7 @@ object LivingEventHandler {
         if (!data.initialized()) return
         val uuid = data.uuid ?: return
 
-        for (item in player.getInventory().items) {
+        for (item in player.getInventory().nonEquipmentItems) {
             if (item == stack) continue
             if (item.item is GunItem) {
                 val itemData = GunData.from(item)
@@ -730,11 +732,11 @@ object LivingEventHandler {
                         val visibilityFactor = if (!entity.enableAABB())
                             CustomExplosion.getSeenPercentOptimized(entity.level(), explosionPos, entity)
                         else
-                            Explosion.getSeenPercent(explosionPos, entity)
+                            net.minecraft.world.level.ServerExplosion.getSeenPercent(explosionPos, entity)
                         val impactStrength = (1.0 - distanceRatio) * visibilityFactor
                         val damage = (impactStrength * impactStrength + impactStrength) / 2.0 * explosion.damage
 
-                        entity.hurt(explosion.damageSource, damage.toFloat())
+                        entity.hurtOrSimulate(explosion.damageSource, damage.toFloat())
                     }
                 }
             }

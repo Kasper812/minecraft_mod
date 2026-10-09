@@ -89,8 +89,8 @@ public class GeoArmorRendererV2 implements IFPArmorHandRenderer {
         this.instance.renderToBuffer(
                 poseStack,
                 bufferSource,
-                getRenderType(this.texture),
-                BedrockModelRenderTypes.polyMeshCutout(this.texture),
+                getRenderType(getTexture()),
+                BedrockModelRenderTypes.polyMeshCutout(getTexture()),
                 light,
                 overlay,
                 red,

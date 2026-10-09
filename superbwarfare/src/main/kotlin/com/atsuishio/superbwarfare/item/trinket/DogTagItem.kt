@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.trinket
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool
 import com.atsuishio.superbwarfare.client.screens.DogTagEditorScreen
 import com.atsuishio.superbwarfare.client.tooltip.component.DogTagImageComponent
@@ -8,9 +12,9 @@ import com.atsuishio.superbwarfare.init.ModDataComponents
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.IVehicleInteract
 import com.atsuishio.superbwarfare.item.ItemScreenProvider
-import dev.emi.trinkets.api.SlotReference
-import dev.emi.trinkets.api.TrinketItem
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.SlotReference
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketItem
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.minecraft.client.gui.screens.Screen
@@ -30,10 +34,12 @@ class DogTagItem : TrinketItem(Properties().stacksTo(1)), ItemScreenProvider, IV
     @Environment(EnvType.CLIENT)
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         TooltipTool.addScreenProviderText(tooltipComponents)
     }
 

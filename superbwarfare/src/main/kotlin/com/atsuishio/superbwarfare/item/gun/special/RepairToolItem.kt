@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.gun.special
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.mixin.ICustomKnockback
@@ -91,7 +93,7 @@ class RepairToolItem : GeoGunItemV2(Properties()) {
                         lastDriver
                     ) && lastDriver.team != null) || shiftDown
                 ) {
-                    target.hurt(ModDamageTypes.causeRepairToolDamage(level.registryAccess(), shooter), 0.5f)
+                    target.hurtOrSimulate(ModDamageTypes.causeRepairToolDamage(level.registryAccess(), shooter), 0.5f)
                     if (shooter is ServerPlayer) {
                         shooter.level().playSound(
                             null,
@@ -106,7 +108,7 @@ class RepairToolItem : GeoGunItemV2(Properties()) {
                 } else if (!target.isWreck) {
                     target.heal(0.5f + 0.0025f * target.getMaxHealth())
                 } else {
-                    target.hurt(
+                    target.hurtOrSimulate(
                         ModDamageTypes.causeRepairToolDamage(level.registryAccess(), shooter),
                         0.5f + 0.0025f * target.getMaxHealth()
                     )

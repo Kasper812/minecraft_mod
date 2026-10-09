@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -13,7 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 
-class ClaymoreRenderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<ClaymoreEntity>(renderManager) {
+class ClaymoreRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<ClaymoreEntity>(renderManager) {
     init {
         this.shadowRadius = 0f
     }

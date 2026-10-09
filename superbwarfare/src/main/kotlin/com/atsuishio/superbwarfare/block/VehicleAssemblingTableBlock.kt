@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.util.RandomSource
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.VehicleAssemblingTableBlockEntity
 import com.atsuishio.superbwarfare.block.property.BlockPart
@@ -14,7 +24,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.ItemInteractionResult
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item.TooltipContext
@@ -29,7 +38,6 @@ import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.DirectionProperty
 import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.material.PushReaction
 import net.minecraft.world.level.pathfinder.PathComputationType
@@ -40,7 +48,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class VehicleAssemblingTableBlock : BaseEntityBlock(
     Properties.of().strength(2f).requiresCorrectToolForDrops().noOcclusion().pushReaction(PushReaction.DESTROY)
-) {
+), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any().setValue(FACING, Direction.NORTH)
@@ -50,7 +58,7 @@ open class VehicleAssemblingTableBlock : BaseEntityBlock(
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltipComponents: MutableList<Component>,
         tooltipFlag: TooltipFlag
     ) {
@@ -102,19 +110,21 @@ open class VehicleAssemblingTableBlock : BaseEntityBlock(
             val blockPos = part.relative(initialPos, facing)
 
             level.setBlock(blockPos, state.setValue(BLOCK_PART, part), 3)
-            level.blockUpdated(initialPos, Blocks.AIR)
+            level.updateNeighborsAt(initialPos, Blocks.AIR)
             state.updateNeighbourShapes(level, initialPos, 3)
         }
     }
 
     override fun updateShape(
         state: BlockState,
-        direction: Direction,
-        neighborState: BlockState,
-        level: LevelAccessor,
+        level: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         pos: BlockPos,
-        neighborPos: BlockPos
-    ): BlockState {
+        direction: Direction,
+        neighborPos: BlockPos,
+        neighborState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         val facing = state.getValue(FACING)
         val originalPos = state.getValue(BLOCK_PART).relativeNegative(pos, facing)
 
@@ -127,7 +137,7 @@ open class VehicleAssemblingTableBlock : BaseEntityBlock(
             }
         }
 
-        return super.updateShape(state, direction, neighborState, level, pos, neighborPos)
+        return super.updateShape(state, level, scheduledTickAccess, pos, direction, neighborPos, neighborState, randomSource)
     }
 
     override fun playerWillDestroy(level: Level, pos: BlockPos, state: BlockState, player: Player): BlockState {
@@ -156,15 +166,15 @@ open class VehicleAssemblingTableBlock : BaseEntityBlock(
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
+    ): InteractionResult {
         if (hand != InteractionHand.MAIN_HAND || !stack.`is`(ModTags.Items.TOOLS_CROWBAR)) {
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+            return InteractionResult.TRY_WITH_EMPTY_HAND
         }
 
         return if (interact(state, level, pos, player, hand, hitResult) == InteractionResult.SUCCESS) {
-            ItemInteractionResult.SUCCESS
+            InteractionResult.SUCCESS
         } else {
-            ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+            InteractionResult.TRY_WITH_EMPTY_HAND
         }
     }
 
@@ -200,14 +210,14 @@ open class VehicleAssemblingTableBlock : BaseEntityBlock(
     }
 
     override fun getRenderShape(pState: BlockState): RenderShape {
-        return RenderShape.ENTITYBLOCK_ANIMATED
+        return RenderShape.INVISIBLE
     }
 
     override fun codec(): MapCodec<out BaseEntityBlock> = CODEC
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val BLOCK_PART: EnumProperty<BlockPart> = EnumProperty.create("block_part", BlockPart::class.java)

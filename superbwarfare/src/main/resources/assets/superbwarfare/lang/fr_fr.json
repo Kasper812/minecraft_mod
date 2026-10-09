@@ -432,6 +432,7 @@
     "jei.superbwarfare.ancient_cpu": "Technologie ancienne mystérieuse, peut être trouvée dans les cités anciennes.",
     "jei.superbwarfare.charging_station": "Génère de l'énergie en consommant du carburant ou de la nourriture, et peut également accepter l'entrée d'énergie FE. Ce bloc fournit de l'énergie FE aux blocs adjacents et peut également charger les véhicules rechargeables dans sa portée.",
     "jei.superbwarfare.gun_perks": "Atouts disponibles",
+    "key.category.superbwarfare.main": "Armes Superb Warfare",
     "key.categories.superbwarfare": "Armes Superb Warfare",
     "key.superbwarfare.breath": "Respirer",
     "key.superbwarfare.config": "Ouvrir l'écran de configuration",

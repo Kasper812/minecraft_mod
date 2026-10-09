@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.json.Json

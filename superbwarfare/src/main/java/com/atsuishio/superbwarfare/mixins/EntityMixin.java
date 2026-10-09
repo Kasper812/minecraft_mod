@@ -77,7 +77,7 @@ public abstract class EntityMixin implements OBBHitter, PersistentDataAccessor {
     @Inject(method = "load", at = @At("HEAD"))
     private void superbwarfare$loadPersistentData(CompoundTag tag, CallbackInfo ci) {
         if (tag.contains("NeoForgeData", CompoundTag.TAG_COMPOUND)) {
-            this.superbwarfare$persistentData = tag.getCompound("NeoForgeData");
+            this.superbwarfare$persistentData = tag.getCompoundOrEmpty("NeoForgeData");
         }
     }
 

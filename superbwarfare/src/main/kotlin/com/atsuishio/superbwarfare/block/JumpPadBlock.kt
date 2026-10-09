@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.entity.InsideBlockEffectApplier
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.queueClientWork
 import com.atsuishio.superbwarfare.entity.living.TargetEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
@@ -20,7 +28,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument
 import net.minecraft.world.level.material.FluidState
 import net.minecraft.world.level.material.Fluids
@@ -32,7 +40,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class JumpPadBlock : Block(
     Properties.of().forceSolidOn().instrument(NoteBlockInstrument.BASEDRUM).sound(SoundType.STONE)
-        .strength(3f, 8f).noCollission().noOcclusion()
+        .strength(3f, 8f).noCollision().noOcclusion()
         .isRedstoneConductor { _, _, _ -> false }
 ) {
     init {
@@ -44,7 +52,9 @@ open class JumpPadBlock : Block(
         )
     }
 
-    override fun propagatesSkylightDown(state: BlockState, reader: BlockGetter, pos: BlockPos): Boolean {
+    override fun propagatesSkylightDown(
+        state: BlockState
+    ): Boolean  {
         return true
     }
 
@@ -123,7 +133,7 @@ open class JumpPadBlock : Block(
         }
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING, WATERLOGGED, ACTIVATED)
     }
 
@@ -149,20 +159,29 @@ open class JumpPadBlock : Block(
 
     override fun updateShape(
         state: BlockState,
-        facing: Direction,
-        facingState: BlockState,
-        world: LevelAccessor,
+        world: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         currentPos: BlockPos,
-        facingPos: BlockPos
-    ): BlockState {
+        facing: Direction,
+        facingPos: BlockPos,
+        facingState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         if (state.getValue(WATERLOGGED)) {
-            world.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
+            scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
         }
-        return super.updateShape(state, facing, facingState, world, currentPos, facingPos)
+        return super.updateShape(state, world, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource)
     }
 
-    override fun entityInside(state: BlockState, level: Level, pos: BlockPos, entity: Entity) {
-        super.entityInside(state, level, pos, entity)
+    override fun entityInside(
+        state: BlockState,
+        level: Level,
+        pos: BlockPos,
+        entity: Entity,
+        effectApplier: InsideBlockEffectApplier,
+        isPrecise: Boolean
+    ) {
+        super.entityInside(state, level, pos, entity, effectApplier, isPrecise)
 
         if (entity is TargetEntity) return
 
@@ -234,7 +253,7 @@ open class JumpPadBlock : Block(
         val WATERLOGGED: BooleanProperty = BlockStateProperties.WATERLOGGED
 
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val ACTIVATED: BooleanProperty = BooleanProperty.create("activated")

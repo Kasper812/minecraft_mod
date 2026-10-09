@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.utils
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.util.Mth
@@ -34,8 +36,8 @@ object VehicleMiscUtils {
     fun getDismountOffset(vehicle: VehicleEntity, vehicleWidth: Double, passengerWidth: Double): Vec3 {
         val offset = (vehicleWidth + passengerWidth + 1.0E-5) / 1.75
         val yaw = vehicle.yRot + 90.0f
-        val x = -Mth.sin(yaw * (Math.PI.toFloat() / 180))
-        val z = Mth.cos(yaw * (Math.PI.toFloat() / 180))
+        val x = -com.atsuishio.portlib.util.LegacyMth.sin(yaw * (Math.PI.toFloat() / 180))
+        val z = com.atsuishio.portlib.util.LegacyMth.cos(yaw * (Math.PI.toFloat() / 180))
         val n = Math.max(Math.abs(x), Math.abs(z))
         return Vec3(x.toDouble() * offset / n.toDouble(), 0.0, z.toDouble() * offset / n.toDouble())
     }

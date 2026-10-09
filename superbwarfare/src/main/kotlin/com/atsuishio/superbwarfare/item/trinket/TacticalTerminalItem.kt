@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.item.trinket
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool
 import com.atsuishio.superbwarfare.config.server.MapConfig
 import com.atsuishio.superbwarfare.init.ModItems
@@ -7,13 +13,12 @@ import com.atsuishio.superbwarfare.init.ModKeyMappings
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.network.message.receive.OpenTacticalMapScreenMessage
 import com.atsuishio.superbwarfare.tools.sendPacketTo
-import dev.emi.trinkets.api.SlotReference
-import dev.emi.trinkets.api.TrinketItem
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.SlotReference
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketItem
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -31,10 +36,12 @@ open class TacticalTerminalItem : TrinketItem(Properties().stacksTo(1).rarity(Ra
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltip: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltip = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         TooltipTool.addDevelopingText(tooltip)
         if (!MapConfig.ENABLE_TACTICAL_MAP.get()) {
             tooltip.add(
@@ -54,17 +61,17 @@ open class TacticalTerminalItem : TrinketItem(Properties().stacksTo(1).rarity(Ra
         pLevel: Level,
         pPlayer: Player,
         pUsedHand: InteractionHand
-    ): InteractionResultHolder<ItemStack> {
+    ): InteractionResult {
         val stack = pPlayer.getItemInHand(pUsedHand)
         if (!MapConfig.ENABLE_TACTICAL_MAP.get()) {
-            return InteractionResultHolder.fail(stack)
+            return InteractionResult.FAIL
         }
 
         val level = pPlayer.level()
         if (!level.isClientSide) {
             sendPacketTo(pPlayer, OpenTacticalMapScreenMessage)
         }
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     companion object {

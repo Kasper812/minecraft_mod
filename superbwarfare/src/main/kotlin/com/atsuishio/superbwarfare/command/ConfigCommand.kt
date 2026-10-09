@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.command.builder.CommandNode
 import com.atsuishio.superbwarfare.command.builder.boolArg
 import com.atsuishio.superbwarfare.command.builder.buildCommand

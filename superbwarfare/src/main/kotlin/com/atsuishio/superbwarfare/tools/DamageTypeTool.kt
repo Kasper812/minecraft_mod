@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.init.ModDamageTypes
 import com.atsuishio.superbwarfare.init.ModTags
@@ -27,8 +29,8 @@ object DamageTypeTool {
 
     @JvmStatic
     fun isGunDamage(damageType: ResourceKey<DamageType>, registryAccess: RegistryAccess): Boolean {
-        val damageTypeRegistry = registryAccess.registryOrThrow(Registries.DAMAGE_TYPE)
-        val holder = damageTypeRegistry.getHolder(damageType).orElse(null)
+        val damageTypeRegistry = registryAccess.lookupOrThrow(Registries.DAMAGE_TYPE)
+        val holder = damageTypeRegistry.get(damageType).orElse(null)
         return holder != null && holder.`is`(ModTags.DamageTypes.GUN_DAMAGE)
     }
 

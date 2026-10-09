@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.vehicle_skin
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

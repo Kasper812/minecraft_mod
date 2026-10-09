@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.living.PhosphorusFireCapability
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.vertex.PoseStack
@@ -7,7 +9,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.Sheets
 import net.minecraft.client.renderer.texture.TextureAtlas
-import net.minecraft.client.resources.model.Material
+import net.minecraft.client.resources.model.sprite.Material
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.LivingEntity
 import org.joml.Quaternionf
@@ -18,8 +20,8 @@ object PhosphorusFireRenderer {
     fun render(entity: LivingEntity, stack: PoseStack, multiBufferSource: MultiBufferSource) {
         if (!PhosphorusFireCapability.of(entity).isOnFire) return
 
-        val sprite1 = Material(TextureAtlas.LOCATION_BLOCKS, Identifier.withDefaultNamespace("block/soul_fire_0")).sprite()
-        val sprite2 = Material(TextureAtlas.LOCATION_BLOCKS, Identifier.withDefaultNamespace("block/soul_fire_1")).sprite()
+        val sprite1 = com.atsuishio.portlib.render.LegacySprites.block(Identifier.withDefaultNamespace("block/soul_fire_0"))
+        val sprite2 = com.atsuishio.portlib.render.LegacySprites.block(Identifier.withDefaultNamespace("block/soul_fire_1"))
 
         stack.pushPose()
         val size = entity.bbWidth * 1.6f
@@ -35,7 +37,7 @@ object PhosphorusFireRenderer {
         stack.translate(0.0f, 0.0f, 0.3f - (hwRatio.toInt()).toFloat() * 0.02f)
 
         var i = 0
-        val vertexConsumer = multiBufferSource.getBuffer(Sheets.cutoutBlockSheet())
+        val vertexConsumer = multiBufferSource.getBuffer(net.minecraft.client.renderer.rendertype.RenderTypes.entityCutout(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS))
 
         val pose = stack.last()
         while (hwRatio > 0.0f) {

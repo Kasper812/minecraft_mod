@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -17,8 +19,8 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+import com.atsuishio.portlib.render.world.WorldRenderContext
+import com.atsuishio.portlib.render.world.WorldRenderEvents
 import org.joml.Matrix4f
 
 object TowingChainRenderer {
@@ -73,15 +75,15 @@ object TowingChainRenderer {
         poseStack.pushPose()
 
         // Camera-relative transform
-        val camX = camera.position.x
-        val camY = camera.position.y
-        val camZ = camera.position.z
+        val camX = camera.position().x
+        val camY = camera.position().y
+        val camZ = camera.position().z
         poseStack.translate(-camX, -camY, -camZ)
 
         val pose = poseStack.last().pose()
 
         val range = options.simulationDistance().get().toDouble() * 8
-        val box = AABB.ofSize(camera.position, range, range, range)
+        val box = AABB.ofSize(camera.position(), range, range, range)
         val vehicles = mutableListOf<VehicleEntity>()
         val shuttles = mutableListOf<CatapultShuttleEntity>()
         EntityFindUtil.getEntities(level)?.get(box) {

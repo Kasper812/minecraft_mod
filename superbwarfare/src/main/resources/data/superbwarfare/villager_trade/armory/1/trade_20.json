@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "superbwarfare:small_shell_aa",
+    "count": 16
+  },
+  "gives": {
+    "id": "minecraft:emerald"
+  },
+  "max_uses": 64,
+  "xp": 2,
+  "reputation_discount": 0.05
+}

@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "superbwarfare:rifle_ammo",
+    "count": 30
+  },
+  "gives": {
+    "id": "minecraft:emerald"
+  },
+  "max_uses": 32,
+  "xp": 2,
+  "reputation_discount": 0.05
+}

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -21,7 +23,7 @@ object BattleOfWits : Perk("battle_of_wits", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        val rate = tag.getFloat("DamageRate")
+        val rate = tag.getFloatOr("DamageRate", 0f)
         if (rate > 0f) {
             modifier[GunProp.DAMAGE] *= 1 + rate
         }
@@ -49,7 +51,7 @@ object BattleOfWits : Perk("battle_of_wits", Type.DAMAGE) {
 
         data.perk.reduceCooldown(this, "Cooldown")
 
-        if (entity is ServerPlayer && tag.getInt("Cooldown") == 1) {
+        if (entity is ServerPlayer && tag.getIntOr("Cooldown", 0) == 1) {
             entity.displayClientMessage(
                 Component.translatable("tips.superbwarfare.battle_of_wits.cooldown").withStyle(ChatFormatting.YELLOW),
                 true
@@ -76,7 +78,7 @@ object BattleOfWits : Perk("battle_of_wits", Type.DAMAGE) {
         if (level <= 0) return
 
         val tag = data.perk.getTag(this@BattleOfWits) ?: return
-        if (tag.getInt("Cooldown") > 0) return
+        if (tag.getIntOr("Cooldown", 0) > 0) return
 
         val sub = text.take(20 + level * 4)
         val (count, length) = sub.toSet().size to sub.length

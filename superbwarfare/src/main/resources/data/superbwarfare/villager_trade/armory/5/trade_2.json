@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 25
+  },
+  "gives": {
+    "id": "superbwarfare:kill_clip"
+  },
+  "max_uses": 4,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

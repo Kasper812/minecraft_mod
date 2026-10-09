@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.inventory.handler
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.api.IItemHandler
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.core.HolderLookup
@@ -173,20 +175,20 @@ open class VehicleContainerHandler(
         val tag = CompoundTag()
 
         tag.putInt("Size", stacks.size)
-        ContainerHelper.saveAllItems(tag, stacks, provider)
+        com.atsuishio.portlib.nbt.LegacyNbt.saveAllItems(tag, stacks, provider)
 
         return tag
     }
 
     open fun deserializeNBT(provider: HolderLookup.Provider, tag: CompoundTag) {
         val size = if (tag.contains("Size")) {
-            tag.getInt("Size")
+            tag.getIntOr("Size", 0)
         } else {
             stacks.size
         }
 
         stacks = NonNullList.withSize(size, ItemStack.EMPTY)
-        ContainerHelper.loadAllItems(tag, stacks, provider)
+        com.atsuishio.portlib.nbt.LegacyNbt.loadAllItems(tag, stacks, provider)
 
         vehicle.setChanged()
     }

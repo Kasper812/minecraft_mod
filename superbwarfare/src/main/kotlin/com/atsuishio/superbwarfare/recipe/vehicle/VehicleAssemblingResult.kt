@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.item.container.ContainerBlockItem.Companion.createInstance
 import com.atsuishio.superbwarfare.tools.TagDataParser
@@ -42,7 +44,7 @@ data class VehicleAssemblingResult(
         if (result != null) return result!!
 
         if (entityTypeString.isNotEmpty()) {
-            val type = EntityType.byString(entityTypeString).getOrNull()
+            val type = entityTypeByString(entityTypeString).getOrNull()
             if (type == null) {
                 Mod.LOGGER.warn("invalid entity type: {}", entityTypeString)
                 result = ItemStack.EMPTY
@@ -62,7 +64,7 @@ data class VehicleAssemblingResult(
                 stackTag.putString("id", itemKey.toString())
                 stackTag.putInt("count", count)
                 result = ItemStack.EMPTY
-                ItemStack.parse(RegistryAccess.EMPTY, stackTag).ifPresent { result = it }
+                legacyParseItem(RegistryAccess.EMPTY, stackTag).ifPresent { result = it }
             } else {
                 result = ItemStack(item, count)
             }

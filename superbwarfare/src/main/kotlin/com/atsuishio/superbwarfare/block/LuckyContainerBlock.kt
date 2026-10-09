@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.LuckyContainerBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
@@ -14,7 +18,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.ItemInteractionResult
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item.TooltipContext
 import net.minecraft.world.item.ItemStack
@@ -30,14 +34,14 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.shapes.CollisionContext
 import net.minecraft.world.phys.shapes.VoxelShape
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class LuckyContainerBlock :
-    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()) {
+    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -54,16 +58,16 @@ open class LuckyContainerBlock :
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
+    ): InteractionResult {
         if (level.isClientSide
             || state.getValue(OPENED)
             || level.getBlockEntity(pos) !is LuckyContainerBlockEntity
             || hand == InteractionHand.OFF_HAND
-        ) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+        ) return InteractionResult.TRY_WITH_EMPTY_HAND
 
         if (!stack.`is`(ModTags.Items.TOOLS_CROWBAR)) {
             player.displayClientMessage(Component.translatable("des.superbwarfare.container.fail.crowbar"), true)
-            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+            return InteractionResult.TRY_WITH_EMPTY_HAND
         }
 
         level.setBlockAndUpdate(pos, state.setValue(OPENED, true))
@@ -76,14 +80,14 @@ open class LuckyContainerBlock :
             1f
         )
 
-        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+        return InteractionResult.TRY_WITH_EMPTY_HAND
     }
 
-    override fun <T : BlockEntity?> getTicker(
+    override fun <T : BlockEntity> getTicker(
         pLevel: Level,
         pState: BlockState,
-        pBlockEntityType: BlockEntityType<T?>
-    ): BlockEntityTicker<T?>? {
+        pBlockEntityType: BlockEntityType<T>
+    ): BlockEntityTicker<T>? {
         if (!pLevel.isClientSide) {
             return createTickerHelper<LuckyContainerBlockEntity, T>(
                 pBlockEntityType,
@@ -102,15 +106,14 @@ open class LuckyContainerBlock :
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltipComponents: MutableList<Component>,
         tooltipFlag: TooltipFlag
     ) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
         val component = stack.get(DataComponents.BLOCK_ENTITY_DATA)
         val tag = if (component == null) CompoundTag() else component.copyTag()
 
-        var location = tag.getString("Location")
+        var location = tag.getStringOr("Location", "")
         if (location.startsWith(Mod.MODID)) {
             val split: Array<String?> =
                 location.split((Mod.MODID + ":").toRegex()).dropLastWhile { it.isEmpty() }.toTypedArray()
@@ -129,14 +132,14 @@ open class LuckyContainerBlock :
     }
 
     override fun getRenderShape(state: BlockState): RenderShape {
-        return RenderShape.ENTITYBLOCK_ANIMATED
+        return RenderShape.INVISIBLE
     }
 
     override fun newBlockEntity(blockPos: BlockPos, blockState: BlockState): BlockEntity {
         return LuckyContainerBlockEntity(blockPos, blockState)
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING).add(OPENED)
     }
 
@@ -146,8 +149,13 @@ open class LuckyContainerBlock :
             .setValue(OPENED, false)
     }
 
-    override fun getCloneItemStack(level: LevelReader, pos: BlockPos, state: BlockState): ItemStack {
-        val itemstack = super.getCloneItemStack(level, pos, state)
+    override fun getCloneItemStack(
+        level: LevelReader,
+        pos: BlockPos,
+        state: BlockState,
+        includeData: Boolean
+    ): ItemStack  {
+        val itemstack = super.getCloneItemStack(level, pos, state, includeData)
         level.getBlockEntity(pos, ModBlockEntities.LUCKY_CONTAINER)
             .ifPresent { blockEntity ->
                 blockEntity.saveToItem(itemstack, level.registryAccess())
@@ -159,7 +167,7 @@ open class LuckyContainerBlock :
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val OPENED: BooleanProperty = BooleanProperty.create("opened")

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.common.GameplayConfig
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
@@ -27,7 +29,7 @@ object PlayerEventHandler {
     fun onPlayerLoggedIn(player: ServerPlayer) {
         val mainStack = player.mainHandItem
         val tag = NBTTool.getTag(mainStack)
-        if (mainStack.`is`(ModItems.MONITOR) && tag.getBoolean("Using")) {
+        if (mainStack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false)) {
             tag.putBoolean("Using", false)
             NBTTool.saveTag(mainStack, tag)
         }
@@ -61,7 +63,7 @@ object PlayerEventHandler {
     private fun handleRespawnReload(player: Player) {
         if (!GameplayConfig.RESPAWN_RELOAD.get()) return
 
-        for (stack in player.getInventory().items) {
+        for (stack in player.getInventory().nonEquipmentItems) {
             if (stack.item is GunItem) {
                 val data = from(stack)
 
@@ -83,7 +85,7 @@ object PlayerEventHandler {
         if (armor == ItemStack.EMPTY) return
 
         val tag = NBTTool.getTag(armor)
-        val armorPlate = tag.getDouble("ArmorPlate")
+        val armorPlate = tag.getDoubleOr("ArmorPlate", 0.0)
 
         var armorLevel = MiscConfig.DEFAULT_ARMOR_LEVEL.get()
         if (armor.`is`(ModTags.Items.MILITARY_ARMOR)) {
@@ -94,10 +96,10 @@ object PlayerEventHandler {
 
         if (armorPlate >= armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()) return
 
-        for (stack in player.getInventory().items) {
+        for (stack in player.getInventory().nonEquipmentItems) {
             if (stack.`is`(ModItems.ARMOR_PLATE)) {
                 val stackTag = NBTTool.getTag(stack)
-                if (stackTag.getBoolean("Infinite")) {
+                if (stackTag.getBooleanOr("Infinite", false)) {
                     tag.putDouble("ArmorPlate", (armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()).toDouble())
                     if (player is ServerPlayer) {
                         player.level().playSound(

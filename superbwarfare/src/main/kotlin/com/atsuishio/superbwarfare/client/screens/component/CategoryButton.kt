@@ -1,17 +1,20 @@
 package com.atsuishio.superbwarfare.client.screens.component
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyButton
+
 import com.atsuishio.superbwarfare.client.screens.VehicleAssemblingScreen
 import com.atsuishio.superbwarfare.recipe.vehicle.VehicleAssemblingRecipe
 import com.atsuishio.superbwarfare.tools.mc
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 
-class CategoryButton(x: Int, y: Int, var category: VehicleAssemblingRecipe.Category, onPress: OnPress) :
-    Button(x, y, 20, 22, Component.empty(), onPress, DEFAULT_NARRATION) {
+class CategoryButton(x: Int, y: Int, var category: VehicleAssemblingRecipe.Category, onPress: OnPress) : LegacyButton(x, y, 20, 22, Component.empty(), onPress, DEFAULT_NARRATION) {
     private var isSelected = false
 
     override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
@@ -46,7 +49,6 @@ class CategoryButton(x: Int, y: Int, var category: VehicleAssemblingRecipe.Categ
 
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

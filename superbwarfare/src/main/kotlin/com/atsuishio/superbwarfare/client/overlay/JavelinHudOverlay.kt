@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
@@ -12,8 +14,8 @@ import com.atsuishio.superbwarfare.tools.VectorTool.lerpGetEntityBoundingBoxCent
 import com.atsuishio.superbwarfare.tools.canBeSeen
 import com.atsuishio.superbwarfare.tools.seekQuery
 import com.atsuishio.superbwarfare.tools.worldToScreen
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.util.Mth
@@ -50,7 +52,6 @@ object JavelinHudOverlay : CommonOverlay("javelin_hud") {
             RenderSystem.disableDepthTest()
             RenderSystem.depthMask(false)
             RenderSystem.enableBlend()
-            RenderSystem.setShader { GameRenderer.getPositionTexShader() }
             RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -101,12 +102,12 @@ object JavelinHudOverlay : CommonOverlay("javelin_hud") {
                 i,
                 j
             )
-            if (tag.getInt("SeekTime") in 2..<20) {
+            if (tag.getIntOr("SeekTime", 0) in 2..<20) {
                 RenderHelper.preciseBlit(guiGraphics, SEEK, k, l, 0f, 0f, i, j, i, j)
             }
 
-            guiGraphics.fill(RenderType.guiOverlay(), 0, l.toInt(), k.toInt() + 3, j1.toInt(), -90, -16777216)
-            guiGraphics.fill(RenderType.guiOverlay(), i1.toInt(), l.toInt(), w, j1.toInt(), -90, -16777216)
+            guiGraphics.fill(0, l.toInt(), k.toInt() + 3, j1.toInt(), -16777216)
+            guiGraphics.fill(i1.toInt(), l.toInt(), w, j1.toInt(), -16777216)
             RenderSystem.depthMask(true)
             RenderSystem.defaultBlendFunc()
             RenderSystem.enableDepthTest()

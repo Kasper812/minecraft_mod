@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.mobeffect.AcidEtchingMobEffect
 import com.atsuishio.superbwarfare.mobeffect.BurnMobEffect
@@ -48,7 +50,7 @@ object ModMobEffects {
         )
 
         return BuiltInRegistries.MOB_EFFECT
-            .getHolder(ResourceKey.create(Registries.MOB_EFFECT, id))
+            .get(ResourceKey.create(Registries.MOB_EFFECT, id))
             .orElseThrow()
     }
 

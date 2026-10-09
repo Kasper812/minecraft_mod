@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.utils
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.client.particle.CustomCloudOption
 import com.atsuishio.superbwarfare.compat.sable.SableCompatHandler
@@ -33,8 +35,8 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Projectile
-import net.minecraft.world.entity.vehicle.Boat
-import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.entity.vehicle.boat.Boat
+import net.minecraft.world.entity.vehicle.minecart.Minecart
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.entity.EntityTypeTest
@@ -194,7 +196,7 @@ object VehicleMotionUtils {
                 )
                 entity.deltaMovement = Vec3(vehicle.deltaMovement.x, 0.0, vehicle.deltaMovement.z)
                 entity.setOnGround(true)
-                entity.fallDistance = 0f
+                entity.fallDistance = 0.0
                 return
             }
             // 推出 + 清零朝向该OBB的速度分量
@@ -266,7 +268,7 @@ object VehicleMotionUtils {
             // 站在顶上时速度跟随载具
             entity.deltaMovement = Vec3(vehicle.deltaMovement.x, 0.0, vehicle.deltaMovement.z)
             entity.setOnGround(true)
-            entity.fallDistance = 0f
+            entity.fallDistance = 0.0
         } else {
             // 侧面碰撞：只截速度不调位置
             entity.deltaMovement = Vec3(clampedDx, clampedDy, clampedDz)
@@ -385,7 +387,7 @@ object VehicleMotionUtils {
                     (f1 * 80 * (Mth.abs(length) - 0.3) * (Mth.abs(length) - 0.3)).toFloat()
                 )
             } else {
-                entity.hurt(
+                entity.hurtOrSimulate(
                     ModDamageTypes.causeVehicleStrikeDamage(
                         vehicle.level().registryAccess(), vehicle,
                         vehicle.getFirstPassenger() ?: vehicle
@@ -399,7 +401,7 @@ object VehicleMotionUtils {
             }
 
             if (entity is VehicleEntity) {
-                vehicle.hurt(
+                vehicle.hurtOrSimulate(
                     ModDamageTypes.causeVehicleStrikeDamage(
                         vehicle.level().registryAccess(), entity,
                         entity.getFirstPassenger() ?: entity
@@ -768,8 +770,7 @@ object VehicleMotionUtils {
                 val state = level.getBlockState(blockPos)
                 if (state.isAir) continue
                 if (state.`is`(BlockTags.SAND) || state.`is`(BlockTags.SNOW)) {
-                    val model = Minecraft.getInstance().modelManager.blockModelShaper.getBlockModel(state)
-                    val sprite = model.particleIcon
+                    val sprite = com.atsuishio.portlib.render.LegacySprites.blockParticle(state)
                     val color = SpritePixelHelper.getRandomPixelRGB(sprite, 0)
                     val speed = Math.min(vehicle.deltaMovement.length(), 0.5).toFloat()
                     vehicle.addRandomParticle(
@@ -840,8 +841,7 @@ object VehicleMotionUtils {
 
                 if (vehicle.level().isClientSide && vehicle.deltaMovement.horizontalDistanceSqr() > 0.01) {
                     if (state.`is`(BlockTags.SAND) || state.`is`(BlockTags.SNOW)) {
-                        val model = Minecraft.getInstance().modelManager.blockModelShaper.getBlockModel(state)
-                        val sprite = model.particleIcon
+                        val sprite = com.atsuishio.portlib.render.LegacySprites.blockParticle(state)
                         val color = SpritePixelHelper.getRandomPixelRGB(sprite, 0)
                         val speed = Math.min(vehicle.deltaMovement.length(), 0.5).toFloat()
 
@@ -1490,7 +1490,7 @@ object VehicleMotionUtils {
             val maxDeltaV = max(2.0, vehicle.deltaMovement.length())
             val pullForce = dir.scale((ropeForce / 6.0).coerceIn(-maxDeltaV, maxDeltaV))
 
-            towed.fallDistance = 0f
+            towed.fallDistance = 0.0
             val diffY = Mth.wrapDegrees(
                 -VehicleVecUtils.getYRotFromVector(pullForce) + VehicleVecUtils.getYRotFromVector(
                     towed.getViewVector(1f)

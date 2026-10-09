@@ -1,11 +1,13 @@
 package com.atsuishio.superbwarfare.client.tooltip
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.tooltip.component.GunImageComponent
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.init.ModDataComponents
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.network.chat.Component
@@ -13,7 +15,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.item.ItemStack
 import kotlin.math.max
 
-open class ClientChargingStationImageTooltip(tooltip: GunImageComponent) : ClientTooltipComponent {
+open class ClientChargingStationImageTooltip(tooltip: GunImageComponent) : com.atsuishio.portlib.gui.LegacyClientTooltipComponent {
     protected val tipWidth: Int = tooltip.width
     protected val tipHeight: Int = tooltip.height
     protected val stack: ItemStack = tooltip.stack
@@ -63,7 +65,7 @@ open class ClientChargingStationImageTooltip(tooltip: GunImageComponent) : Clien
     }
 
     override fun getWidth(font: Font): Int {
-        if (Screen.hasShiftDown()) {
+        if (com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()) {
             return max(this.tipWidth, 20)
         }
         return 20

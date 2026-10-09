@@ -1,5 +1,10 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.portlib.item.LegacyInventoryTicker
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.PersistentDataAccessor
 import com.atsuishio.superbwarfare.entity.vehicle.DroneEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
@@ -17,7 +22,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlotGroup
 import net.minecraft.world.entity.ai.attributes.AttributeModifier
@@ -32,7 +36,7 @@ import net.minecraft.world.phys.Vec3
 import javax.annotation.ParametersAreNonnullByDefault
 
 @RegistryName("monitor")
-open class MonitorItem : Item(Properties().stacksTo(1)) {
+open class MonitorItem : Item(Properties().stacksTo(1).attackAttributes(2.0, -2.4)), LegacyInventoryTicker {
     private fun resetDroneData(drone: DroneEntity?) {
         if (drone == null) return
 
@@ -46,15 +50,15 @@ open class MonitorItem : Item(Properties().stacksTo(1)) {
     }
 
     @ParametersAreNonnullByDefault
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack?> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.mainHandItem
         val tag = NBTTool.getTag(stack)
 
-        if (!tag.getBoolean(LINKED)) {
+        if (!tag.getBooleanOr(LINKED, false)) {
             return super.use(level, player, hand)
         }
 
-        if (tag.getBoolean("Using")) {
+        if (tag.getBooleanOr("Using", false)) {
             tag.putBoolean("Using", false)
             if (level.isClientSide) {
                 val lastCameraType = ClientEventHandler.lastCameraType
@@ -73,50 +77,31 @@ open class MonitorItem : Item(Properties().stacksTo(1)) {
         NBTTool.saveTag(stack, tag)
         val drone = EntityFindUtil.findDrone(
             player.level(),
-            tag.getString(LINKED_DRONE)
+            tag.getStringOr(LINKED_DRONE, "")
         )
         this.resetDroneData(drone)
 
         return super.use(level, player, hand)
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun getDefaultAttributeModifiers(): ItemAttributeModifiers {
-        val list = ArrayList(super.getDefaultAttributeModifiers().modifiers())
-        list.addAll(
-            listOf(
-                ItemAttributeModifiers.Entry(
-                    Attributes.ATTACK_DAMAGE,
-                    AttributeModifier(BASE_ATTACK_DAMAGE_ID, 2.0, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND
-                ),
-                ItemAttributeModifiers.Entry(
-                    Attributes.ATTACK_SPEED,
-                    AttributeModifier(BASE_ATTACK_SPEED_ID, -2.4, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND
-                )
-            )
-        )
-
-        return ItemAttributeModifiers(list, true)
-    }
-
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component?>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val tag = NBTTool.getTag(stack)
-        if (!tag.contains(LINKED_DRONE) || tag.getString(LINKED_DRONE) == "none") return
+        if (!tag.contains(LINKED_DRONE) || tag.getStringOr(LINKED_DRONE, "") == "none") return
 
         val player: Player? = Minecraft.getInstance().player
         if (player == null) return
 
         if (!tag.contains("PosX") || !tag.contains("PosY") || !tag.contains("PosZ")) return
 
-        val droneVec = Vec3(tag.getDouble("PosX"), tag.getDouble("PosY"), tag.getDouble("PosZ"))
+        val droneVec = Vec3(tag.getDoubleOr("PosX", 0.0), tag.getDoubleOr("PosY", 0.0), tag.getDoubleOr("PosZ", 0.0))
 
         tooltipComponents.add(
             Component.translatable(
@@ -134,17 +119,16 @@ open class MonitorItem : Item(Properties().stacksTo(1)) {
     }
 
     @ParametersAreNonnullByDefault
-    override fun inventoryTick(stack: ItemStack, world: Level, entity: Entity, slot: Int, selected: Boolean) {
-        super.inventoryTick(stack, world, entity, slot, selected)
+    override fun legacyInventoryTick(stack: ItemStack, world: Level, entity: Entity, slot: Int, selected: Boolean) {
         val tag = NBTTool.getTag(stack)
         val drone = EntityFindUtil.findDrone(
             entity.level(),
-            tag.getString(LINKED_DRONE)
+            tag.getStringOr(LINKED_DRONE, "")
         )
 
         val lastCameraType = ClientEventHandler.lastCameraType
         if (!selected) {
-            if (tag.getBoolean("Using")) {
+            if (tag.getBooleanOr("Using", false)) {
                 tag.putBoolean("Using", false)
                 NBTTool.saveTag(stack, tag)
                 if (entity.level().isClientSide) {
@@ -155,7 +139,7 @@ open class MonitorItem : Item(Properties().stacksTo(1)) {
             }
             this.resetDroneData(drone)
         } else if (drone == null) {
-            if (tag.getBoolean("Using")) {
+            if (tag.getBooleanOr("Using", false)) {
                 tag.putBoolean("Using", false)
                 NBTTool.saveTag(stack, tag)
                 if (entity.level().isClientSide) {

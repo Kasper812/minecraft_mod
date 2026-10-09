@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.gun.launcher
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.init.ModEnumExtensions
@@ -24,7 +26,7 @@ class SuperStarShooterItem : GeoGunItemV2(Properties().rarity(ModRarities.SUPERB
     override fun tick(shooter: Entity?, data: GunData, inMainHand: Boolean) {
         val level = shooter?.level() ?: return
 
-        if (level.isNight && level.gameTime % 84L == 0L && data.ammo.get() < data.get(GunProp.MAGAZINE)) {
+        if (level.isNight() && level.gameTime % 84L == 0L && data.ammo.get() < data.get(GunProp.MAGAZINE)) {
             data.ammo.add(1)
 
             if (inMainHand && shooter is ServerPlayer) {

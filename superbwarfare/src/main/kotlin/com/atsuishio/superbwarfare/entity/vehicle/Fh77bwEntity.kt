@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.annotation.ExcludeBvrSync
 import com.atsuishio.superbwarfare.client.animation.AnimationPlayType
@@ -183,27 +191,31 @@ open class Fh77bwEntity(type: EntityType<Fh77bwEntity>, world: Level) : SpArtill
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putBoolean("Close", close)
         compound.putBoolean("Opened", opened)
         compound.putBoolean("Out", out)
         compound.putBoolean("HoeUp", hoeUp)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("Close")) {
-            close = compound.getBoolean("Close")
+            close = compound.getBooleanOr("Close", false)
         }
         if (compound.contains("Opened")) {
-            opened = compound.getBoolean("Opened")
+            opened = compound.getBooleanOr("Opened", false)
         }
         if (compound.contains("Out")) {
-            out = compound.getBoolean("Out")
+            out = compound.getBooleanOr("Out", false)
         }
         if (compound.contains("HoeUp")) {
-            hoeUp = compound.getBoolean("HoeUp")
+            hoeUp = compound.getBooleanOr("HoeUp", false)
         }
     }
 }

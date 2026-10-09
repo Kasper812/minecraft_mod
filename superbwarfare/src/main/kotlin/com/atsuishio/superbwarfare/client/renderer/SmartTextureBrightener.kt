@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.renderer.texture.DynamicTexture
@@ -215,7 +217,7 @@ object SmartTextureBrightener {
 
             mc.textureManager.register(
                 newTextureLoc,
-                DynamicTexture(brightenedImage)
+                DynamicTexture({ "superbwarfare" }, brightenedImage)
             )
 
             // 计算并存储实际使用的亮度系数

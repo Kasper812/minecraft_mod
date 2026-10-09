@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.ammo
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.entity.InfiniteAmmoCapability
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.fabricmc.fabric.api.event.player.UseEntityCallback
@@ -7,7 +9,6 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
@@ -39,10 +40,12 @@ object CreativeAmmoBoxItem : Item(Properties().rarity(Rarity.EPIC).stacksTo(1)) 
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.creative_ammo_box_1").withStyle(ChatFormatting.GRAY)
         )
@@ -51,11 +54,11 @@ object CreativeAmmoBoxItem : Item(Properties().rarity(Rarity.EPIC).stacksTo(1)) 
         )
     }
 
-    override fun use(level: Level, player: Player, usedHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, usedHand: InteractionHand): InteractionResult {
         val item = player.getItemInHand(usedHand)
         if (player.isShiftKeyDown) {
             invertInfiniteAmmo(player, player)
-            return InteractionResultHolder.success(item)
+            return InteractionResult.SUCCESS
         }
         return super.use(level, player, usedHand)
     }

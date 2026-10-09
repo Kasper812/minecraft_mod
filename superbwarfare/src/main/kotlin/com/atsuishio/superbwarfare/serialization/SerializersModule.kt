@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.serialization
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.ModColorSerializer
 import com.atsuishio.superbwarfare.data.vehicle.subdata.CollisionLevel
 import com.atsuishio.superbwarfare.serialization.kserializer.*

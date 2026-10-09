@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config.server
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.SERVER_CONFIG
 import com.atsuishio.superbwarfare.config.buildServerConfig
 import com.atsuishio.superbwarfare.config.server.AttachmentConfig.FREE_ATTACHMENT_MODE

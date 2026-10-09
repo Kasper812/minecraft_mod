@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mobeffect
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.event.custom.LivingHurtCallback
 import com.atsuishio.superbwarfare.init.ModMobEffects

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.command.builder.CommandNode
 import com.atsuishio.superbwarfare.command.builder.buildCommand
@@ -238,11 +240,8 @@ private fun describe(dataset: DataDump.Dataset): Component {
                 .withStyle(ChatFormatting.WHITE)
                 .withStyle {
                     it.withHoverEvent(
-                        HoverEvent(
-                            HoverEvent.Action.SHOW_TEXT,
-                            Component.translatable("commands.superbwarfare.data.list.hover", command.trim())
-                        )
-                    ).withClickEvent(ClickEvent(ClickEvent.Action.SUGGEST_COMMAND, command))
+                        HoverEvent.ShowText(Component.translatable("commands.superbwarfare.data.list.hover", command.trim()))
+                    ).withClickEvent(ClickEvent.SuggestCommand(command))
                 }
         )
         .append(

@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
 
 import com.atsuishio.superbwarfare.entity.living.SenpaiEntity
@@ -10,7 +18,7 @@ import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.world.entity.animal.Animal
-import net.minecraft.world.entity.animal.Cow
+import net.minecraft.world.entity.animal.cow.Cow
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Blocks
 import net.minecraft.world.level.block.entity.BlockEntity
@@ -51,20 +59,14 @@ open class BiogasGeneratorBlockEntity(pos: BlockPos, state: BlockState) :
         return count - count * (count - 1) / 2f / 48f
     }
 
-    override fun saveAdditional(
-        tag: CompoundTag,
-        registries: HolderLookup.Provider
-    ) {
-        super.saveAdditional(tag, registries)
-        tag.putFloat("Power", this.power)
+    override fun saveAdditional(output: net.minecraft.world.level.storage.ValueOutput) {
+        super.saveAdditional(output)
+        output.putFloat("Power", this.power)
     }
 
-    override fun loadAdditional(
-        tag: CompoundTag,
-        registries: HolderLookup.Provider
-    ) {
-        super.loadAdditional(tag, registries)
-        this.power = tag.getFloat("Power")
+    override fun loadAdditional(input: net.minecraft.world.level.storage.ValueInput) {
+        super.loadAdditional(input)
+        this.power = input.getFloatOr("Power", 0f)
     }
 
     companion object {

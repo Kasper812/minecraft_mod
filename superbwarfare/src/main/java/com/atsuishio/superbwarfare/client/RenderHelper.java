@@ -1,12 +1,12 @@
 package com.atsuishio.superbwarfare.client;
 
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.atsuishio.portlib.gui.LegacyRenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
 import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import com.atsuishio.portlib.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
@@ -219,8 +219,7 @@ public class RenderHelper {
             float minU, float maxU,
             float minV, float maxV
     ) {
-        RenderSystem.setShaderTexture(0, atlasLocation);
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
+        LegacyRenderSystem.setShaderTexture(0, atlasLocation);
         Matrix4f matrix4f = gui.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         bufferbuilder.addVertex(matrix4f, x1, y1, blitOffset).setUv(minU, minV);
@@ -257,9 +256,8 @@ public class RenderHelper {
             float minV, float maxV,
             int color
     ) {
-        RenderSystem.setShaderTexture(0, atlasLocation);
-        RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
-        RenderSystem.enableBlend();
+        LegacyRenderSystem.setShaderTexture(0, atlasLocation);
+        LegacyRenderSystem.enableBlend();
         Matrix4f matrix4f = gui.pose().last().pose();
         BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
         bufferbuilder.addVertex(matrix4f, x1, y1, blitOffset)
@@ -275,7 +273,7 @@ public class RenderHelper {
                 .setUv(maxU, minV)
                 .setColor(color);
         BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        RenderSystem.disableBlend();
+        LegacyRenderSystem.disableBlend();
     }
 
 
@@ -290,27 +288,8 @@ public class RenderHelper {
      * @param z          the z-level of the rectangle.
      * @param color      the color to fill the rectangle with.
      */
-    public static void fill(GuiGraphics guiGraphics, RenderType renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
-        Matrix4f matrix4f = guiGraphics.pose().last().pose();
-        if (minX < maxX) {
-            float i = minX;
-            minX = maxX;
-            maxX = i;
-        }
-
-        if (minY < maxY) {
-            float j = minY;
-            minY = maxY;
-            maxY = j;
-        }
-
-        VertexConsumer vertexconsumer = guiGraphics.bufferSource().getBuffer(renderType);
-        vertexconsumer.addVertex(matrix4f, minX, minY, z).setColor(color);
-        vertexconsumer.addVertex(matrix4f, minX, maxY, z).setColor(color);
-        vertexconsumer.addVertex(matrix4f, maxX, maxY, z).setColor(color);
-        vertexconsumer.addVertex(matrix4f, maxX, minY, z).setColor(color);
-
-        guiGraphics.flush();
+    public static void fill(GuiGraphics guiGraphics, Object renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
+        guiGraphics.fillFloat(Math.min(minX, maxX), Math.min(minY, maxY), Math.max(minX, maxX), Math.max(minY, maxY), color);
     }
 
     public static void renderScrollingString(GuiGraphics pGuiGraphics, Font pFont, Component pText, float scale, int pMinX, int pMinY, int pMaxX, int pMaxY, int pColor) {
@@ -364,10 +343,8 @@ public class RenderHelper {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-
+        LegacyRenderSystem.enableBlend();
+        LegacyRenderSystem.defaultBlendFunc();
         poseStack.rotateAround(Axis.ZP.rotationDegrees(-90), centerX, centerY, 0);
 
         var window = Minecraft.getInstance().getWindow();
@@ -380,7 +357,7 @@ public class RenderHelper {
         drawCircularRing(guiGraphics, centerX, centerY, outerRadius * scale, innerRadius * scale, progressColor, progress);
 
         poseStack.popPose();
-        RenderSystem.disableBlend();
+        LegacyRenderSystem.disableBlend();
     }
 
     public static void drawCircularRing(GuiGraphics guiGraphics, float centerX, float centerY, float outerRadius, float innerRadius, float[] color, float progressAngle) {

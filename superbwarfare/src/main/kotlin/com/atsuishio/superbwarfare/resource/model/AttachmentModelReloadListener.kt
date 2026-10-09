@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.model
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.attachment.BedrockAttachmentModel
 import com.atsuishio.superbwarfare.resource.model.AttachmentModelReloadListener.findAnimation
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.animation.BedrockAnimation

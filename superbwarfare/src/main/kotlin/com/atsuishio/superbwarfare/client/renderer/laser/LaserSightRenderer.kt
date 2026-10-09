@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.laser
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -97,7 +99,7 @@ object LaserSightRenderer {
 
         for (beam in firstPerson) {
             // 相机在渲染空间的原点，所以渲染空间的点就是"相对相机的世界偏移"
-            val muzzleWorld = camera.position.add(rotate(viewToWorld, beam.viewOrigin))
+            val muzzleWorld = camera.position().add(rotate(viewToWorld, beam.viewOrigin))
             val directionWorld = rotate(viewToWorld, beam.viewDirection).normalize()
             // 本地单位 → 世界米：骨骼带 scale 时本地一单位不是一格
             val rangeWorld = resolveLength(beam.info, true) * beam.axisScale

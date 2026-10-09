@@ -1,62 +1,50 @@
 package com.atsuishio.superbwarfare.tiers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
-import com.atsuishio.superbwarfare.init.ModItems
-import net.minecraft.core.Registry
-import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.core.registries.Registries
+import net.minecraft.resources.ResourceKey
 import net.minecraft.sounds.SoundEvents
-import net.minecraft.world.item.ArmorItem
-import net.minecraft.world.item.ArmorMaterial
-import net.minecraft.world.item.crafting.Ingredient
+import net.minecraft.tags.TagKey
+import net.minecraft.world.item.equipment.ArmorMaterial
+import net.minecraft.world.item.equipment.ArmorType
+import net.minecraft.world.item.equipment.EquipmentAssets
 import java.util.EnumMap
 
 object ModArmorMaterials {
-    private fun register(
-        id: String,
-        material: () -> ArmorMaterial
-    ): ArmorMaterial {
-        return Registry.register(
-            BuiltInRegistries.ARMOR_MATERIAL,
-            loc(id),
-            material()
-        )
-    }
+    private fun defense(boots: Int, leggings: Int, chest: Int, helmet: Int, body: Int): Map<ArmorType, Int> =
+        EnumMap<ArmorType, Int>(ArmorType::class.java).apply {
+            put(ArmorType.BOOTS, boots)
+            put(ArmorType.LEGGINGS, leggings)
+            put(ArmorType.CHESTPLATE, chest)
+            put(ArmorType.HELMET, helmet)
+            put(ArmorType.BODY, body)
+        }
 
     @JvmField
-    val CEMENTED_CARBIDE: ArmorMaterial = register("cemented_carbide") {
-        ArmorMaterial(
-            EnumMap<ArmorItem.Type, Int>(ArmorItem.Type::class.java).apply {
-                put(ArmorItem.Type.BOOTS, 3)
-                put(ArmorItem.Type.LEGGINGS, 6)
-                put(ArmorItem.Type.CHESTPLATE, 8)
-                put(ArmorItem.Type.HELMET, 3)
-            },
-            10,
-            SoundEvents.ARMOR_EQUIP_IRON,
-            { Ingredient.of(ModItems.CEMENTED_CARBIDE_INGOT) },
-            listOf(ArmorMaterial.Layer(loc("cemented_carbide"))),
-            4f,
-            0.05f
-        )
-    }
+    val CEMENTED_CARBIDE: ArmorMaterial = ArmorMaterial(
+        50,
+        defense(3, 6, 8, 3, 11),
+        10,
+        SoundEvents.ARMOR_EQUIP_IRON,
+        4f,
+        0.05f,
+        TagKey.create(Registries.ITEM, loc("cemented_carbide_tool_materials")),
+        ResourceKey.create(EquipmentAssets.ROOT_ID, loc("cemented_carbide"))
+    )
 
     @JvmField
-    val STEEL: ArmorMaterial = register("steel") {
-        ArmorMaterial(
-            EnumMap<ArmorItem.Type, Int>(ArmorItem.Type::class.java).apply {
-                put(ArmorItem.Type.BOOTS, 2)
-                put(ArmorItem.Type.LEGGINGS, 5)
-                put(ArmorItem.Type.CHESTPLATE, 7)
-                put(ArmorItem.Type.HELMET, 2)
-            },
-            9,
-            SoundEvents.ARMOR_EQUIP_IRON,
-            { Ingredient.of(ModItems.STEEL_INGOT) },
-            listOf(ArmorMaterial.Layer(loc("steel"))),
-            1f,
-            0f
-        )
-    }
+    val STEEL: ArmorMaterial = ArmorMaterial(
+        35,
+        defense(2, 5, 7, 2, 9),
+        9,
+        SoundEvents.ARMOR_EQUIP_IRON,
+        1f,
+        0f,
+        TagKey.create(Registries.ITEM, loc("steel_tool_materials")),
+        ResourceKey.create(EquipmentAssets.ROOT_ID, loc("steel"))
+    )
 
     @JvmStatic
     fun register() {

@@ -1,14 +1,16 @@
 package com.atsuishio.superbwarfare.client.tooltip
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.screens.DogTagEditorScreen
 import com.atsuishio.superbwarfare.client.tooltip.component.DogTagImageComponent
 import com.atsuishio.superbwarfare.item.trinket.DogTagItem.Companion.getColors
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.world.item.ItemStack
 
-open class ClientDogTagImageTooltip(tooltip: DogTagImageComponent) : ClientTooltipComponent {
+open class ClientDogTagImageTooltip(tooltip: DogTagImageComponent) : com.atsuishio.portlib.gui.LegacyClientTooltipComponent {
     protected val tipWidth: Int = tooltip.width
     protected val tipHeight: Int = tooltip.height
     protected val stack: ItemStack = tooltip.stack

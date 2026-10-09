@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.blockitem
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModBlocks
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.ChatFormatting
@@ -23,10 +27,12 @@ class CreativeChargingStationBlockItem :
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.creative_charging_station").withStyle(ChatFormatting.GRAY)
         )

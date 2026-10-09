@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.item.TooltipFlag
+
+import net.minecraft.world.item.ItemStack
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool
 import com.atsuishio.superbwarfare.client.screens.ArtilleryIndicatorScreen
 import com.atsuishio.superbwarfare.config.server.MiscConfig
@@ -22,7 +30,6 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -34,17 +41,19 @@ open class ArtilleryIndicatorItem : Item(Properties().stacksTo(1).rarity(Rarity.
     IVehicleInteract {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         TooltipTool.addScreenProviderText(tooltipComponents)
         if (NBTTool.getTag(stack).contains(TAG_TYPE)) {
             tooltipComponents.add(
                 Component.translatable(
                     "des.superbwarfare.artillery_indicator.type",
                     Component.translatable(
-                        NBTTool.getTag(stack).getString(TAG_TYPE)
+                        NBTTool.getTag(stack).getStringOr(TAG_TYPE, "")
                     )
                 )
                     .withStyle(ChatFormatting.WHITE)
@@ -72,17 +81,17 @@ open class ArtilleryIndicatorItem : Item(Properties().stacksTo(1).rarity(Rarity.
         return 72000
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim {
-        return UseAnim.SPYGLASS
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation {
+        return ItemUseAnimation.SPYGLASS
     }
 
-    override fun use(pLevel: Level, pPlayer: Player, pHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(pLevel: Level, pPlayer: Player, pHand: InteractionHand): InteractionResult {
         if (pHand == InteractionHand.OFF_HAND) {
-            return InteractionResultHolder.fail(pPlayer.getItemInHand(pHand))
+            return InteractionResult.FAIL
         }
         pPlayer.playSound(SoundEvents.SPYGLASS_USE, 1f, 1f)
         pPlayer.startUsingItem(pHand)
-        return InteractionResultHolder.consume(pPlayer.getItemInHand(pHand))
+        return InteractionResult.CONSUME
     }
 
     override fun finishUsingItem(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity): ItemStack {
@@ -90,33 +99,34 @@ open class ArtilleryIndicatorItem : Item(Properties().stacksTo(1).rarity(Rarity.
         return pStack
     }
 
-    override fun releaseUsing(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity, pTimeCharged: Int) {
+    override fun releaseUsing(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity, pTimeCharged: Int): Boolean {
         pLivingEntity.playSound(SoundEvents.SPYGLASS_STOP_USING, 1f, 1f)
+        return false
     }
 
     fun checkFull(stack: ItemStack): Boolean {
-        val tags = NBTTool.getTag(stack).getList(TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+        val tags = NBTTool.getTag(stack).getListOrEmpty(TAG_CANNON)
         return tags.size >= MiscConfig.ARTILLERY_INDICATOR_LIST_SIZE.get()
     }
 
     fun addCannon(stack: ItemStack, entity: Entity): Boolean {
         val uuid = entity.getStringUUID()
         val tag = NBTTool.getTag(stack)
-        val tags = tag.getList(TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+        val tags = tag.getListOrEmpty(TAG_CANNON)
         if (tags.isEmpty()) {
             tag.putString(TAG_TYPE, entity.type.descriptionId)
         } else {
-            if (tag.getString(TAG_TYPE) != entity.type.descriptionId) {
+            if (tag.getStringOr(TAG_TYPE, "") != entity.type.descriptionId) {
                 return false
             }
         }
 
         val list: MutableList<CompoundTag> = arrayListOf()
         for (i in tags.indices) {
-            list.add(tags.getCompound(i))
+            list.add(tags.getCompoundOrEmpty(i))
         }
         for (t in list) {
-            if (t.getString("UUID") == uuid) {
+            if (t.getStringOr("UUID", "") == uuid) {
                 return false
             }
         }
@@ -134,16 +144,16 @@ open class ArtilleryIndicatorItem : Item(Properties().stacksTo(1).rarity(Rarity.
 
     fun removeCannon(stack: ItemStack, uuid: String?): Boolean {
         val tag = NBTTool.getTag(stack)
-        val tags = tag.getList(TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+        val tags = tag.getListOrEmpty(TAG_CANNON)
         val list: MutableList<CompoundTag> = arrayListOf()
         var flag = false
         for (i in tags.indices) {
-            val tag = tags.getCompound(i)
-            if (tag.getString("UUID") == uuid) {
+            val tag = tags.getCompoundOrEmpty(i)
+            if (tag.getStringOr("UUID", "") == uuid) {
                 flag = true
                 continue
             }
-            list.add(tags.getCompound(i))
+            list.add(tags.getCompoundOrEmpty(i))
         }
         if (flag) {
             val listTag = ListTag()
@@ -164,12 +174,12 @@ open class ArtilleryIndicatorItem : Item(Properties().stacksTo(1).rarity(Rarity.
 
     fun setTarget(stack: ItemStack, player: Player) {
         val mainTag = NBTTool.getTag(stack)
-        val tags = mainTag.getList(TAG_CANNON, Tag.TAG_COMPOUND.toInt())
+        val tags = mainTag.getListOrEmpty(TAG_CANNON)
         val list: MutableList<CompoundTag> = arrayListOf()
 
         for (i in tags.indices) {
-            val tag = tags.getCompound(i)
-            val entity = EntityFindUtil.findEntity(player.level(), tag.getString("UUID"))
+            val tag = tags.getCompoundOrEmpty(i)
+            val entity = EntityFindUtil.findEntity(player.level(), tag.getStringOr("UUID", ""))
 
             if (entity is ArtilleryEntity) {
                 list.add(tag)

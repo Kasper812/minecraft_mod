@@ -1,6 +1,8 @@
 package com.atsuishio.superbwarfare.inventory.menu
 
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerType
+import com.atsuishio.superbwarfare.port.*
+
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.inventory.MenuType
@@ -20,7 +22,7 @@ class HugeVehicleContainerMenu(id: Int, inventory: Inventory, entityId: Int) :
     companion object {
         @JvmField
         val TYPE: MenuType<HugeVehicleContainerMenu> =
-            ExtendedScreenHandlerType({ id, inventory, entityId ->
+            ExtendedMenuType({ id, inventory, entityId ->
                 HugeVehicleContainerMenu(id, inventory, entityId)
             }, ByteBufCodecs.INT)
     }

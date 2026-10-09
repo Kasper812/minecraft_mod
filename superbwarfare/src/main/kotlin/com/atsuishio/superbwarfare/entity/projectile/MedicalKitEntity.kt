@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import net.minecraft.world.phys.Vec3
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
 import com.atsuishio.superbwarfare.config.server.MiscConfig
@@ -25,6 +35,11 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.entity.EntityTypeTest
 
 open class MedicalKitEntity(type: EntityType<MedicalKitEntity>, level: Level) : Entity(type, level) {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
     open val modelInstance = ProjectileModelReloadListener.getModel(MODEL)?.createInstance()
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -34,7 +49,7 @@ open class MedicalKitEntity(type: EntityType<MedicalKitEntity>, level: Level) : 
         return true
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -45,7 +60,7 @@ open class MedicalKitEntity(type: EntityType<MedicalKitEntity>, level: Level) : 
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -117,10 +132,14 @@ open class MedicalKitEntity(type: EntityType<MedicalKitEntity>, level: Level) : 
         }
     }
 
-    override fun readAdditionalSaveData(pCompound: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val pCompound = LegacyNbt.tagOf(input)
     }
 
-    override fun addAdditionalSaveData(pCompound: CompoundTag) {
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val pCompound = LegacyNbt.tagOf(output)
     }
 
     protected fun updateRotation() {

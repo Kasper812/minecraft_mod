@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler.ClientSyncedPlayer
@@ -11,20 +13,20 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModTags
 import com.atsuishio.superbwarfare.tools.*
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.Camera
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.Boat
+import net.minecraft.world.entity.vehicle.boat.Boat
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.Vec2
 import net.minecraft.world.phys.Vec3
 import net.minecraft.world.phys.shapes.CollisionContext
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 
 object IFFOverlay : CommonOverlay("iff") {
     val FRIENDLY_INDICATOR = loc("textures/overlay/teammate/friendly_indicator.png")
@@ -69,7 +71,6 @@ object IFFOverlay : CommonOverlay("iff") {
                         RenderSystem.disableDepthTest()
                         RenderSystem.depthMask(false)
                         RenderSystem.enableBlend()
-                        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                         RenderSystem.blendFuncSeparate(
                             GlStateManager.SourceFactor.SRC_ALPHA,
                             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -143,7 +144,6 @@ object IFFOverlay : CommonOverlay("iff") {
                         RenderSystem.disableDepthTest()
                         RenderSystem.depthMask(false)
                         RenderSystem.enableBlend()
-                        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                         RenderSystem.blendFuncSeparate(
                             GlStateManager.SourceFactor.SRC_ALPHA,
                             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -202,7 +202,6 @@ object IFFOverlay : CommonOverlay("iff") {
                     RenderSystem.disableDepthTest()
                     RenderSystem.depthMask(false)
                     RenderSystem.enableBlend()
-                    RenderSystem.setShader { GameRenderer.getPositionTexShader() }
                     RenderSystem.blendFuncSeparate(
                         GlStateManager.SourceFactor.SRC_ALPHA,
                         GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -298,7 +297,7 @@ object IFFOverlay : CommonOverlay("iff") {
     }
 
     fun calculateAngle(entityA: Entity, camera: Camera): Double {
-        val v1 = camera.position.vectorTo(entityA.position())
+        val v1 = camera.position().vectorTo(entityA.position())
         val v2 = Vec3(camera.lookVector)
         return v1.angleTo(v2)
     }
@@ -313,8 +312,8 @@ object IFFOverlay : CommonOverlay("iff") {
         localPlayer: Player,
         level: net.minecraft.world.level.Level,
         cameraPos: Vec3,
-        poseStack: com.mojang.blaze3d.vertex.PoseStack,
-        guiGraphics: net.minecraft.client.gui.GuiGraphics,
+        poseStack: com.atsuishio.portlib.gui.LegacyPose,
+        guiGraphics: com.atsuishio.portlib.gui.GuiGraphics,
         partialTick: Float,
     ) {
         val foundPlayer = EntityFindUtil.findPlayer(level, info.uuid.toString())
@@ -329,7 +328,6 @@ object IFFOverlay : CommonOverlay("iff") {
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

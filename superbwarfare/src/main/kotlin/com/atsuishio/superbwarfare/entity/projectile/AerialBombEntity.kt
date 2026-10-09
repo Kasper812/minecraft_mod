@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -31,7 +33,7 @@ open class AerialBombEntity(type: EntityType<out AerialBombEntity>, level: Level
 
     override fun afterHitEntity(result: EntityHitResult) {
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (entity == owner || (owner != null && entity == owner.vehicle) || entity is AerialBombEntity) return
         if (this.level() is ServerLevel) {
             if (ExplosionConfig.EXPLOSION_DESTROY.get() && ExplosionConfig.EXTRA_EXPLOSION_EFFECT.get() && this.explosionDestroyValue) {

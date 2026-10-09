@@ -1,5 +1,8 @@
 package com.atsuishio.superbwarfare.item.gun
 
+import com.atsuishio.portlib.item.LegacyInventoryTicker
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import team.reborn.energy.api.EnergyStorage
@@ -74,7 +77,7 @@ import software.bernie.geckolib.animatable.GeoItem
 import java.util.*
 import java.util.concurrent.atomic.AtomicReference
 
-abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), ItemScreenProvider,
+abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), LegacyInventoryTicker, ItemScreenProvider,
     EnergyStorageItem, PropertyModifier<GunData, DefaultGunData> {
 
     protected val random: RandomSource = RandomSource.create()
@@ -161,9 +164,9 @@ abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), I
      */
     open fun isInitialized(data: GunData) = data.uuid != null
 
-    override fun canAttackBlock(pState: BlockState, pLevel: Level, pPos: BlockPos, pPlayer: Player) = false
+    override fun canDestroyBlock(stack: ItemStack, pState: BlockState, pLevel: Level, pPos: BlockPos, pPlayer: net.minecraft.world.entity.LivingEntity) = false
 
-    override fun inventoryTick(stack: ItemStack, level: Level, entity: Entity, slot: Int, selected: Boolean) {
+    override fun legacyInventoryTick(stack: ItemStack, level: Level, entity: Entity, slot: Int, selected: Boolean) {
         // 副武器物品（`useAsWeaponInHand() == false`）躺在背包/手上时不跑枪械状态机：
         // 它只有装在正常枪械上才生效，那时由主武器的 gun tick 顺带 tick（`SubWeaponRuntime.tick`）。
         if (stack.item !is GunItem || !useAsWeaponInHand() || level.isClientSide) return
@@ -212,7 +215,7 @@ abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), I
             }
         }
 
-        val modifiers = ItemAttributeModifiers(list, true)
+        val modifiers = ItemAttributeModifiers(list)
         if (stack.getOrDefault(DataComponents.ATTRIBUTE_MODIFIERS, ItemAttributeModifiers.EMPTY) != modifiers) {
             stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers)
         }
@@ -240,8 +243,6 @@ abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), I
     open fun getGunIcon(data: GunData) = data.get(GunProp.ICON)
 
     override fun isFoil(stack: ItemStack) = false
-
-    override fun isEnchantable(stack: ItemStack) = false
 
     /*
     override fun supportsEnchantment(stack: ItemStack, enchantment: Holder<Enchantment?>) = false
@@ -908,7 +909,7 @@ abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), I
 
         val entityHolder = AtomicReference<Entity?>()
 
-        EntityType.byString(projectileType).ifPresent { entityType ->
+        entityTypeByString(projectileType).ifPresent { entityType ->
             val entity = entityType.create(level)
             if (entity == null) {
                 Mod.LOGGER.warn("Failed to create projectile entity {}", projectileType)
@@ -1088,7 +1089,7 @@ abstract class GunItem(properties: Properties) : Item(properties.stacksTo(1)), I
             val vec3 = direction.scale(velocity.toDouble())
 
             entity.deltaMovement = vec3
-            entity.hasImpulse = true
+            entity.needsSync = true
             val d0 = vec3.horizontalDistance()
             entity.yRot = (Mth.atan2(vec3.x, vec3.z) * 180f / Math.PI.toFloat()).toFloat()
             entity.xRot = (Mth.atan2(vec3.y, d0) * 180f / Math.PI.toFloat()).toFloat()

@@ -1,11 +1,11 @@
 package com.atsuishio.superbwarfare.data.container
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import it.unimi.dsi.fastutil.Pair
-import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
@@ -13,22 +13,18 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 
 object ContainerDataManager :
-    SimpleJsonResourceReloadListener(Gson(), "sbw/containers"),
-    IdentifiableResourceReloadListener {
+    SimpleJsonResourceReloadListener<JsonElement>(net.minecraft.util.ExtraCodecs.JSON, net.minecraft.resources.FileToIdConverter.json("sbw/containers")) {
 
     private val containerData: MutableMap<Identifier, MutableList<Pair<String, Int>>> = hashMapOf()
-
-    override fun getFabricId(): Identifier {
-        return Mod.loc("container_data_manager")
-    }
+    private val FABRIC_ID: Identifier = Mod.loc("container_data_manager")
 
     @JvmStatic
     fun register() {
-        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(this)
+        net.fabricmc.fabric.api.resource.v1.ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FABRIC_ID, this)
     }
 
     override fun apply(
-        objects: MutableMap<Identifier, JsonElement>,
+        objects: Map<Identifier, JsonElement>,
         manager: ResourceManager,
         profiler: ProfilerFiller
     ) {

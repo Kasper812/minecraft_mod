@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade.providers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.compat.jade.elements.WrenchHealthElement
 import com.atsuishio.superbwarfare.data.vehicle_skin.VehicleSkin
@@ -29,19 +31,22 @@ object VehicleInfoProvider : IEntityComponentProvider, IServerDataProvider<Entit
             null
         }
         if (uuid != null) {
-            val name = CommonProxy.getLastKnownUsername(uuid) ?: return
+            val server = accessor.level.server ?: return
+            val name = server.playerList.getPlayer(uuid)?.gameProfile?.name()
+                ?: server.services().nameToIdCache().get(uuid).map { it.name() }.orElse(null)
+                ?: return
             data.putString("VehicleOwnerName", name)
         }
     }
 
-    override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig?) {
+    override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig) {
         // 对EntityHealthProvider的拙劣模仿罢了
         val vehicle = accessor.entity as VehicleEntity
         val health = vehicle.health
         val maxHealth = vehicle.getMaxHealth()
         tooltip.add(WrenchHealthElement(maxHealth, health))
 
-        val ownerName = accessor.serverData.getString("VehicleOwnerName")
+        val ownerName = accessor.serverData.getStringOr("VehicleOwnerName", "")
         if (!ownerName.isNullOrEmpty() && vehicle !is OwnableEntity) {
             tooltip.add(Component.translatable("jade.owner", ownerName))
         }

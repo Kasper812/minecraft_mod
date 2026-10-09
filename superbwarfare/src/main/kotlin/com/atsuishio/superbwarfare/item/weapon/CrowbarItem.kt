@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.item.TooltipFlag
+
+import net.minecraft.world.item.ItemStack
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -16,53 +24,51 @@ import net.minecraft.world.entity.ai.attributes.AttributeModifier
 import net.minecraft.world.entity.ai.attributes.Attributes
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.*
-import net.minecraft.world.item.crafting.Ingredient
+import net.minecraft.world.item.component.ItemAttributeModifiers
+import net.minecraft.tags.ItemTags
 import net.minecraft.world.level.block.Block
 
-private val TIER = object : Tier {
-    override fun getUses(): Int {
-        return 400
-    }
-
-    override fun getSpeed(): Float {
-        return 4f
-    }
-
-    override fun getAttackDamageBonus(): Float {
-        return 3.5f
-    }
-
-    override fun getIncorrectBlocksForDrops(): TagKey<Block?> {
-        return BlockTags.INCORRECT_FOR_IRON_TOOL
-    }
-
-    override fun getEnchantmentValue(): Int {
-        return 9
-    }
-
-    override fun getRepairIngredient(): Ingredient {
-        return Ingredient.of(ItemStack(Items.IRON_INGOT))
-    }
-}
+private val TIER = ToolMaterial(
+    BlockTags.INCORRECT_FOR_IRON_TOOL,
+    400,
+    4f,
+    3.5f,
+    9,
+    ItemTags.IRON_TOOL_MATERIALS
+)
 
 @RegistryName("crowbar")
-open class CrowbarItem : SwordItem(
-    TIER, Properties().stacksTo(1)
+open class CrowbarItem : Item(
+    Properties().stacksTo(1)
+        .sword(TIER, 2f, -2f)
         .attributes(
-            createAttributes(TIER, 2, -2f)
-                .withModifierAdded(
+            ItemAttributeModifiers.builder()
+                .add(
+                    Attributes.ATTACK_DAMAGE,
+                    AttributeModifier(BASE_ATTACK_DAMAGE_ID, 2.0 + 3.5, AttributeModifier.Operation.ADD_VALUE),
+                    EquipmentSlotGroup.MAINHAND
+                )
+                .add(
+                    Attributes.ATTACK_SPEED,
+                    AttributeModifier(BASE_ATTACK_SPEED_ID, -2.0, AttributeModifier.Operation.ADD_VALUE),
+                    EquipmentSlotGroup.MAINHAND
+                )
+                .add(
                     Attributes.BLOCK_INTERACTION_RANGE,
                     AttributeModifier(Mod.ATTRIBUTE_MODIFIER, 3.0, AttributeModifier.Operation.ADD_VALUE),
                     EquipmentSlotGroup.MAINHAND
                 )
+                .build()
         )
 ), IVehicleInteract {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.crowbar").withStyle(ChatFormatting.GRAY))
         tooltipComponents.add(Component.translatable("des.superbwarfare.crowbar_2").withStyle(ChatFormatting.GRAY))
     }

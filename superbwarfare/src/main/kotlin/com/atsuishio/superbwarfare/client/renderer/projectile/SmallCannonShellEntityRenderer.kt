@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -18,8 +22,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
 import net.minecraft.util.Mth
 
-class SmallCannonShellEntityRenderer(manager: EntityRendererProvider.Context) :
-    EntityRenderer<SmallCannonShellEntity>(manager) {
+class SmallCannonShellEntityRenderer(manager: EntityRendererProvider.Context) : LegacyEntityRenderer<SmallCannonShellEntity>(manager) {
     override fun getTextureLocation(pEntity: SmallCannonShellEntity) = loc("textures/entity/empty.png")
 
     override fun shouldRender(

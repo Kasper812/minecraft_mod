@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -15,7 +17,7 @@ object OneTwoPunch : Perk("one_two_punch", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        if (tag.getInt("OneTwoPunchTime") > 0) {
+        if (tag.getIntOr("OneTwoPunchTime", 0) > 0) {
             modifier[GunProp.MELEE_DAMAGE] *= (1.5 + 0.75 * (modifier.data.perk.getLevel(this) - 1))
         }
     }
@@ -27,12 +29,12 @@ object OneTwoPunch : Perk("one_two_punch", Type.DAMAGE) {
         target: Entity
     ) {
         val tag = data.perk.getTag(this) ?: return
-        tag.putInt("OneTwoPunchCount", tag.getInt("OneTwoPunchCount") + 1)
+        tag.putInt("OneTwoPunchCount", tag.getIntOr("OneTwoPunchCount", 0) + 1)
         tag.putInt("OneTwoPunchCountTime", 2)
 
         val needCount = floor(data.get(GunProp.PROJECTILE_AMOUNT) * (1 - 0.05 * (instance.level - 1)))
 
-        if (tag.getInt("OneTwoPunchCount") >= needCount) {
+        if (tag.getIntOr("OneTwoPunchCount", 0) >= needCount) {
             tag.putInt("OneTwoPunchTime", 60)
             tag.remove("OneTwoPunchCount")
             tag.remove("OneTwoPunchCountTime")

@@ -1,12 +1,15 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.mojang.blaze3d.platform.InputConstants
-import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper
+import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper
 import net.minecraft.client.KeyMapping
 import org.lwjgl.glfw.GLFW
 
 object ModKeyMappings {
-    const val CATEGORY = "key.categories.superbwarfare"
+    @JvmField
+    val CATEGORY: KeyMapping.Category = KeyMapping.Category.register(com.atsuishio.superbwarfare.Mod.loc("main"))
     private val KEYS = mutableListOf<KeyMapping>()
 
     @JvmField
@@ -55,7 +58,7 @@ object ModKeyMappings {
     val CHANGE_SEAT = registerKey("change_seat", GLFW.GLFW_KEY_LEFT_SHIFT)
 
     @JvmField
-    val CONFIG = KeyBindingHelper.registerKeyBinding(KeyMapping(
+    val CONFIG = KeyMappingHelper.registerKeyMapping(KeyMapping(
         "key.superbwarfare.config",
         InputConstants.Type.KEYSYM,
         GLFW.GLFW_KEY_O,
@@ -146,6 +149,6 @@ object ModKeyMappings {
 
     @JvmStatic
     fun init() {
-        KEYS.forEach { KeyBindingHelper.registerKeyBinding(it) }
+        KEYS.forEach { KeyMappingHelper.registerKeyMapping(it) }
     }
 }

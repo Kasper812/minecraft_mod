@@ -124,7 +124,7 @@ public class Ql1031Item extends GunGeoItem {
     public double getCustomZoom(GunData data) {
         int scopeType = data.attachment.get(AttachmentType.SCOPE);
         return switch (scopeType) {
-            case 2 -> data.tag.getBoolean("ScopeAlt") ? 0 : 2.75;
+            case 2 -> data.tag.getBooleanOr("ScopeAlt", false) ? 0 : 2.75;
             case 3 -> GunsTool.getGunDoubleTag(data.tag, "CustomZoom");
             default -> 0;
         };

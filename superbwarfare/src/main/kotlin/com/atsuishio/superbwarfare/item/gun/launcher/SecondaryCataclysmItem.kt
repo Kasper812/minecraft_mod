@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.gun.launcher
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool.addHideText
 import com.atsuishio.superbwarfare.init.ModRarities
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -15,10 +19,12 @@ object SecondaryCataclysmItem : GeoGunItemV2(Properties().rarity(ModRarities.VIR
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.empty())
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.secondary_cataclysm_1").withStyle(ChatFormatting.GRAY)

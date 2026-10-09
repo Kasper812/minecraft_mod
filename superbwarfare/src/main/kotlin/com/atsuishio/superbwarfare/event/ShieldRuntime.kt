@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.attachment.ShieldEmitter
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -35,28 +37,28 @@ object ShieldRuntime {
 
         /** 当前耐久 */
         var charge: Double
-            get() = if (tag.contains(CHARGE)) tag.getDouble(CHARGE) else info.durability
+            get() = if (tag.contains(CHARGE)) tag.getDoubleOr(CHARGE, 0.0) else info.durability
             set(value) {
                 tag.putDouble(CHARGE, value.coerceIn(0.0, info.durability))
             }
 
         /** 上次吸收到伤害的时刻 */
         var lastHit: Long
-            get() = tag.getLong(LAST_HIT)
+            get() = tag.getLongOr(LAST_HIT, 0L)
             set(value) {
                 tag.putLong(LAST_HIT, value)
             }
 
         /** 破碎时刻，0 = 未破碎 */
         var brokenAt: Long
-            get() = tag.getLong(BROKEN_AT)
+            get() = tag.getLongOr(BROKEN_AT, 0L)
             set(value) {
                 tag.putLong(BROKEN_AT, value)
             }
 
         /** 本轮恢复是否已经播过 [ShieldInfo.rechargeSound] */
         var recovered: Boolean
-            get() = tag.getBoolean(RECOVERED)
+            get() = tag.getBooleanOr(RECOVERED, false)
             set(value) {
                 tag.putBoolean(RECOVERED, value)
             }

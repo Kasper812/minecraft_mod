@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.item.misc.ArtilleryIndicatorItem
@@ -26,8 +28,8 @@ data class DroneFireMessage(val pos: SerializedVector3f) : ServerPacketPayload()
         val stack = player.mainHandItem
         val mainTag = NBTTool.getTag(stack)
 
-        if (stack.`is`(ModItems.MONITOR) && mainTag.getBoolean("Using") && mainTag.getBoolean("Linked")) {
-            val drone = EntityFindUtil.findDrone(player.level(), mainTag.getString("LinkedDrone")) ?: return
+        if (stack.`is`(ModItems.MONITOR) && mainTag.getBooleanOr("Using", false) && mainTag.getBooleanOr("Linked", false)) {
+            val drone = EntityFindUtil.findDrone(player.level(), mainTag.getStringOr("LinkedDrone", "")) ?: return
             if (player.offhandItem.`is`(ModItems.FIRING_PARAMETERS, ModItems.ARTILLERY_INDICATOR)) {
                 val offStack = player.offhandItem
 

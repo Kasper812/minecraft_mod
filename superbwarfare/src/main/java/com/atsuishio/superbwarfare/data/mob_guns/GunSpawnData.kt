@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.mob_guns
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.StringInstanceBuilder
 import com.atsuishio.superbwarfare.data.StringOrObjectFactory
 import com.atsuishio.superbwarfare.item.gun.GunItem
@@ -113,7 +115,7 @@ data class GunSpawnData(
     /** 解析并校验枪械物品；id 非法或不是 [GunItem] 时返回 `null` */
     fun gunItem(): GunItem? {
         val location = Identifier.tryParse(id) ?: return null
-        return BuiltInRegistries.ITEM.get(location) as? GunItem
+        return BuiltInRegistries.ITEM.getValue(location) as? GunItem
     }
 
     object GunSpawnDataInstanceBuilder : StringInstanceBuilder<GunSpawnData> {

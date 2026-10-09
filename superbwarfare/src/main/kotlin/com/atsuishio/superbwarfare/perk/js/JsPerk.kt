@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.js
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DamageReduce
@@ -33,7 +35,7 @@ open class JsPerk(val perkId: String, private val descriptor: PerkDescriptor) : 
             val effects = mutableListOf<Holder<MobEffect>>()
             descriptor.mobEffects?.forEach { name ->
                 val rl = Identifier.tryParse(name) ?: return@forEach
-                val effect = BuiltInRegistries.MOB_EFFECT.getHolder(rl)
+                val effect = BuiltInRegistries.MOB_EFFECT.get(rl)
                 if (effect.isPresent) {
                     effects.add(effect.get())
                 } else {

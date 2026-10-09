@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.gun.special
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.GunRendererBuilder
 import com.atsuishio.superbwarfare.client.model.item.BeastGunTestModel
 import com.atsuishio.superbwarfare.init.ModRarities
@@ -16,22 +20,20 @@ import javax.annotation.ParametersAreNonnullByDefault
 
 @RegistryName("beast_gun_test")
 open class BeastGunTestItem : GunGeoItem(Properties().rarity(ModRarities.BEAST)) {
-    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity): Boolean {
+    override fun hurtEnemy(stack: ItemStack, target: LivingEntity, attacker: LivingEntity) {
         beastKill(attacker, target)
-        return true
-    }
-
-    override fun isEnchantable(stack: ItemStack): Boolean {
-        return false
+        return
     }
 
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.beast").withColor(0xa56855))
     }
 

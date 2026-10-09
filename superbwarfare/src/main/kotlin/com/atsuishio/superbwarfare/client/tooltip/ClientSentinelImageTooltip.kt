@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.tooltip
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.client.tooltip.component.GunImageComponent

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.MortarShellEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -63,7 +65,7 @@ open class MortarShellItem : Item(Properties().stacksTo(8)), DispenserLaunchable
                     stack.`is`(ModItems.MORTAR_SHELL_SMOKE) -> {
                         val tag = stack.tag
                         if (tag != null && tag.contains(IDyeableSmokeItem.TAG_COLOR)) {
-                            val color = tag.getInt(IDyeableSmokeItem.TAG_COLOR)
+                            val color = tag.getIntOr(IDyeableSmokeItem.TAG_COLOR, 0)
                             shellEntity.setRGB(
                                 floatArrayOf(
                                     ((color shr 16) and 255).toFloat(),

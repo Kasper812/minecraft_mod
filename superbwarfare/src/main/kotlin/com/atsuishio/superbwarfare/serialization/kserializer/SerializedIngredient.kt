@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.serialization.kserializer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.tools.toGson
 import com.atsuishio.superbwarfare.tools.toKxJson
 import com.mojang.serialization.JsonOps
@@ -28,6 +30,10 @@ object IngredientSerializer : KSerializer<Ingredient> {
     @Suppress("DEPRECATION")
     override fun serialize(encoder: Encoder, value: Ingredient) {
         require(encoder is JsonEncoder) { "Only JsonEncoder is supported!" }
+        if (com.atsuishio.superbwarfare.port.LegacyIngredients.isEmpty(value)) {
+            encoder.encodeJsonElement(kotlinx.serialization.json.JsonNull)
+            return
+        }
         val json = Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, value)
             .result()
             .orElseThrow { IllegalArgumentException("Unable to encode ingredient") }
@@ -38,9 +44,12 @@ object IngredientSerializer : KSerializer<Ingredient> {
         require(decoder is JsonDecoder) { "Only JsonDecoder is supported!" }
 
         val element = decoder.decodeJsonElement()
-        if (element is JsonNull) return Ingredient.EMPTY
+        if (element is JsonNull) return com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY
 
-        return Ingredient.CODEC.parse(JsonOps.INSTANCE, element.toGson())
+        val upgraded = com.atsuishio.superbwarfare.port.LegacyIngredients.upgradeJson(element.toGson())
+            ?: return com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY
+
+        return Ingredient.CODEC.parse(JsonOps.INSTANCE, upgraded)
             .result()
             .orElseThrow { IllegalArgumentException("Unable to decode ingredient: $element") }
     }

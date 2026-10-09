@@ -70,8 +70,6 @@
     "OverlayTextureMixin",
     "PlayerItemInHandLayerMixin",
     "PlayerRendererMixin",
-    "PostPassMixin",
-    "RenderTargetMixin",
     "ScreenAccessor",
     "enums.ArmPoseMixin"
   ],

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.PayloadContext
@@ -9,8 +11,7 @@ import com.atsuishio.superbwarfare.tools.EntityFindUtil
 import kotlinx.serialization.Serializable
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
-import net.minecraft.world.entity.animal.Pig
-
+import net.minecraft.world.entity.animal.pig.Pig
 @Serializable
 @RegisterPacket
 data class SeekingWeaponWarningMessage(val lockOn: Boolean, val uuid: SerializedUUID) : ServerPacketPayload() {
@@ -20,7 +21,7 @@ data class SeekingWeaponWarningMessage(val lockOn: Boolean, val uuid: Serialized
 
         entity.level().playSound(
             null, entity.onPos,
-            if (entity is Pig) SoundEvents.PIG_HURT else if (lockOn) ModSounds.LOCKED_WARNING else ModSounds.LOCKING_WARNING,
+            if (entity is Pig) legacyPigHurtSound() else if (lockOn) ModSounds.LOCKED_WARNING else ModSounds.LOCKING_WARNING,
             SoundSource.PLAYERS,
             2f, 1f
         )

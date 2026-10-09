@@ -1,13 +1,19 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.inventory.menu.ReforgingTableMenu
 import com.atsuishio.superbwarfare.network.message.send.GunReforgeMessage
 import com.atsuishio.superbwarfare.network.message.send.SetPerkLevelMessage
 import com.atsuishio.superbwarfare.perk.Perk
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -18,8 +24,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
 @Environment(EnvType.CLIENT)
-open class ReforgingTableScreen(pMenu: ReforgingTableMenu, pPlayerInventory: Inventory, pTitle: Component) :
-    AbstractContainerScreen<ReforgingTableMenu>(pMenu, pPlayerInventory, pTitle) {
+open class ReforgingTableScreen(pMenu: ReforgingTableMenu, pPlayerInventory: Inventory, pTitle: Component) : LegacyContainerScreen<ReforgingTableMenu>(pMenu, pPlayerInventory, pTitle) {
     init {
         imageWidth = 176
         imageHeight = 177
@@ -94,7 +99,7 @@ open class ReforgingTableScreen(pMenu: ReforgingTableMenu, pPlayerInventory: Inv
     }
 
     @Environment(EnvType.CLIENT)
-    internal class ReforgeButton(pX: Int, pY: Int) : AbstractButton(pX, pY, 40, 16, Component.empty()) {
+    internal class ReforgeButton(pX: Int, pY: Int) : LegacyAbstractButton(pX, pY, 40, 16, Component.empty()) {
         override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
             pGuiGraphics.blit(
                 TEXTURE,
@@ -118,8 +123,7 @@ open class ReforgingTableScreen(pMenu: ReforgingTableMenu, pPlayerInventory: Inv
     }
 
     @Environment(EnvType.CLIENT)
-    internal inner class UpgradeButton(pX: Int, pY: Int, var type: Perk.Type) :
-        AbstractButton(pX, pY, 9, 9, Component.empty()) {
+    internal inner class UpgradeButton(pX: Int, pY: Int, var type: Perk.Type) : LegacyAbstractButton(pX, pY, 9, 9, Component.empty()) {
         override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
             pGuiGraphics.blit(
                 TEXTURE,
@@ -166,8 +170,7 @@ open class ReforgingTableScreen(pMenu: ReforgingTableMenu, pPlayerInventory: Inv
     }
 
     @Environment(EnvType.CLIENT)
-    internal inner class DowngradeButton(pX: Int, pY: Int, var type: Perk.Type) :
-        AbstractButton(pX, pY, 12, 12, Component.empty()) {
+    internal inner class DowngradeButton(pX: Int, pY: Int, var type: Perk.Type) : LegacyAbstractButton(pX, pY, 12, 12, Component.empty()) {
         override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
             pGuiGraphics.blit(
                 TEXTURE,

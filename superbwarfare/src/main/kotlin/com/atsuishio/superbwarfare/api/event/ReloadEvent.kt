@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.api.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack

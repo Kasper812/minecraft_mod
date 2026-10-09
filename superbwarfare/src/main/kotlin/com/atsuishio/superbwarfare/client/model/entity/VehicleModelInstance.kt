@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.baked.BakedBedrockModel
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.BakedModelInstance
 

@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.portlib.registry.RegistrationContext
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.*
 import net.minecraft.core.Registry
@@ -61,7 +65,7 @@ object ModBlocks {
     // @formatter:on
 
     private fun <T : Block> registerBlock(name: String, block: () -> T): T {
-        return Registry.register(BuiltInRegistries.BLOCK, Mod.loc(name), block())
+        return Registry.register(BuiltInRegistries.BLOCK, Mod.loc(name), RegistrationContext.block(Mod.loc(name)) { block() })
     }
 
     @JvmStatic

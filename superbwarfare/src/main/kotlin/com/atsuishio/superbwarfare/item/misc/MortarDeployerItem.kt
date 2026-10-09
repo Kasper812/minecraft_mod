@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.MortarEntity
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.ChatFormatting
@@ -24,10 +28,12 @@ class MortarDeployerItem : AbstractDeployerItem(Properties().rarity(Rarity.RARE)
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.mortar_deployer").withStyle(ChatFormatting.GRAY)
         )

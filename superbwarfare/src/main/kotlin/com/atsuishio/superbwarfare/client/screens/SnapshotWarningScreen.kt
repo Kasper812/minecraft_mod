@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.tools.mc
 import net.fabricmc.api.EnvType
@@ -7,7 +11,7 @@ import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.ChatFormatting
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.components.MultiLineLabel
@@ -16,7 +20,7 @@ import net.minecraft.client.gui.screens.TitleScreen
 import net.minecraft.network.chat.Component
 
 @Environment(EnvType.CLIENT)
-class SnapshotWarningScreen(val lastScreen: Screen) : Screen(
+class SnapshotWarningScreen(val lastScreen: Screen) : LegacyScreen(
     Component.translatable("warning.superbwarfare.title.snapshot").withStyle(ChatFormatting.BOLD)
 ) {
     private var message: MultiLineLabel = MultiLineLabel.EMPTY

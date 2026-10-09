@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.item.container.SmallContainerBlockItem
@@ -31,25 +33,25 @@ data class CreativeContainerStackMessage(
         if (slot !in 1..45) return
 
         val tag = data as? CompoundTag ?: return
-        val item = BuiltInRegistries.ITEM.get(item)
+        val item = BuiltInRegistries.ITEM.getValue(item)
         val stack = when (item) {
             ModItems.CONTAINER -> {
-                if (!tag.contains("EntityType", 8)) return
+                if (!tag.contains("EntityType")) return
                 ItemStack(ModItems.CONTAINER).also {
-                    BlockItem.setBlockEntityData(it, ModBlockEntities.CONTAINER, tag.copy())
+                    legacySetBlockEntityData(it, ModBlockEntities.CONTAINER, tag.copy())
                 }
             }
             ModItems.LUCKY_CONTAINER -> {
-                if (!tag.contains("Location", 8)) return
+                if (!tag.contains("Location")) return
                 ItemStack(ModItems.LUCKY_CONTAINER).also {
-                    BlockItem.setBlockEntityData(it, ModBlockEntities.LUCKY_CONTAINER, tag.copy())
+                    legacySetBlockEntityData(it, ModBlockEntities.LUCKY_CONTAINER, tag.copy())
                 }
             }
             ModItems.SMALL_CONTAINER -> {
-                if (!tag.contains("LootTable", 8)) return
-                val location = Identifier.tryParse(tag.getString("LootTable")) ?: return
+                if (!tag.contains("LootTable")) return
+                val location = Identifier.tryParse(tag.getStringOr("LootTable", "")) ?: return
                 val lootTable = ResourceKey.create(Registries.LOOT_TABLE, location)
-                SmallContainerBlockItem.createInstance(lootTable, tag.getLong("LootTableSeed"))
+                SmallContainerBlockItem.createInstance(lootTable, tag.getLongOr("LootTableSeed", 0L))
             }
             else -> return
         }

@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.SmallContainerBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
@@ -29,7 +33,7 @@ import net.minecraft.world.level.block.state.BlockBehaviour
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.shapes.CollisionContext
@@ -37,7 +41,7 @@ import net.minecraft.world.phys.shapes.VoxelShape
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class SmallContainerBlock :
-    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()) {
+    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -96,11 +100,10 @@ open class SmallContainerBlock :
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltipComponents: MutableList<Component>,
         tooltipFlag: TooltipFlag
     ) {
-        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag)
 
         val data = stack.get(DataComponents.CONTAINER_LOOT)
         if (data != null) {
@@ -144,7 +147,7 @@ open class SmallContainerBlock :
     }
 
     override fun getRenderShape(state: BlockState): RenderShape {
-        return RenderShape.ENTITYBLOCK_ANIMATED
+        return RenderShape.INVISIBLE
     }
 
     override fun newBlockEntity(blockPos: BlockPos, blockState: BlockState): BlockEntity {
@@ -184,7 +187,7 @@ open class SmallContainerBlock :
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val OPENED: BooleanProperty = BooleanProperty.create("opened")

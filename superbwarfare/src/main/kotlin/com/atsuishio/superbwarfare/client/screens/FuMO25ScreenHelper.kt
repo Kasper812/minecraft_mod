@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.FuMO25BlockEntity
 import com.atsuishio.superbwarfare.inventory.menu.FuMO25Menu
 import com.atsuishio.superbwarfare.tools.SeekTool
@@ -29,7 +31,7 @@ object FuMO25ScreenHelper {
     fun onClientTick() {
         val player = mc.player ?: return
         val camera = mc.gameRenderer.mainCamera()
-        val cameraPos = camera.position
+        val cameraPos = camera.position()
 
         val menu = player.containerMenu as? FuMO25Menu ?: return
         if (pos == null) return

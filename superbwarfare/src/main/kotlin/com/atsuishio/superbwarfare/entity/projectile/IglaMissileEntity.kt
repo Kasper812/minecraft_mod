@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModEntities
@@ -13,7 +15,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.animal.Pig
+import net.minecraft.world.entity.animal.pig.Pig
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
@@ -52,7 +54,7 @@ open class IglaMissileEntity : MissileProjectile, BasicGeoProjectileEntity {
                 entity.level().playSound(
                     null,
                     entity.onPos,
-                    if (entity is Pig) SoundEvents.PIG_HURT else ModSounds.MISSILE_WARNING,
+                    if (entity is Pig) legacyPigHurtSound() else ModSounds.MISSILE_WARNING,
                     SoundSource.PLAYERS,
                     2f,
                     1f
@@ -75,7 +77,7 @@ open class IglaMissileEntity : MissileProjectile, BasicGeoProjectileEntity {
             if (this.tickCount > 1) {
                 setLostTarget(deltaMovement.angleTo(toVec) > 120 && !isLostTarget())
 
-                val owner = this.owner
+                val owner = this.getOwner()
                 if (owner is Player && owner.mainHandItem.`is`(ModItems.IGLA_9K38) && !isLost()) {
                     val handItem = owner.mainHandItem
                     val data = from(handItem)

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.command.builder.*
 import com.atsuishio.superbwarfare.config.server.AttachmentConfig
@@ -427,7 +429,7 @@ private fun mainHandGunData(entity: Entity): GunData? {
 
 /** 查找 [id] 对应的配件物品与配件数据，两者缺一不可 */
 private fun attachmentDefinitionOf(id: Identifier): AttachmentDefinition? {
-    if (BuiltInRegistries.ITEM.get(id) !is AttachmentProvider) return null
+    if (BuiltInRegistries.ITEM.getValue(id) !is AttachmentProvider) return null
     return AttachmentDefinition.from(id)
 }
 

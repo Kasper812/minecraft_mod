@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.api.event.ProjectileHitEvent.HitBlock
 import com.atsuishio.superbwarfare.api.event.ProjectileHitEvent.HitEntity
@@ -54,7 +56,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.Entity.RemovalReason
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.item.ItemStack
@@ -270,7 +272,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
             var boundingBox = entity.boundingBox
             var velocity = Vec3(entity.x - entity.xOld, entity.y - entity.yOld, entity.z - entity.zOld)
 
-            val shooter = this.owner
+            val shooter = this.getOwner()
             if (entity is ServerPlayer && shooter is ServerPlayer) {
                 val ping = Mth.floor((shooter.latency / 1000.0) * 20.0 + 0.5)
                 boundingBox = getBoundingBox(entity, ping)
@@ -364,15 +366,15 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
             }
 
             val entityResults = findEntitiesOnPath(startVec, endVec)
-            if (this.owner != null) {
-                entityResults.sortBy { it.hitVec.distanceTo(this.owner!!.position()) }
+            if (this.getOwner() != null) {
+                entityResults.sortBy { it.hitVec.distanceTo(this.getOwner()!!.position()) }
             }
 
             for (entityResult in entityResults) {
                 result = ExtendedEntityRayTraceResult(entityResult)
 
                 val resEntity = result.entity
-                val shooter = this.owner
+                val shooter = this.getOwner()
                 if (resEntity is Player) {
                     if (shooter is Player && !shooter.canHarmPlayer(resEntity)) {
                         result = null
@@ -493,12 +495,12 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
 
         if (result is EntityHitResult) {
             val entity = result.entity
-            if (entity == this.owner) {
+            if (entity == this.getOwner()) {
                 return
             }
 
-            if (this.owner is Player) {
-                if (entity.hasIndirectPassenger(this.owner!!)) {
+            if (this.getOwner() is Player) {
+                if (entity.hasIndirectPassenger(this.getOwner()!!)) {
                     return
                 }
             }
@@ -534,14 +536,14 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
         val state = level.getBlockState(pos)
         val location = result.location
 
-        if (postEvent(HitBlock(pos, state, face, this.owner, this, location)).isCanceled) return
+        if (postEvent(HitBlock(pos, state, face, this.getOwner(), this, location)).isCanceled) return
 
         state.onProjectileHit(level, state, result, this)
 
         if (level is ServerLevel) {
             if (this.explosionDamageValue > 0) {
                 CustomExplosion.Builder(this)
-                    .attacker(this.owner)
+                    .attacker(this.getOwner())
                     .damage(this.explosionDamageValue)
                     .radius(this.explosionRadiusValue)
                     .position(location)
@@ -658,7 +660,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
         val headshot = result.headshot
         val legShot = result.legShot
 
-        if (postEvent(HitEntity(this.owner, this, result)).isCanceled) return
+        if (postEvent(HitEntity(this.getOwner(), this, result)).isCanceled) return
 
         if (entity is EnderDragonPart) {
             entity = entity.parentMob
@@ -675,7 +677,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
             )
 
             if (isBeast()) {
-                beastKill(this.owner, entity)
+                beastKill(this.getOwner(), entity)
                 return
             }
 
@@ -684,7 +686,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
 
         this.damageValue *= (deltaMovement.length() / velocityValue).coerceIn(0.0, 1.0).toFloat()
 
-        val shooter = this.owner
+        val shooter = this.getOwner()
         if (headshot) {
             if (shooter is ServerPlayer) {
                 val holder = Holder.direct(ModSounds.HEADSHOT)
@@ -729,7 +731,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
                     if (!entity.level().isClientSide()) {
                         entity.forceApplyEffect(
                             MobEffectInstance(
-                                MobEffects.MOVEMENT_SLOWDOWN,
+                                MobEffects.SLOWNESS,
                                 20,
                                 2,
                                 false,
@@ -822,17 +824,17 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
         if (absoluteDamage > 0) {
             entity.forceHurt(
                 if (isHeadshot)
-                    causeGunFireHeadshotAbsoluteDamage(this.level().registryAccess(), this, this.owner)
+                    causeGunFireHeadshotAbsoluteDamage(this.level().registryAccess(), this, this.getOwner())
                 else
-                    causeGunFireAbsoluteDamage(this.level().registryAccess(), this, this.owner),
+                    causeGunFireAbsoluteDamage(this.level().registryAccess(), this, this.getOwner()),
                 absoluteDamage * headShotModifier
             )
             entity.invulnerableTime = 0
 
             // 大于1的穿甲对载具造成额外伤害
             if (entity is VehicleEntity && this.bypassArmorRateValue > 1) {
-                entity.hurt(
-                    causeGunFireAbsoluteDamage(this.level().registryAccess(), this, this.owner),
+                entity.hurtOrSimulate(
+                    causeGunFireAbsoluteDamage(this.level().registryAccess(), this, this.getOwner()),
                     absoluteDamage * (this.bypassArmorRateValue - 1) * 0.5f
                 )
             }
@@ -840,9 +842,9 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
         if (normalDamage > 0) {
             entity.forceHurt(
                 if (isHeadshot)
-                    causeGunFireHeadshotDamage(this.level().registryAccess(), this, this.owner)
+                    causeGunFireHeadshotDamage(this.level().registryAccess(), this, this.getOwner())
                 else
-                    causeGunFireDamage(this.level().registryAccess(), this, this.owner),
+                    causeGunFireDamage(this.level().registryAccess(), this, this.getOwner()),
                 normalDamage * headShotModifier
             )
             entity.invulnerableTime = 0
@@ -853,7 +855,7 @@ open class ProjectileEntity(entityType: EntityType<out ProjectileEntity>, level:
      * Builders
      */
     fun shooter(shooter: Entity?): ProjectileEntity {
-        this.owner = shooter
+        this.setOwner(shooter)
         return this
     }
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModDamageTypes
 import com.atsuishio.superbwarfare.tools.ParticleTool
@@ -35,7 +37,7 @@ class SodayoPickUpTowEntity(type: EntityType<SodayoPickUpTowEntity>, world: Leve
             ab
         ) { target -> target !== this && target !== getFirstPassenger() && target.vehicle == null }
         ) {
-            entity.hurt(
+            entity.hurtOrSimulate(
                 ModDamageTypes.causeBurnDamage(entity.level().registryAccess(), living),
                 30 - 2 * entity.distanceTo(this)
             )

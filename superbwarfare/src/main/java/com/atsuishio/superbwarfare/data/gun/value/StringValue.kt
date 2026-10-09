@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.value.base.TagValue
 import net.minecraft.nbt.CompoundTag
 
@@ -22,7 +24,7 @@ open class StringValue(
 ) : TagValue<String> {
 
     /** Returns the stored value, or [defaultValue] if the key is absent. */
-    override fun get(): String = if (tag.contains(name)) tag.getString(name) else defaultValue
+    override fun get(): String = if (tag.contains(name)) tag.getStringOr(name, "") else defaultValue
 
     /**
      * Writes [value] to the tag and triggers [onSet] if changed.
@@ -30,7 +32,7 @@ open class StringValue(
      * Early-exits without any NBT write when [value] equals the current stored value.
      */
     override fun set(value: String) {
-        val current = if (tag.contains(name)) tag.getString(name) else defaultValue
+        val current = if (tag.contains(name)) tag.getStringOr(name, "") else defaultValue
         if (current == value) return                          // no-op: value unchanged
         if (value == defaultValue) tag.remove(name) else tag.putString(name, value)
         onSet?.invoke()

@@ -1,12 +1,15 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
@@ -17,10 +20,12 @@ import net.minecraft.world.level.Level
 class CreativeVehicleKeyItem : VehicleKeyItem(Properties().stacksTo(1).rarity(Rarity.EPIC)) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltip: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         flag: TooltipFlag
     ) {
+        val tooltip = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltip.add(Component.translatable("des.superbwarfare.creative_vehicle_key").withStyle(ChatFormatting.GRAY))
     }
 
@@ -28,8 +33,8 @@ class CreativeVehicleKeyItem : VehicleKeyItem(Properties().stacksTo(1).rarity(Ra
         level: Level,
         player: Player,
         hand: InteractionHand
-    ): InteractionResultHolder<ItemStack> {
-        return InteractionResultHolder.fail(player.getItemInHand(hand))
+    ): InteractionResult {
+        return InteractionResult.FAIL
     }
 
     override fun onInteractVehicle(

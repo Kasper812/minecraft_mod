@@ -11,5 +11,7 @@ public class PortLibClient implements ClientModInitializer {
         SbmPipelines.init();
         BuiltinItemModel.register();
         LegacyParticleGroup.register();
+        com.atsuishio.portlib.render.world.WorldRenderEvents.init();
+        net.fabricmc.fabric.api.client.rendering.v1.PictureInPictureRendererRegistry.register(ctx -> new com.atsuishio.portlib.gui.Legacy3DRenderer());
     }
 }

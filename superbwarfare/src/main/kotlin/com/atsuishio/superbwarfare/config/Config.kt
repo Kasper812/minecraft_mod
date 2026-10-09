@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.neoforged.neoforge.common.ModConfigSpec
 
 typealias ModConfig = ModConfigSpec

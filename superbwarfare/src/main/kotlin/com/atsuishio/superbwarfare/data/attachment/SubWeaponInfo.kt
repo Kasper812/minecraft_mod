@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.data.attachment.SubWeaponInfo.Companion.DEFAULT_FIRE_ANIMATION
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedSoundEvent

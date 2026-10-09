@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 30
+  },
+  "gives": {
+    "id": "superbwarfare:killing_tally"
+  },
+  "max_uses": 4,
+  "xp": 15,
+  "reputation_discount": 0.05
+}

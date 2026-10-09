@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -45,19 +53,23 @@ class TowEntity(type: EntityType<TowEntity>, world: Level) : VehicleEntity(type,
     var loaded by LOADED
     var reloadCooldown by RELOAD_COOLDOWN
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putBoolean("State", loaded)
         compound.putInt("ReloadCoolDown", reloadCooldown)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        loaded = compound.getBoolean("State")
-        reloadCooldown = compound.getInt("ReloadCoolDown")
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        loaded = compound.getBooleanOr("State", false)
+        reloadCooldown = compound.getIntOr("ReloadCoolDown", 0)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val gunData = getGunData(0) ?: return InteractionResult.SUCCESS
 
         val coolDown = Math.ceil(20f / (vehicleWeaponRpm(0).toFloat() / 60)).toInt()
@@ -65,12 +77,12 @@ class TowEntity(type: EntityType<TowEntity>, world: Level) : VehicleEntity(type,
         val stack = player.mainHandItem
         if (gunData.hasEnoughAmmoToShoot(player)) {
             loaded = true
-            return super.interact(player, hand)
+            return super.interact(player, hand, location)
         }
 
         if (!loaded) {
             if (!gunData.selectedAmmoConsumer().isAmmoItem(stack)) {
-                return super.interact(player, hand)
+                return super.interact(player, hand, location)
             }
 
             val level = level()
@@ -127,7 +139,7 @@ class TowEntity(type: EntityType<TowEntity>, world: Level) : VehicleEntity(type,
             ab
         ) { target -> target !== this && target !== getFirstPassenger() && target.vehicle == null }
         ) {
-            entity.hurt(
+            entity.hurtOrSimulate(
                 ModDamageTypes.causeBurnDamage(entity.level().registryAccess(), living),
                 30 - 2 * entity.distanceTo(this)
             )

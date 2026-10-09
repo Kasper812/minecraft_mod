@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.block
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext
@@ -13,7 +15,6 @@ import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.ItemInteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.context.BlockPlaceContext
@@ -24,7 +25,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker
 import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 
 class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(properties) {
@@ -61,22 +62,14 @@ class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(pro
         }
         return null
     }
-
-    public override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
         pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val blockEntity = pLevel.getBlockEntity(pPos)
-            if (blockEntity is CreativeChargingStationBlockEntity) {
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-        }
-
-        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston)
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     override fun useItemOn(
@@ -87,11 +80,11 @@ class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(pro
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
-        if (stack.isEmpty) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION
+    ): InteractionResult {
+        if (stack.isEmpty) return InteractionResult.TRY_WITH_EMPTY_HAND
 
         val cap = ContainerItemContext.forPlayerInteraction(player, hand)
-            .find(ModCapabilities.ENERGY_ITEM) ?: return ItemInteractionResult.FAIL
+            .find(ModCapabilities.ENERGY_ITEM) ?: return InteractionResult.FAIL
 
         if (cap.supportsInsertion() && cap.amount < cap.capacity) {
             EnergyStorageHelper.insert(cap, Long.MAX_VALUE)
@@ -116,10 +109,10 @@ class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(pro
                         .withStyle(ChatFormatting.RED), true
                 )
             }
-            return ItemInteractionResult.FAIL
+            return InteractionResult.FAIL
         }
 
-        return ItemInteractionResult.SUCCESS
+        return InteractionResult.SUCCESS
     }
 
     override fun useWithoutItem(
@@ -139,7 +132,7 @@ class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(pro
             level.sendBlockUpdated(pos, state, state, UPDATE_CLIENTS)
             return InteractionResult.SUCCESS
         }
-        return InteractionResult.sidedSuccess(level.isClientSide)
+        return InteractionResult.SUCCESS
     }
 
     override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block, BlockState>) {
@@ -155,16 +148,12 @@ class CreativeChargingStationBlock(properties: Properties) : BaseEntityBlock(pro
         return true
     }
 
-    override fun getAnalogOutputSignal(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos
-    ): Int {
+    override fun getAnalogOutputSignal(state: BlockState, level: Level, pos: BlockPos, direction: net.minecraft.core.Direction): Int {
         return 15
     }
 
     companion object {
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         private val CODEC: MapCodec<CreativeChargingStationBlock> = simpleCodec(::CreativeChargingStationBlock)
     }

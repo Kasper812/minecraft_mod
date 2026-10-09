@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.fabricmc.loader.api.FabricLoader
 
 object CompatHolder {

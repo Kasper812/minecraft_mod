@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 26
+  },
+  "gives": {
+    "id": "superbwarfare:gutshot_straight"
+  },
+  "max_uses": 4,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.command.builder.buildCommand
 import com.atsuishio.superbwarfare.command.builder.entitiesArg
 import com.atsuishio.superbwarfare.world.saveddata.TDMSavedData
@@ -13,12 +15,7 @@ val TDM_COMMAND = buildCommand("tdm") {
         entitiesArg {
             execute {
                 val tdm = source.level.dataStorage.computeIfAbsent(
-                    SavedData.Factory(
-                        { TDMSavedData() },
-                        TDMSavedData::load,
-                        null
-                    ), TDMSavedData.FILE_ID
-                )
+                    TDMSavedData.TYPE)
 
                 entities.forEach { entity -> tdm.addEntity(entity.getStringUUID()) }
                 tdm.sync()
@@ -41,12 +38,7 @@ val TDM_COMMAND = buildCommand("tdm") {
         entitiesArg {
             execute {
                 val tdm = source.level.dataStorage.computeIfAbsent(
-                    SavedData.Factory(
-                        { TDMSavedData() },
-                        TDMSavedData::load,
-                        null
-                    ), TDMSavedData.FILE_ID
-                )
+                    TDMSavedData.TYPE)
 
                 entities.forEach { entity -> tdm.removeEntity(entity.getStringUUID()) }
                 tdm.sync()

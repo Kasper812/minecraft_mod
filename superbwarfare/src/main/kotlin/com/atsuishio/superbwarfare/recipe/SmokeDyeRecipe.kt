@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModRecipes
 import com.atsuishio.superbwarfare.item.IDyeableSmokeItem
 import net.minecraft.core.HolderLookup
@@ -14,7 +16,9 @@ import net.minecraft.world.level.Level
 import javax.annotation.ParametersAreNonnullByDefault
 import kotlin.math.max
 
-class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) {
+class SmokeDyeRecipe(private val bookCategory: CraftingBookCategory = CraftingBookCategory.MISC) : CustomRecipe() {
+    override fun category(): CraftingBookCategory = bookCategory
+
     override fun matches(input: CraftingInput, pLevel: Level): Boolean {
         var itemStack = ItemStack.EMPTY
         val list: MutableList<ItemStack> = mutableListOf()
@@ -39,8 +43,8 @@ class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) 
     }
 
     @ParametersAreNonnullByDefault
-    override fun assemble(input: CraftingInput, registries: HolderLookup.Provider): ItemStack {
-        val list = mutableListOf<DyeItem>()
+    override fun assemble(input: CraftingInput): ItemStack {
+        val list = mutableListOf<net.minecraft.world.item.DyeColor>()
         var itemStack = ItemStack.EMPTY
 
         for (stack in input.items()) {
@@ -55,7 +59,7 @@ class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) 
                     if (item !is DyeItem) {
                         return ItemStack.EMPTY
                     }
-                    list.add(item)
+                    list.add(stack.get(net.minecraft.core.component.DataComponents.DYE) ?: net.minecraft.world.item.DyeColor.WHITE)
                 }
             }
         }
@@ -63,16 +67,13 @@ class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) 
         return if (!itemStack.isEmpty && !list.isEmpty()) dyeItem(itemStack, list) else ItemStack.EMPTY
     }
 
-    override fun canCraftInDimensions(pWidth: Int, pHeight: Int): Boolean {
-        return pWidth * pHeight >= 2
-    }
 
-    override fun getSerializer(): RecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<out CustomRecipe> {
         return ModRecipes.SMOKE_DYE_SERIALIZER
     }
 
     companion object {
-        fun dyeItem(pStack: ItemStack, pDyes: MutableList<DyeItem>): ItemStack {
+        fun dyeItem(pStack: ItemStack, pDyes: MutableList<net.minecraft.world.item.DyeColor>): ItemStack {
             val stack: ItemStack
             val colors = IntArray(3)
             var i = 0
@@ -93,7 +94,7 @@ class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) 
                 }
 
                 for (dyeItem in pDyes) {
-                    val dyeColors = dyeItem.dyeColor.textureDiffuseColor
+                    val dyeColors = dyeItem.textureDiffuseColor
 
                     val r = ARGB.red(dyeColors)
                     val g = ARGB.green(dyeColors)

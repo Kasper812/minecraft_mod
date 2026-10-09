@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "superbwarfare:taser_blueprint"
+  },
+  "gives": {
+    "id": "minecraft:emerald",
+    "count": 2
+  },
+  "max_uses": 16,
+  "xp": 5,
+  "reputation_discount": 0.05
+}

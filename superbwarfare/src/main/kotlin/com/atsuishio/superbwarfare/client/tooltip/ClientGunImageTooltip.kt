@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.tooltip
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.tooltip.component.GunImageComponent
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
@@ -15,7 +17,7 @@ import com.atsuishio.superbwarfare.tools.FormatTool.format1D
 import com.atsuishio.superbwarfare.tools.FormatTool.format2D
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.network.chat.Component
@@ -25,7 +27,7 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
-open class ClientGunImageTooltip(tooltip: GunImageComponent) : ClientTooltipComponent {
+open class ClientGunImageTooltip(tooltip: GunImageComponent) : com.atsuishio.portlib.gui.LegacyClientTooltipComponent {
     protected val tipWidth: Int = tooltip.width
     protected val tipHeight: Int = tooltip.height
     protected val stack: ItemStack = tooltip.stack
@@ -55,7 +57,7 @@ open class ClientGunImageTooltip(tooltip: GunImageComponent) : ClientTooltipComp
         }
 
         if (shouldRenderPerks()) {
-            if (!Screen.hasShiftDown()) {
+            if (!com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()) {
                 renderPerksShortcut(font, guiGraphics, x, y + yo)
             } else {
                 renderPerks(font, guiGraphics, x, y + yo)
@@ -448,7 +450,7 @@ open class ClientGunImageTooltip(tooltip: GunImageComponent) : ClientTooltipComp
         if (shouldRenderPerks()) {
             height += 16
 
-            if (Screen.hasShiftDown()) {
+            if (com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()) {
                 var count = 0
                 for (type in Perk.Type.entries) {
                     count += data.perk.getInstances(type).size
@@ -464,7 +466,7 @@ open class ClientGunImageTooltip(tooltip: GunImageComponent) : ClientTooltipComp
     override fun getWidth(font: Font): Int {
         var width = getMaxPerkDesWidth(font)
 
-        width = if (Screen.hasShiftDown()) {
+        width = if (com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()) {
             if (width == 0) {
                 max(this.tipWidth, getDefaultMaxWidth(font))
             } else {

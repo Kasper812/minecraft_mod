@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.MissileProjectile
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.network.message.receive.EntityRelationSyncMessage
@@ -143,9 +145,9 @@ object RadarScanner {
 
         val angleRad = effectiveYRot * Math.PI / 180.0
         val sweepDir = Vec3(
-            Mth.sin(angleRad.toFloat()).toDouble(),
+            com.atsuishio.portlib.util.LegacyMth.sin(angleRad.toFloat()).toDouble(),
             0.0,
-            -Mth.cos(angleRad.toFloat()).toDouble()
+            -com.atsuishio.portlib.util.LegacyMth.cos(angleRad.toFloat()).toDouble()
         )
 
         val hostileList = mutableListOf<Int>()
@@ -274,7 +276,7 @@ object RadarScanner {
         if (entity !is VehicleEntity) return false
         if (entity.isWreck) return false
         val noDriver = entity.firstPassenger == null
-        val noOwner = entity !is OwnableEntity || entity.ownerUUID == null
+        val noOwner = entity !is OwnableEntity || entity.ownerReference == null
         val noLastDriver = entity.lastDriverUUID == "undefined" || entity.lastDriverUUID.isEmpty()
         return noDriver && noOwner && noLastDriver
     }

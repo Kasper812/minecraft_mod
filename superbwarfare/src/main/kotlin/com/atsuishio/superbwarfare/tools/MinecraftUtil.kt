@@ -2,6 +2,8 @@
 
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.api.event.SuperbWarfareEvents
 import com.atsuishio.superbwarfare.data.stack.ItemStackStorage
@@ -68,7 +70,7 @@ val options: Options get() = mc.options
 val notInGame: Boolean
     get() {
         if (mc.player == null) return true
-        if (mc.overlay != null) return true
+        if (mc.gui.overlay() != null) return true
         if (mc.screen != null) return true
         if (!mc.mouseHandler.isMouseGrabbed) return true
         return !mc.isWindowActive

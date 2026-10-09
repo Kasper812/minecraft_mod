@@ -186,7 +186,7 @@ public class TracheliumItem extends GunGeoItem {
     public double getCustomZoom(GunData data) {
         var stack = data.stack;
         int scopeType = data.attachment.get(AttachmentType.SCOPE);
-        return scopeType == 2 ? (NBTTool.getTag(stack).getBoolean("ScopeAlt") ? 0 : 2.75) : 0;
+        return scopeType == 2 ? (NBTTool.getTag(stack).getBooleanOr("ScopeAlt", false) ? 0 : 2.75) : 0;
     }
 
     @Override

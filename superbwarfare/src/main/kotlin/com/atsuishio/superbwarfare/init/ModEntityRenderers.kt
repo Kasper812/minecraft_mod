@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.renderer.entity.*
 import com.atsuishio.superbwarfare.client.renderer.projectile.*
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry

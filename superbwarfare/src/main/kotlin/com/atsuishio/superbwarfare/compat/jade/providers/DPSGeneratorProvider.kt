@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade.providers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.living.DPSGeneratorEntity
 import net.minecraft.ChatFormatting
@@ -14,7 +16,7 @@ import kotlin.math.pow
 object DPSGeneratorProvider : IEntityComponentProvider {
     private val ID = loc("dps_generator")
 
-    override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig?) {
+    override fun appendTooltip(tooltip: ITooltip, accessor: EntityAccessor, config: IPluginConfig) {
         val generator = accessor.entity as DPSGeneratorEntity
 
         val level = generator.generatorLevel

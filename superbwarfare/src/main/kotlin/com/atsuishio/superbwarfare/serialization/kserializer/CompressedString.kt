@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.serialization.kserializer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import kotlinx.serialization.KSerializer

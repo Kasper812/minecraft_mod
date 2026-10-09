@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.client.particle.CustomSmokeOption
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -41,8 +49,10 @@ open class SmokeGunGrenadeEntity(type: EntityType<out SmokeGunGrenadeEntity>, le
         this.headShotValue = 5f
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putBoolean("Release", false)
         compound.putInt("ReleaseTick", this.releaseTick)
         compound.putInt("Count", this.count)
@@ -51,25 +61,27 @@ open class SmokeGunGrenadeEntity(type: EntityType<out SmokeGunGrenadeEntity>, le
         compound.putFloat("BColor", this.blue)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("Release")) {
-            this.release = compound.getBoolean("Release")
+            this.release = compound.getBooleanOr("Release", false)
         }
         if (compound.contains("Count")) {
-            this.count = Mth.clamp(compound.getInt("Count"), 1, 64)
+            this.count = Mth.clamp(compound.getIntOr("Count", 0), 1, 64)
         }
         if (compound.contains("ReleaseTick")) {
-            this.releaseTick = compound.getInt("ReleaseTick")
+            this.releaseTick = compound.getIntOr("ReleaseTick", 0)
         }
         if (compound.contains("RColor")) {
-            this.red = compound.getFloat("RColor")
+            this.red = compound.getFloatOr("RColor", 0f)
         }
         if (compound.contains("GColor")) {
-            this.green = compound.getFloat("GColor")
+            this.green = compound.getFloatOr("GColor", 0f)
         }
         if (compound.contains("BColor")) {
-            this.blue = compound.getFloat("BColor")
+            this.blue = compound.getFloatOr("BColor", 0f)
         }
     }
 
@@ -82,7 +94,7 @@ open class SmokeGunGrenadeEntity(type: EntityType<out SmokeGunGrenadeEntity>, le
     override fun afterHitEntity(result: EntityHitResult) {
         if (result !is ExtendedEntityRayTraceResult) return
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (entity == owner || entity == this.vehicle) return
         val speedE = this.deltaMovement.length()
         if (speedE > 0.1) {

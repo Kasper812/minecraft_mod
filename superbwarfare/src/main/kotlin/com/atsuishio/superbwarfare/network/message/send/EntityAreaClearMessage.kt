@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.item.weapon.BeastItem
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.PayloadContext
@@ -16,7 +18,7 @@ data class EntityAreaClearMessage(
     override fun PayloadContext.handler() {
         val player = sender()
         if (!player.hasPermissions(2)) return
-        player.server.execute {
+        player.level().server.execute {
             val level = player.level()
             val aabb = AABB(minX, minY, minZ, maxX, maxY, maxZ)
             val targets = level.getEntities(null, aabb)

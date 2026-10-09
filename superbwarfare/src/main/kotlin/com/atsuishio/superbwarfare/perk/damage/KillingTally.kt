@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -14,7 +16,7 @@ object KillingTally : Perk("killing_tally", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        modifier[GunProp.DAMAGE] *= 1 + (0.1 * modifier.data.perk.getLevel(this)) * tag.getInt("KillingTally")
+        modifier[GunProp.DAMAGE] *= 1 + (0.1 * modifier.data.perk.getLevel(this)) * tag.getIntOr("KillingTally", 0)
     }
 
     override fun preReload(
@@ -33,7 +35,7 @@ object KillingTally : Perk("killing_tally", Type.DAMAGE) {
     ) {
         val tag = data.perk.getTag(this) ?: return
         if (DamageTypeTool.isGunDamage(source)) {
-            tag.putInt("KillingTally", 3.coerceAtMost(tag.getInt("KillingTally") + 1))
+            tag.putInt("KillingTally", 3.coerceAtMost(tag.getIntOr("KillingTally", 0) + 1))
         }
     }
 

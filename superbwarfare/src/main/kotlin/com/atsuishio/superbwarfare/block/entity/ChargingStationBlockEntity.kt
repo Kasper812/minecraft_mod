@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.block.ChargingStationBlock
 import com.atsuishio.superbwarfare.capability.api.EnergyStorage as ModEnergyStorage
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
@@ -11,7 +19,7 @@ import com.atsuishio.superbwarfare.inventory.menu.ChargingStationMenu
 import com.atsuishio.superbwarfare.network.dataslot.ContainerEnergyData
 import com.atsuishio.superbwarfare.tools.isSameItemStack
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.core.HolderLookup
@@ -91,7 +99,7 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
         return this.items
     }
 
-    override fun applyImplicitComponents(componentInput: DataComponentInput) {
+    override fun applyImplicitComponents(componentInput: net.minecraft.core.component.DataComponentGetter) {
         super.applyImplicitComponents(componentInput)
 
         if (this.level != null) {
@@ -108,8 +116,12 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
         components.set(ModDataComponents.ENERGY, this.energyStorage.amount.toInt())
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
 
         if (tag.contains("Energy")) {
             val energy = tag.get("Energy")
@@ -118,23 +130,27 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
             }
         }
 
-        this.fuelTick = tag.getInt("FuelTick")
-        this.maxFuelTick = tag.getInt("MaxFuelTick")
-        this.showRange = tag.getBoolean("ShowRange")
+        this.fuelTick = tag.getIntOr("FuelTick", 0)
+        this.maxFuelTick = tag.getIntOr("MaxFuelTick", 0)
+        this.showRange = tag.getBooleanOr("ShowRange", false)
         this.items = NonNullList.withSize(this.containerSize, ItemStack.EMPTY)
 
-        ContainerHelper.loadAllItems(tag, this.items, registries)
+        com.atsuishio.portlib.nbt.LegacyNbt.loadAllItems(tag, this.items, registries)
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
         tag.putInt("Energy", this.energyStorage.amount.toInt())
         tag.putInt("FuelTick", this.fuelTick)
         tag.putInt("MaxFuelTick", this.maxFuelTick)
         tag.putBoolean("ShowRange", this.showRange)
 
-        ContainerHelper.saveAllItems(tag, this.items, registries)
+        com.atsuishio.portlib.nbt.LegacyNbt.saveAllItems(tag, this.items, registries)
     }
 
     override fun getSlotsForFace(side: Direction): IntArray {
@@ -217,20 +233,20 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
     override fun getUpdateTag(registries: HolderLookup.Provider): CompoundTag {
         val tag = CompoundTag()
 
-        ContainerHelper.saveAllItems(tag, this.items, registries)
+        com.atsuishio.portlib.nbt.LegacyNbt.saveAllItems(tag, this.items, registries)
         tag.putBoolean("ShowRange", this.showRange)
 
         return tag
     }
 
-    override fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
+    open fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
         val tag = CompoundTag()
 
         if (this.level != null) {
             tag.put("Energy", this.energyStorage.serializeNBT(registries))
         }
 
-        BlockItem.setBlockEntityData(stack, this.type, tag)
+        legacySetBlockEntityData(stack, this.type, tag)
     }
 
     fun getEnergyStorage(side: Direction?): EnergyStorage {
@@ -266,7 +282,7 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
         if (stack.isEmpty) return
 
         val consumer = ContainerItemContext.ofSingleSlot(
-            InventoryStorage.of(this, null).getSlot(SLOT_CHARGE)
+            ContainerStorage.of(this, null).getSlot(SLOT_CHARGE)
         ).find(EnergyStorage.ITEM)
 
         if (consumer != null) {
@@ -373,10 +389,10 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
                 if (handler.amount >= handler.capacity) return
 
                 val fuel = blockEntity.getItem(SLOT_FUEL)
-                val burnTime = AbstractFurnaceBlockEntity.getFuel().getOrDefault(fuel.item, 0)
+                val burnTime = level.fuelValues().burnDuration(fuel)
 
                 val fuelEnergy = ContainerItemContext.ofSingleSlot(
-                    InventoryStorage.of(blockEntity, null).getSlot(SLOT_FUEL)
+                    ContainerStorage.of(blockEntity, null).getSlot(SLOT_FUEL)
                 ).find(EnergyStorage.ITEM)
 
                 if (fuelEnergy != null) {
@@ -401,10 +417,10 @@ open class ChargingStationBlockEntity(pos: BlockPos, state: BlockState) :
                         if (fuel.count <= 1) {
                             blockEntity.setItem(
                                 SLOT_FUEL,
-                                ItemStack(fuel.item.craftingRemainingItem)
+                                (fuel.item.craftingRemainder?.create() ?: ItemStack.EMPTY)
                             )
                         } else {
-                            val copy = ItemStack(fuel.item.craftingRemainingItem)
+                            val copy = (fuel.item.craftingRemainder?.create() ?: ItemStack.EMPTY)
                             copy.count = 1
 
                             val itemEntity = ItemEntity(

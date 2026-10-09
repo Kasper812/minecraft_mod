@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.capability.player.PlayerVariable
@@ -28,13 +30,12 @@ import com.atsuishio.superbwarfare.network.registerPayloads
 import com.atsuishio.superbwarfare.perk.damage.BattleOfWits
 import com.atsuishio.superbwarfare.recipe.ModPotionRecipes
 import com.atsuishio.superbwarfare.resource.BedrockModelLoader
-import com.atsuishio.superbwarfare.tiers.ModArmorMaterials
 import com.atsuishio.superbwarfare.tools.ResourceOnceLogger
 import com.atsuishio.superbwarfare.tools.registerMinecraftUtil
 import com.atsuishio.superbwarfare.world.saveddata.ChunkPosSavedData
 import com.atsuishio.superbwarfare.world.saveddata.ProjectileChunkSavedData
 import com.atsuishio.superbwarfare.world.saveddata.TDMSavedData
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry
+import fuzs.forgeconfigapiport.fabric.api.v5.ConfigRegistry
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.ModInitializer
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents
@@ -102,9 +103,9 @@ class Mod : ModInitializer {
         ModItems.init()
         ModItems.registerDispenserBehavior()
 
-        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.CLIENT, CLIENT_CONFIG)
-        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.COMMON, COMMON_CONFIG)
-        NeoForgeConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.SERVER, SERVER_CONFIG)
+        ConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.CLIENT, CLIENT_CONFIG)
+        ConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.COMMON, COMMON_CONFIG)
+        ConfigRegistry.INSTANCE.register(MODID, ModConfig.Type.SERVER, SERVER_CONFIG)
     }
 
     private fun callInits() {
@@ -118,7 +119,6 @@ class Mod : ModInitializer {
         ModPotions.init()
         ModPotionRecipes.register()
         ModRecipes.init()
-        ModArmorMaterials.register()
         ModAttributes.init()
         ModCriteriaTriggers.init()
         ModCommandArguments.init()
@@ -126,6 +126,7 @@ class Mod : ModInitializer {
         BattleOfWits.register()
         ModVillagers.init()
         ModSerializers.init()
+        com.atsuishio.superbwarfare.init.ModTicketTypes.init()
         ModDamageTypes.init()
         ModEventHandlers.init()
         FastProjectileManualTicker.init()

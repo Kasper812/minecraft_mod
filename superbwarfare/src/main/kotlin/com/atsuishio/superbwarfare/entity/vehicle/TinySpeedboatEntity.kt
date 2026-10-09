@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import net.minecraft.world.phys.Vec3
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -29,24 +39,28 @@ open class TinySpeedboatEntity(type: EntityType<TinySpeedboatEntity>, world: Lev
 
     var colorId by COLOR_ID
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putInt("ColorId", colorId)
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        colorId = compound.getInt("ColorId")
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        colorId = compound.getIntOr("ColorId", 0)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val stack = player.mainHandItem
         if (stack.item is DyeItem) {
             if (customName != null && customName!!.string == "jeb_") return InteractionResult.PASS
-            val stackColor = (stack.item as DyeItem).dyeColor.id
+            val stackColor = (stack.get(net.minecraft.core.component.DataComponents.DYE) ?: net.minecraft.world.item.DyeColor.WHITE).id
 
             if (colorId == stackColor) {
-                return super.interact(player, hand)
+                return super.interact(player, hand, location)
             }
 
             colorId = stackColor
@@ -55,8 +69,8 @@ open class TinySpeedboatEntity(type: EntityType<TinySpeedboatEntity>, world: Lev
                 stack.shrink(1)
             }
             this.level().playSound(null, this, SoundEvents.BONE_MEAL_USE, this.soundSource, 1f, 1f)
-            return InteractionResult.sidedSuccess(this.level().isClientSide())
+            return InteractionResult.SUCCESS
         }
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 }

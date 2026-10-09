@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.world.saveddata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents
@@ -15,7 +17,7 @@ import net.minecraft.world.level.saveddata.SavedData
 class ChunkPosSavedData : SavedData() {
     val chunkPositions = mutableSetOf<ChunkPos>()
 
-    override fun save(tag: CompoundTag, registries: HolderLookup.Provider): CompoundTag {
+    fun save(tag: CompoundTag, registries: HolderLookup.Provider? = null): CompoundTag {
         tag.put("Pos", this.savePos())
         return tag
     }
@@ -34,8 +36,8 @@ class ChunkPosSavedData : SavedData() {
     fun loadPos(tag: ListTag) {
         val list = mutableListOf<ChunkPos>()
         for (i in 0 until tag.size) {
-            val pos = tag.getCompound(i)
-            list.add(ChunkPos(pos.getInt("X"), pos.getInt("Z")))
+            val pos = tag.getCompoundOrEmpty(i)
+            list.add(ChunkPos(pos.getIntOr("X", 0), pos.getIntOr("Z", 0)))
         }
         this.chunkPositions.addAll(list)
     }
@@ -45,12 +47,20 @@ class ChunkPosSavedData : SavedData() {
     }
 
     companion object {
+        @JvmField
+        val TYPE: net.minecraft.world.level.saveddata.SavedDataType<ChunkPosSavedData> = legacySavedDataType(
+            "superbwarfare_chunk_pos",
+            { ChunkPosSavedData() },
+            { load(it) },
+            { it.save(net.minecraft.nbt.CompoundTag()) }
+        )
+
         const val FILE_ID: String = "superbwarfare_chunk_pos"
 
-        fun load(tag: CompoundTag, registries: HolderLookup.Provider): ChunkPosSavedData {
+        fun load(tag: CompoundTag, registries: HolderLookup.Provider? = null): ChunkPosSavedData {
             val savedData = ChunkPosSavedData()
-            if (tag.contains("Pos", Tag.TAG_LIST.toInt())) {
-                savedData.loadPos(tag.getList("Pos", Tag.TAG_COMPOUND.toInt()))
+            if (tag.contains("Pos")) {
+                savedData.loadPos(tag.getListOrEmpty("Pos"))
             }
             return savedData
         }
@@ -62,24 +72,13 @@ class ChunkPosSavedData : SavedData() {
 
                 for (level in server.allLevels) {
                     val data = level.dataStorage.get(
-                        Factory(
-                            { ChunkPosSavedData() },
-                            ChunkPosSavedData::load,
-                            null
-                        ),
-                        FILE_ID
-                    ) ?: continue
+                        TYPE) ?: continue
 
                     val posSet = data.chunkPositions
                     if (posSet.isEmpty()) continue
 
                     for (pos in posSet) {
-                        level.chunkSource.addRegionTicket(
-                            TicketType.START,
-                            pos,
-                            3,
-                            Unit.INSTANCE
-                        )
+                        level.chunkSource.addTicketWithRadius(com.atsuishio.superbwarfare.init.ModTicketTypes.VEHICLE_START, pos, 3)
                     }
 
                     data.clearPos()
@@ -92,13 +91,7 @@ class ChunkPosSavedData : SavedData() {
 
                 for (level in server.allLevels) {
                     val data = level.dataStorage.computeIfAbsent(
-                        Factory(
-                            { ChunkPosSavedData() },
-                            ChunkPosSavedData::load,
-                            null
-                        ),
-                        FILE_ID
-                    )
+                        TYPE)
 
                     val list = level.allEntities
                         .asSequence()

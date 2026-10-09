@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.armor
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.renderer.armor.HandsomeGogglesRenderer
 import com.atsuishio.superbwarfare.init.ModEntities
@@ -12,7 +16,6 @@ import com.atsuishio.superbwarfare.tools.TraceTool
 import net.minecraft.ChatFormatting
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.fabricmc.fabric.api.client.rendering.v1.ArmorRenderer
 import net.minecraft.core.Holder
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.particles.ParticleTypes
@@ -20,55 +23,32 @@ import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.monster.Ghast
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ArmorItem
+import net.minecraft.world.item.Item
+import net.minecraft.world.item.equipment.ArmorType
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.item.component.Unbreakable
 import net.minecraft.world.level.Level
 import kotlin.math.cos
 import kotlin.math.sin
 
 @RegistryName("handsome_goggles")
 class HandsomeGogglesItem :
-    ArmorItem(
-        Holder.direct(ModArmorMaterials.STEEL),
-        Type.HELMET,
-        Properties().rarity(Rarity.EPIC).fireResistant().component(DataComponents.UNBREAKABLE, Unbreakable(false))
-    ) {
+    Item(
+    Properties().rarity(Rarity.EPIC).fireResistant().component(DataComponents.UNBREAKABLE, net.minecraft.util.Unit.INSTANCE).humanoidArmor(ModArmorMaterials.STEEL, ArmorType.HELMET)
+) {
     companion object {
         val MODEL = loc("models/bedrock/armor/handsome_goggles.geo.json")
 
         @Environment(EnvType.CLIENT)
-        private var renderer: HandsomeGogglesRenderer? = null
-
-        @Environment(EnvType.CLIENT)
         @JvmStatic
         fun registerRenderer() {
-            ArmorRenderer.register(
-                { matrices, vertexConsumers, stack, entity, slot, light, contextModel ->
-                    val armorRenderer = renderer ?: ArmorModelReloadListener.getModel(MODEL)
-                        ?.let { HandsomeGogglesRenderer(it, slot) }
-                        ?.also { renderer = it }
-                        ?: return@register
-
-                    armorRenderer.preparePose(entity, stack, slot, contextModel)
-                    armorRenderer.young = entity.isBaby
-                    ArmorRenderer.renderPart(
-                        matrices,
-                        vertexConsumers,
-                        light,
-                        stack,
-                        armorRenderer,
-                        HandsomeGogglesRenderer.GLASS
-                    )
-                },
-                com.atsuishio.superbwarfare.init.ModItems.HANDSOME_GOGGLES
-            )
+            ArmorRenderCompat.register(com.atsuishio.superbwarfare.init.ModItems.HANDSOME_GOGGLES) { slot ->
+                ArmorModelReloadListener.getModel(MODEL)?.let { HandsomeGogglesRenderer(it, slot) }
+            }
         }
 
         private fun findGhastInSight(player: Player): Ghast? {
@@ -77,13 +57,13 @@ class HandsomeGogglesItem :
         }
     }
 
-    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResult {
         val stack = pPlayer.getItemInHand(pUsedHand)
         if (findGhastInSight(pPlayer) != null) {
             pPlayer.startUsingItem(pUsedHand)
-            return InteractionResultHolder.consume(stack)
+            return InteractionResult.CONSUME
         }
-        return InteractionResultHolder.pass(stack)
+        return InteractionResult.PASS
     }
 
     override fun onUseTick(pLevel: Level, pLivingEntity: LivingEntity, pStack: ItemStack, pRemainingUseDuration: Int) {
@@ -129,7 +109,7 @@ class HandsomeGogglesItem :
             }
 
             ParticleTool.sendParticle(
-                pLevel, ParticleTypes.FLASH,
+                pLevel, net.minecraft.core.particles.ColorParticleOption.create(net.minecraft.core.particles.ParticleTypes.FLASH, -1),
                 pos.x, pos.y + 2.0, pos.z,
                 3, 0.2, 0.2, 0.2, 1.0, true
             )
@@ -160,10 +140,12 @@ class HandsomeGogglesItem :
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.handsome_goggles").withStyle(ChatFormatting.GRAY)
         )

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.PrismTankEntity
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.BoneState

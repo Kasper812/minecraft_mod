@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.dataslot
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * Code based on @GoryMoon's Chargers
  */

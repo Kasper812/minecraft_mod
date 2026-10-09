@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.living
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.animation.entity.CreepingSenpaiAnimationInstance
 import com.atsuishio.superbwarfare.entity.getValue
@@ -163,7 +165,7 @@ open class CreepingSenpaiEntity(type: EntityType<CreepingSenpaiEntity>, level: L
         ++this.deathTime
         if (this.deathTime == 540) {
             this.remove(RemovalReason.KILLED)
-            this.dropExperience(this)
+            (this.level() as? net.minecraft.server.level.ServerLevel)?.let { this.dropExperience(it, this.lastHurtByMob) }
         }
     }
 
@@ -282,7 +284,7 @@ open class CreepingSenpaiEntity(type: EntityType<CreepingSenpaiEntity>, level: L
         return (radians * (180.0 / Math.PI)).toFloat()
     }
 
-    inner class ClimbingMoveControl : MoveControl(this@CreepingSenpaiEntity) {
+    inner class ClimbingMoveControl : MoveControl<CreepingSenpaiEntity>(this@CreepingSenpaiEntity) {
         override fun tick() {
             val entity = this@CreepingSenpaiEntity
             val face = entity.attachedFace
@@ -300,7 +302,7 @@ open class CreepingSenpaiEntity(type: EntityType<CreepingSenpaiEntity>, level: L
             }
 
             val toTarget = Vec3(this.wantedX, this.wantedY, this.wantedZ).subtract(entity.position())
-            val normal = Vec3.atLowerCornerOf(face.normal)
+            val normal = Vec3.atLowerCornerOf(face.unitVec3i)
             val surfaceMove = if (face == Direction.DOWN) {
                 Vec3(toTarget.x, 0.0, toTarget.z)
             } else {
@@ -359,12 +361,12 @@ open class CreepingSenpaiEntity(type: EntityType<CreepingSenpaiEntity>, level: L
 private class CreepingSenpaiNavigation(mob: Mob, level: Level) : WallClimberNavigation(mob, level) {
     private var stopped = false
 
-    override fun createPath(pPos: BlockPos, pAccuracy: Int): Path? {
+    override fun createPath(pPos: BlockPos, pAccuracy: Int): Path {
         this.stopped = false
         return super.createPath(pPos, pAccuracy)
     }
 
-    override fun createPath(pEntity: Entity, pAccuracy: Int): Path? {
+    override fun createPath(pEntity: Entity, pAccuracy: Int): Path {
         this.stopped = false
         return super.createPath(pEntity, pAccuracy)
     }

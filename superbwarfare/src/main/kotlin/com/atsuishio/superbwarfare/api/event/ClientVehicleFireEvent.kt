@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.api.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.world.entity.Entity
 import org.jetbrains.annotations.ApiStatus

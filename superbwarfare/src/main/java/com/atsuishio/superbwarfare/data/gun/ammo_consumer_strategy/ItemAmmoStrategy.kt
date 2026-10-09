@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.ammo_consumer_strategy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.Mod
@@ -54,7 +56,7 @@ object ItemAmmoStrategy : AmmoConsumeStrategy() {
             source.type = AmmoConsumer.AmmoConsumeType.INVALID
             return
         }
-        val item = BuiltInRegistries.ITEM.get(location)
+        val item = BuiltInRegistries.ITEM.getValue(location)
         if (item === Items.AIR) {
             Mod.LOGGER.warn("invalid item: {}", id)
             source.type = AmmoConsumer.AmmoConsumeType.INVALID
@@ -67,7 +69,7 @@ object ItemAmmoStrategy : AmmoConsumeStrategy() {
                 val tag = NbtUtils.snbtToStructure(data)
                 tag.putString("id", location.toString())
                 tag.putInt("count", 1)
-                ItemStack.parse(RegistryAccess.EMPTY, tag).ifPresent { s -> source.stack = s }
+                legacyParseItem(RegistryAccess.EMPTY, tag).ifPresent { s -> source.stack = s }
             } catch (exception: Exception) {
                 Mod.LOGGER.warn("invalid item data {}: {}", data, exception.message)
                 source.type = AmmoConsumer.AmmoConsumeType.INVALID

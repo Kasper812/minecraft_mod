@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.data.gun.ActiveGun
@@ -10,8 +12,8 @@ import com.atsuishio.superbwarfare.init.ModPerks
 import com.atsuishio.superbwarfare.item.gun.GunItem
 import com.atsuishio.superbwarfare.tools.SeekTool
 import com.atsuishio.superbwarfare.tools.worldToScreen
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.Vec3
@@ -42,7 +44,6 @@ object HandsomeFrameOverlay : CommonOverlay("handsome_frame") {
             RenderSystem.disableDepthTest()
             RenderSystem.depthMask(false)
             RenderSystem.enableBlend()
-            RenderSystem.setShader { GameRenderer.getPositionTexShader() }
             RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

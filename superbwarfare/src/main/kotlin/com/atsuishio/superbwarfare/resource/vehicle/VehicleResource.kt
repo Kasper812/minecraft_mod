@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.CustomData
 import com.atsuishio.superbwarfare.data.DefaultDataSupplier
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity

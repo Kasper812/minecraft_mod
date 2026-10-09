@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.C4Entity
 import com.atsuishio.superbwarfare.init.ModSounds
 import com.atsuishio.superbwarfare.init.RegistryName
@@ -7,7 +11,6 @@ import com.atsuishio.superbwarfare.tools.EntityFindUtil
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
@@ -16,7 +19,7 @@ import net.minecraft.world.level.Level
 
 @RegistryName("detonator")
 open class DetonatorItem : Item(Properties().stacksTo(1)) {
-    override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(world: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
         player.cooldowns.addCooldown(stack.item, 10)
 
@@ -34,7 +37,7 @@ open class DetonatorItem : Item(Properties().stacksTo(1)) {
             }
         }
 
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     companion object {

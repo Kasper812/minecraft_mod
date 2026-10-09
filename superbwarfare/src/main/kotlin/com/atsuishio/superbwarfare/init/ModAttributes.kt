@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.mixins.AttributeSupplierAccessor
 import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricDefaultAttributeRegistry
@@ -30,7 +32,7 @@ object ModAttributes {
     @JvmStatic
     fun bulletResistanceHolder(): Holder<Attribute> {
         return BuiltInRegistries.ATTRIBUTE
-            .getHolder(
+            .get(
                 BuiltInRegistries.ATTRIBUTE
                     .getResourceKey(BULLET_RESISTANCE)
                     .orElseThrow()

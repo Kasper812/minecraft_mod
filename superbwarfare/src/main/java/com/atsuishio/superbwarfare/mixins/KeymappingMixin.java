@@ -29,7 +29,7 @@ public class KeymappingMixin {
         for (int i = 0; i < 9; i++) {
             if (Minecraft.getInstance().options.keyHotbarSlots[i].key == key) {
                 if (vehicle.getMaxPassengers() > 1
-                        && Screen.hasShiftDown()
+                        && com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()
                         && i < vehicle.getMaxPassengers()
                         && vehicle.getNthEntity(i) == null
                 ) {

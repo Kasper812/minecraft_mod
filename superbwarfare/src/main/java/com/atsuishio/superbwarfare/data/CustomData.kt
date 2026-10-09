@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.CustomData.ATTACHMENTS
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.drone_attachment.DroneAttachmentData

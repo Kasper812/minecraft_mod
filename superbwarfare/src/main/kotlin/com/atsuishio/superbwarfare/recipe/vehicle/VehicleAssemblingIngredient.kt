@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.DeserializeFromString
 import com.atsuishio.superbwarfare.data.StringInstanceBuilder
@@ -50,7 +52,7 @@ class VehicleAssemblingIngredient : DeserializeFromString {
         val matcher: Matcher = INGREDIENT_PATTERN.matcher(str)
         if (!matcher.matches()) {
             Mod.LOGGER.warn("invalid vehicle assembling ingredient: {}", str)
-            ingredientObject = Ingredient.EMPTY
+            ingredientObject = com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY
             return
         }
 
@@ -59,9 +61,9 @@ class VehicleAssemblingIngredient : DeserializeFromString {
 
         val id = matcher.group("id")
         ingredientObject = if (matcher.group("prefix") == "#") {
-            Ingredient.of(TagKey.create(Registries.ITEM, Identifier.parse(id)))
+            Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(TagKey.create(Registries.ITEM, Identifier.parse(id))))
         } else {
-            Ingredient.of(BuiltInRegistries.ITEM.get(Identifier.parse(id)))
+            BuiltInRegistries.ITEM.getOptional(Identifier.parse(id)).map { Ingredient.of(it) }.orElse(com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY)
         }
     }
 

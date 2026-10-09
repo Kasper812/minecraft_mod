@@ -1,12 +1,13 @@
 package com.atsuishio.superbwarfare.item.blockitem
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.renderer.item.BlueprintResearchingTableBlockItemRenderer
 import com.atsuishio.superbwarfare.init.ModBlocks
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.tools.mc
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer
 import net.minecraft.world.item.BlockItem
 import software.bernie.geckolib.animatable.GeoItem
 import software.bernie.geckolib.animatable.client.GeoRenderProvider
@@ -24,9 +25,9 @@ class BlueprintResearchTableBlockItem : BlockItem(ModBlocks.BLUEPRINT_RESEARCH_T
     @Environment(EnvType.CLIENT)
     override fun createGeoRenderer(consumer: Consumer<GeoRenderProvider>) {
         consumer.accept(object : GeoRenderProvider {
-            private var renderer: BlockEntityWithoutLevelRenderer? = null
+            private var renderer: com.atsuishio.portlib.render.DynamicItemRenderer? = null
 
-            override fun getGeoItemRenderer(): BlockEntityWithoutLevelRenderer {
+            override fun getGeoItemRenderer(): com.atsuishio.portlib.render.DynamicItemRenderer {
                 if (this.renderer == null) {
                     this.renderer = BlueprintResearchingTableBlockItemRenderer(mc.blockEntityRenderDispatcher, mc.entityModels)
                 }

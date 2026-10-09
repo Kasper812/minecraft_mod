@@ -1,5 +1,17 @@
 package com.atsuishio.superbwarfare.entity.living
 
+import net.minecraft.world.entity.EntityReference
+
+import net.minecraft.world.entity.Entity
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
@@ -29,8 +41,8 @@ import net.minecraft.world.entity.ai.goal.Goal
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal
 import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.Boat
-import net.minecraft.world.entity.vehicle.Minecart
+import net.minecraft.world.entity.vehicle.boat.Boat
+import net.minecraft.world.entity.vehicle.minecart.Minecart
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.entity.EntityTypeTest
@@ -45,23 +57,25 @@ open class SteelCoilEntity(type: EntityType<SteelCoilEntity>, level: Level) : Pa
     open var targetPosition = Vec3(0.0, 0.0, 0.0)
     open var startCrush = false
     open var restartCrushTimer = 0
-    private var remainingPersistentAngerTime = 0
-    private var persistentAngerTarget: UUID? = null
 
     private var wasMoving = false
 
-    override fun addAdditionalSaveData(pCompound: CompoundTag) {
-        super.addAdditionalSaveData(pCompound)
-        this.addPersistentAngerSaveData(pCompound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val pCompound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
+        this.addPersistentAngerSaveData(output)
     }
 
-    override fun readAdditionalSaveData(pCompound: CompoundTag) {
-        super.readAdditionalSaveData(pCompound)
-        this.readPersistentAngerSaveData(this.level(), pCompound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val pCompound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        this.readPersistentAngerSaveData(this.level(), input)
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
-        return super.hurt(source, DAMAGE_MODIFIER.compute(this, source, amount))
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
+        return super.hurtServer(serverLevel, source, DAMAGE_MODIFIER.compute(this, source, amount))
     }
 
     override fun registerGoals() {
@@ -96,7 +110,7 @@ open class SteelCoilEntity(type: EntityType<SteelCoilEntity>, level: Level) : Pa
         return entity is SteelCoilEntity
     }
 
-    override fun canBeCollidedWith(): Boolean {
+    override fun canBeCollidedWith(other: Entity?): Boolean {
         return true
     }
 
@@ -104,9 +118,6 @@ open class SteelCoilEntity(type: EntityType<SteelCoilEntity>, level: Level) : Pa
         return false
     }
 
-    override fun getArmorSlots(): Iterable<ItemStack> {
-        return NonNullList.withSize(1, ItemStack.EMPTY)
-    }
 
     override fun getItemBySlot(pSlot: EquipmentSlot): ItemStack {
         return ItemStack.EMPTY
@@ -114,7 +125,7 @@ open class SteelCoilEntity(type: EntityType<SteelCoilEntity>, level: Level) : Pa
 
     override fun setItemSlot(pSlot: EquipmentSlot, pStack: ItemStack) {}
 
-    override fun causeFallDamage(l: Float, d: Float, source: DamageSource): Boolean {
+    override fun causeFallDamage(l: Double, d: Float, source: DamageSource): Boolean {
         return false
     }
 
@@ -291,24 +302,27 @@ open class SteelCoilEntity(type: EntityType<SteelCoilEntity>, level: Level) : Pa
         this.deltaMovement = this.deltaMovement.add(pX, pY, pZ)
     }
 
-    override fun getRemainingPersistentAngerTime(): Int {
-        return this.remainingPersistentAngerTime
+    private var persistentAngerEndTime: Long = -1L
+    private var angerTarget: EntityReference<LivingEntity>? = null
+
+    override fun getPersistentAngerEndTime(): Long {
+        return this.persistentAngerEndTime
     }
 
-    override fun setRemainingPersistentAngerTime(pRemainingPersistentAngerTime: Int) {
-        this.remainingPersistentAngerTime = pRemainingPersistentAngerTime
+    override fun setPersistentAngerEndTime(endTime: Long) {
+        this.persistentAngerEndTime = endTime
     }
 
-    override fun getPersistentAngerTarget(): UUID? {
-        return this.persistentAngerTarget
+    override fun getPersistentAngerTarget(): EntityReference<LivingEntity>? {
+        return this.angerTarget
     }
 
-    override fun setPersistentAngerTarget(pPersistentAngerTarget: UUID?) {
-        this.persistentAngerTarget = pPersistentAngerTarget
+    override fun setPersistentAngerTarget(persistentAngerTarget: EntityReference<LivingEntity>?) {
+        this.angerTarget = persistentAngerTarget
     }
 
     override fun startPersistentAngerTimer() {
-        this.remainingPersistentAngerTime = this.random.nextIntBetweenInclusive(20, 30)
+        this.setTimeToRemainAngry(this.random.nextIntBetweenInclusive(20, 30).toLong())
     }
 
     class SteelCoilCrushGoal(val entity: SteelCoilEntity) : Goal() {

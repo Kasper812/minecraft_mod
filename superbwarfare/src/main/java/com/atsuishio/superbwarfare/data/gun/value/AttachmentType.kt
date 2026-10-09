@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

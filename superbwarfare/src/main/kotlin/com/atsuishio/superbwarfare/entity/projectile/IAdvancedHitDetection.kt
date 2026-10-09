@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.OBBEntity
 import com.atsuishio.superbwarfare.entity.living.DPSGeneratorEntity
 import com.atsuishio.superbwarfare.entity.living.TargetEntity
@@ -67,8 +69,8 @@ interface IAdvancedHitDetection {
             PROJECTILE_TARGETS
         )
         for (entity in entities) {
-            if (entity == this.owner || this.owner != null
-                && (entity == this.owner!!.vehicle || entity.rootVehicle === this.owner!!.rootVehicle)
+            if (entity == this.getOwner() || this.getOwner() != null
+                && (entity == this.getOwner()!!.vehicle || entity.rootVehicle === this.getOwner()!!.rootVehicle)
             ) continue
 
             if (entity is TargetEntity && entity.getEntityData().get(TargetEntity.DOWN_TIME) > 0) continue
@@ -139,7 +141,7 @@ interface IAdvancedHitDetection {
             var boundingBox = entity.boundingBox
             var velocity = Vec3(entity.x - entity.xOld, entity.y - entity.yOld, entity.z - entity.zOld)
 
-            val shooter = this.owner
+            val shooter = this.getOwner()
             if (entity is ServerPlayer && shooter is ServerPlayer) {
                 val ping = Mth.floor((shooter.latency / 1000.0) * 20.0 + 0.5)
                 boundingBox = getBoundingBox(entity, ping)
@@ -237,7 +239,7 @@ interface IAdvancedHitDetection {
     fun recordHitScore(direction: Direction, hitVec: Vec3) {
         if (this !is Projectile) return
 
-        val shooter = this.owner as? Player ?: return
+        val shooter = this.getOwner() as? Player ?: return
         val score = getRings(direction, hitVec)
         val distance = shooter.position().distanceTo(hitVec)
 
@@ -464,7 +466,7 @@ interface IAdvancedHitDetection {
             val vec3 = rayTraceContext.from.subtract(rayTraceContext.to)
             return BlockHitResult.miss(
                 rayTraceContext.to,
-                Direction.getNearest(vec3.x, vec3.y, vec3.z),
+                Direction.getApproximateNearest(vec3.x, vec3.y, vec3.z),
                 BlockPos.containing(rayTraceContext.to)
             )
         }
@@ -488,7 +490,7 @@ interface IAdvancedHitDetection {
                 val projectileBlockPos = BlockPos.containing(context.from)
                 return BlockHitResult(
                     shipHitPos,
-                    Direction.getNearest(dir.x, dir.y, dir.z),
+                    Direction.getApproximateNearest(dir.x, dir.y, dir.z),
                     projectileBlockPos,
                     false
                 )

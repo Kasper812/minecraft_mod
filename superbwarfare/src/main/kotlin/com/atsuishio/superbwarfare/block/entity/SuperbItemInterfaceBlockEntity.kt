@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.block.SuperbItemInterfaceBlock
@@ -40,19 +48,23 @@ open class SuperbItemInterfaceBlockEntity(type: BlockEntityType<*>, pPos: BlockP
         get() = false
 
     @ParametersAreNonnullByDefault
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
+        val tag = LegacyNbt.tagOf(input)
+        val registries = input.lookup()
+        super.loadAdditional(input)
 
         this.items = NonNullList.withSize(this.containerSize, ItemStack.EMPTY)
-        ContainerHelper.loadAllItems(tag, this.items, registries)
-        this.cooldownTime = tag.getInt("TransferCooldown")
+        com.atsuishio.portlib.nbt.LegacyNbt.loadAllItems(tag, this.items, registries)
+        this.cooldownTime = tag.getIntOr("TransferCooldown", 0)
     }
 
     @ParametersAreNonnullByDefault
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+        val tag = LegacyNbt.tagOf(output)
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
-        ContainerHelper.saveAllItems(tag, this.items, registries)
+        com.atsuishio.portlib.nbt.LegacyNbt.saveAllItems(tag, this.items, registries)
         tag.putInt("TransferCooldown", this.cooldownTime)
     }
 

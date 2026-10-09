@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.client.particle.CustomFlareOption
 import com.atsuishio.superbwarfare.init.ModEntities
 import net.minecraft.nbt.CompoundTag
@@ -12,14 +20,23 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
 open class FlareDecoyEntity : Entity {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
     constructor(type: EntityType<out FlareDecoyEntity>, world: Level) : super(type, world)
 
     constructor(level: Level) : super(ModEntities.FLARE_DECOY, level)
 
-    override fun readAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compoundTag = LegacyNbt.tagOf(input)
     }
 
-    override fun addAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compoundTag = LegacyNbt.tagOf(output)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {

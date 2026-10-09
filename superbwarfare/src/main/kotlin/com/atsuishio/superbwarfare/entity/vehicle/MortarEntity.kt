@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
@@ -56,23 +64,27 @@ open class MortarEntity(type: EntityType<MortarEntity>, level: Level) : Artiller
             .define(NEED_RESET_TARGET, true)
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putFloat("TargetPitch", this.entityData.get(TARGET_PITCH))
         compound.putFloat("TargetYaw", this.entityData.get(TARGET_YAW))
         compound.putBoolean("Intelligent", this.entityData.get(INTELLIGENT))
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("TargetPitch")) {
-            this.entityData.set(TARGET_PITCH, compound.getFloat("TargetPitch"))
+            this.entityData.set(TARGET_PITCH, compound.getFloatOr("TargetPitch", 0f))
         }
         if (compound.contains("TargetYaw")) {
-            this.entityData.set(TARGET_YAW, compound.getFloat("TargetYaw"))
+            this.entityData.set(TARGET_YAW, compound.getFloatOr("TargetYaw", 0f))
         }
         if (compound.contains("Intelligent")) {
-            this.entityData.set(INTELLIGENT, compound.getBoolean("Intelligent"))
+            this.entityData.set(INTELLIGENT, compound.getBooleanOr("Intelligent", false))
         }
     }
 
@@ -127,8 +139,8 @@ open class MortarEntity(type: EntityType<MortarEntity>, level: Level) : Artiller
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
-        val result = super.interact(player, hand)
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
+        val result = super.interact(player, hand, location)
         if (result != InteractionResult.PASS) return result
 
         val stack = player.mainHandItem

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.init.ModComponents
 import kotlinx.serialization.SerialName
@@ -16,13 +18,16 @@ data class InfiniteAmmoCapability(
     var hasInfiniteAmmo: Boolean = false
 ) : Component, AutoSyncedComponent {
 
-    override fun writeToNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun writeData(output: net.minecraft.world.level.storage.ValueOutput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(output)
         tag.putBoolean(TAG_INFINITE_AMMO, hasInfiniteAmmo)
     }
 
-    override fun readFromNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun readData(input: net.minecraft.world.level.storage.ValueInput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(input)
+        val registryLookup = input.lookup()
         if (tag.contains(TAG_INFINITE_AMMO)) {
-            this.hasInfiniteAmmo = tag.getBoolean(TAG_INFINITE_AMMO)
+            this.hasInfiniteAmmo = tag.getBooleanOr(TAG_INFINITE_AMMO, false)
         }
     }
     companion object {

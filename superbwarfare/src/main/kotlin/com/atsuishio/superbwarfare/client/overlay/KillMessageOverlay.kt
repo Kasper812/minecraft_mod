@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.client.screens.DogTagEditorScreen
@@ -15,10 +17,10 @@ import com.atsuishio.superbwarfare.item.trinket.DogTagItem
 import com.atsuishio.superbwarfare.item.gun.GunItem
 import com.atsuishio.superbwarfare.tools.DamageTypeTool
 import com.atsuishio.superbwarfare.tools.LivingKillRecord
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.resources.Identifier
 import net.minecraft.world.damagesource.DamageTypes
@@ -26,7 +28,7 @@ import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.OwnableEntity
 import net.minecraft.world.entity.player.Player
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import kotlin.math.pow
 import kotlin.math.roundToInt
 
@@ -450,7 +452,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
                 for (j in 0..15) {
                     if (icon[i][j].toInt() == -1) continue
                     RenderHelper.fill(
-                        guiGraphics, RenderType.gui(),
+                        guiGraphics, null,
                         x + i * 0.6f, y + j * 0.6f, x + (i + 1) * 0.6f, y + (j + 1) * 0.6f,
                         0f, DogTagEditorScreen.getColorByNum(icon[i][j])
                     )

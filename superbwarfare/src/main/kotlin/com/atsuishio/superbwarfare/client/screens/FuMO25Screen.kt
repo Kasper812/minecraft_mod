@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.entity.FuMO25BlockEntity
 import com.atsuishio.superbwarfare.client.RenderHelper
@@ -11,10 +17,10 @@ import com.atsuishio.superbwarfare.network.message.send.RadarSetPosMessage
 import com.atsuishio.superbwarfare.network.message.send.RadarSetTargetMessage
 import com.atsuishio.superbwarfare.tools.FormatTool.format1D
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.math.Axis
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -29,8 +35,7 @@ import net.fabricmc.api.Environment
 import java.util.*
 
 @Environment(EnvType.CLIENT)
-class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Component) :
-    AbstractContainerScreen<FuMO25Menu>(pMenu, pPlayerInventory, pTitle) {
+class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Component) : LegacyContainerScreen<FuMO25Menu>(pMenu, pPlayerInventory, pTitle) {
     private var currentPos: BlockPos? = null
     private var currentTarget: Entity? = null
 
@@ -75,7 +80,6 @@ class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Compo
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFunc(GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE)
 
         guiGraphics.blit(TEXTURE, i + 8, j + 11, 0f, 167f, 147, 147, 358, 328)
@@ -83,7 +87,6 @@ class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Compo
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -135,7 +138,6 @@ class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Compo
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -286,7 +288,7 @@ class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Compo
     }
 
     @Environment(EnvType.CLIENT)
-    internal inner class LockButton(pX: Int, pY: Int) : AbstractButton(pX, pY, 29, 15, Component.empty()) {
+    internal inner class LockButton(pX: Int, pY: Int) : LegacyAbstractButton(pX, pY, 29, 15, Component.empty()) {
         override fun onPress() {
             if (this@FuMO25Screen.menu.funcType == 3L && this@FuMO25Screen.menu.getSlot(0).item.isEmpty) {
                 if (this@FuMO25Screen.currentTarget == null) return
@@ -329,8 +331,7 @@ class FuMO25Screen(pMenu: FuMO25Menu, pPlayerInventory: Inventory, pTitle: Compo
     }
 
     @Environment(EnvType.CLIENT)
-    internal class ModeButton(pX: Int, pY: Int, private val mode: Int) :
-        AbstractButton(pX, pY, 29, 15, Component.empty()) {
+    internal class ModeButton(pX: Int, pY: Int, private val mode: Int) : LegacyAbstractButton(pX, pY, 29, 15, Component.empty()) {
         override fun onPress() {
             sendPacketToServer(RadarChangeModeMessage(this.mode.toByte()))
         }

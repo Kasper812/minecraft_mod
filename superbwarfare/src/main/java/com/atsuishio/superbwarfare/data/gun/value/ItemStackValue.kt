@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.value.base.TagValue
 import com.atsuishio.superbwarfare.tools.sameWith
 import net.minecraft.core.RegistryAccess
@@ -26,7 +28,7 @@ class ItemStackValue(
         }
 
         if (tag.contains(name)) {
-            return ItemStack.parseOptional(RegistryAccess.EMPTY, tag.getCompound(name))
+            return legacyParseItemOptional(RegistryAccess.EMPTY, tag.getCompoundOrEmpty(name))
         }
         return defaultValue
     }

@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 32
+  },
+  "gives": {
+    "id": "superbwarfare:extra_large_anti_ground_missile"
+  },
+  "max_uses": 8,
+  "xp": 20,
+  "reputation_discount": 0.05
+}

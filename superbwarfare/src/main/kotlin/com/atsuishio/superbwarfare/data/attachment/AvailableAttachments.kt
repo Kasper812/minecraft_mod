@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.StringOrObject
 import com.atsuishio.superbwarfare.data.gun.AttachmentOption
@@ -121,7 +123,7 @@ object AvailableAttachments {
 
     /** 标签里的全部物品 id；注册表还没就绪时返回空集合，不抛异常。 */
     private fun tagMembers(id: Identifier): List<Identifier> {
-        return BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, id))
+        return BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, id))
             .map { items -> items.map { BuiltInRegistries.ITEM.getKey(it.value()) } }
             .getOrNull() ?: mutableListOf()
     }

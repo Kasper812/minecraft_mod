@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.melee
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedSoundEvent
 
 /**

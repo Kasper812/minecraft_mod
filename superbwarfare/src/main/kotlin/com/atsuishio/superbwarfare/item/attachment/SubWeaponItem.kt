@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.tooltip.component.AttachmentImageComponent
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.item.ItemDamageExtension

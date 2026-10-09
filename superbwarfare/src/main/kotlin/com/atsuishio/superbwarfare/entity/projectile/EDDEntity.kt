@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import net.minecraft.server.level.ServerLevel
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
@@ -31,6 +41,7 @@ import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.EntityReference
 import net.minecraft.world.entity.OwnableEntity
 import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.player.Player
@@ -67,7 +78,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
     ) : super(type, level) {
         this.corner = corner
         if (owner != null) {
-            this.setOwnerUUID(owner.getUUID())
+            this.ownerUUID = owner.getUUID()
         }
     }
 
@@ -82,14 +93,14 @@ open class EDDEntity : HangingEntity, OwnableEntity {
     ) : super(type, level, pos) {
         this.corner = corner
         if (owner != null) {
-            this.setOwnerUUID(owner.getUUID())
+            this.ownerUUID = owner.getUUID()
         }
         this.setDirection(direction)
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         if (source.directEntity is EDDEntity) return false
-        return super.hurt(source, amount)
+        return super.hurtServer(serverLevel, source, amount)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -97,8 +108,10 @@ open class EDDEntity : HangingEntity, OwnableEntity {
             .define(LAST_ATTACKER_UUID, "undefined")
     }
 
-    override fun addAdditionalSaveData(tag: CompoundTag) {
-        super.addAdditionalSaveData(tag)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         tag.putInt("Corner", this.corner)
         tag.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         if (this.ownerUUID != null) {
@@ -107,21 +120,23 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         tag.putByte("Facing", this.direction.get3DDataValue().toByte())
     }
 
-    override fun readAdditionalSaveData(tag: CompoundTag) {
-        super.readAdditionalSaveData(tag)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (tag.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, tag.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, tag.getStringOr("LastAttacker", ""))
         }
 
         if (tag.contains("Corner")) {
-            this.corner = tag.getInt("Corner")
+            this.corner = tag.getIntOr("Corner", 0)
         }
 
         var uuid: UUID?
         if (tag.hasUUID("Owner")) {
             uuid = tag.getUUID("Owner")
         } else {
-            val s = tag.getString("Owner")
+            val s = tag.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -137,12 +152,12 @@ open class EDDEntity : HangingEntity, OwnableEntity {
 
         if (uuid != null) {
             try {
-                this.setOwnerUUID(uuid)
+                this.ownerUUID = uuid
             } catch (_: Throwable) {
             }
         }
 
-        this.setDirection(Direction.from3DDataValue(tag.getByte("Facing").toInt()))
+        this.setDirection(Direction.from3DDataValue(tag.getByteOr("Facing", 0.toByte()).toInt()))
     }
 
     override fun setDirection(direction: Direction) {
@@ -233,7 +248,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         }
     }
 
-    override fun dropItem(pBrokenEntity: Entity?) {
+    override fun dropItem(level: ServerLevel, pBrokenEntity: Entity?) {
 
     }
 
@@ -247,7 +262,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         } else {
             val blockstate = this.level().getBlockState(this.pos.relative(this.direction.opposite))
             return if (blockstate.isSolid || this.direction.axis.isHorizontal && DiodeBlock.isDiode(blockstate))
-                this.level().getEntities(this, this.boundingBox, HANGING_ENTITY).isEmpty() else false
+                this.level().getEntities(this, this.boundingBox) { it is net.minecraft.world.entity.decoration.HangingEntity }.isEmpty() else false
         }
     }
 
@@ -262,16 +277,16 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         this.setDirection(Direction.from3DDataValue(packet.data % 10))
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     fun isOwnedBy(pEntity: LivingEntity?): Boolean {
-        return pEntity === this.owner
+        return pEntity === this.getOwner()
     }
 
     fun isFacingLeft(): Boolean {
@@ -294,7 +309,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
     private fun triggerExplode(pos: Vec3) {
         CustomExplosion.Builder(this)
             .position(pos)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(ExplosionConfig.EDD_EXPLOSION_DAMAGE.get().toFloat())
             .radius(ExplosionConfig.EDD_EXPLOSION_RADIUS.get().toFloat())
             .keepBlock()
@@ -303,7 +318,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         this.discard()
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (this.isOwnedBy(player) && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -314,7 +329,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -331,7 +346,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
         ) { true }.asSequence().filter {
             it !is EDDEntity && it !is TargetEntity
                     && !it.type.`is`(ModTags.EntityTypes.DECOY)
-                    && it != this.owner
+                    && it != this.getOwner()
                     && !(it is Player && (it.isCreative || it.isSpectator))
                     && if (ExplosionConfig.FRIENDLY_MINES.get()) {
                 if (owner == null) true else owner != it && !owner!!.isAlliedTo(it)
@@ -362,7 +377,7 @@ open class EDDEntity : HangingEntity, OwnableEntity {
 
         @JvmField
         val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(EDDEntity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(EDDEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         val LAST_ATTACKER_UUID: EntityDataAccessor<String> =

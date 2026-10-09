@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModify.SourceType
 import com.atsuishio.superbwarfare.tools.FormatTool.format2D
@@ -306,7 +308,7 @@ class DamageModifier {
             }
             val component = Component.translatable(
                 "tips.superbwarfare.modify_result." + modify.sourceType!!.name.lowercase(),
-                sourceString
+                sourceString ?: ""
             ).withStyle { style -> style.withColor(color) }
             return component.append(typeString)
         }
@@ -366,8 +368,9 @@ class DamageModifier {
         @JvmStatic
         fun createDefaultModifier(): DamageModifier {
             return DamageModifier()
-                .immuneTo(EntityType.POTION)
-                .immuneTo(EntityType.AREA_EFFECT_CLOUD)
+                .immuneTo(net.minecraft.world.entity.EntityTypes.SPLASH_POTION)
+                .immuneTo(net.minecraft.world.entity.EntityTypes.LINGERING_POTION)
+                .immuneTo(net.minecraft.world.entity.EntityTypes.AREA_EFFECT_CLOUD)
                 .immuneTo(DamageTypes.FALL)
                 .immuneTo(DamageTypes.CACTUS)
                 .immuneTo(DamageTypes.DROWN)

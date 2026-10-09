@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.projectile.RgoGrenadeEntity
 import com.atsuishio.superbwarfare.init.ModEntities
@@ -14,14 +18,13 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.Rarity
-import net.minecraft.world.item.UseAnim
+import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.level.Level
 import kotlin.math.min
 
@@ -31,20 +34,20 @@ sealed interface RgoGrenade
 @RegistryName("rgo_grenade")
 open class RgoGrenadeItem : Item(Properties().rarity(Rarity.UNCOMMON)), DispenserLaunchable,
     @Suppress("DEPRECATION") RgoGrenade {
-    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResult {
         val stack = playerIn.getItemInHand(handIn)
         playerIn.startUsingItem(handIn)
         if (playerIn is ServerPlayer) {
             playerIn.level().playSound(null, playerIn.onPos, ModSounds.GRENADE_PULL, SoundSource.PLAYERS, 1f, 1f)
         }
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim {
-        return UseAnim.SPEAR
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation {
+        return ItemUseAnimation.SPEAR
     }
 
-    override fun releaseUsing(stack: ItemStack, level: Level, living: LivingEntity, timeLeft: Int) {
+    override fun releaseUsing(stack: ItemStack, level: Level, living: LivingEntity, timeLeft: Int): Boolean {
         if (!level.isClientSide) {
             if (living is Player) {
                 val usingTime = this.getUseDuration(stack, living) - timeLeft
@@ -81,6 +84,7 @@ open class RgoGrenadeItem : Item(Properties().rarity(Rarity.UNCOMMON)), Dispense
                 }
             }
         }
+        return false
     }
 
     override fun finishUsingItem(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity): ItemStack {

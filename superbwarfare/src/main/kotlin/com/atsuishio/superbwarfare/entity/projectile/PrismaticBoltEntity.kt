@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.init.ModEntities
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.syncher.SynchedEntityData
@@ -11,6 +19,11 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
 open class PrismaticBoltEntity : Entity {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
     var randomAngle: Float = (((Math.random() * 2) - 1) * 45).toFloat()
     var tickO: Int = 0
     var tick: Int = 0
@@ -19,10 +32,14 @@ open class PrismaticBoltEntity : Entity {
 
     constructor(level: Level) : super(ModEntities.PRISMATIC_BOLT, level)
 
-    override fun readAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compoundTag = LegacyNbt.tagOf(input)
     }
 
-    override fun addAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compoundTag = LegacyNbt.tagOf(output)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mobeffect
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.PersistentDataAccessor
 import com.atsuishio.superbwarfare.init.ModDamageTypes
 import com.atsuishio.superbwarfare.init.ModMobEffects
@@ -22,7 +24,7 @@ import net.minecraft.world.entity.LivingEntity
 object BurnMobEffect : MobEffect(MobEffectCategory.HARMFUL, -12708330) {
     const val TAG_ATTACKER: String = "BurnAttacker"
 
-    override fun applyEffectTick(entity: LivingEntity, amplifier: Int): Boolean {
+    override fun applyEffectTick(serverLevel: net.minecraft.server.level.ServerLevel, entity: LivingEntity, amplifier: Int): Boolean {
         val attacker = getBurnAttacker(entity)
 
         DamageHandler.doDamage(
@@ -63,8 +65,8 @@ object BurnMobEffect : MobEffect(MobEffectCategory.HARMFUL, -12708330) {
             living,
             DamageSource(
                 living.level().registryAccess()
-                    .registryOrThrow(Registries.DAMAGE_TYPE)
-                    .getHolderOrThrow(DamageTypes.IN_FIRE),
+                    .lookupOrThrow(Registries.DAMAGE_TYPE)
+                    .getOrThrow(DamageTypes.IN_FIRE),
                 source
             ),
             0.6f + 0.3f * instance.amplifier
@@ -100,7 +102,7 @@ object BurnMobEffect : MobEffect(MobEffectCategory.HARMFUL, -12708330) {
         val data = persistentData(entity)
 
         return if (data.contains(TAG_ATTACKER)) {
-            entity.level().getEntity(data.getInt(TAG_ATTACKER))
+            entity.level().getEntity(data.getIntOr(TAG_ATTACKER, 0))
         } else {
             null
         }

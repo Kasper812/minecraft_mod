@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle.base
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleVecUtils.getXRotFromVector
@@ -38,7 +46,7 @@ open class ArtilleryEntity(type: EntityType<*>, world: Level) : VehicleEntity(ty
     open var radius by RADIUS
     open var lockTurret by LOCK_TURRET
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (getGunData("Main") == null) return InteractionResult.SUCCESS
 
         val offStack = player.offhandItem
@@ -48,7 +56,7 @@ open class ArtilleryEntity(type: EntityType<*>, world: Level) : VehicleEntity(ty
             if (res != null) return res
         }
 
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     override fun onCrowbarInteract(
@@ -84,8 +92,10 @@ open class ArtilleryEntity(type: EntityType<*>, world: Level) : VehicleEntity(ty
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putFloat("ShootVecX", shootVec.x)
         compound.putFloat("ShootVecY", shootVec.y)
         compound.putFloat("ShootVecZ", shootVec.z)
@@ -100,23 +110,25 @@ open class ArtilleryEntity(type: EntityType<*>, world: Level) : VehicleEntity(ty
         compound.putInt("OriginZ", originPos.z)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("ShootVecX") && compound.contains("ShootVecY") && compound.contains("ShootVecZ")) {
             shootVec =
-                Vector3f(compound.getFloat("ShootVecX"), compound.getFloat("ShootVecY"), compound.getFloat("ShootVecZ"))
+                Vector3f(compound.getFloatOr("ShootVecX", 0f), compound.getFloatOr("ShootVecY", 0f), compound.getFloatOr("ShootVecZ", 0f))
         }
         if (compound.contains("Depressed")) {
-            depressed = compound.getBoolean("Depressed")
+            depressed = compound.getBooleanOr("Depressed", false)
         }
         if (compound.contains("Radius")) {
-            radius = compound.getInt("Radius")
+            radius = compound.getIntOr("Radius", 0)
         }
         if (compound.contains("TargetX") && compound.contains("TargetY") && compound.contains("TargetZ")) {
-            targetPos = BlockPos(compound.getInt("TargetX"), compound.getInt("TargetX"), compound.getInt("TargetZ"))
+            targetPos = BlockPos(compound.getIntOr("TargetX", 0), compound.getIntOr("TargetX", 0), compound.getIntOr("TargetZ", 0))
         }
         if (compound.contains("OriginX") && compound.contains("OriginY") && compound.contains("OriginZ")) {
-            originPos = BlockPos(compound.getInt("OriginX"), compound.getInt("OriginX"), compound.getInt("OriginZ"))
+            originPos = BlockPos(compound.getIntOr("OriginX", 0), compound.getIntOr("OriginX", 0), compound.getIntOr("OriginZ", 0))
         }
     }
 
@@ -245,7 +257,7 @@ open class ArtilleryEntity(type: EntityType<*>, world: Level) : VehicleEntity(ty
     companion object {
         @JvmField
         val SHOOT_VEC: EntityDataAccessor<Vector3f> =
-            SynchedEntityData.defineId(ArtilleryEntity::class.java, EntityDataSerializers.VECTOR3)
+            SynchedEntityData.defineId(ArtilleryEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.VECTOR3F)
 
         @JvmField
         val DEPRESSED: EntityDataAccessor<Boolean> =

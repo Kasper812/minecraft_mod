@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -14,8 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 
-class MedicalKitEntityRenderer(renderManager: EntityRendererProvider.Context) :
-    EntityRenderer<MedicalKitEntity>(renderManager) {
+class MedicalKitEntityRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<MedicalKitEntity>(renderManager) {
     init {
         this.shadowRadius = 0f
     }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.tooltip
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.tooltip.component.AttachmentImageComponent
 import com.atsuishio.superbwarfare.data.attachment.*
@@ -13,7 +15,7 @@ import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.resources.language.I18n
 import net.minecraft.network.chat.Component
@@ -22,7 +24,7 @@ import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.abs
 
-open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : ClientTooltipComponent {
+open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : com.atsuishio.portlib.gui.LegacyClientTooltipComponent {
     private val lines = buildLines(tooltip.stack)
 
     override fun renderImage(font: Font, x: Int, y: Int, guiGraphics: GuiGraphics) {
@@ -49,7 +51,7 @@ open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : Cli
             val namespace = attachmentId.substringBefore(':', Mod.MODID)
             val path = attachmentId.substringAfter(':', attachmentId)
             val descriptionKey = "des.$namespace.$path"
-            if (I18n.exists(descriptionKey)) {
+            if (net.minecraft.locale.Language.getInstance().has(descriptionKey)) {
                 add(Component.translatable(descriptionKey).withStyle(ChatFormatting.GRAY))
             }
 
@@ -117,7 +119,7 @@ open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : Cli
     /** 单个槽位的显示名，例如 `[Scope Attachment]` / `[瞄准镜配件]`；没有翻译时退回枚举名 */
     open fun slotName(type: AttachmentType): MutableComponent {
         val key = "attachment.superbwarfare.slot.${type.attachmentName.lowercase(Locale.ROOT)}"
-        return if (I18n.exists(key)) {
+        return if (net.minecraft.locale.Language.getInstance().has(key)) {
             Component.translatable(key)
         } else {
             Component.literal("[${type.attachmentName}]")
@@ -176,7 +178,7 @@ open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : Cli
 
         val type = (value as? JsonObject)?.get("Type")?.jsonPrimitive?.contentOrNull ?: return line
         val key = "prop.superbwarfare.spread_pattern.${type.lowercase(Locale.ROOT)}"
-        val typeName = if (I18n.exists(key)) {
+        val typeName = if (net.minecraft.locale.Language.getInstance().has(key)) {
             Component.translatable(key)
         } else {
             Component.literal(type)
@@ -291,7 +293,7 @@ open class ClientAttachmentImageTooltip(tooltip: AttachmentImageComponent) : Cli
 
     open fun propertyComponent(prop: String): MutableComponent {
         val key = "prop.superbwarfare.${FormatTool.camelToSnake(prop)}"
-        return if (I18n.exists(key)) {
+        return if (net.minecraft.locale.Language.getInstance().has(key)) {
             Component.translatable(key)
         } else {
             Component.literal(prop)

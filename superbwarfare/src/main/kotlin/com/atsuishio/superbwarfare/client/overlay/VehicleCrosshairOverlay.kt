@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.client.overlay.VehicleHudOverlay.renderKillIndicator
@@ -12,8 +14,8 @@ import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.atsuishio.superbwarfare.tools.*
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.math.Axis
 import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
@@ -113,7 +115,6 @@ object VehicleCrosshairOverlay : CommonOverlay("vehicle_crosshair") {
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -129,7 +130,7 @@ object VehicleCrosshairOverlay : CommonOverlay("vehicle_crosshair") {
         val nacelleCam = ClientEventHandler.isNacelleCam(player)
 
         if (nacelleCam) {
-            shootPos = camera.position
+            shootPos = camera.position()
         }
 
         val result = OverlayTraceHandler.blockMaxRangeResult

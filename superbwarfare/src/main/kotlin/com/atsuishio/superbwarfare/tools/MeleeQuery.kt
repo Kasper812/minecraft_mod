@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.melee.*
 import com.atsuishio.superbwarfare.tools.MeleeQuery.DebugShape.*
 import com.atsuishio.superbwarfare.tools.MeleeQuery.LOS_EPSILON

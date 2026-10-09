@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mobeffect
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.PersistentDataAccessor
 import com.atsuishio.superbwarfare.init.ModDamageTypes
@@ -33,7 +35,7 @@ open class ShockMobEffect : MobEffect(MobEffectCategory.HARMFUL, -256) {
         )
     }
 
-    override fun applyEffectTick(entity: LivingEntity, amplifier: Int): Boolean {
+    override fun applyEffectTick(serverLevel: net.minecraft.server.level.ServerLevel, entity: LivingEntity, amplifier: Int): Boolean {
         val attacker = getShockAttacker(entity)
 
         DamageHandler.doDamage(
@@ -137,7 +139,7 @@ open class ShockMobEffect : MobEffect(MobEffectCategory.HARMFUL, -256) {
             val data = persistentData(entity)
 
             return if (data.contains(TAG_ATTACKER)) {
-                entity.level().getEntity(data.getInt(TAG_ATTACKER))
+                entity.level().getEntity(data.getIntOr(TAG_ATTACKER, 0))
             } else {
                 null
             }

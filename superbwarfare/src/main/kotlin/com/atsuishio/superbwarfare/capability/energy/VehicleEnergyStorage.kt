@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.energy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.vehicle.VehicleData
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade.providers
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.ContainerBlock.Companion.getEntityTranslationKey
 import com.atsuishio.superbwarfare.block.entity.VehicleDeployerBlockEntity
@@ -17,8 +19,8 @@ import snownee.jade.api.config.IPluginConfig
 object VehicleDeployerProvider : IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     private val ID = loc("vehicle_deployer")
 
-    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig?) {
-        val entityType = EntityType.byString(blockAccessor.serverData.getString("EntityType"))
+    override fun appendTooltip(iTooltip: ITooltip, blockAccessor: BlockAccessor, iPluginConfig: IPluginConfig) {
+        val entityType = entityTypeByString(blockAccessor.serverData.getStringOr("EntityType", ""))
         if (entityType.isEmpty) return
 
         // 实体名称显示
@@ -44,7 +46,7 @@ object VehicleDeployerProvider : IBlockComponentProvider, IServerDataProvider<Bl
 
     override fun appendServerData(compoundTag: CompoundTag, blockAccessor: BlockAccessor) {
         val blockEntity = blockAccessor.blockEntity as VehicleDeployerBlockEntity
-        compoundTag.putString("EntityType", blockEntity.entityData.getString("EntityType"))
+        compoundTag.putString("EntityType", blockEntity.entityData.getStringOr("EntityType", ""))
     }
 }
 

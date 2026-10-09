@@ -1,11 +1,13 @@
 package com.atsuishio.superbwarfare.client.renderer.scope
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.renderer.scope.BuiltinGunScopeRenderer.Companion.DIVISION_MIN_ZOOM
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.atsuishio.superbwarfare.resource.gun.pojo.BuiltinScopeInfo
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.TreeModelInstance
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBedrockModel
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
@@ -172,7 +174,6 @@ class BuiltinGunScopeRenderer(
 
         ScopeStencilRenderHelper.enableItemEntityStencilTest()
         RenderSystem.clearStencil(0)
-        RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX)
 
         // 镜圈：永远实心，画在写模板之前，所以它不吃窗口的亏。
         if (ringIndex >= 0) {
@@ -238,7 +239,6 @@ class BuiltinGunScopeRenderer(
         modelViewStack.pushMatrix()
         modelViewStack.identity()
         RenderSystem.applyModelViewMatrix()
-        RenderSystem.setShader(GameRenderer::getPositionColorShader)
         for (i in ocularIndices.indices) {
             RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
             val center = getBoneCenter(poseStack, ocularIndices[i], modelViewMatrix)
@@ -248,25 +248,6 @@ class BuiltinGunScopeRenderer(
 
             val radius = rad * depth / DISC_DISTANCE
 
-            val builder = Tesselator.getInstance().begin(
-                VertexFormat.Mode.TRIANGLE_FAN,
-                DefaultVertexFormat.POSITION_COLOR
-            )
-            builder
-                .addVertex(center.x(), center.y(), center.z())
-                .setColor(255, 255, 255, 255)
-            for (j in 0..90) {
-                val angle = j * ((Math.PI * 2.0) / 90.0)
-                val sin = Mth.sin(angle.toFloat())
-                val cos = Mth.cos(angle.toFloat())
-                builder.addVertex(
-                    center.x() + cos * radius,
-                    center.y() + sin * radius,
-                    center.z()
-                )
-                    .setColor(255, 255, 255, 255)
-            }
-            BufferUploader.drawWithShader(builder.build()!!)
         }
         modelViewStack.popMatrix()
         RenderSystem.applyModelViewMatrix()

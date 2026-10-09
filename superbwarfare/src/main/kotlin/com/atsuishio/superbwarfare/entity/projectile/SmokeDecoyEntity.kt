@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.client.particle.CustomSmokeOption
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModParticleTypes
@@ -17,6 +25,11 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
 
 open class SmokeDecoyEntity : Entity {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
     var life: Int = 400
     var igniteTime: Int = 4
     var releaseSmoke: Boolean = true
@@ -35,28 +48,32 @@ open class SmokeDecoyEntity : Entity {
 
     constructor(level: Level) : super(ModEntities.SMOKE_DECOY, level)
 
-    override fun readAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compoundTag = LegacyNbt.tagOf(input)
         if (compoundTag.contains("IgniteTime")) {
-            this.igniteTime = compoundTag.getInt("IgniteTime")
+            this.igniteTime = compoundTag.getIntOr("IgniteTime", 0)
         }
         if (compoundTag.contains("Life")) {
-            this.life = compoundTag.getInt("Life")
+            this.life = compoundTag.getIntOr("Life", 0)
         }
         if (compoundTag.contains("ReleaseSmoke")) {
-            this.releaseSmoke = compoundTag.getBoolean("ReleaseSmoke")
+            this.releaseSmoke = compoundTag.getBooleanOr("ReleaseSmoke", false)
         }
         if (compoundTag.contains("RColor")) {
-            this.red = compoundTag.getFloat("RColor")
+            this.red = compoundTag.getFloatOr("RColor", 0f)
         }
         if (compoundTag.contains("GColor")) {
-            this.green = compoundTag.getFloat("GColor")
+            this.green = compoundTag.getFloatOr("GColor", 0f)
         }
         if (compoundTag.contains("BColor")) {
-            this.blue = compoundTag.getFloat("BColor")
+            this.blue = compoundTag.getFloatOr("BColor", 0f)
         }
     }
 
-    override fun addAdditionalSaveData(compoundTag: CompoundTag) {
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compoundTag = LegacyNbt.tagOf(output)
         compoundTag.putInt("IgniteTime", igniteTime)
         compoundTag.putInt("Life", life)
         compoundTag.putBoolean("Release", this.releaseSmoke)

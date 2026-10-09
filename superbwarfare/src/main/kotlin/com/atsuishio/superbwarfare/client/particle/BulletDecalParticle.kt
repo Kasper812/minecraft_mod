@@ -1,13 +1,17 @@
 package com.atsuishio.superbwarfare.client.particle
 
+import com.atsuishio.portlib.render.LegacyParticleRenderType as ParticleRenderType
+
+import com.atsuishio.portlib.render.LegacyTextureSheetParticle as TextureSheetParticle
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Camera
 import net.minecraft.client.Minecraft
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.Particle
 import net.minecraft.client.particle.ParticleProvider
-import net.minecraft.client.particle.ParticleRenderType
-import net.minecraft.client.particle.TextureSheetParticle
 import net.minecraft.util.LightCoordsUtil
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
@@ -67,20 +71,18 @@ class BulletDecalParticle @JvmOverloads constructor(
 
         if (clientLevel != null) {
             val state = clientLevel.getBlockState(pos)
-            return minecraft.blockRenderer.blockModelShaper.getParticleIcon(state)
+            return com.atsuishio.portlib.render.LegacySprites.blockParticle(state)
         }
 
-        return minecraft
-            .getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
-            .apply(MissingTextureAtlasSprite.getLocation())
+        return com.atsuishio.portlib.render.LegacySprites.missing()
     }
 
     override fun getU0(): Float {
-        return this.sprite.u0 + this.uOffset * this.textureDensity
+        return this.sprite!!.u0 + this.uOffset * this.textureDensity
     }
 
     override fun getV0(): Float {
-        return this.sprite.v0 + this.vOffset * this.textureDensity
+        return this.sprite!!.v0 + this.vOffset * this.textureDensity
     }
 
     override fun getU1(): Float {
@@ -100,7 +102,7 @@ class BulletDecalParticle @JvmOverloads constructor(
     }
 
     override fun render(buffer: VertexConsumer, renderInfo: Camera, partialTicks: Float) {
-        val view = renderInfo.position
+        val view = renderInfo.position()
 
         val particleX = (Mth.lerp(partialTicks.toDouble(), this.xo, this.x) - view.x()).toFloat()
         val particleY = (Mth.lerp(partialTicks.toDouble(), this.yo, this.y) - view.y()).toFloat()
@@ -201,7 +203,8 @@ class BulletDecalParticle @JvmOverloads constructor(
             z: Double,
             xSpeed: Double,
             ySpeed: Double,
-            zSpeed: Double
+            zSpeed: Double,
+            random: net.minecraft.util.RandomSource
         ): Particle {
             return BulletDecalParticle(
                 level,

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.subdata.Cooldown.Companion.COOLDOWN
 import net.minecraft.nbt.CompoundTag
 
@@ -26,16 +28,16 @@ import net.minecraft.nbt.CompoundTag
 class Cooldown(private val gunDataTag: CompoundTag) {
 
     private val table: CompoundTag
-        get() = gunDataTag.getCompound(COOLDOWN)
+        get() = gunDataTag.getCompoundOrEmpty(COOLDOWN)
 
     /** 写用：键不存在时 `getCompound` 返回的是游离 tag，写进去不会留在父 tag 上 */
     private fun writableTable(): CompoundTag {
         if (!gunDataTag.contains(COOLDOWN)) gunDataTag.put(COOLDOWN, CompoundTag())
-        return gunDataTag.getCompound(COOLDOWN)
+        return gunDataTag.getCompoundOrEmpty(COOLDOWN)
     }
 
     /** 该键剩余的冷却 tick；没有该键时为 0（= 不在冷却中） */
-    fun get(key: String): Int = table.getInt(key)
+    fun get(key: String): Int = table.getIntOr(key, 0)
 
     /** 是否仍在冷却中 */
     fun isCoolingDown(key: String): Boolean = get(key) > 0
@@ -64,7 +66,7 @@ class Cooldown(private val gunDataTag: CompoundTag) {
     fun entries(): Map<String, Int> {
         if (!gunDataTag.contains(COOLDOWN)) return emptyMap()
         val tag = table
-        return tag.allKeys.associateWith { tag.getInt(it) }.filterValues { it > 0 }
+        return tag.allKeys.associateWith { tag.getIntOr(it, 0) }.filterValues { it > 0 }
     }
 
     /**
@@ -81,7 +83,7 @@ class Cooldown(private val gunDataTag: CompoundTag) {
         }
 
         for (key in tag.allKeys.toList()) {
-            val next = tag.getInt(key) - ticks
+            val next = tag.getIntOr(key, 0) - ticks
             if (next <= 0) tag.remove(key) else tag.putInt(key, next)
         }
 

@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod
@@ -52,8 +56,7 @@ import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Quaternionf
 
-open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
-    EntityRenderer<T>(manager) where T : VehicleEntity, T : BasicGeoVehicleEntity {
+open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) : LegacyEntityRenderer<T>(manager) where T : VehicleEntity, T : BasicGeoVehicleEntity {
 
     var pitch = 0f
     var yaw = 0f
@@ -413,7 +416,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
                     val projectileInfo = data.get(GunProp.PROJECTILE)
                     val projectileType = projectileInfo.itemId
 
-                    EntityType.byString(projectileType).ifPresent { entityType ->
+                    entityTypeByString(projectileType).ifPresent { entityType ->
                         val projectile = entityType.create(entity.level()) ?: return@ifPresent
                         projectile.tickCount = 1
                         if (projectile is FastThrowableProjectile) {

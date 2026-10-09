@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -16,8 +20,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
 
-class PrismaticBoltEntityRenderer(pContext: EntityRendererProvider.Context) :
-    EntityRenderer<PrismaticBoltEntity>(pContext) {
+class PrismaticBoltEntityRenderer(pContext: EntityRendererProvider.Context) : LegacyEntityRenderer<PrismaticBoltEntity>(pContext) {
     override fun getBlockLightLevel(pEntity: PrismaticBoltEntity, pPos: BlockPos): Int {
         return 15
     }

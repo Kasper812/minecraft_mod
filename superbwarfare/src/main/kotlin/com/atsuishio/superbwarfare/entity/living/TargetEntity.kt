@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.entity.living
 
+import net.minecraft.server.level.ServerLevel
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.animation.entity.TargetAnimationInstance
 import com.atsuishio.superbwarfare.entity.getValue
@@ -43,15 +47,11 @@ open class TargetEntity(type: EntityType<TargetEntity>, level: Level) : LivingEn
         builder.define(DOWN_TIME, 0)
     }
 
-    override fun getArmorSlots(): Iterable<ItemStack> {
-        return NonNullList.withSize(1, ItemStack.EMPTY)
-    }
-
     override fun getItemBySlot(pSlot: EquipmentSlot): ItemStack = ItemStack.EMPTY
 
     override fun setItemSlot(pSlot: EquipmentSlot, pStack: ItemStack) {}
 
-    override fun causeFallDamage(l: Float, d: Float, source: DamageSource) = false
+    override fun causeFallDamage(l: Double, d: Float, source: DamageSource) = false
 
     override fun shouldRenderAtSqrDistance(pDistance: Double) = true
 
@@ -59,12 +59,12 @@ open class TargetEntity(type: EntityType<TargetEntity>, level: Level) : LivingEn
         this.noCulling = true
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         // 不处理/kill伤害
         var amount = amount
         if (source.`is`(DamageTypes.GENERIC_KILL)) {
             this.remove(RemovalReason.KILLED)
-            return super.hurt(source, amount)
+            return super.hurtServer(serverLevel, source, amount)
         }
 
         amount = DAMAGE_MODIFIER.compute(this, source, amount)
@@ -93,7 +93,7 @@ open class TargetEntity(type: EntityType<TargetEntity>, level: Level) : LivingEn
                 false
             )
         }
-        return super.hurt(source, amount)
+        return super.hurtServer(serverLevel, source, amount)
     }
 
     override fun isPickable() = downTime == 0
@@ -112,7 +112,7 @@ open class TargetEntity(type: EntityType<TargetEntity>, level: Level) : LivingEn
 
     fun facePlayer(player: Player) = faceTowards(player.x, player.z)
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (!player.mainHandItem.isEmpty && !player.mainHandItem.`is`(ModTags.Items.TOOLS_CROWBAR)) {
             return InteractionResult.PASS
         }
@@ -130,7 +130,7 @@ open class TargetEntity(type: EntityType<TargetEntity>, level: Level) : LivingEn
             this.downTime = 0
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {

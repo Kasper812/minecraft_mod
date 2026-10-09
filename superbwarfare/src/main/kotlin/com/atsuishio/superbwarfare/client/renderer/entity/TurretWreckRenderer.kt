@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -27,8 +31,7 @@ import org.joml.Quaternionf
 import software.bernie.geckolib.animatable.GeoAnimatable
 import software.bernie.geckolib.renderer.GeoEntityRenderer
 
-class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
-    EntityRenderer<TurretWreckEntity>(renderManager) {
+class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<TurretWreckEntity>(renderManager) {
     init {
         this.shadowRadius = 1f
     }
@@ -41,7 +44,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
         packedLight: Int,
         packedOverlay: Int,
     ) {
-        val type = EntityType.byString(wreckEntity.vehicleName)
+        val type = entityTypeByString(wreckEntity.vehicleName)
         if (type.isEmpty) return
         val entity = type.get().create(wreckEntity.level()) ?: return
         val renderer = mc.entityRenderDispatcher.getRenderer(entity)

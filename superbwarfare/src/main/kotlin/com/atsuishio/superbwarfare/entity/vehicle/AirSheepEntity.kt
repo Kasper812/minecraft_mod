@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import net.minecraft.world.phys.Vec3
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -27,10 +37,10 @@ open class AirSheepEntity(type: EntityType<AirSheepEntity>, world: Level) : Vehi
 
         /** Maps dye color ID to wool item, mirroring vanilla [net.minecraft.world.entity.animal.Sheep.ITEM_BY_DYE] */
         private val WOOL_BY_DYE_COLOR = arrayOf(
-            Items.WHITE_WOOL, Items.ORANGE_WOOL, Items.MAGENTA_WOOL, Items.LIGHT_BLUE_WOOL,
-            Items.YELLOW_WOOL, Items.LIME_WOOL, Items.PINK_WOOL, Items.GRAY_WOOL,
-            Items.LIGHT_GRAY_WOOL, Items.CYAN_WOOL, Items.PURPLE_WOOL, Items.BLUE_WOOL,
-            Items.BROWN_WOOL, Items.GREEN_WOOL, Items.RED_WOOL, Items.BLACK_WOOL
+            Items.WOOL.white(), Items.WOOL.orange(), Items.WOOL.magenta(), Items.WOOL.lightBlue(),
+            Items.WOOL.yellow(), Items.WOOL.lime(), Items.WOOL.pink(), Items.WOOL.gray(),
+            Items.WOOL.lightGray(), Items.WOOL.cyan(), Items.WOOL.purple(), Items.WOOL.blue(),
+            Items.WOOL.brown(), Items.WOOL.green(), Items.WOOL.red(), Items.WOOL.black()
         )
     }
 
@@ -41,24 +51,28 @@ open class AirSheepEntity(type: EntityType<AirSheepEntity>, world: Level) : Vehi
 
     var colorId by COLOR_ID
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putInt("ColorId", colorId)
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        colorId = compound.getInt("ColorId")
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        colorId = compound.getIntOr("ColorId", 0)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val stack = player.mainHandItem
         if (stack.item is DyeItem) {
             if (customName != null && customName!!.string == "jeb_") return InteractionResult.PASS
-            val stackColor = (stack.item as DyeItem).dyeColor.id
+            val stackColor = (stack.get(net.minecraft.core.component.DataComponents.DYE) ?: net.minecraft.world.item.DyeColor.WHITE).id
 
             if (colorId == stackColor) {
-                return super.interact(player, hand)
+                return super.interact(player, hand, location)
             }
 
             colorId = stackColor
@@ -67,9 +81,9 @@ open class AirSheepEntity(type: EntityType<AirSheepEntity>, world: Level) : Vehi
                 stack.shrink(1)
             }
             this.level().playSound(null, this, SoundEvents.BONE_MEAL_USE, this.soundSource, 1f, 1f)
-            return InteractionResult.sidedSuccess(this.level().isClientSide())
+            return InteractionResult.SUCCESS
         }
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     override fun destroy() {
@@ -81,7 +95,7 @@ open class AirSheepEntity(type: EntityType<AirSheepEntity>, world: Level) : Vehi
             level.explode(null, x, y, z, 0f, Level.ExplosionInteraction.NONE)
 
             // Drop raw mutton and color-matched wool (mirrors vanilla Sheep drops)
-            val woolItem = WOOL_BY_DYE_COLOR.getOrElse(colorId) { Items.WHITE_WOOL }
+            val woolItem = WOOL_BY_DYE_COLOR.getOrElse(colorId) { Items.WOOL.white() }
             val mutton = ItemEntity(level, x, (y + 1), z, ItemStack(Items.MUTTON))
             val wool = ItemEntity(level, x, (y + 1), z, ItemStack(woolItem))
             val boat = ItemEntity(level, x, (y + 1), z, ItemStack(Items.OAK_BOAT))

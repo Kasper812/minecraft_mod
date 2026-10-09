@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.RpgRocketTBGEntity
 import com.atsuishio.superbwarfare.init.ModCriteriaTriggers
 import com.atsuishio.superbwarfare.init.ModEntities
@@ -23,30 +25,9 @@ import net.minecraft.world.item.component.ItemAttributeModifiers
 import net.minecraft.world.level.Level
 
 @RegistryName("rpg_rocket_tbg")
-open class RpgRocketTBGItem : Item(Properties().stacksTo(16)), DispenserLaunchable {
-    @Deprecated("Deprecated in Java")
-    override fun getDefaultAttributeModifiers(): ItemAttributeModifiers {
-        val list = ArrayList(super.getDefaultAttributeModifiers().modifiers())
+open class RpgRocketTBGItem : Item(Properties().stacksTo(16).attackAttributes(6.0, -2.4)), DispenserLaunchable {
 
-        list.addAll(
-            listOf(
-                ItemAttributeModifiers.Entry(
-                    Attributes.ATTACK_DAMAGE,
-                    AttributeModifier(BASE_ATTACK_DAMAGE_ID, 6.0, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND
-                ),
-                ItemAttributeModifiers.Entry(
-                    Attributes.ATTACK_SPEED,
-                    AttributeModifier(BASE_ATTACK_SPEED_ID, -2.4, AttributeModifier.Operation.ADD_VALUE),
-                    EquipmentSlotGroup.MAINHAND
-                )
-            )
-        )
-
-        return ItemAttributeModifiers(list, true)
-    }
-
-    override fun hurtEnemy(stack: ItemStack, entity: LivingEntity, source: LivingEntity): Boolean {
+    override fun hurtEnemy(stack: ItemStack, entity: LivingEntity, source: LivingEntity) {
         val level = entity.level()
         if (level is ServerLevel && Math.random() < 0.25) {
             level.explode(source, source.x, source.y + 1, source.z, 10f, Level.ExplosionInteraction.NONE)
@@ -66,7 +47,7 @@ open class RpgRocketTBGItem : Item(Properties().stacksTo(16)), DispenserLaunchab
             }
         }
 
-        return super.hurtEnemy(stack, entity, source)
+        super.hurtEnemy(stack, entity, source)
     }
 
     override fun getLaunchBehavior(): AbstractProjectileDispenseBehavior {

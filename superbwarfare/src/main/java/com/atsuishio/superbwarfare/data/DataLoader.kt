@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.DataLoader.JSON
 import com.atsuishio.superbwarfare.data.mob_guns.MobGunData
@@ -72,7 +74,7 @@ object DataLoader {
     }
 
     private fun syncDataToPlayer(server: MinecraftServer, player: ServerPlayer) {
-        if (server.isSingleplayerOwner(player.gameProfile)) return
+        if (server.isSingleplayerOwner(player.nameAndId())) return
 
         LOADED_DATA.filter { it.value.synced }.forEach { (key, data) ->
             val packet = DataSyncMessage(key, data.serializeToString())

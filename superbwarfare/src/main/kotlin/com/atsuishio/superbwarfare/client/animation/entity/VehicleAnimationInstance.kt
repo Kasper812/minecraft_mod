@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.BasicGeoVehicleEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.resource.vehicle.VehicleResource

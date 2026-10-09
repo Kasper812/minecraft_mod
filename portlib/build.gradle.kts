@@ -10,6 +10,10 @@ base {
     archivesName.set("sbw-portlib")
 }
 
+loom {
+    accessWidenerPath = file("src/main/resources/sbw_portlib.accesswidener")
+}
+
 dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
     implementation("net.fabricmc:fabric-loader:${property("loader_version")}")

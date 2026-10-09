@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.vehicle.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.StringOrVec3
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

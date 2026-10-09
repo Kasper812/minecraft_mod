@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.sound.VehicleSoundInstance
 import com.atsuishio.superbwarfare.config.server.SyncConfig
 import com.atsuishio.superbwarfare.data.gun.GunProp
@@ -205,8 +207,8 @@ object ClientSyncedEntityHandler {
                 val tag = syncedEntity.tag as? CompoundTag
                 if (tag != null) entity.load(tag)
             } else {
-                val type = BuiltInRegistries.ENTITY_TYPE.get(syncedEntity.type)
-                entity = type.create(level) ?: continue
+                val type = BuiltInRegistries.ENTITY_TYPE.getValue(syncedEntity.type)
+                entity = type.create(level, net.minecraft.world.entity.EntitySpawnReason.LOAD) ?: continue
                 val tag = syncedEntity.tag as? CompoundTag ?: continue
                 entity.load(tag)
                 entity.id = syncedEntity.id
@@ -219,11 +221,11 @@ object ClientSyncedEntityHandler {
             // 远程打击武器（超视距假实体本身没有同步的 GUN_DATA_MAP）。
             if (entity is VehicleEntity) {
                 val tag = syncedEntity.tag as? CompoundTag
-                val gunAmmoTag = tag?.getCompound("GunAmmo")
+                val gunAmmoTag = tag?.getCompoundOrEmpty("GunAmmo")
                 if (gunAmmoTag != null && !gunAmmoTag.isEmpty) {
                     for (name in gunAmmoTag.allKeys) {
                         val gd = entity.gunDataMap[name] ?: continue
-                        val shots = gunAmmoTag.getInt(name)
+                        val shots = gunAmmoTag.getIntOr(name, 0)
                         val ammoCost = gd.get(GunProp.AMMO_COST_PER_SHOOT)
                         // 无限弹药武器由 queryWeaponAmmo 直接返回 999，无需写入
                         if (ammoCost <= 0) continue

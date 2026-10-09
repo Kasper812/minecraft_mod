@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.level.redstone.Orientation
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.VehicleDeployerBlockEntity
 import com.atsuishio.superbwarfare.init.ModItems
 import com.mojang.serialization.MapCodec
@@ -8,7 +12,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.ItemInteractionResult
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -21,13 +25,13 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 import javax.annotation.ParametersAreNonnullByDefault
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class VehicleDeployerBlock :
-    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).requiresCorrectToolForDrops()) {
+    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).requiresCorrectToolForDrops()), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -47,7 +51,7 @@ open class VehicleDeployerBlock :
         )
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING).add(TRIGGERED)
     }
 
@@ -60,19 +64,19 @@ open class VehicleDeployerBlock :
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
+    ): InteractionResult {
         val blockEntity = level.getBlockEntity(pos)
         if (level.isClientSide
             || blockEntity !is VehicleDeployerBlockEntity
-        ) return ItemInteractionResult.SUCCESS
+        ) return InteractionResult.SUCCESS
 
-        if (!player.isCreative) return ItemInteractionResult.FAIL
+        if (!player.isCreative) return InteractionResult.FAIL
 
         if (stack.item !== ModItems.CONTAINER) {
             player.displayClientMessage(
                 Component.translatable("des.superbwarfare.vehicle_deployer.fail").withStyle(ChatFormatting.RED), true
             )
-            return ItemInteractionResult.FAIL
+            return InteractionResult.FAIL
         }
 
         blockEntity.writeEntityInfo(stack)
@@ -80,7 +84,7 @@ open class VehicleDeployerBlock :
             Component.translatable("des.superbwarfare.vehicle_deployer.success").withStyle(ChatFormatting.GREEN), true
         )
 
-        return ItemInteractionResult.SUCCESS
+        return InteractionResult.SUCCESS
     }
 
     override fun neighborChanged(
@@ -88,7 +92,7 @@ open class VehicleDeployerBlock :
         level: Level,
         pos: BlockPos,
         neighborBlock: Block,
-        neighborPos: BlockPos,
+        orientation: Orientation?,
         pMovedByPiston: Boolean
     ) {
         val charged = level.hasNeighborSignal(pos) || level.hasNeighborSignal(pos.above())
@@ -122,7 +126,7 @@ open class VehicleDeployerBlock :
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val TRIGGERED: BooleanProperty = BlockStateProperties.TRIGGERED

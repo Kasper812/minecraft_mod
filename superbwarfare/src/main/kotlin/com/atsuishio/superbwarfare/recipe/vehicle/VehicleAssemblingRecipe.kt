@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.recipe.vehicle
 
+import net.minecraft.world.item.crafting.RecipeBookCategories
+
+import net.minecraft.world.item.crafting.RecipeBookCategory
+
+import net.minecraft.world.item.crafting.PlacementInfo
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModRecipes
 import net.minecraft.core.HolderLookup
@@ -45,25 +53,31 @@ class VehicleAssemblingRecipe : Recipe<RecipeInput> {
         return false
     }
 
-    override fun assemble(recipeWrapper: RecipeInput, provider: HolderLookup.Provider): ItemStack {
+    override fun assemble(recipeWrapper: RecipeInput): ItemStack {
         return ItemStack.EMPTY
     }
 
-    override fun canCraftInDimensions(pWidth: Int, pHeight: Int): Boolean {
-        return true
-    }
 
-    override fun getResultItem(provider: HolderLookup.Provider): ItemStack {
+    fun getResultItem(provider: HolderLookup.Provider? = null): ItemStack {
         return this.result.getResult().copy()
     }
 
-    override fun getSerializer(): RecipeSerializer<*> {
+    override fun getSerializer(): RecipeSerializer<VehicleAssemblingRecipe> {
         return ModRecipes.VEHICLE_ASSEMBLING_SERIALIZER
     }
 
-    override fun getType(): RecipeType<*> {
+    override fun getType(): RecipeType<VehicleAssemblingRecipe> {
         return ModRecipes.VEHICLE_ASSEMBLING_TYPE
     }
+
+    override fun showNotification(): Boolean = false
+
+    override fun group(): String = ""
+
+    override fun placementInfo(): PlacementInfo = PlacementInfo.NOT_PLACEABLE
+
+    override fun recipeBookCategory(): RecipeBookCategory = RecipeBookCategories.CRAFTING_MISC
+
 
     enum class Category(@JvmField val typeName: String) {
         LAND("land"),

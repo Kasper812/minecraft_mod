@@ -1,7 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
+import com.atsuishio.portlib.gui.LegacyGlStateManager;
+import com.atsuishio.portlib.gui.LegacyRenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.util.Util;
@@ -28,12 +28,12 @@ public class ModRenderTypes extends RenderType {
 
     /** 激光束的附加混合 */
     public static final TransparencyStateShard LASER_BEAM_ADDITIVE = new TransparencyStateShard("laser_beam_additive", () -> {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE,
-                GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+        LegacyRenderSystem.enableBlend();
+        LegacyRenderSystem.blendFuncSeparate(LegacyGlStateManager.SourceFactor.SRC_ALPHA, LegacyGlStateManager.DestFactor.ONE,
+                LegacyGlStateManager.SourceFactor.ONE, LegacyGlStateManager.DestFactor.ZERO);
     }, () -> {
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
+        LegacyRenderSystem.disableBlend();
+        LegacyRenderSystem.defaultBlendFunc();
     });
 
     /** 枪械激光瞄准器的光束 */
@@ -67,11 +67,11 @@ public class ModRenderTypes extends RenderType {
 
     // DickSheep的恩情还不完
     public static final TransparencyStateShard TEST_TRANSPARENCY = new TransparencyStateShard("test_transparency", () -> {
-        RenderSystem.enableBlend();
-        RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE);
+        LegacyRenderSystem.enableBlend();
+        LegacyRenderSystem.blendFuncSeparate(LegacyGlStateManager.SourceFactor.SRC_ALPHA, LegacyGlStateManager.DestFactor.ONE, LegacyGlStateManager.SourceFactor.ONE, LegacyGlStateManager.DestFactor.ONE);
     }, () -> {
-        RenderSystem.disableBlend();
-        RenderSystem.defaultBlendFunc();
+        LegacyRenderSystem.disableBlend();
+        LegacyRenderSystem.defaultBlendFunc();
     });
 
     // 支持半透明和自发光的多边形网格渲染类型，用于载具特效（如枪口火焰）

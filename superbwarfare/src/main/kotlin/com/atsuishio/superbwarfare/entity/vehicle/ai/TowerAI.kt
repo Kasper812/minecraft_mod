@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.ai
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.living.TargetEntity
 import com.atsuishio.superbwarfare.entity.projectile.SmallCannonShellEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.AutoAimableEntity

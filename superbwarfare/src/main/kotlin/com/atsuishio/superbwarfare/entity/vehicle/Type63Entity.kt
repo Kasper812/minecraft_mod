@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.projectile.MediumRocketEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -56,7 +64,7 @@ open class Type63Entity(type: EntityType<Type63Entity>, level: Level) : VehicleE
     var interactionTick: Double = 0.0
     var cooldown: Int = 0
 
-    override fun canBeCollidedWith(): Boolean {
+    override fun canBeCollidedWith(other: Entity?): Boolean {
         return true
     }
 
@@ -98,21 +106,25 @@ open class Type63Entity(type: EntityType<Type63Entity>, level: Level) : VehicleE
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putFloat("Pitch", this.entityData.get(TARGET_PITCH))
         compound.putFloat("Yaw", this.entityData.get(TARGET_YAW))
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        this.entityData.set(TARGET_PITCH, compound.getFloat("Pitch"))
-        this.entityData.set(TARGET_YAW, compound.getFloat("Yaw"))
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        this.entityData.set(TARGET_PITCH, compound.getFloatOr("Pitch", 0f))
+        this.entityData.set(TARGET_YAW, compound.getFloatOr("Yaw", 0f))
         setChanged()
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
-        val result = super.interact(player, hand)
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
+        val result = super.interact(player, hand, location)
         if (result != InteractionResult.PASS) return result
 
         val stack = player.mainHandItem
@@ -371,7 +383,7 @@ open class Type63Entity(type: EntityType<Type63Entity>, level: Level) : VehicleE
             EntityTypeTest.forClass(Entity::class.java),
             ab
         ) { it !== this }) {
-            entity.hurt(causeBurnDamage(entity.level().registryAccess(), player), 30 - 2 * entity.distanceTo(this))
+            entity.hurtOrSimulate(causeBurnDamage(entity.level().registryAccess(), player), 30 - 2 * entity.distanceTo(this))
             val force = 4 - 0.7 * entity.distanceTo(this)
             entity.push(-force * barrelVector.x, -force * barrelVector.y, -force * barrelVector.z)
         }

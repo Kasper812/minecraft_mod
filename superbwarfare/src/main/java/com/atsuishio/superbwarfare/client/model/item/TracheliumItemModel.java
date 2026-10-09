@@ -53,9 +53,9 @@ public class TracheliumItemModel extends CustomGunModel<TracheliumItem> {
         int scopeType = data.attachment.get(AttachmentType.SCOPE);
         int gripType = data.attachment.get(AttachmentType.GRIP);
 
-        posYAlt = Mth.lerp(times, posYAlt, NBTTool.getTag(stack).getBoolean("ScopeAlt") ? -1.98f : -0.83f);
-        scaleZAlt = Mth.lerp(times, scaleZAlt, NBTTool.getTag(stack).getBoolean("ScopeAlt") ? 0.4f : 0.8f);
-        posZAlt = Mth.lerp(times, posZAlt, NBTTool.getTag(stack).getBoolean("ScopeAlt") ? 7.5f : 13.7f);
+        posYAlt = Mth.lerp(times, posYAlt, NBTTool.getTag(stack).getBooleanOr("ScopeAlt", false) ? -1.98f : -0.83f);
+        scaleZAlt = Mth.lerp(times, scaleZAlt, NBTTool.getTag(stack).getBooleanOr("ScopeAlt", false) ? 0.4f : 0.8f);
+        posZAlt = Mth.lerp(times, posZAlt, NBTTool.getTag(stack).getBooleanOr("ScopeAlt", false) ? 7.5f : 13.7f);
 
         float posY = switch (scopeType) {
             case 0, 3 -> 1.1f;

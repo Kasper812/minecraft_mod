@@ -1,11 +1,17 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.entity.ChargingStationBlockEntity
 import com.atsuishio.superbwarfare.inventory.menu.ChargingStationMenu
 import com.atsuishio.superbwarfare.network.message.send.ShowChargingRangeMessage
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -16,8 +22,7 @@ import net.fabricmc.api.Environment
 import java.util.*
 
 @Environment(EnvType.CLIENT)
-class ChargingStationScreen(pMenu: ChargingStationMenu, pPlayerInventory: Inventory, pTitle: Component) :
-    AbstractContainerScreen<ChargingStationMenu>(pMenu, pPlayerInventory, pTitle) {
+class ChargingStationScreen(pMenu: ChargingStationMenu, pPlayerInventory: Inventory, pTitle: Component) : LegacyContainerScreen<ChargingStationMenu>(pMenu, pPlayerInventory, pTitle) {
     init {
         imageWidth = 176
         imageHeight = 166
@@ -82,7 +87,7 @@ class ChargingStationScreen(pMenu: ChargingStationMenu, pPlayerInventory: Invent
     }
 
     @Environment(EnvType.CLIENT)
-    internal inner class ShowRangeButton(pX: Int, pY: Int) : AbstractButton(
+    internal inner class ShowRangeButton(pX: Int, pY: Int) : LegacyAbstractButton(
         pX + 7,
         pY + 55,
         33,

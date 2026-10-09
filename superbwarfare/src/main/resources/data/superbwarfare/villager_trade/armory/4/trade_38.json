@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 32
+  },
+  "gives": {
+    "id": "superbwarfare:large_aerial_bomb"
+  },
+  "max_uses": 8,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

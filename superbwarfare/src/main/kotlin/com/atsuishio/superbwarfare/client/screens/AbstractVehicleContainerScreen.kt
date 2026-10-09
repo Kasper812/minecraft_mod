@@ -1,8 +1,12 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.inventory.menu.AbstractVehicleContainerMenu
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
@@ -12,7 +16,7 @@ abstract class AbstractVehicleContainerScreen<T : AbstractVehicleContainerMenu>(
     menu: T,
     inventory: Inventory,
     title: Component
-) : AbstractContainerScreen<T>(menu, inventory, title) {
+) : LegacyContainerScreen<T>(menu, inventory, title) {
     init {
         this.imageWidth = 176
         this.imageHeight = 114 + this.menu.getRows() * 18

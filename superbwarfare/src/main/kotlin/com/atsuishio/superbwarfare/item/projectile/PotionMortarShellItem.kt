@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.MortarShellEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -19,7 +23,6 @@ import net.minecraft.world.item.TooltipFlag
 import net.minecraft.world.item.alchemy.PotionContents
 import net.minecraft.world.item.alchemy.Potions
 import net.minecraft.world.level.Level
-import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry
 
 @RegistryName("potion_mortar_shell")
 class PotionMortarShellItem : MortarShellItem(), DispenserLaunchable {
@@ -31,15 +34,15 @@ class PotionMortarShellItem : MortarShellItem(), DispenserLaunchable {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
-        stack.get(DataComponents.POTION_CONTENTS)?.addPotionTooltip(
-            { e -> tooltipComponents.add(e) },
-            0.125f,
-            context.tickRate()
-        )
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
+        stack.get(DataComponents.POTION_CONTENTS)?.let {
+            PotionContents.addPotionTooltip(it.allEffects, { e -> tooltipComponents.add(e) }, 0.125f, context.tickRate())
+        }
     }
 
     override fun getLaunchBehavior(): DispenseItemBehavior {
@@ -71,14 +74,6 @@ class PotionMortarShellItem : MortarShellItem(), DispenserLaunchable {
     companion object {
         @JvmStatic
         fun registerColorHandler() {
-            ColorProviderRegistry.ITEM.register(
-                { stack, layer ->
-                    if (layer == 1) ARGB.opaque(
-                        stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).color
-                    ) else -1
-                },
-                ModItems.POTION_MORTAR_SHELL
-            )
         }
     }
 }

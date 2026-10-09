@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.TooltipTool
 import com.atsuishio.superbwarfare.client.screens.FiringParametersScreen
 import com.atsuishio.superbwarfare.entity.vehicle.base.ArtilleryEntity
@@ -54,10 +56,12 @@ class FiringParametersItem : Item(Properties().stacksTo(1)), ItemScreenProvider,
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         TooltipTool.addScreenProviderText(tooltipComponents)
 
         val (pos, radius, isDepressed) = stack.firingParameters

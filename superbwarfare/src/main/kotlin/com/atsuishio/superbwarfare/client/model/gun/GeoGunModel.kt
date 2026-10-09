@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
@@ -22,7 +24,6 @@ import net.minecraft.client.player.LocalPlayer
 import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
-import net.minecraft.client.renderer.entity.player.PlayerRenderer
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.HumanoidArm
 import org.joml.Matrix3f
@@ -535,12 +536,14 @@ open class GeoGunModel @JvmOverloads constructor(
             packedLight: Int
         ) {
             val renderManager: EntityRenderDispatcher = mc.entityRenderDispatcher
-            val renderer = renderManager.getRenderer(player) as PlayerRenderer
+            val renderer = renderManager.getPlayerRenderer(player)
+            val collector = com.atsuishio.portlib.render.LegacyRenderHelpers.collectorOf(bufferSource) ?: return
+            val skinTexture = player.skin.body().texturePath()
 
             if (hand == HumanoidArm.RIGHT) {
-                renderer.renderRightHand(poseStack, bufferSource, packedLight, player)
+                renderer.renderRightHand(poseStack, collector, packedLight, skinTexture, player.isModelPartShown(net.minecraft.world.entity.player.PlayerModelPart.RIGHT_SLEEVE))
             } else {
-                renderer.renderLeftHand(poseStack, bufferSource, packedLight, player)
+                renderer.renderLeftHand(poseStack, collector, packedLight, skinTexture, player.isModelPartShown(net.minecraft.world.entity.player.PlayerModelPart.LEFT_SLEEVE))
             }
         }
     }

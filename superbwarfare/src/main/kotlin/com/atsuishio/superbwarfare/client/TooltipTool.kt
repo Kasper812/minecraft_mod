@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModKeyMappings
 import net.minecraft.ChatFormatting
 import net.minecraft.client.gui.screens.Screen
@@ -8,7 +10,7 @@ import net.minecraft.network.chat.Component
 object TooltipTool {
     @JvmStatic
     fun addHideText(tooltip: MutableList<Component>, text: Component) {
-        if (Screen.hasShiftDown()) {
+        if (com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()) {
             tooltip += text
         }
     }

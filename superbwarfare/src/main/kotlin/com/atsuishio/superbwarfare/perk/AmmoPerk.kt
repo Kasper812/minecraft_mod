@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DamageReduce
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData

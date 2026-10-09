@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.util.RandomSource
+
+import net.minecraft.world.level.LevelReader
+
+import net.minecraft.world.level.ScheduledTickAccess
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -35,11 +43,13 @@ open class DragonTeethBlock : Block(
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false))
     }
 
-    override fun propagatesSkylightDown(state: BlockState, reader: BlockGetter, pos: BlockPos): Boolean {
+    override fun propagatesSkylightDown(
+        state: BlockState
+    ): Boolean  {
         return true
     }
 
-    override fun getLightBlock(state: BlockState, worldIn: BlockGetter, pos: BlockPos): Int {
+    override fun getLightDampening(state: BlockState): Int {
         return 0
     }
 
@@ -66,7 +76,7 @@ open class DragonTeethBlock : Block(
         return PathType.LAVA
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(WATERLOGGED)
     }
 
@@ -81,16 +91,18 @@ open class DragonTeethBlock : Block(
 
     override fun updateShape(
         state: BlockState,
-        facing: Direction,
-        facingState: BlockState,
-        world: LevelAccessor,
+        world: LevelReader,
+        scheduledTickAccess: ScheduledTickAccess,
         currentPos: BlockPos,
-        facingPos: BlockPos
-    ): BlockState {
+        facing: Direction,
+        facingPos: BlockPos,
+        facingState: BlockState,
+        randomSource: RandomSource
+    ): BlockState  {
         if (state.getValue(WATERLOGGED)) {
-            world.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
+            scheduledTickAccess.scheduleTick(currentPos, Fluids.WATER, Fluids.WATER.getTickDelay(world))
         }
-        return super.updateShape(state, facing, facingState, world, currentPos, facingPos)
+        return super.updateShape(state, world, scheduledTickAccess, currentPos, facing, facingPos, facingState, randomSource)
     }
 
     override fun stepOn(pLevel: Level, pPos: BlockPos, pState: BlockState, pEntity: Entity) {

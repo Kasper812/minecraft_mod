@@ -2,6 +2,8 @@
 
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.json.*
 
 typealias GsonElement = com.google.gson.JsonElement

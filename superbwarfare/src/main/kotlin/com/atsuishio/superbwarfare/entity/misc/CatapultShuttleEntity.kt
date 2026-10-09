@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.misc
 
+import net.minecraft.world.phys.Vec3
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
@@ -27,6 +37,11 @@ import net.minecraft.world.level.Level
 import kotlin.math.max
 
 open class CatapultShuttleEntity(type: EntityType<out CatapultShuttleEntity>, world: Level) : Entity(type, world) {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
 
     open val modelInstance = EntityModelReloadListener.getModel(MODEL)?.createInstance()
 
@@ -40,7 +55,7 @@ open class CatapultShuttleEntity(type: EntityType<out CatapultShuttleEntity>, wo
         return !this.isRemoved
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (player.isShiftKeyDown && player.mainHandItem.isEmpty) {
             if (!this.level().isClientSide) {
                 clearTowingInfo()
@@ -52,9 +67,9 @@ open class CatapultShuttleEntity(type: EntityType<out CatapultShuttleEntity>, wo
                     level().addFreshEntity(itemEntity)
                 }
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide)
+            return InteractionResult.SUCCESS
         }
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -130,12 +145,16 @@ open class CatapultShuttleEntity(type: EntityType<out CatapultShuttleEntity>, wo
         }
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putString("TowingUUID", towingUUID)
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        towingUUID = compound.getString("TowingUUID")
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        towingUUID = compound.getStringOr("TowingUUID", "")
     }
 
     override fun remove(reason: RemovalReason) {

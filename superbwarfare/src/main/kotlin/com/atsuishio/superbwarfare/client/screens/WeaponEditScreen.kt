@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
@@ -12,9 +18,9 @@ import com.atsuishio.superbwarfare.item.gun.GunItem
 import com.atsuishio.superbwarfare.network.message.send.EditMessage
 import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
@@ -24,7 +30,7 @@ import net.minecraft.world.item.ItemStack
 import org.lwjgl.glfw.GLFW
 import kotlin.math.min
 
-class WeaponEditScreen(private val stack: ItemStack) : Screen(Component.empty()) {
+class WeaponEditScreen(private val stack: ItemStack) : LegacyScreen(Component.empty()) {
     override fun isPauseScreen(): Boolean {
         return false
     }
@@ -74,7 +80,6 @@ class WeaponEditScreen(private val stack: ItemStack) : Screen(Component.empty())
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -263,14 +268,13 @@ class WeaponEditScreen(private val stack: ItemStack) : Screen(Component.empty())
         pHeight: Int, // 0 = barrel, 1 = scope, 2 = grip, 3 = stock, 4 = magazine, 5 = ammoType
         var type: Int,
         var left: Boolean
-    ) : AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    ) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
             pGuiGraphics.pose().pushPose()
 
             RenderSystem.disableDepthTest()
             RenderSystem.depthMask(false)
             RenderSystem.enableBlend()
-            RenderSystem.setShader { GameRenderer.getPositionTexShader() }
             RenderSystem.blendFuncSeparate(
                 GlStateManager.SourceFactor.SRC_ALPHA,
                 GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

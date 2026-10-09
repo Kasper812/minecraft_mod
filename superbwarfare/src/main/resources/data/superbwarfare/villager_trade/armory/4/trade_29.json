@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 8
+  },
+  "gives": {
+    "id": "superbwarfare:large_shell_cm"
+  },
+  "max_uses": 8,
+  "xp": 10,
+  "reputation_discount": 0.05
+}

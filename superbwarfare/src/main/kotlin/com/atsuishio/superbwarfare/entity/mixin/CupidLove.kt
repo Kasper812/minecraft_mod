@@ -1,7 +1,8 @@
 package com.atsuishio.superbwarfare.entity.mixin
 
-import net.minecraft.world.entity.npc.Villager
+import com.atsuishio.superbwarfare.port.*
 
+import net.minecraft.world.entity.npc.villager.Villager
 @Suppress("FunctionName")
 interface CupidLove {
     fun `superbwarfare$setCupidLove`(love: Boolean)

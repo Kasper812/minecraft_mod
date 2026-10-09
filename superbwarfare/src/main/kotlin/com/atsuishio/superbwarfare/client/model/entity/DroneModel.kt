@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.DroneEntity
 
 class DroneModel : VehicleModel<DroneEntity>() {

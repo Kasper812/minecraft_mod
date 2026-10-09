@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.init.ModCapabilities
@@ -74,13 +82,21 @@ open class CreativeChargingStationBlockEntity(pos: BlockPos, state: BlockState) 
         return energyStorage
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
-        this.showRange = tag.getBoolean("ShowRange")
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
+        this.showRange = tag.getBooleanOr("ShowRange", false)
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
         tag.putBoolean("ShowRange", this.showRange)
     }
 

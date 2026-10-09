@@ -1,14 +1,17 @@
 package com.atsuishio.superbwarfare.client.screens.component
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyButton
+
 import com.atsuishio.superbwarfare.client.screens.VehicleAssemblingScreen
 import com.atsuishio.superbwarfare.tools.mc
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.network.chat.Component
 
-class AssembleButton(x: Int, y: Int, onPress: OnPress) :
-    Button(x, y, 56, 13, Component.empty(), onPress, DEFAULT_NARRATION) {
+class AssembleButton(x: Int, y: Int, onPress: OnPress) : LegacyButton(x, y, 56, 13, Component.empty(), onPress, DEFAULT_NARRATION) {
     override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
         pGuiGraphics.pose().pushPose()
         RenderSystem.enableDepthTest()

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.melee
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * [MeleeEffectSpec.resolve] 的输出：一份**完全展开、不含歧义**的效果参数。
  *

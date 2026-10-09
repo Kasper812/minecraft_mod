@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 /**
@@ -20,7 +22,7 @@ open class DoubleValue(
     private val onSet: (() -> Unit)? = null
 ) {
     /** Returns the stored value, or [defaultValue] if the key is absent. */
-    open fun get(): Double = if (tag.contains(name)) tag.getDouble(name) else defaultValue
+    open fun get(): Double = if (tag.contains(name)) tag.getDoubleOr(name, 0.0) else defaultValue
 
     /**
      * Writes [value] to the tag and triggers [onSet] if changed.
@@ -28,7 +30,7 @@ open class DoubleValue(
      * Early-exits without any NBT write when [value] equals the current stored value.
      */
     open fun set(value: Double) {
-        val current = if (tag.contains(name)) tag.getDouble(name) else defaultValue
+        val current = if (tag.contains(name)) tag.getDoubleOr(name, 0.0) else defaultValue
         if (current == value) return                          // no-op: value unchanged
         if (value == defaultValue) tag.remove(name) else tag.putDouble(name, value)
         onSet?.invoke()

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.EDDEntity
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.ChatFormatting
@@ -19,10 +21,12 @@ import net.minecraft.world.phys.Vec3
 open class EDDItem : Item(Properties()) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.edd").withStyle(ChatFormatting.GRAY))
     }
 
@@ -55,7 +59,7 @@ open class EDDItem : Item(Properties()) {
                 }
 
                 stack.shrink(1)
-                return InteractionResult.sidedSuccess(level.isClientSide)
+                return InteractionResult.SUCCESS
             } else {
                 return InteractionResult.CONSUME
             }

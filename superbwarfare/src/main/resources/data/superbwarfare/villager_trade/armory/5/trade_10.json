@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 48
+  },
+  "gives": {
+    "id": "superbwarfare:monster_hunter"
+  },
+  "max_uses": 4,
+  "xp": 25,
+  "reputation_discount": 0.05
+}

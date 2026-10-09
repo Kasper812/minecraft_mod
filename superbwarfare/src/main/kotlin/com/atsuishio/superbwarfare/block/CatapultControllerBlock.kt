@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.level.redstone.Orientation
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
 import net.minecraft.network.chat.Component
@@ -18,7 +22,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraft.world.phys.BlockHitResult
 
@@ -67,7 +71,7 @@ class CatapultControllerBlock : Block(Properties.of().sound(SoundType.METAL).str
         level: Level,
         pos: BlockPos,
         block: Block,
-        fromPos: BlockPos,
+        orientation: Orientation?,
         isMoving: Boolean
     ) {
         if (!level.isClientSide) {
@@ -104,19 +108,14 @@ class CatapultControllerBlock : Block(Properties.of().sound(SoundType.METAL).str
         propagateDirection(level, pos, currentState.getValue(FACING), currentState.getValue(POWERED))
         level.scheduleTick(pos, this, 1)
     }
-
-    override fun onRemove(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos,
-        newState: BlockState,
-        movedByPiston: Boolean
+    override fun affectNeighborsAfterRemoval(
+        pState: BlockState,
+        pLevel: net.minecraft.server.level.ServerLevel,
+        pPos: BlockPos,
+        pMovedByPiston: Boolean
     ) {
-        if (!state.`is`(newState.block)) {
-            // Release control of connected catapults
-            releaseConnectedCatapults(level, pos, state.getValue(FACING))
-        }
-        super.onRemove(state, level, pos, newState, movedByPiston)
+        releaseConnectedCatapults(pLevel, pPos, pState.getValue(FACING))
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     private fun updateConnectedCatapults(
@@ -166,7 +165,7 @@ class CatapultControllerBlock : Block(Properties.of().sound(SoundType.METAL).str
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val LAUNCH_POWER: IntegerProperty = IntegerProperty.create("launch_power", 0, 15)

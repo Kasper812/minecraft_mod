@@ -1,19 +1,22 @@
 package com.atsuishio.superbwarfare.client.screens.component
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyButton
+
 import com.atsuishio.superbwarfare.block.ContainerBlock.Companion.getEntityTranslationKey
 import com.atsuishio.superbwarfare.client.screens.VehicleAssemblingScreen
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.tools.font
 import com.atsuishio.superbwarfare.tools.mc
-import com.mojang.blaze3d.systems.RenderSystem
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
 
-class RecipeButton(x: Int, y: Int, private val stack: ItemStack, onPress: OnPress) :
-    Button(x, y, 80, 18, Component.empty(), onPress, DEFAULT_NARRATION) {
+class RecipeButton(x: Int, y: Int, private val stack: ItemStack, onPress: OnPress) : LegacyButton(x, y, 80, 18, Component.empty(), onPress, DEFAULT_NARRATION) {
     private var isSelected = false
 
     override fun renderWidget(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
@@ -81,7 +84,7 @@ class RecipeButton(x: Int, y: Int, private val stack: ItemStack, onPress: OnPres
             val data = this.stack.get(DataComponents.BLOCK_ENTITY_DATA)
             val tag = data?.copyTag()
             if (tag != null && tag.contains("EntityType")) {
-                val key = getEntityTranslationKey(tag.getString("EntityType"))
+                val key = getEntityTranslationKey(tag.getStringOr("EntityType", ""))
                 hoverName = Component.translatable(key ?: "des.superbwarfare.container.empty")
             } else {
                 hoverName = this.stack.hoverName

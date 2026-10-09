@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -19,7 +21,7 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.animal.Pig
+import net.minecraft.world.entity.animal.pig.Pig
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
@@ -76,9 +78,9 @@ open class JavelinMissileEntity : MissileProjectile, BasicGeoProjectileEntity {
         if (damage > 0) {
             entity.forceHurt(
                 if (isHeadshot)
-                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.owner)
+                    ModDamageTypes.causeProjectileHitHeadshotDamage(this.level().registryAccess(), this, this.getOwner())
                 else
-                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.owner),
+                    ModDamageTypes.causeProjectileHitDamage(this.level().registryAccess(), this, this.getOwner()),
                 damage * headShotModifier * if (this.isTop) 1.25f else 1f
             )
             entity.invulnerableTime = 0
@@ -110,7 +112,7 @@ open class JavelinMissileEntity : MissileProjectile, BasicGeoProjectileEntity {
                     entity.level().playSound(
                         null,
                         entity.onPos,
-                        if (entity is Pig) SoundEvents.PIG_HURT else ModSounds.MISSILE_WARNING,
+                        if (entity is Pig) legacyPigHurtSound() else ModSounds.MISSILE_WARNING,
                         SoundSource.PLAYERS,
                         2f,
                         1f

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.recipe.vehicle.VehicleAssemblingRecipe
@@ -11,6 +13,8 @@ import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView
+import net.minecraft.client.gui.GuiGraphicsExtractor
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
@@ -24,10 +28,14 @@ class VehicleAssemblingCategory(helper: IGuiHelper) : IRecipeCategory<VehicleAss
         ItemStack(ModItems.VEHICLE_ASSEMBLING_TABLE)
     )
 
-    @Deprecated("Deprecated in Java")
-    @Suppress("removal")
-    override fun getBackground(): IDrawable {
-        return this.background
+    override fun draw(
+        recipe: VehicleAssemblingRecipe,
+        recipeSlotsView: IRecipeSlotsView,
+        extractor: GuiGraphicsExtractor,
+        mouseX: Double,
+        mouseY: Double
+    ) {
+        this.background.draw(extractor, 0, 0)
     }
 
     override fun getRecipeType(): RecipeType<VehicleAssemblingRecipe> {

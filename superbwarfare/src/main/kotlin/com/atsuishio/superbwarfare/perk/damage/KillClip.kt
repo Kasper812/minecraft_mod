@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -14,7 +16,7 @@ object KillClip : Perk("kill_clip", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        if (tag.getInt("KillClipTime") > 0) {
+        if (tag.getIntOr("KillClipTime", 0) > 0) {
             modifier[GunProp.DAMAGE] *= (1.2 + 0.05 * modifier.data.perk.getLevel(this))
         }
     }
@@ -34,7 +36,7 @@ object KillClip : Perk("kill_clip", Type.DAMAGE) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        val time = tag.getInt("KillClipReloadTime")
+        val time = tag.getIntOr("KillClipReloadTime", 0)
         if (time > 0) {
             tag.remove("KillClipReloadTime")
             tag.putBoolean("KillClip", true)
@@ -49,7 +51,7 @@ object KillClip : Perk("kill_clip", Type.DAMAGE) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        if (!tag.getBoolean("KillClip")) return
+        if (!tag.getBooleanOr("KillClip", false)) return
         val level = instance.level
         tag.putInt("KillClipTime", 90 + 10 * level)
     }

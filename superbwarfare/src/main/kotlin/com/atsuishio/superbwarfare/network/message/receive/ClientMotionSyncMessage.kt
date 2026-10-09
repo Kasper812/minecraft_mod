@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.receive
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.ClientPacketPayload
 import com.atsuishio.superbwarfare.network.PayloadContext
@@ -30,7 +32,7 @@ data class ClientMotionSyncMessage(
 
     override fun PayloadContext.handler() {
         val entity = clientLevel?.getEntity(id) ?: return
-        entity.lerpMotion(x.toDouble(), y.toDouble(), z.toDouble())
+        entity.lerpMotion(net.minecraft.world.phys.Vec3(x.toDouble(), y.toDouble(), z.toDouble()))
         explosionRadius?.let { (entity as? IBulletProperties)?.setExplosionRadius(it) }
     }
 }

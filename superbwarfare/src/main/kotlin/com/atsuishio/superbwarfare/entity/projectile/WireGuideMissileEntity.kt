@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.vehicle.subdata.VehicleType
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModItems
@@ -23,8 +25,8 @@ open class WireGuideMissileEntity(type: EntityType<out WireGuideMissileEntity>, 
         super.tick()
         mediumTrail()
 
-        val owner = this.owner
-        val vehicle = owner?.vehicle
+        val owner = this.getOwner()
+        val vehicle = getOwner()?.vehicle
         if (tickCount > 0 && owner != null && vehicle is VehicleEntity) {
             var toVec = deltaMovement
             this.deltaMovement = this.deltaMovement.scale(0.5).add(lookAngle.scale(2.0))
@@ -38,7 +40,7 @@ open class WireGuideMissileEntity(type: EntityType<out WireGuideMissileEntity>, 
                     } else {
                         vehicle.getBarrelVector(1f).scale(1.6)
                     }
-                val missileVec = vehicle.getShootPosForHud(owner, 1f).vectorTo(position()).normalize()
+                val missileVec = vehicle.getShootPosForHud(getOwner(), 1f).vectorTo(position()).normalize()
                 toVec = missileVec.vectorTo(lookVec)
             }
 

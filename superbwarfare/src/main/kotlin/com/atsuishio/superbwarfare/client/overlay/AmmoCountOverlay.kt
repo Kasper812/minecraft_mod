@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.animation.AnimationCurves
 import com.atsuishio.superbwarfare.client.animation.AnimationTimer
 import com.atsuishio.superbwarfare.client.animation.ValueAnimator
@@ -9,7 +11,7 @@ import com.atsuishio.superbwarfare.init.ModAttachments
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.item.ammo.AmmoSupplierItem
 import com.atsuishio.superbwarfare.item.ammo.ammoBoxData
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
 import net.minecraft.util.ARGB
@@ -115,7 +117,7 @@ object AmmoCountOverlay : CommonOverlay("ammo_count") {
                 animator.lerp(animator.oldValue()!!.toFloat(), ammoCount.toFloat(), currentTime).roundToInt().toString()
 
             // 弹药增加时，颜色由绿变白，否则由红变白
-            val fontColor = ARGB.lerp(
+            val fontColor = ARGB.srgbLerp(
                 progress, when (ammoAdd) {
                     1 -> -0xff0100
                     -1 -> -0x10000
@@ -155,7 +157,7 @@ object AmmoCountOverlay : CommonOverlay("ammo_count") {
             // 选中时显示为黄色，否则为白色
             val targetColor = if (boxAmmoSelected) -0x100 else -0x1
 
-            val boxFontColor = ARGB.lerp(
+            val boxFontColor = ARGB.srgbLerp(
                 boxAnimator.getProgress(currentTime),
                 when (ammoBoxAdd) {
                     1 -> -0xff0100

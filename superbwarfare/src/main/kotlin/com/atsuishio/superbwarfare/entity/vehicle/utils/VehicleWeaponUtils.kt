@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.utils
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.FlareDecoyEntity
 import com.atsuishio.superbwarfare.entity.projectile.SmokeDecoyEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity

@@ -970,6 +970,8 @@
   "entity.superbwarfare.air_sheep": "飞羊羊",
   "entity.superbwarfare.fh_77bw": "FH-77BW “弓箭手”自行火炮",
 
+  "key.category.superbwarfare.main": "卓越前线",
+
   "key.categories.superbwarfare": "卓越前线",
   "key.superbwarfare.move_forward": "前进/提升油门",
   "key.superbwarfare.move_backward": "后退/降低油门",

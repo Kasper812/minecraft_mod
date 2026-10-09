@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.functional
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.perk.Perk
 import com.atsuishio.superbwarfare.perk.PerkInstance
@@ -36,7 +38,7 @@ object HealClip : Perk("heal_clip", Type.FUNCTIONAL) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        val time = tag.getInt("HealClipTime")
+        val time = tag.getIntOr("HealClipTime", 0)
         if (time > 0) {
             tag.remove("HealClipTime")
             tag.putBoolean("HealClip", true)

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.model
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.animation.BedrockAnimation
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.resource.pojo.BedrockModelPOJO
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.baked.BakedBedrockModel

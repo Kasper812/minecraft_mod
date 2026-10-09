@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.queueServerWork
 import com.atsuishio.superbwarfare.client.particle.CustomCloudOption
 import com.atsuishio.superbwarfare.init.ModDamageTypes
@@ -20,7 +22,7 @@ import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.LivingEntity
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
 import net.minecraft.world.level.ClipContext
@@ -51,7 +53,7 @@ open class SuperStarProjectileEntity(type: EntityType<out SuperStarProjectileEnt
 
     override fun onHitEntity(result: EntityHitResult) {
         val entity = result.entity
-        if (entity === this.owner?.vehicle) return
+        if (entity === this.getOwner()?.vehicle) return
 
         if (entity is EnderDragonPart) {
             this.currentTarget = entity.parentMob
@@ -91,7 +93,7 @@ open class SuperStarProjectileEntity(type: EntityType<out SuperStarProjectileEnt
         // 命中伤害
         val headShotModifier = if (headshot) this.getHeadShot() else 1f
         entity.forceHurt(
-            ModDamageTypes.causeSuperStarHitDamage(level.registryAccess(), this, this.owner),
+            ModDamageTypes.causeSuperStarHitDamage(level.registryAccess(), this, this.getOwner()),
             damageValue * headShotModifier
         )
         entity.invulnerableTime = 0
@@ -99,14 +101,14 @@ open class SuperStarProjectileEntity(type: EntityType<out SuperStarProjectileEnt
         // 斩切伤害
         queueServerWork(2) {
             entity.forceHurt(
-                ModDamageTypes.causeSuperStarSlashDamage(level.registryAccess(), this, this.owner),
+                ModDamageTypes.causeSuperStarSlashDamage(level.registryAccess(), this, this.getOwner()),
                 explosionDamageValue
             )
             level.playSound(null, entity.onPos, ModSounds.KNIFE_FLESH, SoundSource.PLAYERS, 2f, 1f)
 
             entity.invulnerableTime = 0
 
-            val player = this.owner
+            val player = this.getOwner()
             if (player is ServerPlayer) {
                 level.playSound(null, player.blockPosition(), ModSounds.INDICATION, SoundSource.VOICE, 1f, 1f)
                 player.sendPacket(ClientIndicatorMessage(0, 5))

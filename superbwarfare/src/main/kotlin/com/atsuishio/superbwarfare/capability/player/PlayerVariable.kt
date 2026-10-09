@@ -1,8 +1,10 @@
 package com.atsuishio.superbwarfare.capability.player
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.init.ModComponents
-import net.fabricmc.fabric.api.entity.event.v1.ServerEntityWorldChangeEvents
+import net.fabricmc.fabric.api.entity.event.v1.ServerEntityLevelChangeEvents
 import net.fabricmc.fabric.api.entity.event.v1.ServerPlayerEvents
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents
 import net.minecraft.core.HolderLookup
@@ -50,7 +52,7 @@ class PlayerVariable(private val owner: Player? = null) : Component, AutoSyncedC
             type.set(this, type.get(tag))
         }
 
-        activeThermalImaging = tag.getBoolean("ActiveThermalImaging")
+        activeThermalImaging = tag.getBooleanOr("ActiveThermalImaging", false)
     }
 
     fun copy(): PlayerVariable {
@@ -65,15 +67,18 @@ class PlayerVariable(private val owner: Player? = null) : Component, AutoSyncedC
         return clone
     }
 
-    override fun readFromNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun readData(input: net.minecraft.world.level.storage.ValueInput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(input)
+        val registryLookup = input.lookup()
         readFromNBT(tag)
     }
 
-    override fun writeToNbt(tag: CompoundTag, registryLookup: HolderLookup.Provider) {
+    override fun writeData(output: net.minecraft.world.level.storage.ValueOutput) {
+        val tag = com.atsuishio.portlib.nbt.LegacyNbt.tagOf(output)
         val written = writeToNBT()
 
         for (key in written.allKeys) {
-            tag.put(key, written.get(key))
+            written.get(key)?.let { tag.put(key, it) }
         }
     }
 
@@ -125,7 +130,7 @@ class PlayerVariable(private val owner: Player? = null) : Component, AutoSyncedC
                 getOrDefault(newPlayer).sync(newPlayer)
             }
 
-            ServerEntityWorldChangeEvents.AFTER_PLAYER_CHANGE_WORLD.register { player, _, _ ->
+            ServerEntityLevelChangeEvents.AFTER_PLAYER_CHANGE_LEVEL.register { player, _, _ ->
                 getOrDefault(player).sync(player)
             }
         }

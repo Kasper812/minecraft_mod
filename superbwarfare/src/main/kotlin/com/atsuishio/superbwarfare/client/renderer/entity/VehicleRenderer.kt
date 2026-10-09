@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.renderer.SmartTextureBrightener
@@ -181,7 +183,7 @@ abstract class VehicleRenderer<T>(renderManager: EntityRendererProvider.Context,
         } else if (vehicle.noCulling) {
             return true
         } else {
-            var aabb = vehicle.boundingBoxForCulling.inflate(5.0)
+            var aabb = getBoundingBoxForCulling(vehicle).inflate(5.0)
             if (aabb.hasNaN() || aabb.getSize() == 0.0) {
                 aabb = AABB(
                     vehicle.x - 8.0,

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.renderer.texture.DynamicTexture
@@ -34,7 +36,7 @@ object TextureBrightnessHandler {
             // 4. 注册到纹理管理器
             mc.textureManager.register(
                 newTextureLoc,
-                DynamicTexture(brightenedImage)
+                DynamicTexture({ "superbwarfare" }, brightenedImage)
             )
 
             // 5. 缓存并返回

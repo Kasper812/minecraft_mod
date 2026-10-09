@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.screens.DogTagEditorScreen
 import com.mojang.blaze3d.platform.NativeImage
@@ -47,7 +49,7 @@ object SpritePixelHelper {
 
         mc.textureManager.register(
             newTextureLoc,
-            DynamicTexture(newDogTagIcon)
+            DynamicTexture({ "superbwarfare" }, newDogTagIcon)
         )
 
         return newTextureLoc

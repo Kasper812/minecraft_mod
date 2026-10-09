@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.particle
 
+import com.atsuishio.portlib.render.LegacyParticleRenderType as ParticleRenderType
+
+import com.atsuishio.portlib.render.LegacyTextureSheetParticle as TextureSheetParticle
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.renderer.ModParticleRenderTypes
@@ -48,7 +54,8 @@ open class CustomFlareParticle protected constructor(
             z: Double,
             xSpeed: Double,
             ySpeed: Double,
-            zSpeed: Double
+            zSpeed: Double,
+            random: net.minecraft.util.RandomSource
         ): Particle {
             return CustomFlareParticle(
                 pLevel,

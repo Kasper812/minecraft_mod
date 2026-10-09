@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.block
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.ChargingStationBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.mojang.serialization.MapCodec
@@ -20,7 +22,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 
@@ -29,7 +31,7 @@ open class ChargingStationBlock : BaseEntityBlock(Properties.of().sound(SoundTyp
 
     companion object {
         @JvmStatic
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmStatic
         val SHOW_RANGE: BooleanProperty = BooleanProperty.create("show_range")
@@ -92,25 +94,14 @@ open class ChargingStationBlock : BaseEntityBlock(Properties.of().sound(SoundTyp
         }
         return null
     }
-
-    public override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
         pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val blockentity = pLevel.getBlockEntity(pPos)
-            if (blockentity is ChargingStationBlockEntity) {
-                if (pLevel is ServerLevel) {
-                    Containers.dropContents(pLevel, pPos, blockentity)
-                }
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-        }
-
-        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston)
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block, BlockState>) {
@@ -127,11 +118,7 @@ open class ChargingStationBlock : BaseEntityBlock(Properties.of().sound(SoundTyp
         return true
     }
 
-    override fun getAnalogOutputSignal(
-        state: BlockState,
-        level: Level,
-        pos: BlockPos
-    ): Int {
+    override fun getAnalogOutputSignal(state: BlockState, level: Level, pos: BlockPos, direction: net.minecraft.core.Direction): Int {
         val blockEntity = level.getBlockEntity(pos)
 
         if (blockEntity is ChargingStationBlockEntity) {
@@ -144,14 +131,15 @@ open class ChargingStationBlock : BaseEntityBlock(Properties.of().sound(SoundTyp
             return (15 * energy.amount / energy.capacity.toDouble()).toInt()
         }
 
-        return super.getAnalogOutputSignal(state, level, pos)
+        return super.getAnalogOutputSignal(state, level, pos, direction)
     }
 
     override fun getCloneItemStack(
         level: LevelReader,
         pos: BlockPos,
-        state: BlockState
-    ): ItemStack {
+        state: BlockState,
+        includeData: Boolean
+    ): ItemStack  {
         val itemstack = ItemStack(this)
 
         level.getBlockEntity(pos, ModBlockEntities.CHARGING_STATION)

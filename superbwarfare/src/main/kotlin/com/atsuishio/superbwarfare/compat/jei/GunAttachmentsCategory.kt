@@ -1,5 +1,8 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import net.minecraft.client.gui.GuiGraphicsExtractor
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.gun.GunData.Companion.from
@@ -17,7 +20,7 @@ import mezz.jei.api.recipe.IFocusGroup
 import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
 import net.minecraft.world.item.ItemStack
@@ -41,10 +44,11 @@ class GunAttachmentsCategory(helper: IGuiHelper) : IRecipeCategory<AttachmentRec
     override fun draw(
         recipe: AttachmentRecipe,
         recipeSlotsView: IRecipeSlotsView,
-        guiGraphics: GuiGraphics,
+        extractor: GuiGraphicsExtractor,
         mouseX: Double,
         mouseY: Double
     ) {
+        val guiGraphics = GuiGraphics.of(extractor)
         val name = recipe.gun.hoverName
         guiGraphics.drawString(
             mc.font, name,

@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -23,8 +27,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 
-open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) :
-    EntityRenderer<T>(manager) where T : Entity, T : BasicGeoProjectileEntity {
+open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) : LegacyEntityRenderer<T>(manager) where T : Entity, T : BasicGeoProjectileEntity {
     override fun getTextureLocation(entity: T): Identifier {
         val (_, namespace, id) = entity.type.descriptionId.split(".")
         return Identifier.fromNamespaceAndPath(namespace, "textures/bedrock/projectile/$id.png")

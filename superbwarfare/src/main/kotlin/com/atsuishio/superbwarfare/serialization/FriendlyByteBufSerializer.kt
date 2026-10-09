@@ -2,6 +2,8 @@
 
 package com.atsuishio.superbwarfare.serialization
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.AbstractDecoder

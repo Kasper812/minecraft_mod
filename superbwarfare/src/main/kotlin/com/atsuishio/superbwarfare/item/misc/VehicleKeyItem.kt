@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.IVehicleInteract
@@ -11,7 +13,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -24,16 +25,18 @@ open class VehicleKeyItem(properties: Properties) : Item(properties), IVehicleIn
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltip: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         flag: TooltipFlag
     ) {
+        val tooltip = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val tag = NBTTool.getTag(stack)
         val level = clientLevel
         if (!tag.contains(TAG_UUID)) {
             tooltip.add(Component.translatable("des.superbwarfare.vehicle_key.empty").withStyle(ChatFormatting.GRAY))
         } else {
-            val entity = if (level != null) EntityFindUtil.findEntity(level, tag.getString(TAG_UUID)) else null
+            val entity = if (level != null) EntityFindUtil.findEntity(level, tag.getStringOr(TAG_UUID, "")) else null
             if (entity != null && entity.displayName != null) {
                 tooltip.add(
                     Component.translatable(
@@ -54,7 +57,7 @@ open class VehicleKeyItem(properties: Properties) : Item(properties), IVehicleIn
         level: Level,
         player: Player,
         hand: InteractionHand
-    ): InteractionResultHolder<ItemStack> {
+    ): InteractionResult {
         val stack = player.getItemInHand(hand)
         val tag = NBTTool.getTag(stack)
         if (!tag.contains(TAG_UUID)) {
@@ -70,9 +73,9 @@ open class VehicleKeyItem(properties: Properties) : Item(properties), IVehicleIn
                 )
             }
             player.playSound(SoundEvents.ARROW_HIT_PLAYER)
-            return InteractionResultHolder.success(stack)
+            return InteractionResult.SUCCESS
         }
-        return InteractionResultHolder.fail(stack)
+        return InteractionResult.FAIL
     }
 
     override fun onInteractVehicle(
@@ -81,7 +84,7 @@ open class VehicleKeyItem(properties: Properties) : Item(properties), IVehicleIn
         player: Player,
         hand: InteractionHand
     ): InteractionResult {
-        val uuid = NBTTool.getTag(stack).getString(TAG_UUID) ?: return InteractionResult.FAIL
+        val uuid = NBTTool.getTag(stack).getStringOr(TAG_UUID, "") ?: return InteractionResult.FAIL
         if (!vehicle.passengers.isEmpty()) {
             player.displayClientMessage(
                 Component.translatable("tips.superbwarfare.vehicle.lock_not_empty")

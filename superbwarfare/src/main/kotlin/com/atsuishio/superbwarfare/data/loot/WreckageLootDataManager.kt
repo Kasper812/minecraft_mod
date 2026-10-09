@@ -1,13 +1,13 @@
 package com.atsuishio.superbwarfare.data.loot
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.tools.toKxJson
 import com.google.gson.Gson
 import com.google.gson.JsonElement
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.decodeFromJsonElement
-import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
-import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
@@ -16,7 +16,7 @@ import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 import net.minecraft.world.entity.EntityType
 
-object WreckageLootDataManager : SimpleJsonResourceReloadListener(Gson(), "sbw/loot"), IdentifiableResourceReloadListener {
+object WreckageLootDataManager : SimpleJsonResourceReloadListener<JsonElement>(net.minecraft.util.ExtraCodecs.JSON, net.minecraft.resources.FileToIdConverter.json("sbw/loot")) {
     private val data: MutableMap<Identifier, WreckageLootData> = mutableMapOf()
 
     override fun apply(
@@ -35,10 +35,7 @@ object WreckageLootDataManager : SimpleJsonResourceReloadListener(Gson(), "sbw/l
             }
         }
     }
-
-    override fun getFabricId(): Identifier {
-        return Mod.loc("wreckage_loot")
-    }
+    private val FABRIC_ID: Identifier = Mod.loc("wreckage_loot")
 
     fun getLootData(id: Identifier): WreckageLootData? {
         return data[id]
@@ -50,6 +47,6 @@ object WreckageLootDataManager : SimpleJsonResourceReloadListener(Gson(), "sbw/l
 
     @JvmStatic
     fun register() {
-        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(this)
+        net.fabricmc.fabric.api.resource.v1.ResourceLoader.get(PackType.SERVER_DATA).registerReloadListener(FABRIC_ID, this)
     }
 }

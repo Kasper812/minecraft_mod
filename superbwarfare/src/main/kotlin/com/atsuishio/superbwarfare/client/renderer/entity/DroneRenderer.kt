@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.layer.vehicle.DroneLayer
@@ -53,8 +55,8 @@ class DroneRenderer(renderManager: EntityRendererProvider.Context) :
                 val stack = player.mainHandItem
                 val tag = NBTTool.getTag(stack)
 
-                if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using") && tag.getBoolean("Linked")) {
-                    if (entityIn.getUUID().toString() == tag.getString("LinkedDrone")) {
+                if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false) && tag.getBooleanOr("Linked", false)) {
+                    if (entityIn.getUUID().toString() == tag.getStringOr("LinkedDrone", "")) {
                         flag = false
                     }
                 }
@@ -95,7 +97,7 @@ class DroneRenderer(renderManager: EntityRendererProvider.Context) :
         if (entityNameCache == attached && entityCache != null) {
             renderEntity = entityCache
         } else {
-            renderEntity = EntityType.byString(attached)
+            renderEntity = entityTypeByString(attached)
                 .map { type -> type.create(entity.level()) }
                 .orElse(null)
             if (renderEntity == null) return

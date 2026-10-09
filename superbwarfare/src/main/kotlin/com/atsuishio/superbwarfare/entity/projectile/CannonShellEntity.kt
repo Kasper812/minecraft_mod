@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModDamageTypes.causeProjectileHitDamage
@@ -56,8 +64,10 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
 
     override fun canPassThroughFluid() = this.type == Type.AP
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
 
         compound.putFloat("FireProbability", this.fireProbability)
         compound.putInt("FireTime", this.fireTime)
@@ -69,27 +79,29 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
 
         if (compound.contains("FireProbability")) {
-            this.fireProbability = compound.getFloat("FireProbability")
+            this.fireProbability = compound.getFloatOr("FireProbability", 0f)
         }
 
         if (compound.contains("FireTime")) {
-            this.fireTime = compound.getInt("FireTime")
+            this.fireTime = compound.getIntOr("FireTime", 0)
         }
 
         if (compound.contains("SpreadAmount")) {
-            this.spreadAmount = compound.getInt("SpreadAmount")
+            this.spreadAmount = compound.getIntOr("SpreadAmount", 0)
         }
 
         if (compound.contains("SpreadAngle")) {
-            this.spreadAngle = compound.getInt("SpreadAngle")
+            this.spreadAngle = compound.getIntOr("SpreadAngle", 0)
         }
 
         if (compound.contains("Type")) {
-            val type = compound.getString("Type")
+            val type = compound.getStringOr("Type", "")
             this.type = Type.valueOf(type)
         }
     }
@@ -98,8 +110,8 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
         val level = this.level()
         if (level !is ServerLevel) return
 
-        if (type == Type.WP && this.owner != null) {
-            causeWPEffect(result.location, owner!!)
+        if (type == Type.WP && this.getOwner() != null) {
+            causeWPEffect(result.location, getOwner()!!)
             causeExplode(result.location)
             this.discard()
         }
@@ -193,10 +205,10 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
         val level = this.level()
         if (level !is ServerLevel) return
         val entity = result.entity
-        if (this.owner != null && entity == this.owner!!.vehicle) return
+        if (this.getOwner() != null && entity == this.getOwner()!!.vehicle) return
 
         if (type == Type.WP) {
-            causeWPEffect(result.location, owner!!)
+            causeWPEffect(result.location, getOwner()!!)
         }
 
         if (entity is VehicleEntity) {
@@ -216,7 +228,7 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
                     val target = rayTraceResultEntity.entity
                     if (rayTraceResultEntity.entity !== entity) {
                         target.forceHurt(
-                            causeProjectileHitDamage(this.level().registryAccess(), this, this.owner),
+                            causeProjectileHitDamage(this.level().registryAccess(), this, this.getOwner()),
                             (this.damageValue * resistance).toFloat()
                         )
                         if (target is LivingEntity) {
@@ -258,7 +270,7 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
                             ModMobEffects.PHOSPHORUS_FIRE,
                             (300 - 30 * dis).toInt(),
                             max(explosionRadiusValue - dis, 0.0).toInt()
-                        ), this.owner
+                        ), this.getOwner()
                     )
                 }
         }
@@ -284,18 +296,18 @@ open class CannonShellEntity(type: EntityType<out CannonShellEntity>, level: Lev
 
             if (hitResult.type == HitResult.Type.BLOCK) {
                 if (type == Type.CM) {
-                    releaseClusterMunitions(owner)
+                    releaseClusterMunitions(getOwner())
                 } else {
-                    releaseWp(owner)
+                    releaseWp(getOwner())
                 }
             }
 
             val target = TraceTool.findLookingEntity(this, deltaMovement.scale(spreadTime.toDouble()).length())
             if (target != null && target != this) {
                 if (type == Type.CM) {
-                    releaseClusterMunitions(owner)
+                    releaseClusterMunitions(getOwner())
                 } else {
-                    releaseWp(owner)
+                    releaseWp(getOwner())
                 }
             }
         }

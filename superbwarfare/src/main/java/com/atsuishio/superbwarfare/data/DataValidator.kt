@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.attachment.AttachmentMountBone
@@ -229,7 +231,7 @@ object DataValidator {
                 }
 
                 val members = if (tagged) {
-                    val tag = BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, id))
+                    val tag = BuiltInRegistries.ITEM.get(TagKey.create(Registries.ITEM, id))
                         .map { items -> items.map { it.value() } }
                         .getOrNull()
 
@@ -242,7 +244,7 @@ object DataValidator {
                     }
                     tag.mapNotNull { BuiltInRegistries.ITEM.getKey(it) }
                 } else {
-                    val item = BuiltInRegistries.ITEM.get(id)
+                    val item = BuiltInRegistries.ITEM.getValue(id)
                     if (item !is AttachmentProvider) {
                         warn(
                             "AvailableAttachments['$slotKey'] entry '$raw' is not an attachment item " +
@@ -447,7 +449,7 @@ object DataValidator {
         validateSubWeaponReload(gunDataId, warn)
 
         // 物品存在性与类型只能在注册表可用之后查；数据包侧注册表可能还没就绪，查不到就只提示
-        val item = Identifier.tryParse(attachmentId)?.let { BuiltInRegistries.ITEM.get(it) }
+        val item = Identifier.tryParse(attachmentId)?.let { BuiltInRegistries.ITEM.getValue(it) }
         if (item == null) {
             warn("attachment '$attachmentId' has no registered item; it cannot be installed")
         } else if (item !is SubWeaponItem) {

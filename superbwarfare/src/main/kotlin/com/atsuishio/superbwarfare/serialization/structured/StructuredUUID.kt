@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.serialization.structured
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.serialization.NbtRawTagDecoder
 import com.atsuishio.superbwarfare.serialization.NbtRawTagEncoder
 import kotlinx.serialization.KSerializer
@@ -45,7 +47,7 @@ object StructuredUUIDSerializer : KSerializer<UUID> {
     override fun serialize(encoder: Encoder, value: UUID) {
         val nbt = encoder as? NbtRawTagEncoder
         if (nbt != null) {
-            nbt.writeRawTag(NbtUtils.createUUID(value))
+            nbt.writeRawTag(com.atsuishio.portlib.nbt.LegacyNbt.createUUID(value))
             return
         }
 
@@ -60,8 +62,8 @@ object StructuredUUIDSerializer : KSerializer<UUID> {
             val raw = nbt.readRawTag()
 
             // Check the type first: NbtUtils.loadUUID throws on anything that is not an IntArrayTag.
-            if (raw is IntArrayTag) return NbtUtils.loadUUID(raw)
-            if (raw is StringTag) return UUID.fromString(raw.asString)
+            if (raw is IntArrayTag) return com.atsuishio.portlib.nbt.LegacyNbt.loadUUID(raw)
+            if (raw is StringTag) return UUID.fromString(raw.value())
 
             throw SerializationException("Expected an NBT UUID (IntArrayTag) or a string, got ${raw?.type?.name}")
         }

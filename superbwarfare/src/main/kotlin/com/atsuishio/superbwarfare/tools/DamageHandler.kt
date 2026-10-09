@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.entity.mixin.DamageAccess
 import com.atsuishio.superbwarfare.entity.mixin.DamageContainer
@@ -11,7 +13,7 @@ import com.atsuishio.superbwarfare.mobeffect.TraumaMobEffect
 import com.atsuishio.superbwarfare.tools.DamageHandler.doDamage
 import com.atsuishio.superbwarfare.tools.FormatTool.format2D
 import net.minecraft.ChatFormatting
-import net.minecraft.advancements.CriteriaTriggers
+import net.minecraft.advancements.triggers.CriteriaTriggers
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.HoverEvent
 import net.minecraft.network.chat.MutableComponent
@@ -37,13 +39,13 @@ object DamageHandler {
     @JvmStatic
     fun doDamage(entity: Entity, source: DamageSource, damage: Float): Boolean {
         var damage = damage
-        if (entity.hurt(source, damage)) {
+        if (entity.hurtOrSimulate(source, damage)) {
             return true
         } else if (entity is LivingEntity) {
             if (!MiscConfig.FORCE_DAMAGE_MODE.get()) {
                 return false
             }
-            if (entity.isInvulnerableTo(source)) {
+            if (entity.level() !is net.minecraft.server.level.ServerLevel || entity.isInvulnerableTo(entity.level() as net.minecraft.server.level.ServerLevel, source)) {
                 return false
             } else if (entity.level().isClientSide) {
                 return false
@@ -131,12 +133,10 @@ object DamageHandler {
                         }
 
                         if (sourceEntity is Player) {
-                            entity.lastHurtByPlayerTime = 100
-                            entity.setLastHurtByPlayer(sourceEntity)
+                            entity.setLastHurtByPlayer(sourceEntity, 100)
                         } else if (sourceEntity is TamableAnimal && sourceEntity.isTame) {
-                            entity.lastHurtByPlayerTime = 100
                             val owner = sourceEntity.owner
-                            entity.setLastHurtByPlayer(owner as? Player)
+                            (owner as? Player)?.let { entity.setLastHurtByPlayer(it, 100) }
                         }
                     }
 
@@ -160,7 +160,7 @@ object DamageHandler {
                                 d1 = source.sourcePosition!!.z() - entity.z
                             }
 
-                            entity.knockback(0.4000000059604645, d0, d1)
+                            entity.knockback(0.4000000059604645, d0, d1, source, damage)
                             if (!flag) {
                                 entity.indicateDamage(d0, d1)
                             }
@@ -183,7 +183,7 @@ object DamageHandler {
                     entity.lastDamageStamp = entity.level().gameTime
 
                     for (instance in entity.activeEffects) {
-                        instance.onMobHurt(entity, source, damage)
+                        (entity.level() as? net.minecraft.server.level.ServerLevel)?.let { instance.onMobHurt(it, entity, source, damage) }
                     }
 
                     if (entity is ServerPlayer) {
@@ -240,10 +240,7 @@ object DamageHandler {
             )
             .withStyle {
                 it.withHoverEvent(
-                    HoverEvent(
-                        HoverEvent.Action.SHOW_TEXT,
-                        details
-                    )
+                    HoverEvent.ShowText(details)
                 )
             }
     }

@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.tools
 
+import net.minecraft.server.level.ServerLevel
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.compat.sable.SableCompatHandler
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
@@ -56,23 +60,39 @@ open class CustomExplosion @JvmOverloads constructor(
     val y: Double,
     val z: Double,
     val radius: Float,
-    blockInteraction: BlockInteraction,
+    blockInteraction: Explosion.BlockInteraction,
     smallParticle: ParticleOptions = ParticleTypes.EXPLOSION,
     bigParticle: ParticleOptions = ParticleTypes.EXPLOSION_EMITTER,
     sound: Holder<SoundEvent> = SoundEvents.GENERIC_EXPLODE
-) : Explosion(
-    level,
-    entity, source, null,
-    x, y, z, radius,
-    false, blockInteraction, smallParticle, bigParticle, sound
-) {
+) : Explosion {
+    private val blockInteractionMode: Explosion.BlockInteraction = blockInteraction
+    val toBlow: MutableList<BlockPos> = ArrayList()
+
+    fun interactsWithBlocks(): Boolean = blockInteractionMode != Explosion.BlockInteraction.KEEP
+
+    override fun level(): ServerLevel = level as ServerLevel
+
+    override fun getBlockInteraction(): Explosion.BlockInteraction = blockInteractionMode
+
+    override fun getIndirectSourceEntity(): LivingEntity? = Explosion.getIndirectSourceEntity(entity)
+
+    override fun getDirectSourceEntity(): Entity? = entity
+
+    override fun radius(): Float = radius
+
+    override fun center(): Vec3 = Vec3(x, y, z)
+
+    override fun canTriggerBlocks(): Boolean = blockInteractionMode == Explosion.BlockInteraction.TRIGGER_BLOCK
+
+    override fun shouldAffectBlocklikeEntities(): Boolean = blockInteractionMode.shouldAffectBlocklikeEntities()
+
     val damageSource: DamageSource
     private val damageCalculator: ExplosionDamageCalculator
     private var fireTime = 0
     private var beast = false
 
     init {
-        this.damageSource = source ?: level.damageSources().explosion(this)
+        this.damageSource = source ?: Explosion.getDefaultDamageSource(level, entity)
         this.damageCalculator = damageCalculator ?: ExplosionDamageCalculator()
     }
 
@@ -84,7 +104,7 @@ open class CustomExplosion @JvmOverloads constructor(
         pToBlowY: Double,
         pToBlowZ: Double,
         pRadius: Float,
-        pBlockInteraction: BlockInteraction
+        pBlockInteraction: Explosion.BlockInteraction
     ) : this(pLevel, pSource, null, null, damage, pToBlowX, pToBlowY, pToBlowZ, pRadius, pBlockInteraction)
 
     constructor(
@@ -96,7 +116,7 @@ open class CustomExplosion @JvmOverloads constructor(
         pToBlowY: Double,
         pToBlowZ: Double,
         pRadius: Float,
-        pBlockInteraction: BlockInteraction
+        pBlockInteraction: Explosion.BlockInteraction
     ) : this(pLevel, pSource, source, null, damage, pToBlowX, pToBlowY, pToBlowZ, pRadius, pBlockInteraction) {
         sendToNearbyPlayers(
             level,
@@ -118,7 +138,7 @@ open class CustomExplosion @JvmOverloads constructor(
         pToBlowY: Double,
         pToBlowZ: Double,
         pRadius: Float
-    ) : this(pLevel, pSource, source, null, damage, pToBlowX, pToBlowY, pToBlowZ, pRadius, BlockInteraction.KEEP) {
+    ) : this(pLevel, pSource, source, null, damage, pToBlowX, pToBlowY, pToBlowZ, pRadius, Explosion.BlockInteraction.KEEP) {
         sendToNearbyPlayers(
             level,
             pToBlowX,
@@ -140,7 +160,7 @@ open class CustomExplosion @JvmOverloads constructor(
         return this
     }
 
-    override fun explode() {
+    fun explode() {
         if (ExplosionConfig.EXPLOSION_DESTROY.get() && this.interactsWithBlocks()) {
             this.level.gameEvent(this.entity, GameEvent.EXPLODE, Vec3(this.x, this.y, this.z))
 
@@ -376,7 +396,7 @@ open class CustomExplosion @JvmOverloads constructor(
                         if (entity is VehicleEntity) continue
 
                         val seenPercent =
-                            getSeenPercent(position, entity).toDouble().coerceIn(
+                            net.minecraft.world.level.ServerExplosion.getSeenPercent(position, entity).toDouble().coerceIn(
                                 0.01 * ExplosionConfig.EXPLOSION_PENETRATION_RATIO.get(),
                                 Double.POSITIVE_INFINITY
                             )
@@ -470,7 +490,7 @@ open class CustomExplosion @JvmOverloads constructor(
         }
     }
 
-    override fun finalizeExplosion(pSpawnParticles: Boolean) {
+    fun finalizeExplosion(pSpawnParticles: Boolean) {
         if (this.level.isClientSide) {
             this.level.playLocalSound(
                 this.x,
@@ -524,7 +544,7 @@ open class CustomExplosion @JvmOverloads constructor(
 
             val blockstate = this.level.getBlockState(blockpos)
             val blockpos1 = blockpos.immutable()
-            blockstate.onExplosionHit(this.level, blockpos1, this) { stack, pos ->
+            blockstate.onExplosionHit(this.level(), blockpos1, this) { stack, pos ->
                 addOrAppendStack(dropList, stack, pos)
             }
         }
@@ -656,7 +676,7 @@ open class CustomExplosion @JvmOverloads constructor(
 
             val interaction =
                 Supplier {
-                    if (ExplosionConfig.EXPLOSION_DESTROY.get() && this.destroyBlock) BlockInteraction.DESTROY else BlockInteraction.KEEP
+                    if (ExplosionConfig.EXPLOSION_DESTROY.get() && this.destroyBlock) Explosion.BlockInteraction.DESTROY else Explosion.BlockInteraction.KEEP
                 }
 
             val customExplosion = CustomExplosion(
@@ -693,7 +713,7 @@ open class CustomExplosion @JvmOverloads constructor(
             if (entity is OBBEntity && !entity.enableAABB()) {
                 return getSeenPercentForOBB(level, center, entity)
             }
-            return getSeenPercent(center, entity)
+            return net.minecraft.world.level.ServerExplosion.getSeenPercent(center, entity)
         }
 
         /** Sample every OBB centre + 6 face centres, raycast from [center] to each. */

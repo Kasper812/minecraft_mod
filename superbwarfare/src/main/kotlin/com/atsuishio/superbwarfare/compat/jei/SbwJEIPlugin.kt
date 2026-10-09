@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.screens.BlueprintResearchTableScreen
 import com.atsuishio.superbwarfare.compat.jei.PotionMortarShellRecipeMaker.createRecipes
@@ -105,15 +107,9 @@ class SbwJEIPlugin : IModPlugin {
                 val data = ingredient.get(DataComponents.BLOCK_ENTITY_DATA)
                 val tag = if (data != null) data.copyTag() else CompoundTag()
                 if (tag.contains("EntityType")) {
-                    return tag.getString("EntityType")
+                    return tag.getStringOr("EntityType", "")
                 }
                 return ""
-            }
-
-            @Deprecated("Deprecated in Java")
-            @ParametersAreNonnullByDefault
-            override fun getLegacyStringSubtypeInfo(ingredient: ItemStack, context: UidContext): String {
-                return getSubtypeData(ingredient, context).toString()
             }
         })
 
@@ -125,33 +121,12 @@ class SbwJEIPlugin : IModPlugin {
                     val contents = ingredient.get(DataComponents.POTION_CONTENTS) ?: return null
                     return contents.potion().orElse(null)
                 }
-
-                @Deprecated("Deprecated in Java")
-                @ParametersAreNonnullByDefault
-                override fun getLegacyStringSubtypeInfo(ingredient: ItemStack, context: UidContext): String {
-                    if (ingredient.componentsPatch.isEmpty) {
-                        return ""
-                    }
-                    val contents =
-                        ingredient.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY)
-                    val itemDescriptionId = ingredient.item.descriptionId
-                    val potionEffectId =
-                        contents.potion().map(Function { obj: Holder<Potion?>? -> obj!!.registeredName })
-                            .orElse("none")
-                    return "$itemDescriptionId.effect_id.$potionEffectId"
-                }
             })
 
         registration.registerSubtypeInterpreter(ModItems.C4_BOMB, object : ISubtypeInterpreter<ItemStack> {
             @ParametersAreNonnullByDefault
             override fun getSubtypeData(ingredient: ItemStack, context: UidContext): Any {
-                return NBTTool.getTag(ingredient).getBoolean("Control")
-            }
-
-            @Deprecated("Deprecated in Java")
-            @ParametersAreNonnullByDefault
-            override fun getLegacyStringSubtypeInfo(ingredient: ItemStack, context: UidContext): String {
-                return getSubtypeData(ingredient, context).toString()
+                return NBTTool.getTag(ingredient).getBooleanOr("Control", false)
             }
         })
     }

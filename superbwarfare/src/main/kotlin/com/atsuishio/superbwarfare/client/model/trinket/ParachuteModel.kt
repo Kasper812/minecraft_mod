@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.trinket
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
@@ -13,20 +15,11 @@ import net.minecraft.client.model.geom.builders.LayerDefinition
 import net.minecraft.world.entity.LivingEntity
 
 @Suppress("unused", "UnusedVariable", "LocalVariableName")
-class ParachuteModel(root: ModelPart) : HumanoidModel<LivingEntity>(root) {
+class ParachuteModel(root: ModelPart) {
     private val parachute: ModelPart = root.getChild("parachute")
 
-    override fun setupAnim(
-        entity: LivingEntity,
-        limbSwing: Float,
-        limbSwingAmount: Float,
-        ageInTicks: Float,
-        netHeadYaw: Float,
-        headPitch: Float
-    ) {
-    }
 
-    override fun renderToBuffer(
+    fun renderToBuffer(
         poseStack: PoseStack,
         vertexConsumer: VertexConsumer,
         packedLight: Int,
@@ -41,7 +34,7 @@ class ParachuteModel(root: ModelPart) : HumanoidModel<LivingEntity>(root) {
         val LAYER_LOCATION: ModelLayerLocation = ModelLayerLocation(loc("parachute"), "main")
 
         fun createBodyLayer(): LayerDefinition {
-            val meshdefinition = createMesh(CubeDeformation(0.0f), 0.0f)
+            val meshdefinition = net.minecraft.client.model.HumanoidModel.createMesh(CubeDeformation(0.0f), 0.0f)
             val partdefinition = meshdefinition.root
 
             val parachute =

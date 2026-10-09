@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.melee
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * `Projectile` 字段的引擎保留标记。
  *

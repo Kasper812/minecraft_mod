@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod
@@ -16,7 +18,7 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockMo
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.TreeModelInstance
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBedrockModel
 import com.maydaymemory.mae.basic.Pose
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
@@ -362,7 +364,6 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
     ) {
         ScopeStencilRenderHelper.enableItemEntityStencilTest()
         RenderSystem.clearStencil(0)
-        RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX)
 
         renderOcularStencil(poseStack, bufferSource, quadType, triangleType, light, false, info)
         renderDivisionOnly(
@@ -395,7 +396,6 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
     ) {
         ScopeStencilRenderHelper.enableItemEntityStencilTest()
         RenderSystem.clearStencil(0)
-        RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX)
 
         val ringIndex = ocularRingIndex(info)
         if (ringIndex >= 0) {
@@ -566,7 +566,6 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         modelViewStack.pushMatrix()
         modelViewStack.identity()
         RenderSystem.applyModelViewMatrix()
-        RenderSystem.setShader(GameRenderer::getPositionColorShader)
         for (i in ocularIndices.indices) {
             if (selective && !isScopeOcular[i]) continue
 
@@ -580,25 +579,6 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
             val radiusY = rad * depth * 2f /
                     (projectionMatrix.m11() * window.guiScaledHeight)
 
-            val builder = Tesselator.getInstance().begin(
-                VertexFormat.Mode.TRIANGLE_FAN,
-                DefaultVertexFormat.POSITION_COLOR
-            )
-            builder
-                .addVertex(ocularCenter.x(), ocularCenter.y(), ocularCenter.z())
-                .setColor(255, 255, 255, 255)
-            for (j in 0..90) {
-                val angle = j * ((Math.PI * 2.0) / 90.0)
-                val sin = Mth.sin(angle.toFloat())
-                val cos = Mth.cos(angle.toFloat())
-                builder.addVertex(
-                    ocularCenter.x() + cos * radiusX,
-                    ocularCenter.y() + sin * radiusY,
-                    ocularCenter.z()
-                )
-                    .setColor(255, 255, 255, 255)
-            }
-            BufferUploader.drawWithShader(builder.build()!!)
         }
         modelViewStack.popMatrix()
         RenderSystem.applyModelViewMatrix()

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config.common
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.buildCommonConfig
 
 object GameplayConfig {

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 /**
@@ -24,7 +26,7 @@ open class IntValue(
     private val onSet: (() -> Unit)? = null
 ) {
     /** Returns the stored value, or [defaultValue] if the key is absent. */
-    open fun get(): Int = if (tag.contains(name)) tag.getInt(name) else defaultValue
+    open fun get(): Int = if (tag.contains(name)) tag.getIntOr(name, 0) else defaultValue
 
     /**
      * Writes [value] to the tag and invokes [onSet] if the value changed.
@@ -35,7 +37,7 @@ open class IntValue(
      * @param value the new value to store.
      */
     open fun set(value: Int) {
-        val current = if (tag.contains(name)) tag.getInt(name) else defaultValue
+        val current = if (tag.contains(name)) tag.getIntOr(name, 0) else defaultValue
         if (current == value) return
         if (value == defaultValue) tag.remove(name) else tag.putInt(name, value)
         onSet?.invoke()

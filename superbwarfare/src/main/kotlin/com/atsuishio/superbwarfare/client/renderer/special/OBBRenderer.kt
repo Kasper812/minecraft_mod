@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.tools.OBB
 import com.mojang.blaze3d.vertex.PoseStack
@@ -74,7 +76,7 @@ object OBBRenderer {
         poseStack.pushPose()
         poseStack.translate(centerX, centerY, centerZ)
         poseStack.mulPose(Quaternionf(rotation.x, rotation.y, rotation.z, rotation.w))
-        LevelRenderer.renderLineBox(
+        com.atsuishio.portlib.render.LegacyLines.renderLineBox(
             poseStack,
             buffer,
             -halfX,

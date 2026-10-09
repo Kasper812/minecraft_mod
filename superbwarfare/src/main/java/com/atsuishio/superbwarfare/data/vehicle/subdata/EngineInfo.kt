@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.vehicle.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleEngineUtils.airShipEngine
 import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleEngineUtils.aircraftEngine

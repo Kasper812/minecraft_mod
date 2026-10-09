@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.tooltip.component.AttachmentImageComponent
 import net.minecraft.world.inventory.tooltip.TooltipComponent
 import net.minecraft.world.item.Item

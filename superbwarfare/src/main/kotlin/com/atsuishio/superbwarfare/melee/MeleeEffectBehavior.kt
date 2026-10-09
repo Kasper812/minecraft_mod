@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.melee
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.melee.ResolvedMeleeAction
 import com.atsuishio.superbwarfare.data.gun.melee.ResolvedMeleeEffect

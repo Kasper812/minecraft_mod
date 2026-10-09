@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -13,7 +17,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 
-class Blu43Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<Blu43Entity>(renderManager) {
+class Blu43Renderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<Blu43Entity>(renderManager) {
     override fun getTextureLocation(pEntity: Blu43Entity): Identifier {
         return TEXTURE
     }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -53,7 +55,7 @@ open class AnnihilatorEntity(type: EntityType<AnnihilatorEntity>, world: Level) 
             .define(LASER_RIGHT_LENGTH, 0f)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val mainStack = player.mainHandItem
         val offStack = player.offhandItem
 
@@ -72,7 +74,7 @@ open class AnnihilatorEntity(type: EntityType<AnnihilatorEntity>, world: Level) 
             }
             return InteractionResult.SUCCESS
         }
-        return super.interact(player, hand)
+        return super.interact(player, hand, location)
     }
 
     fun setTarget(stack: ItemStack) {
@@ -134,7 +136,7 @@ open class AnnihilatorEntity(type: EntityType<AnnihilatorEntity>, world: Level) 
                 if (distance > blockReach * blockReach) {
                     val posB = hitResult.location
                     hitResult =
-                        BlockHitResult.miss(posB, Direction.getNearest(pos.x, pos.y, pos.z), BlockPos.containing(posB))
+                        BlockHitResult.miss(posB, Direction.getApproximateNearest(pos.x, pos.y, pos.z), BlockPos.containing(posB))
                 }
             }
             val viewVec = getBarrelVector(1f)
@@ -154,7 +156,7 @@ open class AnnihilatorEntity(type: EntityType<AnnihilatorEntity>, world: Level) 
                 if (distanceToTarget > distance || distanceToTarget > 512 * 512) {
                     hitResult = BlockHitResult.miss(
                         targetPos,
-                        Direction.getNearest(viewVec.x, viewVec.y, viewVec.z),
+                        Direction.getApproximateNearest(viewVec.x, viewVec.y, viewVec.z),
                         BlockPos.containing(targetPos)
                     )
                 } else if (distanceToTarget < distance) {

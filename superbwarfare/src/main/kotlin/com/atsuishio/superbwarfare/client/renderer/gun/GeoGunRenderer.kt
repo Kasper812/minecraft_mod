@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.ClientRenderHandler
@@ -61,7 +63,7 @@ import com.maydaymemory.mae.basic.*
 import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.NoAllocMergeBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import cn.sh1rocu.simplebedrockmodel.api.event.ViewportEvent
@@ -89,18 +91,7 @@ import org.lwjgl.opengl.GL11
 import java.util.*
 import kotlin.math.roundToInt
 
-open class GeoGunRenderer : AbstractGeoItemRendererV2(), com.atsuishio.portlib.render.DynamicItemRenderer {
-
-    override fun render(
-        stack: ItemStack,
-        mode: ItemDisplayContext,
-        matrices: PoseStack,
-        vertexConsumers: MultiBufferSource,
-        light: Int,
-        overlay: Int
-    ) {
-        renderByItem(stack, mode, matrices, vertexConsumers, light, overlay)
-    }
+open class GeoGunRenderer : AbstractGeoItemRendererV2() {
 
     override fun blockOffhandRender(): Boolean = true
 
@@ -1013,7 +1004,6 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), com.atsuishio.portlib.r
 
         ScopeStencilRenderHelper.disableItemEntityStencilTest()
         RenderSystem.clearStencil(0)
-        RenderSystem.clear(GL11.GL_STENCIL_BUFFER_BIT, Minecraft.ON_OSX)
     }
 
     open fun renderStock(
@@ -1789,8 +1779,8 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), com.atsuishio.portlib.r
     open fun cameraRotationInverse(): Matrix4f {
         val camera = Minecraft.getInstance().gameRenderer.mainCamera()
         return Matrix4f()
-            .rotationX(Mth.DEG_TO_RAD * camera.xRot)
-            .rotateY(Mth.DEG_TO_RAD * (camera.yRot + 180f))
+            .rotationX(Mth.DEG_TO_RAD * camera.xRot())
+            .rotateY(Mth.DEG_TO_RAD * (camera.yRot() + 180f))
             .rotateZ(CameraStateCache.getCameraRollRadians())
             .invert()
     }

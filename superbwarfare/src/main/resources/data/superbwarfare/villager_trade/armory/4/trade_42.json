@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "superbwarfare:medium_rocket_he"
+  },
+  "gives": {
+    "id": "minecraft:emerald",
+    "count": 4
+  },
+  "max_uses": 32,
+  "xp": 4,
+  "reputation_discount": 0.05
+}

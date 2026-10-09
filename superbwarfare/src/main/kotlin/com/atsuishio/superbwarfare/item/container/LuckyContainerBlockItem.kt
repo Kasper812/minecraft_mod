@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.container
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.init.ModBlocks
@@ -10,7 +12,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.entity.player.Player
@@ -30,14 +31,14 @@ class LuckyContainerBlockItem :
         return InteractionResult.PASS
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val playerPOVHitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY)
         if (playerPOVHitResult.type == HitResult.Type.MISS) {
             return super.use(level, player, hand)
         }
         val blockHitResult = playerPOVHitResult.withPosition(playerPOVHitResult.blockPos.above())
         val interactionResult = super.useOn(UseOnContext(player, hand, blockHitResult))
-        return InteractionResultHolder(interactionResult, player.getItemInHand(hand))
+        return interactionResult
     }
 
     companion object {
@@ -57,7 +58,7 @@ class LuckyContainerBlockItem :
             if (icon != null) {
                 tag.putString("Icon", icon.toString())
             }
-            setBlockEntityData(stack, ModBlockEntities.LUCKY_CONTAINER, tag)
+            legacySetBlockEntityData(stack, ModBlockEntities.LUCKY_CONTAINER, tag)
             return stack
         }
     }

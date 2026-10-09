@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.gun.machinegun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModEnumExtensions
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.gun.GeoGunItemV2

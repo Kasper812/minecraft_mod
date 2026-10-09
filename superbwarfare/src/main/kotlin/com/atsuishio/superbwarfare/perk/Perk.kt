@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.PropertyModifier
@@ -137,7 +139,7 @@ open class Perk(val descriptionId: String, val type: Type) : PropertyModifier<Gu
     }
 
     open fun `is`(tag: TagKey<Perk>): Boolean {
-        return ModPerks.PERK_REGISTRY.getHolder(perkKey).map { it.`is`(tag) }.orElseGet { false }
+        return ModPerks.PERK_REGISTRY.get(perkKey).map { it.`is`(tag) }.orElseGet { false }
     }
 
     enum class Type(val typeName: String, val color: ChatFormatting) {

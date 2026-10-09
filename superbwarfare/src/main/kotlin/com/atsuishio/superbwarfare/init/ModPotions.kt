@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
@@ -11,19 +13,19 @@ object ModPotions {
     @JvmField
     val SHOCK: Potion = register(
         "superbwarfare_shock",
-        Potion(MobEffectInstance(ModMobEffects.SHOCK, 100, 0))
+        Potion("superbwarfare_shock", MobEffectInstance(ModMobEffects.SHOCK, 100, 0))
     )
 
     @JvmField
     val STRONG_SHOCK: Potion = register(
         "superbwarfare_strong_shock",
-        Potion(MobEffectInstance(ModMobEffects.SHOCK, 100, 1))
+        Potion("superbwarfare_strong_shock", MobEffectInstance(ModMobEffects.SHOCK, 100, 1))
     )
 
     @JvmField
     val LONG_SHOCK: Potion = register(
         "superbwarfare_long_shock",
-        Potion(MobEffectInstance(ModMobEffects.SHOCK, 400, 0))
+        Potion("superbwarfare_long_shock", MobEffectInstance(ModMobEffects.SHOCK, 400, 0))
     )
 
     private fun register(name: String, potion: Potion): Potion {

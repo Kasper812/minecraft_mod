@@ -1,5 +1,14 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.entity.EntityReference
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.api.ItemHandlerHelper
@@ -28,7 +37,6 @@ import net.minecraft.world.effect.MobEffects
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.item.ArmorItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.entity.EntityTypeTest
@@ -43,7 +51,7 @@ open class Blu43Entity : Entity, OwnableEntity {
 
     constructor(owner: LivingEntity?, level: Level) : super(ModEntities.BLU_43, level) {
         if (owner != null) {
-            this.setOwnerUUID(owner.getUUID())
+            this.ownerUUID = owner.getUUID()
         }
     }
 
@@ -59,28 +67,30 @@ open class Blu43Entity : Entity, OwnableEntity {
         return !this.isRemoved
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         val damage = DAMAGE_MODIFIER.compute(this, source, amount)
         if (source.entity != null) {
             this.entityData.set(LAST_ATTACKER_UUID, source.entity!!.getStringUUID())
         }
         this.entityData.set(HEALTH, this.entityData.get(HEALTH) - damage)
-        return super.hurt(source, damage)
+        return run { if (!this.isInvulnerableToBase(source)) this.markHurt(); false }
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     fun isOwnedBy(pEntity: LivingEntity?): Boolean {
-        return pEntity === this.owner
+        return pEntity === this.getOwner()
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putFloat("Health", this.entityData.get(HEALTH))
         compound.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         if (this.ownerUUID != null) {
@@ -88,20 +98,22 @@ open class Blu43Entity : Entity, OwnableEntity {
         }
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         if (compound.contains("Health")) {
-            this.entityData.set(HEALTH, compound.getFloat("Health"))
+            this.entityData.set(HEALTH, compound.getFloatOr("Health", 0f))
         }
 
         if (compound.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, compound.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, compound.getStringOr("LastAttacker", ""))
         }
 
         var uuid: UUID?
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -117,13 +129,13 @@ open class Blu43Entity : Entity, OwnableEntity {
 
         if (uuid != null) {
             try {
-                this.setOwnerUUID(uuid)
+                this.ownerUUID = uuid
             } catch (_: Throwable) {
             }
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (this.isOwnedBy(player) && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
@@ -134,7 +146,7 @@ open class Blu43Entity : Entity, OwnableEntity {
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {
@@ -208,28 +220,22 @@ open class Blu43Entity : Entity, OwnableEntity {
                         if (!boot.isEmpty) {
                             baseAmplifier--
                             baseDuration -= 100
-                            val item = boot.item
-                            if (item is ArmorItem) {
-                                baseDuration -= item.defense * 10
-                            }
+                            baseDuration -= boot.armorDefense(EquipmentSlot.FEET) * 10
                         }
                         if (!leggings.isEmpty) {
                             baseAmplifier--
                             baseDuration -= 100
-                            val item = leggings.item
-                            if (item is ArmorItem) {
-                                baseDuration -= item.defense * 10
-                            }
+                            baseDuration -= leggings.armorDefense(EquipmentSlot.LEGS) * 10
                         }
 
                         entity.forceApplyEffect(
                             MobEffectInstance(
-                                MobEffects.MOVEMENT_SLOWDOWN,
+                                MobEffects.SLOWNESS,
                                 max(baseDuration, 20),
                                 baseAmplifier,
                                 false,
                                 false
-                            ), this.owner
+                            ), this.getOwner()
                         )
                         entity.forceApplyEffect(
                             MobEffectInstance(
@@ -238,7 +244,7 @@ open class Blu43Entity : Entity, OwnableEntity {
                                 baseAmplifier,
                                 false,
                                 false
-                            ), this.owner
+                            ), this.getOwner()
                         )
                         entity.forceApplyEffect(
                             MobEffectInstance(
@@ -248,7 +254,7 @@ open class Blu43Entity : Entity, OwnableEntity {
                                 false,
                                 false
                             ),
-                            this.owner
+                            this.getOwner()
                         )
                     }
                     break
@@ -263,7 +269,7 @@ open class Blu43Entity : Entity, OwnableEntity {
 
     private fun triggerExplode() {
         CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(ExplosionConfig.BLU_43_EXPLOSION_DAMAGE.get().toFloat())
             .radius(ExplosionConfig.BLU_43_EXPLOSION_RADIUS.get().toFloat())
             .keepBlock()
@@ -290,7 +296,7 @@ open class Blu43Entity : Entity, OwnableEntity {
 
         @JvmField
         protected val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(Blu43Entity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(Blu43Entity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         protected val LAST_ATTACKER_UUID: EntityDataAccessor<String> =

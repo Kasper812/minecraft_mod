@@ -970,6 +970,8 @@
   "entity.superbwarfare.air_sheep": "Air Sheep",
   "entity.superbwarfare.fh_77bw": "FH-77BW Archer Self-Propelled Artillery",
 
+  "key.category.superbwarfare.main": "Superb Warfare",
+
   "key.categories.superbwarfare": "Superb Warfare",
   "key.superbwarfare.move_forward": "Forward / Throttle Up",
   "key.superbwarfare.move_backward": "Backward / Throttle Down",

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.buildClientConfig
 
 object ReloadConfig {

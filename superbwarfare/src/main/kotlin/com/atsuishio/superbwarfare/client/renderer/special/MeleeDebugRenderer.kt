@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.client.gun.GunActionLock
@@ -16,8 +18,8 @@ import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
+import com.atsuishio.portlib.render.world.WorldRenderContext
+import com.atsuishio.portlib.render.world.WorldRenderEvents
 import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
@@ -89,7 +91,7 @@ object MeleeDebugRenderer {
         poseStack.pushPose()
 
         // 相机相对变换：判定体坐标是世界坐标
-        poseStack.translate(-camera.position.x, -camera.position.y, -camera.position.z)
+        poseStack.translate(-camera.position().x, -camera.position().y, -camera.position().z)
 
         val active = state.meleeTicks > 0
         for (actionIndex in data.meleeActions().indices) {

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -14,7 +16,7 @@ object MagnificentHowl : Perk("magnificent_howl", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        if (tag.getInt("MagnificentHowlDamageCount") > 0) {
+        if (tag.getIntOr("MagnificentHowlDamageCount", 0) > 0) {
             modifier[GunProp.DAMAGE] *= 1.5
         }
     }
@@ -29,7 +31,7 @@ object MagnificentHowl : Perk("magnificent_howl", Type.DAMAGE) {
         if (DamageTypeTool.isHeadshotDamage(source)) {
             tag.putInt(
                 "MagnificentHowlCount",
-                (tag.getInt("MagnificentHowlCount") + 1 + instance.level / 5).coerceAtMost(9 + instance.level)
+                (tag.getIntOr("MagnificentHowlCount", 0) + 1 + instance.level / 5).coerceAtMost(9 + instance.level)
             )
         }
     }
@@ -40,7 +42,7 @@ object MagnificentHowl : Perk("magnificent_howl", Type.DAMAGE) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        tag.putInt("MagnificentHowlDamageCount", tag.getInt("MagnificentHowlCount"))
+        tag.putInt("MagnificentHowlDamageCount", tag.getIntOr("MagnificentHowlCount", 0))
         tag.remove("MagnificentHowlCount")
     }
 
@@ -52,7 +54,7 @@ object MagnificentHowl : Perk("magnificent_howl", Type.DAMAGE) {
         source: DamageSource
     ) {
         val tag = data.perk.getTag(this) ?: return
-        if (tag.getInt("MagnificentHowlDamageCount") > 0) {
+        if (tag.getIntOr("MagnificentHowlDamageCount", 0) > 0) {
             data.perk.reduceCooldown(this, "MagnificentHowlDamageCount")
         }
     }

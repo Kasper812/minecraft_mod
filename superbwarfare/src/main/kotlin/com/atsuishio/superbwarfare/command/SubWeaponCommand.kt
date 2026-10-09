@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.command.builder.buildCommand
 import com.atsuishio.superbwarfare.command.builder.entityArg
 import com.atsuishio.superbwarfare.data.gun.ActiveGun

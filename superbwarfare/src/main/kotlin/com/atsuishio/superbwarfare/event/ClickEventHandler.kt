@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.overlay.OverlayTraceHandler
 import com.atsuishio.superbwarfare.client.screens.LoiterConfigScreen
 import com.atsuishio.superbwarfare.client.screens.MissilePosInputScreen
@@ -37,7 +39,7 @@ import net.minecraft.world.item.Items
 import net.minecraft.world.level.ClipContext
 import net.minecraft.world.phys.Vec3
 import org.lwjgl.glfw.GLFW
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 
 object ClickEventHandler {
     @JvmField
@@ -262,7 +264,7 @@ object ClickEventHandler {
         }
 
         // 未按下shift时，为有武器的载具切换武器
-        if (!Screen.hasShiftDown()
+        if (!com.atsuishio.portlib.gui.LegacyInput.hasShiftDown()
             && vehicle is VehicleEntity
             && vehicle.hasWeapon(vehicle.getSeatIndex(player))
             && vehicle.banHand(player)
@@ -291,8 +293,8 @@ object ClickEventHandler {
 
         val tag = NBTTool.getTag(stack)
 
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using")
-            && tag.getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false)
+            && tag.getBooleanOr("Linked", false)
         ) {
             ClientEventHandler.droneFov = (ClientEventHandler.droneFov + 0.4 * scroll).coerceIn(1.0, 6.0)
             canceled = true
@@ -857,11 +859,11 @@ object ClickEventHandler {
     }
 
     fun droneLeftClick(stack: ItemStack, player: Player) {
-        if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBoolean("Using")
-            && stack.getOrCreateTag().getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBooleanOr("Using", false)
+            && stack.getOrCreateTag().getBooleanOr("Linked", false)
         ) {
             val drone =
-                EntityFindUtil.findDrone(player.level(), stack.getOrCreateTag().getString("LinkedDrone")) ?: return
+                EntityFindUtil.findDrone(player.level(), stack.getOrCreateTag().getStringOr("LinkedDrone", "")) ?: return
             val lookingEntity = SeekTool.seekLivingEntity(drone, 512.0, 2 / ClientEventHandler.droneFovLerp)
 
             val result = player.level().clip(

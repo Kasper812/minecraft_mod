@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.receive
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.particle.CustomFlareOption
 import com.atsuishio.superbwarfare.config.server.SyncConfig
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
@@ -37,7 +39,7 @@ data class MissileTrailParticleMessage(
                 CustomFlareOption(
                     0.5f, 0.43f, 0.36f, 160, 0.93f,
                     (10 + 8 * random).toInt(), 0.03f
-                ), true, pos.x + random * 0.25, pos.y + random * 0.25, pos.z + random * 0.25, 0.0, 0.0, 0.0
+                ), true, false, pos.x + random * 0.25, pos.y + random * 0.25, pos.z + random * 0.25, 0.0, 0.0, 0.0
             )
             i += 2.0
         }

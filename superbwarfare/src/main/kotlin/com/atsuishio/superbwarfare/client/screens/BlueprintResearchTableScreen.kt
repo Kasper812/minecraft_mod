@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyContainerScreen
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.BlueprintResearchTableBlockEntity
 import com.atsuishio.superbwarfare.block.entity.BlueprintResearchTableBlockEntity.Companion.SLOT_ADDITION
@@ -13,7 +19,7 @@ import com.atsuishio.superbwarfare.network.message.send.BlueprintSetIndexMessage
 import com.atsuishio.superbwarfare.recipe.ResearchingRecipe
 import com.atsuishio.superbwarfare.tools.clientLevel
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
@@ -28,7 +34,7 @@ import kotlin.jvm.optionals.getOrNull
 
 class BlueprintResearchTableScreen(
     menu: BlueprintResearchTableMenu, playerInventory: Inventory, title: Component
-) : AbstractContainerScreen<BlueprintResearchTableMenu>(menu, playerInventory, title) {
+) : LegacyContainerScreen<BlueprintResearchTableMenu>(menu, playerInventory, title) {
     private var currentResultList: MutableList<Item> = mutableListOf()
     private var currentPage: Int = 0
 
@@ -244,7 +250,7 @@ class BlueprintResearchTableScreen(
         const val PAGE_SIZE = 27
     }
 
-    private class CraftButton(x: Int, y: Int) : AbstractButton(x, y, 10, 10, Component.empty()) {
+    private class CraftButton(x: Int, y: Int) : LegacyAbstractButton(x, y, 10, 10, Component.empty()) {
         override fun onPress() {
             sendPacketToServer(BlueprintCraftMessage)
         }
@@ -264,8 +270,7 @@ class BlueprintResearchTableScreen(
         }
     }
 
-    private inner class PageButton(x: Int, y: Int, val forward: Boolean) :
-        AbstractButton(x, y, 25, 8, Component.empty()) {
+    private inner class PageButton(x: Int, y: Int, val forward: Boolean) : LegacyAbstractButton(x, y, 25, 8, Component.empty()) {
         override fun onPress() {
             val recipe = this@BlueprintResearchTableScreen.getRecipe() ?: return
             val value = recipe.value ?: return

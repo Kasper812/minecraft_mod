@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.ModColor
 import com.atsuishio.superbwarfare.tools.MathTool

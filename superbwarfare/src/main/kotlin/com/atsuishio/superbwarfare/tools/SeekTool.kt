@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.tools
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler
 import com.atsuishio.superbwarfare.entity.projectile.SmokeDecoyEntity
 import com.atsuishio.superbwarfare.entity.vehicle.DroneEntity
@@ -151,10 +153,10 @@ object SeekTool {
         var myDrone: DroneEntity? = null
         val tag = getTag(stack)
         if (stack.`is`(ModItems.MONITOR) &&
-            tag.getBoolean("Using") &&
-            tag.getBoolean("Linked")
+            tag.getBooleanOr("Using", false) &&
+            tag.getBooleanOr("Linked", false)
         ) {
-            myDrone = EntityFindUtil.findDrone(self.level(), tag.getString("LinkedDrone"))
+            myDrone = EntityFindUtil.findDrone(self.level(), tag.getStringOr("LinkedDrone", ""))
         }
         target is DroneEntity &&
                 target !== myDrone &&

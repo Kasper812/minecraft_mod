@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.ammo
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.init.ModAttachments
 import com.atsuishio.superbwarfare.init.ModItems
@@ -9,7 +13,6 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -19,14 +22,16 @@ import net.minecraft.world.level.Level
 open class AmmoSupplierItem(val type: Ammo, val ammoToAdd: Int, properties: Properties) : Item(properties) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(Component.translatable("des.superbwarfare.ammo_supplier").withStyle(ChatFormatting.AQUA))
     }
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
         var count = stack.count
 
@@ -43,7 +48,7 @@ open class AmmoSupplierItem(val type: Ammo, val ammoToAdd: Int, properties: Prop
                 player.displayClientMessage(
                     Component.translatable("item.superbwarfare.ammo_supplier.fail").withStyle(ChatFormatting.RED), true
                 )
-                return InteractionResultHolder.fail(stack)
+                return InteractionResult.FAIL
             }
 
             this.type.add(offhandItem, ammoToAdd * toAddCount)
@@ -58,7 +63,7 @@ open class AmmoSupplierItem(val type: Ammo, val ammoToAdd: Int, properties: Prop
                 player.displayClientMessage(
                     Component.translatable("item.superbwarfare.ammo_supplier.fail").withStyle(ChatFormatting.RED), true
                 )
-                return InteractionResultHolder.fail(stack)
+                return InteractionResult.FAIL
             }
 
             this.type.add(capability, ammoToAdd * toAddCount)
@@ -84,6 +89,6 @@ open class AmmoSupplierItem(val type: Ammo, val ammoToAdd: Int, properties: Prop
             level.playSound(null, player.blockPosition(), ModSounds.BULLET_SUPPLY, SoundSource.PLAYERS, 1f, 1f)
         }
 
-        return InteractionResultHolder.success(stack)
+        return InteractionResult.SUCCESS
     }
 }

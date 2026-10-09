@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.data.vehicle_skin.SkinInfo
@@ -12,7 +18,7 @@ import com.atsuishio.superbwarfare.tools.options
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
 import com.mojang.blaze3d.platform.Lighting
 import com.mojang.math.Axis
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.Screen
@@ -22,7 +28,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
 @Environment(EnvType.CLIENT)
-class VehicleSkinScreen(private val entity: Entity) : Screen(Component.empty()) {
+class VehicleSkinScreen(private val entity: Entity) : LegacyScreen(Component.empty()) {
     companion object {
         private val TEXTURE = loc("textures/gui/vehicle_skin.png")
         private val BUTTON = loc("textures/gui/vehicle_skin_button.png")
@@ -157,7 +163,7 @@ class VehicleSkinScreen(private val entity: Entity) : Screen(Component.empty()) 
         private val previewEntity: VehicleEntity?,
         private val vehicleEntityId: Int,
         private val isSelected: Boolean
-    ) : AbstractButton(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, Component.empty()) {
+    ) : LegacyAbstractButton(x, y, BUTTON_WIDTH, BUTTON_HEIGHT, Component.empty()) {
 
         override fun renderWidget(graphics: GuiGraphics, pMouseX: Int, pMouseY: Int, pPartialTick: Float) {
             val pose = graphics.pose()
@@ -172,35 +178,28 @@ class VehicleSkinScreen(private val entity: Entity) : Screen(Component.empty()) 
             if (previewEntity != null) {
                 RenderDistanceHelper.markGuiRenderTimestamp()
 
-                pose.pushPose()
-
                 val centerX = this.x + this.width / 2.0
                 val centerY = this.y + this.height - 20.0
-                pose.translate(centerX, centerY, 80.0)
-
                 val bbSize = previewEntity.boundingBox.size.toFloat()
                 val scale = (this.width * 0.3f) / maxOf(bbSize, 1f)
-                pose.scale(scale, scale, -scale)
 
-                pose.mulPose(Axis.XP.rotationDegrees(195f))
-                pose.mulPose(Axis.YP.rotationDegrees(30f))
-
-                Lighting.setupForEntityInInventory()
-                val erd = mc.entityRenderDispatcher
-                erd.setRenderShadow(false)
-                erd.render(
-                    previewEntity,
-                    0.0, 0.0, 0.0,
-                    0f, 1f,
-                    pose,
-                    graphics.bufferSource(),
-                    15728880
-                )
-                graphics.flush()
-                erd.setRenderShadow(true)
-                Lighting.setupFor3DItems()
-
-                pose.popPose()
+                graphics.render3D(this.x, this.y, this.x + this.width, this.y + this.height) { posestack, buffers ->
+                    posestack.pushPose()
+                    posestack.translate(centerX, centerY, 80.0)
+                    posestack.scale(scale, scale, -scale)
+                    posestack.mulPose(Axis.XP.rotationDegrees(195f))
+                    posestack.mulPose(Axis.YP.rotationDegrees(30f))
+                    com.atsuishio.portlib.render.LegacyLighting.setupForEntityInInventory()
+                    mc.entityRenderDispatcher.render(
+                        previewEntity,
+                        0.0, 0.0, 0.0,
+                        0f, 1f,
+                        posestack,
+                        buffers,
+                        15728880
+                    )
+                    posestack.popPose()
+                }
             }
 
             // 皮肤信息
@@ -259,7 +258,7 @@ class VehicleSkinScreen(private val entity: Entity) : Screen(Component.empty()) 
         x: Int,
         y: Int,
         val forward: Boolean
-    ) : AbstractButton(x, y, 20, 94, Component.empty()) {
+    ) : LegacyAbstractButton(x, y, 20, 94, Component.empty()) {
         override fun onPress() {
             val page = this@VehicleSkinScreen.currentPage
             val maxPage = this@VehicleSkinScreen.maxPage

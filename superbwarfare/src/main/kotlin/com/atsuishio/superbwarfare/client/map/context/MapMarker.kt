@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.map.context
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 import java.util.*
 
@@ -67,16 +69,16 @@ data class MapMarker(
 
         /** 从 NBT 反序列化，失败返回 null */
         fun fromNBT(tag: CompoundTag): MapMarker? {
-            val idStr = tag.getString("id")
+            val idStr = tag.getStringOr("id", "")
             if (idStr.isEmpty()) return null
             return try {
                 MapMarker(
                     id = UUID.fromString(idStr),
-                    name = tag.getString("name"),
-                    x = tag.getInt("x"),
-                    y = tag.getInt("y"),
-                    z = tag.getInt("z"),
-                    colorIndex = tag.getInt("colorIndex")
+                    name = tag.getStringOr("name", ""),
+                    x = tag.getIntOr("x", 0),
+                    y = tag.getIntOr("y", 0),
+                    z = tag.getIntOr("z", 0),
+                    colorIndex = tag.getIntOr("colorIndex", 0)
                 )
             } catch (_: IllegalArgumentException) {
                 null

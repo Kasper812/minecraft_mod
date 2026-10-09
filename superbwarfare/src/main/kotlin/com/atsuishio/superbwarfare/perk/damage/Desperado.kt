@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.PMC
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.gun.GunData
@@ -14,7 +16,7 @@ object Desperado : Perk("desperado", Type.DAMAGE) {
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {
         super.modifyProperty(modifier)
         val tag = modifier.data.perk.getTag(this) ?: return
-        if (tag.getInt("DesperadoTimePost") > 0) {
+        if (tag.getIntOr("DesperadoTimePost", 0) > 0) {
             with(GunProp) {
                 // 改全局射速倍率而不是直接乘 RPM：直接乘基础 RPM 会被 RpmAddAfterShoot
                 // 那套加法累加值（涡轮）稀释，乘最终射速才符合"射速提升"的语义
@@ -49,7 +51,7 @@ object Desperado : Perk("desperado", Type.DAMAGE) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        val time = tag.getInt("DesperadoTime")
+        val time = tag.getIntOr("DesperadoTime", 0)
         if (time > 0) {
             tag.remove("DesperadoTime")
             tag.putBoolean("Desperado", true)
@@ -64,7 +66,7 @@ object Desperado : Perk("desperado", Type.DAMAGE) {
         entity: Entity?
     ) {
         val tag = data.perk.getTag(this) ?: return
-        if (!tag.getBoolean("Desperado")) return
+        if (!tag.getBooleanOr("Desperado", false)) return
         tag.putInt("DesperadoTimePost", 110 + instance.level * 10)
     }
 }

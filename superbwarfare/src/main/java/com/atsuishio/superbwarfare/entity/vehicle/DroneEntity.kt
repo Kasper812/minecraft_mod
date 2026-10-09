@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.data.CustomData
 import com.atsuishio.superbwarfare.data.drone_attachment.DroneAttachmentData
 import com.atsuishio.superbwarfare.entity.getValue
@@ -112,7 +120,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         }
     }
 
-    override fun causeFallDamage(l: Float, d: Float, source: DamageSource): Boolean {
+    override fun causeFallDamage(l: Double, d: Float, source: DamageSource): Boolean {
         return false
     }
 
@@ -126,8 +134,10 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
     open fun getAmmo() = this.ammoCount
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putBoolean("Linked", this.entityData.get(LINKED))
         compound.putString("Controller", this.entityData.get(CONTROLLER))
         compound.putInt("Ammo", this.ammoCount)
@@ -144,26 +154,28 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         compound.put("Item", item)
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        if (compound.contains("Linked")) this.entityData.set(LINKED, compound.getBoolean("Linked"))
-        if (compound.contains("Controller")) this.entityData.set(CONTROLLER, compound.getString("Controller"))
-        if (compound.contains("Ammo")) this.ammoCount = compound.getInt("Ammo")
-        if (compound.contains("KamikazeMode")) this.entityData.set(IS_KAMIKAZE, compound.getBoolean("KamikazeMode"))
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        if (compound.contains("Linked")) this.entityData.set(LINKED, compound.getBooleanOr("Linked", false))
+        if (compound.contains("Controller")) this.entityData.set(CONTROLLER, compound.getStringOr("Controller", ""))
+        if (compound.contains("Ammo")) this.ammoCount = compound.getIntOr("Ammo", 0)
+        if (compound.contains("KamikazeMode")) this.entityData.set(IS_KAMIKAZE, compound.getBooleanOr("KamikazeMode", false))
         if (compound.contains("Item")) this.currentItem =
-            ItemStack.parse(level().registryAccess(), compound.getCompound("Item")).orElseGet { ItemStack.EMPTY }
-        if (compound.contains("MaxAmmo")) this.entityData.set(MAX_AMMO, compound.getInt("MaxAmmo"))
+            legacyParseItem(level().registryAccess(), compound.getCompoundOrEmpty("Item")).orElseGet { ItemStack.EMPTY }
+        if (compound.contains("MaxAmmo")) this.entityData.set(MAX_AMMO, compound.getIntOr("MaxAmmo", 0))
         if (compound.contains("DisplayEntity")) this.entityData.set(
             DISPLAY_ENTITY,
-            compound.getString("DisplayEntity")
+            compound.getStringOr("DisplayEntity", "")
         )
         if (compound.contains("DisplayEntityTag")) this.entityData.set(
             DISPLAY_ENTITY_TAG,
-            compound.getCompound("DisplayEntityTag")
+            compound.getCompoundOrEmpty("DisplayEntityTag")
         )
         if (compound.contains("DisplayData")) this.entityData.set(
             DISPLAY_DATA,
-            compound.getString("DisplayData").split(",").map { it.toFloat() }
+            compound.getStringOr("DisplayData", "").split(",").map { it.toFloat() }
         )
     }
 
@@ -191,7 +203,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         if (!this.onGround()) {
             if (controller != null) {
                 val stack = controller.mainHandItem
-                if (!stack.`is`(ModItems.MONITOR) || !stack.getOrCreateTag().getBoolean("Using")) {
+                if (!stack.`is`(ModItems.MONITOR) || !stack.getOrCreateTag().getBooleanOr("Using", false)) {
                     leftInputDown = false
                     rightInputDown = false
                     forwardInputDown = false
@@ -201,10 +213,10 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                 }
 
                 if (tickCount % 5 == 0) {
-                    controller.inventory.items
+                    controller.inventory.nonEquipmentItems
                         .filter { it.item === ModItems.MONITOR }
                         .forEach {
-                            if (it.getOrCreateTag().getString(MonitorItem.LINKED_DRONE) == this.getStringUUID()) {
+                            if (it.getOrCreateTag().getStringOr(MonitorItem.LINKED_DRONE, "") == this.getStringUUID()) {
                                 MonitorItem.getDronePos(it, this.position())
                             }
                         }
@@ -213,10 +225,10 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         }
 
         if (this.isInWater) {
-            this.hurt(
+            this.hurtOrSimulate(
                 DamageSource(
-                    level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                        .getHolderOrThrow(DamageTypes.EXPLOSION), controller
+                    level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(DamageTypes.EXPLOSION), controller
                 ), 0.25f + (2 * lastTickSpeed).toFloat()
             )
         }
@@ -235,10 +247,10 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                         disLink(tag, controller)
                         NBTTool.saveTag(stack, tag)
                     }
-                    this.hurt(
+                    this.hurtOrSimulate(
                         DamageSource(
-                            level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                                .getHolderOrThrow(DamageTypes.EXPLOSION), controller
+                            level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                                .getOrThrow(DamageTypes.EXPLOSION), controller
                         ), 10000f
                     )
                 }
@@ -251,7 +263,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
     private fun droneDrop(player: Player?) {
         val data = CustomData.DRONE_ATTACHMENT[getItemId(this.currentItem)] ?: return
-        val dropEntity = EntityType.byString(data.dropEntity())
+        val dropEntity = entityTypeByString(data.dropEntity())
             .map { it.create(this.level()) }
             .orElse(null) ?: return
 
@@ -263,7 +275,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
             if (player == null) return@parseObject StringTag.valueOf(it)
             val uuid = player.getUUID()
             when (it) {
-                "@sbw:owner" -> NbtUtils.createUUID(uuid)
+                "@sbw:owner" -> com.atsuishio.portlib.nbt.LegacyNbt.createUUID(uuid)
                 "@sbw:owner_string_lower" -> StringTag.valueOf(uuid.toString().replace("-", "").lowercase(Locale.ROOT))
                 "@sbw:owner_string_upper" -> StringTag.valueOf(uuid.toString().replace("-", "").uppercase(Locale.ROOT))
                 else -> StringTag.valueOf(it)
@@ -285,18 +297,18 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         this.level().addFreshEntity(dropEntity)
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         val stack = player.mainHandItem
         if (stack.item === ModItems.MONITOR) {
             val tag = NBTTool.getTag(stack)
             if (!player.isShiftKeyDown) {
                 if (!this.entityData.get(LINKED)) {
-                    if (tag.getBoolean("Linked")) {
+                    if (tag.getBooleanOr("Linked", false)) {
                         player.displayClientMessage(
                             Component.translatable("tips.superbwarfare.monitor.already_linked")
                                 .withStyle(ChatFormatting.RED), true
                         )
-                        return InteractionResult.sidedSuccess(this.level().isClientSide())
+                        return InteractionResult.SUCCESS
                     }
 
                     this.entityData.set(LINKED, true)
@@ -327,12 +339,12 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                 }
             } else {
                 if (this.entityData.get(LINKED)) {
-                    if (!tag.getBoolean("Linked")) {
+                    if (!tag.getBooleanOr("Linked", false)) {
                         player.displayClientMessage(
                             Component.translatable("tips.superbwarfare.drone.already_linked")
                                 .withStyle(ChatFormatting.RED), true
                         )
-                        return InteractionResult.sidedSuccess(this.level().isClientSide())
+                        return InteractionResult.SUCCESS
                     }
 
                     this.entityData.set(CONTROLLER, "none")
@@ -367,11 +379,11 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                     ItemHandlerHelper.giveItemToPlayer(player, this.currentItem.copy())
                 }
 
-                player.inventory.items
+                player.inventory.nonEquipmentItems
                     .filter { it.item === ModItems.MONITOR }
                     .forEach {
                         val tag = NBTTool.getTag(it)
-                        if (tag.getString(MonitorItem.LINKED_DRONE) == this.getStringUUID()) {
+                        if (tag.getStringOr(MonitorItem.LINKED_DRONE, "") == this.getStringUUID()) {
                             disLink(tag, player)
                             NBTTool.saveTag(it, tag)
                         }
@@ -453,7 +465,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                                 TagDataParser.parseObject(attachmentData.displayData()) {
                                     val uuid = player.getUUID()
                                     when (it) {
-                                        "@sbw:owner" -> NbtUtils.createUUID(uuid)
+                                        "@sbw:owner" -> com.atsuishio.portlib.nbt.LegacyNbt.createUUID(uuid)
                                         "@sbw:owner_string_lower" -> StringTag.valueOf(
                                             uuid.toString().replace("-", "").lowercase(Locale.ROOT)
                                         )
@@ -482,7 +494,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
             }
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun travel() {
@@ -525,7 +537,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
         if (this.isInWater && this.tickCount % 4 == 0) {
             this.setDeltaMovement(this.deltaMovement.multiply(0.6, 0.6, 0.6))
-            this.hurt(
+            this.hurtOrSimulate(
                 causeVehicleStrikeDamage(
                     this.level().registryAccess(),
                     this,
@@ -590,7 +602,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         val controller = findPlayer(this.level(), this.entityData.get(CONTROLLER))
         if (controller != null) {
             val stack = controller.mainHandItem
-            if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBoolean("Using")) {
+            if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBooleanOr("Using", false)) {
                 this.yRot += 0.5f * mouseMoveSpeedX
                 this.xRot = (this.xRot + 0.5f * mouseMoveSpeedY).coerceIn(-10f, 90f)
             }
@@ -617,7 +629,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                 val data = CustomData.DRONE_ATTACHMENT[getItemId(this.currentItem)]
                 if (data != null) {
                     if (data.isKamikaze) {
-                        EntityType.byString(attachedEntity).ifPresent {
+                        entityTypeByString(attachedEntity).ifPresent {
                             val bomb: Entity? = it.create(this.level())
                             doDamage(
                                 target,
@@ -642,10 +654,10 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
                     NBTTool.saveTag(item, tag)
                 }
             }
-            this.hurt(
+            this.hurtOrSimulate(
                 DamageSource(
-                    level().registryAccess().registryOrThrow(Registries.DAMAGE_TYPE)
-                        .getHolderOrThrow(DamageTypes.EXPLOSION), player ?: this
+                    level().registryAccess().lookupOrThrow(Registries.DAMAGE_TYPE)
+                        .getOrThrow(DamageTypes.EXPLOSION), player ?: this
                 ), ((if (!this.entityData.get(DISPLAY_ENTITY).isEmpty()) 50 else 4) * lastTickSpeed).toFloat()
             )
         }
@@ -664,8 +676,8 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
         val stack = player.mainHandItem
         if (stack.`is`(ModItems.MONITOR)
-            && stack.getOrCreateTag().getBoolean("Using")
-            && stack.getOrCreateTag().getBoolean("Linked")
+            && stack.getOrCreateTag().getBooleanOr("Using", false)
+            && stack.getOrCreateTag().getBooleanOr("Linked", false)
         ) {
             return power * 0.5f
         }
@@ -679,7 +691,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         if (lastTickSpeed < 0.2 || collisionCoolDown > 0) return
 
         if ((verticalCollision) && abs(lastTickVerticalSpeed.toFloat()) > 1) {
-            this.hurt(
+            this.hurtOrSimulate(
                 causeCustomExplosionDamage(
                     this.level().registryAccess(),
                     this,
@@ -691,7 +703,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         }
 
         if (this.horizontalCollision) {
-            this.hurt(
+            this.hurtOrSimulate(
                 causeCustomExplosionDamage(
                     this.level().registryAccess(),
                     this,
@@ -746,9 +758,9 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
         }
 
         val player = this.level().getPlayerByUUID(uuid)
-        player?.inventory?.items?.filter { it.item === ModItems.MONITOR }?.forEach {
+        player?.inventory?.nonEquipmentItems?.filter { it.item === ModItems.MONITOR }?.forEach {
             val tag = NBTTool.getTag(it)
-            if (tag.getString(MonitorItem.LINKED_DRONE) == this.getStringUUID()) {
+            if (tag.getStringOr(MonitorItem.LINKED_DRONE, "") == this.getStringUUID()) {
                 disLink(tag, player)
                 NBTTool.saveTag(it, tag)
             }
@@ -767,7 +779,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
         val data = CustomData.DRONE_ATTACHMENT[getItemId(this.currentItem)] ?: return
 
-        val bomb = EntityType.byString(attachedEntity)
+        val bomb = entityTypeByString(attachedEntity)
             .map { it.create(this.level()) }
             .orElse(null) ?: return
 
@@ -873,7 +885,7 @@ open class DroneEntity(type: EntityType<out DroneEntity>, world: Level) : GeoVeh
 
         @JvmField
         val DISPLAY_ENTITY_TAG: EntityDataAccessor<CompoundTag> =
-            SynchedEntityData.defineId(DroneEntity::class.java, EntityDataSerializers.COMPOUND_TAG)
+            SynchedEntityData.defineId(DroneEntity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.COMPOUND_TAG)
 
         // scale[3], offset[3], rotation[3], xLength, zLength, tickCount
         @JvmField

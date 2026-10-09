@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.clothconfig.client
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import me.shedaniel.clothconfig2.api.ConfigBuilder
 import me.shedaniel.clothconfig2.api.ConfigEntryBuilder

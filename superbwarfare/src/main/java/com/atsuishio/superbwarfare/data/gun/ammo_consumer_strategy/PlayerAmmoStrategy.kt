@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.ammo_consumer_strategy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCapabilities
 
 import com.atsuishio.superbwarfare.Mod

@@ -1,11 +1,19 @@
 package com.atsuishio.superbwarfare.item.weapon
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.item.TooltipFlag
+
+import net.minecraft.world.item.ItemStack
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModTags
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.item.CustomDamageProperty
 import com.atsuishio.superbwarfare.tiers.ModItemTier
 import net.minecraft.ChatFormatting
-import net.minecraft.advancements.CriteriaTriggers
+import net.minecraft.advancements.triggers.CriteriaTriggers
 import net.minecraft.core.Direction
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
@@ -27,30 +35,31 @@ import net.minecraft.world.level.gameevent.GameEvent
 
 @RegistryName("military_shovel")
 open class MilitaryShovelItem :
-    AxeItem(
-        ModItemTier.CEMENTED_CARBIDE,
+    Item(
         CustomDamageProperty(810).rarity(Rarity.RARE)
+            .axe(ModItemTier.CEMENTED_CARBIDE.material, 2f, -2.6f)
             .component(
                 DataComponents.TOOL, Tool(
                     listOf(
-                        Tool.Rule.deniesDrops(ModItemTier.CEMENTED_CARBIDE.incorrectBlocksForDrops),
+                        Tool.Rule.deniesDrops(blockTag(ModItemTier.CEMENTED_CARBIDE.incorrectBlocksForDrops)),
                         Tool.Rule.minesAndDrops(
-                            ModTags.Blocks.MINEABLE_WITH_MILITARY_SHOVEL,
+                            blockTag(ModTags.Blocks.MINEABLE_WITH_MILITARY_SHOVEL),
                             ModItemTier.CEMENTED_CARBIDE.speed
                         )
                     ),
-                    1f, 1
+                    1f, 1, true
                 )
             )
-            .attributes(createAttributes(ModItemTier.CEMENTED_CARBIDE, 2f, -2.6f))
     ) {
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.military_shovel").withStyle(ChatFormatting.GRAY)
         )
@@ -105,12 +114,12 @@ open class MilitaryShovelItem :
                     }
                     level.setBlock(blockpos, resultToSet, Block.UPDATE_ALL_IMMEDIATE)
                     level.gameEvent(GameEvent.BLOCK_CHANGE, blockpos, GameEvent.Context.of(player, resultToSet))
-                    stack.hurtAndBreak(1, player, LivingEntity.getSlotForHand(context.hand))
+                    stack.hurtAndBreak(1, player, context.hand.asEquipmentSlot())
                 }
             }
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide)
+        return InteractionResult.SUCCESS
     }
 
     private fun getAxeResult(state: BlockState, context: UseOnContext): BlockState? {
@@ -141,8 +150,5 @@ open class MilitaryShovelItem :
         return null
     }
 
-    override fun getEnchantmentValue(): Int {
-        return ModItemTier.CEMENTED_CARBIDE.enchantmentValue
-    }
 
 }

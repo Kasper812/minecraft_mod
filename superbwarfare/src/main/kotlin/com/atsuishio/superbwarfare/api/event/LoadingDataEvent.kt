@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.api.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.DefaultGunData
 import com.atsuishio.superbwarfare.data.vehicle.DefaultVehicleData
 import org.jetbrains.annotations.ApiStatus

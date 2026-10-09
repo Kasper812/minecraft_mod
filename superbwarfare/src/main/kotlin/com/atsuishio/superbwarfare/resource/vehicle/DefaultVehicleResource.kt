@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.IDBasedData
 import com.atsuishio.superbwarfare.data.SingleOrList

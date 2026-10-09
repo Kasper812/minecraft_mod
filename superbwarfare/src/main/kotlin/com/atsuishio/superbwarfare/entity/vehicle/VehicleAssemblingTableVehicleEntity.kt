@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.VehicleAssemblingTableBlock
 import com.atsuishio.superbwarfare.block.property.BlockPart
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -121,7 +123,7 @@ open class VehicleAssemblingTableVehicleEntity(type: EntityType<*>, level: Level
         if (this.isInWater && this.tickCount % 4 == 0) {
             this.setDeltaMovement(this.deltaMovement.multiply(0.6, 0.6, 0.6))
             if (lastTickSpeed > 0.4) {
-                this.hurt(
+                this.hurtOrSimulate(
                     causeVehicleStrikeDamage(
                         this.level().registryAccess(),
                         this,

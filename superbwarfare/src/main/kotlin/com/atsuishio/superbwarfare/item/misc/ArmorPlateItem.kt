@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModTags
@@ -13,7 +17,6 @@ import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.LivingEntity
@@ -21,7 +24,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
-import net.minecraft.world.item.UseAnim
+import net.minecraft.world.item.ItemUseAnimation
 import net.minecraft.world.level.Level
 import javax.annotation.ParametersAreNonnullByDefault
 
@@ -29,22 +32,24 @@ import javax.annotation.ParametersAreNonnullByDefault
 open class ArmorPlateItem : Item(Properties()) {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
-        if (NBTTool.getTag(stack).getBoolean("Infinite")) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
+        if (NBTTool.getTag(stack).getBooleanOr("Infinite", false)) {
             tooltipComponents.add(
                 Component.translatable("des.superbwarfare.armor_plate.infinite").withStyle(ChatFormatting.GRAY)
             )
         }
     }
 
-    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResult {
         val stack = playerIn.getItemInHand(handIn)
         val armor = playerIn.getItemBySlot(EquipmentSlot.CHEST)
 
-        if (armor == ItemStack.EMPTY) return InteractionResultHolder.fail(stack)
+        if (armor == ItemStack.EMPTY) return InteractionResult.FAIL
 
         val armorLevel = if (armor.`is`(ModTags.Items.MILITARY_ARMOR)) {
             MiscConfig.MILITARY_ARMOR_LEVEL.get()
@@ -54,15 +59,15 @@ open class ArmorPlateItem : Item(Properties()) {
             MiscConfig.DEFAULT_ARMOR_LEVEL.get()
         }
 
-        if (armor.getOrCreateTag().getDouble("ArmorPlate") < armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()) {
+        if (armor.getOrCreateTag().getDoubleOr("ArmorPlate", 0.0) < armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()) {
             playerIn.startUsingItem(handIn)
         }
 
-        return InteractionResultHolder.fail(stack)
+        return InteractionResult.FAIL
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim {
-        return UseAnim.BOW
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation {
+        return ItemUseAnimation.BOW
     }
 
     @ParametersAreNonnullByDefault
@@ -81,7 +86,7 @@ open class ArmorPlateItem : Item(Properties()) {
             tag.putDouble(
                 "ArmorPlate",
                 Mth.clamp(
-                    tag.getDouble("ArmorPlate") + MiscConfig.ARMOR_POINT_PER_LEVEL.get(),
+                    tag.getDoubleOr("ArmorPlate", 0.0) + MiscConfig.ARMOR_POINT_PER_LEVEL.get(),
                     0.0,
                     (armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()).toDouble()
                 )
@@ -100,7 +105,7 @@ open class ArmorPlateItem : Item(Properties()) {
             }
 
             if (pLivingEntity is Player && !pLivingEntity.isCreative && !NBTTool.getTag(pStack)
-                    .getBoolean("Infinite")
+                    .getBooleanOr("Infinite", false)
             ) {
                 pStack.shrink(1)
             }

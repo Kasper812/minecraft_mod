@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.level.redstone.Orientation
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.SuperbItemInterfaceBlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.init.ModTags
@@ -11,7 +17,6 @@ import net.minecraft.network.chat.Component
 import net.minecraft.world.Containers
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.ItemInteractionResult
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.inventory.AbstractContainerMenu
 import net.minecraft.world.item.Item.TooltipContext
@@ -30,7 +35,7 @@ import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.material.MapColor
 import net.minecraft.world.level.pathfinder.PathComputationType
 import net.minecraft.world.phys.BlockHitResult
@@ -39,7 +44,7 @@ import net.minecraft.world.phys.BlockHitResult
 open class SuperbItemInterfaceBlock : BaseEntityBlock(
     Properties.of().mapColor(MapColor.STONE).requiresCorrectToolForDrops()
         .strength(3f, 4.8f).sound(SoundType.METAL)
-) {
+), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -104,14 +109,14 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
+    ): InteractionResult {
         if (stack.`is`(ModTags.Items.TOOLS_CROWBAR) || stack.`is`(ModTags.Items.WRENCHES) || stack.`is`(ModTags.Items.TOOLS_WRENCH)) {
             var facing = hitResult.direction
             if (state.getValue(FACING) == facing) {
                 facing = facing.opposite
             }
             level.setBlockAndUpdate(pos, state.setValue(FACING, facing))
-            return ItemInteractionResult.SUCCESS
+            return InteractionResult.SUCCESS
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult)
     }
@@ -121,7 +126,7 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
         pLevel: Level,
         pPos: BlockPos,
         pBlock: Block,
-        pFromPos: BlockPos,
+        orientation: Orientation?,
         pIsMoving: Boolean
     ) {
         this.checkPoweredState(pLevel, pPos, pState, 4)
@@ -133,23 +138,14 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
             pLevel.setBlock(pPos, pState.setValue(ENABLED, flag), pFlags)
         }
     }
-
-    override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
-        pIsMoving: Boolean
+        pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val blockEntity = pLevel.getBlockEntity(pPos)
-            if (blockEntity is SuperbItemInterfaceBlockEntity) {
-                Containers.dropContents(pLevel, pPos, blockEntity)
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-
-            super.onRemove(pState, pLevel, pPos, pNewState, pIsMoving)
-        }
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
     override fun getRenderShape(pState: BlockState): RenderShape {
@@ -160,11 +156,11 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
         return true
     }
 
-    override fun getAnalogOutputSignal(pBlockState: BlockState, pLevel: Level, pPos: BlockPos): Int {
+    override fun getAnalogOutputSignal(pBlockState: BlockState, pLevel: Level, pPos: BlockPos, direction: net.minecraft.core.Direction): Int {
         return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(pLevel.getBlockEntity(pPos))
     }
 
-    override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block, BlockState>) {
         pBuilder.add(ENABLED).add(FACING)
     }
 
@@ -174,7 +170,7 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltipComponents: MutableList<Component>,
         tooltipFlag: TooltipFlag
     ) {
@@ -190,7 +186,7 @@ open class SuperbItemInterfaceBlock : BaseEntityBlock(
         val ENABLED: BooleanProperty = BlockStateProperties.ENABLED
 
         @JvmField
-        val FACING: DirectionProperty = BlockStateProperties.FACING
+        val FACING: EnumProperty<Direction> = BlockStateProperties.FACING
 
         @JvmField
         val CODEC: MapCodec<SuperbItemInterfaceBlock> = simpleCodec { _ -> SuperbItemInterfaceBlock() }

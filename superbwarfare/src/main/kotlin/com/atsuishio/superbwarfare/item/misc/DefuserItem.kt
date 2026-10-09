@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.C4Entity
 import com.atsuishio.superbwarfare.init.RegistryName
 import com.atsuishio.superbwarfare.tools.FormatTool.format1DZZ
@@ -8,7 +12,6 @@ import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -18,13 +21,13 @@ import net.minecraft.world.level.Level
 
 @RegistryName("defuser")
 open class DefuserItem : Item(Properties().durability(8)) {
-    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(pLevel: Level, pPlayer: Player, pUsedHand: InteractionHand): InteractionResult {
         val stack = pPlayer.getItemInHand(pUsedHand)
         if (findBombInSight(pPlayer) != null) {
             pPlayer.startUsingItem(pUsedHand)
-            return InteractionResultHolder.consume(stack)
+            return InteractionResult.CONSUME
         }
-        return InteractionResultHolder.fail(stack)
+        return InteractionResult.FAIL
     }
 
     override fun onUseTick(pLevel: Level, player: LivingEntity, pStack: ItemStack, pRemainingUseDuration: Int) {

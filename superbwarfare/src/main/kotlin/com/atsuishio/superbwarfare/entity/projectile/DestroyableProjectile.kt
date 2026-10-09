@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import net.minecraft.server.level.ServerLevel
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.entity.getValue
 import com.atsuishio.superbwarfare.entity.setValue
 import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier.Companion.createDefaultModifier
@@ -10,7 +20,7 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile
 import net.minecraft.world.level.Level
 
 abstract class DestroyableProjectile : FastThrowableProjectile {
@@ -20,7 +30,7 @@ abstract class DestroyableProjectile : FastThrowableProjectile {
         pEntityType,
         pLevel
     ) {
-        this.owner = pShooter
+        this.setOwner(pShooter)
         if (pShooter != null) {
             this.setPos(pShooter.x, pShooter.eyeY - 0.1, pShooter.z)
         }
@@ -30,14 +40,14 @@ abstract class DestroyableProjectile : FastThrowableProjectile {
 
     override fun isPickable() = !this.isRemoved
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         val entity = source.directEntity
         if (entity is DestroyableProjectile && this.javaClass == entity.javaClass) {
-            if (this.owner == entity.owner) return false
+            if (this.getOwner() == entity.owner) return false
         }
 
         this.health -= DAMAGE_MODIFIER.compute(this, source, amount)
-        return super.hurt(source, amount)
+        return super.hurtServer(serverLevel, source, amount)
     }
 
     override fun defineSynchedData(builder: SynchedEntityData.Builder) {
@@ -45,15 +55,19 @@ abstract class DestroyableProjectile : FastThrowableProjectile {
         builder.define(HEALTH, this.maxHealth)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("Health")) {
-            health = compound.getFloat("Health")
+            health = compound.getFloatOr("Health", 0f)
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putFloat("Health", health)
     }
 

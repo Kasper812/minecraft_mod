@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 import com.atsuishio.superbwarfare.data.gun.toGunData
 import com.atsuishio.superbwarfare.data.gun.value.AttachmentType
@@ -48,7 +50,7 @@ data class AdjustZoomFovMessage(val scroll: Double) : ServerPacketPayload() {
         } else {
             val minZoom = gun.minZoom() - 1.25
             val maxZoom = gun.maxZoom() - 1.25
-            val customZoom = data.getDouble("CustomZoom")
+            val customZoom = data.getDoubleOr("CustomZoom", 0.0)
             data.putDouble("CustomZoom", Mth.clamp(customZoom + 0.5 * scroll, minZoom, maxZoom))
 
             if (customZoom > minZoom && customZoom < maxZoom) {

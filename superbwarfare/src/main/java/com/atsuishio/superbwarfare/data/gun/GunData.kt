@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.DefaultDataSupplier
 import com.atsuishio.superbwarfare.data.CustomData
 import com.atsuishio.superbwarfare.data.DataValidator
@@ -300,7 +302,7 @@ class GunData private constructor(
         if (!this.tag.contains(name)) {
             this.tag.put(name, CompoundTag())
         }
-        return this.tag.getCompound(name)
+        return this.tag.getCompoundOrEmpty(name)
     }
 
     /** 这份栈的数据载体（根 tag + 身份令牌）；四期起由 [GunStackStorage] 统一提供 */
@@ -1742,8 +1744,8 @@ class GunData private constructor(
         state = state.copy(revision = state.revision + 1)
         gunDataTag.putLong(KEY_REVISION, state.revision)
 
-        if (cleanedTag.contains(KEY_GUN_DATA, Tag.TAG_COMPOUND.toInt())) {
-            cleanedTag.getCompound(KEY_GUN_DATA).putLong(KEY_REVISION, state.revision)
+        if (cleanedTag.contains(KEY_GUN_DATA)) {
+            cleanedTag.getCompoundOrEmpty(KEY_GUN_DATA).putLong(KEY_REVISION, state.revision)
         } else {
             cleanedTag.put(KEY_GUN_DATA, CompoundTag().apply { putLong(KEY_REVISION, state.revision) })
         }
@@ -1848,9 +1850,9 @@ class GunData private constructor(
         // 调用方紧接着就会做这件事。
         if (incoming === tag) return
 
-        val incomingGunData = incoming.getCompound(KEY_GUN_DATA)
-        val incomingPerks = incoming.getCompound(KEY_PERKS)
-        val incomingAttachments = incoming.getCompound(KEY_ATTACHMENTS)
+        val incomingGunData = incoming.getCompoundOrEmpty(KEY_GUN_DATA)
+        val incomingPerks = incoming.getCompoundOrEmpty(KEY_PERKS)
+        val incomingAttachments = incoming.getCompoundOrEmpty(KEY_ATTACHMENTS)
 
         clearTag(tag)
         clearTag(gunDataTag)
@@ -2067,7 +2069,7 @@ class GunData private constructor(
 
                     if (uuid != null) {
                         val existing = UUID_CACHE.getIfPresent(uuid)
-                        val incomingRevision = gunTag?.getLong(KEY_REVISION) ?: 0L
+                        val incomingRevision = gunTag?.getLongOr(KEY_REVISION, 0L) ?: 0L
 
                         if (existing != null) {
                             if (existing.stack === stack) {
@@ -2151,7 +2153,7 @@ class GunData private constructor(
             val tag = stackStorage.rootTag(stack)
             val gunDataTag = GunStackStorage.gunStateTag(tag)
 
-            if (gunDataTag.getString(KEY_DEFAULT_DATA) == defaultDataId) return
+            if (gunDataTag.getStringOr(KEY_DEFAULT_DATA, "") == defaultDataId) return
 
             gunDataTag.putString(KEY_DEFAULT_DATA, defaultDataId)
 

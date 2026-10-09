@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.config.server.SyncConfig
 import com.atsuishio.superbwarfare.entity.IBvrSyncableEntity
 import com.atsuishio.superbwarfare.init.ModSerializers
@@ -16,7 +24,7 @@ import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.projectile.ThrowableItemProjectile
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrowableItemProjectile
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.Vec3
@@ -67,7 +75,7 @@ abstract class MissileProjectile : DestroyableProjectile, ITrackableProjectile,
 
     constructor(pEntityType: EntityType<out ThrowableItemProjectile>, pShooter: Entity?, pLevel: Level) :
             super(pEntityType, pLevel) {
-        this.owner = pShooter
+        this.setOwner(pShooter)
         if (pShooter != null) {
             this.setPos(pShooter.x, pShooter.eyeY - 0.1, pShooter.z)
         }
@@ -120,24 +128,28 @@ abstract class MissileProjectile : DestroyableProjectile, ITrackableProjectile,
         }
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("TargetUuid")) {
-            setTargetUUID(compound.getString("TargetUuid"))
+            setTargetUUID(compound.getStringOr("TargetUuid", ""))
         }
         if (compound.contains("TargetPosX")) {
             setTargetPos(
                 Vec3(
-                    compound.getDouble("TargetPosX"),
-                    compound.getDouble("TargetPosY"),
-                    compound.getDouble("TargetPosZ")
+                    compound.getDoubleOr("TargetPosX", 0.0),
+                    compound.getDoubleOr("TargetPosY", 0.0),
+                    compound.getDoubleOr("TargetPosZ", 0.0)
                 )
             )
         }
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putString("TargetUuid", this.getTargetUUID())
         val tp = getTargetPos()
         if (tp != null) {
@@ -192,7 +204,7 @@ abstract class MissileProjectile : DestroyableProjectile, ITrackableProjectile,
                     val dim = level().dimension().location()
                     val msg = EntityRelationSyncMessage(dim, friendlyIds = listOf(id))
                     for (player in srv.playerList.players) {
-                        if (SeekTool.IS_FRIENDLY.test(player, this.owner)) {
+                        if (SeekTool.IS_FRIENDLY.test(player, this.getOwner())) {
                             sendPacketTo(player, msg)
                         }
                     }

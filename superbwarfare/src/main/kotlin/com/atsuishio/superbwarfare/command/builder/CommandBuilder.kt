@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.command.builder
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.mojang.brigadier.arguments.ArgumentType
 import com.mojang.brigadier.builder.ArgumentBuilder
 import com.mojang.brigadier.context.CommandContext
@@ -43,7 +45,7 @@ open class CommandNode(val argumentBuilder: ArgumentBuilder<CommandSourceStack, 
     }
 
     // args
-    inline fun <A> arg(argName: String = "$name.arg", type: ArgumentType<A>, builder: CommandNode.() -> Unit) {
+    inline fun <A : Any> arg(argName: String = "$name.arg", type: ArgumentType<A>, builder: CommandNode.() -> Unit) {
         cmd += CommandNode(Commands.argument(argName, type), argName).apply(builder)
     }
 

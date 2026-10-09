@@ -63,7 +63,7 @@ public class TracheliumItemRenderer extends CustomGunRenderer<TracheliumItem> {
                     bone.setHidden(data.attachment.get(AttachmentType.GRIP) == 0);
                 }
 
-                if (data.attachment.get(AttachmentType.SCOPE) == 2 && !NBTTool.getTag(itemStack).getBoolean("ScopeAlt") && (name.equals("hidden"))) {
+                if (data.attachment.get(AttachmentType.SCOPE) == 2 && !NBTTool.getTag(itemStack).getBooleanOr("ScopeAlt", false) && (name.equals("hidden"))) {
                     bone.setHidden(ClientEventHandler.zoomPos > 0.7 && ClientEventHandler.zoom);
                 }
 
@@ -76,7 +76,7 @@ public class TracheliumItemRenderer extends CustomGunRenderer<TracheliumItem> {
                         case 1 ->
                                 AnimationHelper.handleZoomCrossHair(currentBuffer, renderType, name, stack, bone, buffer, 0, 0.3, 30, 1.2f, 255, 0, 0, 255, "dot", false);
                         case 2 -> {
-                            if (NBTTool.getTag(itemStack).getBoolean("ScopeAlt")) {
+                            if (NBTTool.getTag(itemStack).getBooleanOr("ScopeAlt", false)) {
                                 AnimationHelper.handleZoomCrossHair(currentBuffer, renderType, name, stack, bone, buffer, 0, 0.36, 30, 0.18f, 255, 0, 0, 255, "delta", false);
                             } else {
                                 AnimationHelper.handleZoomCrossHair(currentBuffer, renderType, name, stack, bone, buffer, 0, 0.294, 13, 0.87f, 255, 0, 0, 255, "hamr", true);

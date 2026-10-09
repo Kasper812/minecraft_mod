@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.portlib.registry.RegistrationContext
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.entity.projectile.MediumRocketEntity
@@ -46,7 +50,7 @@ import com.atsuishio.superbwarfare.item.projectile.Tm62Item
 import com.atsuishio.superbwarfare.item.weapon.*
 import com.atsuishio.superbwarfare.perk.Perk
 import com.atsuishio.superbwarfare.tiers.ModItemTier
-import net.fabricmc.fabric.api.registry.FuelRegistry
+import net.fabricmc.fabric.api.registry.FuelValueEvents
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.item.*
@@ -79,7 +83,7 @@ object ModItems {
      * guns
      */
     private fun <T : GunItem> registerGun(id: String, gun: () -> T): T {
-        val item = register(id, gun())
+        val item = register(id, RegistrationContext.item(Mod.loc(id)) { gun() })
         GUNS.add(item)
         return item
     }
@@ -146,7 +150,7 @@ object ModItems {
     private fun registerAmmo(id: String) = registerAmmo(id) { Item(Properties()) }
 
     private fun <T : Item> registerAmmo(id: String, ammo: () -> T): T {
-        val item = register(id, ammo())
+        val item = register(id, RegistrationContext.item(Mod.loc(id)) { ammo() })
         AMMO.add(item)
         return item
     }
@@ -221,7 +225,7 @@ object ModItems {
     private fun registerItem(id: String) = registerItem(id) { Item(Properties()) }
 
     private fun <T : Item> registerItem(id: String, item: () -> T): T {
-        val registered = register(id, item())
+        val registered = register(id, RegistrationContext.item(Mod.loc(id)) { item() })
         ITEMS.add(registered)
         return registered
     }
@@ -234,7 +238,7 @@ object ModItems {
         rarity: Rarity,
         factory: (String, Rarity) -> T
     ): T {
-        val registered = register(id, factory("${Mod.MODID}:$id", rarity))
+        val registered = register(id, RegistrationContext.item(Mod.loc(id)) { factory("${Mod.MODID}:$id", rarity) })
         ATTACHMENTS.add(registered)
         return registered
     }
@@ -422,13 +426,13 @@ object ModItems {
 
     // @formatter:off
     @JvmField val SENPAI_SPAWN_EGG = registerItem("senpai_spawn_egg") {
-        SpawnEggItem(ModEntities.SENPAI, -11584987, -14014413, Properties())
+        SpawnEggItem(Properties().spawnEgg(ModEntities.SENPAI))
     }
     @JvmField val CREEPING_SENPAI_SPAWN_EGG = registerItem("creeping_senpai_spawn_egg") {
-        SpawnEggItem(ModEntities.CREEPING_SENPAI, -11584987, 3288889, Properties())
+        SpawnEggItem(Properties().spawnEgg(ModEntities.CREEPING_SENPAI))
     }
     @JvmField val STEEL_COIL_SPAWN_EGG = registerItem("steel_coil_spawn_egg") {
-        SpawnEggItem(ModEntities.STEEL_COIL, 0, 0xc0c0c0, Properties())
+        SpawnEggItem(Properties().spawnEgg(ModEntities.STEEL_COIL))
     }
     @JvmField val ANCIENT_CPU = registerItem("ancient_cpu") { Item(Properties().rarity(Rarity.RARE)) }
     @JvmField val PROPELLER = registerItem("propeller")
@@ -449,17 +453,17 @@ object ModItems {
     @JvmField val KNIFE_6KH2 = registerItem("knife_6kh2") { Knife6kh2Item() }
     @JvmField val KNIFE_SEITENGEWEHR_84 = registerItem("knife_seitengewehr_84") { KnifeSeitengewehr84Item() }
     @JvmField val KNIFE_M1917 = registerItem("knife_m1917") { KnifeM1917Item() }
-    @JvmField val HAMMER = registerItem("hammer") { HammerItem(Tiers.IRON, 11, -3.2f, Properties().durability(400)) }
-    @JvmField val GOLDEN_HAMMER = registerItem("golden_hammer") { HammerItem(Tiers.GOLD, 11, -3.2f, Properties().durability(150)) }
-    @JvmField val STEEL_HAMMER = registerItem("steel_hammer") { HammerItem(ModItemTier.STEEL, 9, -3.2f, Properties().durability(600)) }
-    @JvmField val DIAMOND_HAMMER = registerItem("diamond_hammer") { HammerItem(Tiers.DIAMOND, 12, -3.2f, Properties().durability(1500)) }
-    @JvmField val CEMENTED_CARBIDE_HAMMER = registerItem("cemented_carbide_hammer") { HammerItem(ModItemTier.CEMENTED_CARBIDE, 8, -3.2f, Properties().durability(2000)) }
+    @JvmField val HAMMER = registerItem("hammer") { HammerItem(ToolMaterial.IRON, 11, -3.2f, Properties().durability(400)) }
+    @JvmField val GOLDEN_HAMMER = registerItem("golden_hammer") { HammerItem(ToolMaterial.GOLD, 11, -3.2f, Properties().durability(150)) }
+    @JvmField val STEEL_HAMMER = registerItem("steel_hammer") { HammerItem(ModItemTier.STEEL.material, 9, -3.2f, Properties().durability(600)) }
+    @JvmField val DIAMOND_HAMMER = registerItem("diamond_hammer") { HammerItem(ToolMaterial.DIAMOND, 12, -3.2f, Properties().durability(1500)) }
+    @JvmField val CEMENTED_CARBIDE_HAMMER = registerItem("cemented_carbide_hammer") { HammerItem(ModItemTier.CEMENTED_CARBIDE.material, 8, -3.2f, Properties().durability(2000)) }
     @JvmField val NETHERITE_HAMMER = registerItem("netherite_hammer") { NetheriteHammerItem() }
-    @JvmField val CEMENTED_CARBIDE_SWORD = registerItem("cemented_carbide_sword") { SwordItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -2, -2.4f))) }
-    @JvmField val CEMENTED_CARBIDE_PICKAXE = registerItem("cemented_carbide_pickaxe") { PickaxeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -4, -2.8f))) }
-    @JvmField val CEMENTED_CARBIDE_AXE = registerItem("cemented_carbide_axe") { AxeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, 0, -3.0f))) }
-    @JvmField val CEMENTED_CARBIDE_SHOVEL = registerItem("cemented_carbide_shovel") { ShovelItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -3, -3.0f))) }
-    @JvmField val CEMENTED_CARBIDE_HOE = registerItem("cemented_carbide_hoe") { HoeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -8, 0.0f))) }
+    @JvmField val CEMENTED_CARBIDE_SWORD = registerItem("cemented_carbide_sword") { Item(Properties().sword(ModItemTier.CEMENTED_CARBIDE.material, -2f, -2.4f)) }
+    @JvmField val CEMENTED_CARBIDE_PICKAXE = registerItem("cemented_carbide_pickaxe") { Item(Properties().pickaxe(ModItemTier.CEMENTED_CARBIDE.material, -4f, -2.8f)) }
+    @JvmField val CEMENTED_CARBIDE_AXE = registerItem("cemented_carbide_axe") { AxeItem(ModItemTier.CEMENTED_CARBIDE.material, 0f, -3.0f, Properties()) }
+    @JvmField val CEMENTED_CARBIDE_SHOVEL = registerItem("cemented_carbide_shovel") { ShovelItem(ModItemTier.CEMENTED_CARBIDE.material, -3f, -3.0f, Properties()) }
+    @JvmField val CEMENTED_CARBIDE_HOE = registerItem("cemented_carbide_hoe") { HoeItem(ModItemTier.CEMENTED_CARBIDE.material, -8f, 0.0f, Properties()) }
 
     @JvmField val T_BATON = registerItem("t_baton") { TBatonItem() }
     @JvmField val ELECTRIC_BATON = registerItem("electric_baton") { ElectricBatonItem() }
@@ -645,7 +649,7 @@ object ModItems {
     }
 
     private fun registerBlock(id: String, block: () -> BlockItem): BlockItem {
-        val item = register(id, block())
+        val item = register(id, RegistrationContext.item(Mod.loc(id)) { block() })
         BLOCKS.add(item)
         return item
     }
@@ -707,7 +711,7 @@ object ModItems {
     private fun registerVehicle(id: String) = registerVehicle(id) { Item(Properties()) }
 
     private fun <T : Item> registerVehicle(id: String, item: () -> T): T {
-        return register(id, item())
+        return register(id, RegistrationContext.item(Mod.loc(id)) { item() })
     }
 
     // @formatter:off
@@ -740,7 +744,7 @@ object ModItems {
      */
 
     private fun <T : Item> registerPerkItem(id: String, item: () -> T): T {
-        val registered = register(id, item())
+        val registered = register(id, RegistrationContext.item(Mod.loc(id)) { item() })
         PERKS.add(registered)
         return registered
     }
@@ -788,6 +792,6 @@ object ModItems {
     @JvmStatic
     fun init() {
         registerPerkItems()
-        FuelRegistry.INSTANCE.add(C4_BOMB, 20000)
+        FuelValueEvents.BUILD.register(FuelValueEvents.BuildCallback { builder, _ -> builder.add(C4_BOMB, 20000) })
     }
 }

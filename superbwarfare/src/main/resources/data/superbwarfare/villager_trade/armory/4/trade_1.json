@@ -1,0 +1,12 @@
+{
+  "wants": {
+    "id": "minecraft:emerald",
+    "count": 2
+  },
+  "gives": {
+    "id": "superbwarfare:hand_grenade"
+  },
+  "max_uses": 16,
+  "xp": 5,
+  "reputation_discount": 0.05
+}

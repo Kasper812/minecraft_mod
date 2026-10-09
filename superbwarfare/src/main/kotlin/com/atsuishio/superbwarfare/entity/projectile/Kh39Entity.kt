@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.animation.entity.BasicProjectileAnimationInstance
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.level.Level

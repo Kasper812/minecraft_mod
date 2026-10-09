@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.mojang.serialization.MapCodec
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents
@@ -13,7 +15,6 @@ import net.minecraft.world.level.storage.loot.LootPool
 import net.minecraft.world.level.storage.loot.LootTable
 import net.minecraft.world.level.storage.loot.entries.NestedLootTable
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition
-import net.minecraft.world.level.storage.loot.predicates.LootItemConditionType
 
 object ModLootModifier {
     private val COMMON = lootTable("chests/blue_print_common")
@@ -49,10 +50,10 @@ object ModLootModifier {
         BuiltInLootTables.END_CITY_TREASURE
     )
 
-    private val CONDITION_TYPE = Registry.register(
+    private val CONDITION_TYPE: MapCodec<out LootItemCondition> = Registry.register(
         BuiltInRegistries.LOOT_CONDITION_TYPE,
         Mod.loc("generate_loot"),
-        LootItemConditionType(GenerateLootCondition.CODEC)
+        GenerateLootCondition.CODEC
     )
 
     @JvmStatic
@@ -78,9 +79,9 @@ object ModLootModifier {
 
     private class GenerateLootCondition private constructor() : LootItemCondition {
         override fun test(context: LootContext): Boolean =
-            context.level.gameRules.getBoolean(ModGameRules.MOD_RULE_DO_GENERATE_LOOTS)
+            context.level.gameRules.get(ModGameRules.MOD_RULE_DO_GENERATE_LOOTS)
 
-        override fun getType(): LootItemConditionType = CONDITION_TYPE
+        override fun codec(): MapCodec<out LootItemCondition> = CONDITION_TYPE
 
         companion object {
             val INSTANCE = GenerateLootCondition()

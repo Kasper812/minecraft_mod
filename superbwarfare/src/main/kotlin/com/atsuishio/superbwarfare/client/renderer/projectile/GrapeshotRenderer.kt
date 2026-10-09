@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -14,7 +18,7 @@ import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 
-class GrapeshotRenderer(pContext: EntityRendererProvider.Context) : EntityRenderer<GrapeshotEntity>(pContext) {
+class GrapeshotRenderer(pContext: EntityRendererProvider.Context) : LegacyEntityRenderer<GrapeshotEntity>(pContext) {
     override fun render(
         pEntity: GrapeshotEntity,
         pEntityYaw: Float,

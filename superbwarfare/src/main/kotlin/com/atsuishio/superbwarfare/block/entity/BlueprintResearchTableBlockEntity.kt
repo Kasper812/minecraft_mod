@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.BlueprintResearchTableBlock
 import com.atsuishio.superbwarfare.config.server.MiscConfig
@@ -80,20 +88,28 @@ open class BlueprintResearchTableBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
 
-        this.tick = tag.getInt("Tick")
-        this.lastSelectedIndex = tag.getInt("LastSelectedIndex")
-        this.fuel = tag.getInt("Fuel")
-        this.activated = tag.getBoolean("Activated")
-        this.crafting = tag.getBoolean("Crafting")
+        val tag = LegacyNbt.tagOf(input)
 
-        ContainerHelper.loadAllItems(tag, this.items, registries)
+        val registries = input.lookup()
+        super.loadAdditional(input)
+
+        this.tick = tag.getIntOr("Tick", 0)
+        this.lastSelectedIndex = tag.getIntOr("LastSelectedIndex", 0)
+        this.fuel = tag.getIntOr("Fuel", 0)
+        this.activated = tag.getBooleanOr("Activated", false)
+        this.crafting = tag.getBooleanOr("Crafting", false)
+
+        com.atsuishio.portlib.nbt.LegacyNbt.loadAllItems(tag, this.items, registries)
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
         tag.putInt("Tick", this.tick)
         tag.putInt("LastSelectedIndex", this.lastSelectedIndex)
@@ -101,7 +117,7 @@ open class BlueprintResearchTableBlockEntity(pos: BlockPos, state: BlockState) :
         tag.putBoolean("Activated", this.activated)
         tag.putBoolean("Crafting", this.crafting)
 
-        ContainerHelper.saveAllItems(tag, this.items, registries)
+        com.atsuishio.portlib.nbt.LegacyNbt.saveAllItems(tag, this.items, registries)
     }
 
     /**
@@ -320,9 +336,7 @@ open class BlueprintResearchTableBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     override fun getUpdateTag(registries: HolderLookup.Provider): CompoundTag {
-        val tag = CompoundTag()
-        this.saveAdditional(tag, registries)
-        return tag
+        return this.saveCustomOnly(registries)
     }
 
     override fun getUpdatePacket(): Packet<ClientGamePacketListener> {

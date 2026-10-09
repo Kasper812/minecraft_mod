@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.overlay.components.BaseComponent
 import com.atsuishio.superbwarfare.tools.isNullOrSpector
@@ -7,8 +9,8 @@ import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.options
 import net.minecraft.client.Camera
 import net.minecraft.client.DeltaTracker
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.LayeredDraw
+import com.atsuishio.portlib.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyHudLayer
 import net.minecraft.world.phys.Vec3
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -27,7 +29,7 @@ class RenderContext(var guiGraphics: GuiGraphics, var deltaTracker: DeltaTracker
     val mc get() = com.atsuishio.superbwarfare.tools.mc
 
     val camera: Camera get() = mc.gameRenderer.mainCamera()
-    val cameraPos: Vec3 get() = camera.position
+    val cameraPos: Vec3 get() = camera.position()
 
     val isFirstPerson get() = options.cameraType.isFirstPerson
 
@@ -36,7 +38,7 @@ class RenderContext(var guiGraphics: GuiGraphics, var deltaTracker: DeltaTracker
 }
 
 @Environment(EnvType.CLIENT)
-abstract class CommonOverlay(id: String) : LayeredDraw.Layer {
+abstract class CommonOverlay(id: String) : LegacyHudLayer {
     val ID = loc(id)
 
     val components = mutableListOf<BaseComponent>()
@@ -55,7 +57,7 @@ abstract class CommonOverlay(id: String) : LayeredDraw.Layer {
         }
     }
 
-    open fun shouldRender() = !options.hideGui && !localPlayer.isNullOrSpector()
+    open fun shouldRender() = !net.minecraft.client.Minecraft.getInstance().gui.hud.isHidden() && !localPlayer.isNullOrSpector()
 
     private lateinit var context: RenderContext
 

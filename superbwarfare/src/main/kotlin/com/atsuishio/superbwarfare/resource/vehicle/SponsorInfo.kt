@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.ModColor
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

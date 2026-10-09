@@ -1,10 +1,12 @@
 package com.atsuishio.superbwarfare.client.map.context
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.map.context.MapMarker.Companion.getColorRGB
 import com.atsuishio.superbwarfare.client.map.context.MapMarker.Companion.rgbToFloat3
 import com.atsuishio.superbwarfare.client.screens.TacticalMapScreen.Companion.SelBox
 import net.minecraft.client.Minecraft
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.network.chat.Component
 import net.fabricmc.api.EnvType
@@ -957,15 +959,15 @@ class MapContextMenu {
             pose.pushPose()
             pose.translate(clampedAX.toFloat(), clampedAY.toFloat(), 0f)
 
-            com.mojang.blaze3d.systems.RenderSystem.setShaderColor(r, g, b, alpha)
-            com.mojang.blaze3d.systems.RenderSystem.enableBlend()
+            com.atsuishio.portlib.gui.LegacyRenderSystem.setShaderColor(r, g, b, alpha)
+            com.atsuishio.portlib.gui.LegacyRenderSystem.enableBlend()
             guiGraphics.blit(
                 markerTexture,
                 -MARKER_TEX_W / 2, -MARKER_TEX_H,
                 MARKER_TEX_W, MARKER_TEX_H,
                 0f, 0f, MARKER_TEX_W, MARKER_TEX_H, MARKER_TEX_W, MARKER_TEX_H
             )
-            com.mojang.blaze3d.systems.RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
+            com.atsuishio.portlib.gui.LegacyRenderSystem.setShaderColor(1f, 1f, 1f, 1f)
 
             pose.popPose()
 

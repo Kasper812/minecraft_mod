@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedResourceLocation
 import kotlinx.serialization.SerialName

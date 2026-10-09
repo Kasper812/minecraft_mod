@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.decorator
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.item.misc.VehicleKeyItem
@@ -7,7 +9,7 @@ import com.atsuishio.superbwarfare.tools.EntityFindUtil
 import com.atsuishio.superbwarfare.tools.NBTTool
 import com.atsuishio.superbwarfare.tools.clientLevel
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
 import net.fabricmc.api.EnvType
@@ -19,11 +21,11 @@ class VehicleKeyItemDecorator {
         if (stack.item !is VehicleKeyItem) return false
         val tag = NBTTool.getTag(stack)
         if (!tag.contains(VehicleKeyItem.TAG_UUID)) return false
-        val uuid = tag.getString(VehicleKeyItem.TAG_UUID)
+        val uuid = tag.getStringOr(VehicleKeyItem.TAG_UUID, "")
         val level = clientLevel ?: return false
         val entity = EntityFindUtil.findEntity(level, uuid) as? Player ?: return false
         val team = entity.team ?: return false
-        val color = team.color.color ?: return false
+        val color = team.color.map { it.rgb() }.orElse(null) ?: return false
 
         val pose = guiGraphics.pose()
         pose.pushPose()

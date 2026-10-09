@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.config.server
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.buildServerConfig
 
 object ProjectileConfig {

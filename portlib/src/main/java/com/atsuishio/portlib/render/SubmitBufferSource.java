@@ -11,7 +11,7 @@ import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class SubmitBufferSource implements MultiBufferSource, AutoCloseable {
+public class SubmitBufferSource implements MultiBufferSource.BufferSource, AutoCloseable {
     private static final PoseStack IDENTITY = new PoseStack();
     private static final ThreadLocal<Deque<SubmitBufferSource>> ACTIVE = ThreadLocal.withInitial(ArrayDeque::new);
 
@@ -44,6 +44,19 @@ public class SubmitBufferSource implements MultiBufferSource, AutoCloseable {
             }
         }
         pending.clear();
+    }
+
+    @Override
+    public void endBatch() {
+        submitPending();
+    }
+
+    @Override
+    public void endBatch(RenderType renderType) {
+        RecordedGeometry geometry = pending.remove(renderType);
+        if (geometry != null && !geometry.isEmpty()) {
+            collector.submitCustomGeometry(IDENTITY, renderType, geometry);
+        }
     }
 
     public void flush() {

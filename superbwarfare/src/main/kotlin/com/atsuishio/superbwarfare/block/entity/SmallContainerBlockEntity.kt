@@ -1,12 +1,20 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.SmallContainerBlock
 import com.atsuishio.superbwarfare.client.animation.block.SmallContainerBlockAnimationInstance
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.resource.model.BlockModelReloadListener
 import com.atsuishio.superbwarfare.tools.ParticleTool
-import net.minecraft.advancements.CriteriaTriggers
+import net.minecraft.advancements.triggers.CriteriaTriggers
 import net.minecraft.core.BlockPos
 import net.minecraft.core.HolderLookup
 import net.minecraft.core.component.DataComponentMap
@@ -49,7 +57,7 @@ open class SmallContainerBlockEntity(pos: BlockPos, state: BlockState) :
 
     var animationInstance: SmallContainerBlockAnimationInstance? = null
 
-    override fun applyImplicitComponents(componentInput: DataComponentInput) {
+    override fun applyImplicitComponents(componentInput: net.minecraft.core.component.DataComponentGetter) {
         super.applyImplicitComponents(componentInput)
 
         val loot = componentInput.get(DataComponents.CONTAINER_LOOT)
@@ -67,22 +75,30 @@ open class SmallContainerBlockEntity(pos: BlockPos, state: BlockState) :
         }
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
+    override fun loadAdditional(input: ValueInput) {
 
-        if (tag.contains("LootTable", 8)) {
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
+
+        if (tag.contains("LootTable")) {
             this.lootTable = ResourceKey.create(
                 Registries.LOOT_TABLE,
-                Identifier.parse(tag.getString("LootTable"))
+                Identifier.parse(tag.getStringOr("LootTable", ""))
             )
-            this.lootTableSeed = tag.getLong("LootTableSeed")
+            this.lootTableSeed = tag.getLongOr("LootTableSeed", 0L)
         }
-        this.tick = tag.getInt("Tick")
-        this.opened = tag.getBoolean("Opened")
+        this.tick = tag.getIntOr("Tick", 0)
+        this.opened = tag.getBooleanOr("Opened", false)
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
 
         val lootTable = this.lootTable
         if (lootTable != null) {
@@ -103,7 +119,7 @@ open class SmallContainerBlockEntity(pos: BlockPos, state: BlockState) :
         return this.saveWithFullMetadata(registries)
     }
 
-    override fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
+    open fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
         val tag = CompoundTag()
         if (this.lootTable != null) {
             tag.putString("LootTable", this.lootTable.toString())
@@ -111,7 +127,7 @@ open class SmallContainerBlockEntity(pos: BlockPos, state: BlockState) :
                 tag.putLong("LootTableSeed", this.lootTableSeed)
             }
         }
-        BlockItem.setBlockEntityData(stack, this.type, tag)
+        legacySetBlockEntityData(stack, this.type, tag)
     }
 
     fun setLootTable(pLootTable: ResourceKey<LootTable>, pLootTableSeed: Long) {

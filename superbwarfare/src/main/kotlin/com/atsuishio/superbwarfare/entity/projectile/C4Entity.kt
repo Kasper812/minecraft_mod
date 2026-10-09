@@ -1,5 +1,16 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import net.minecraft.world.phys.Vec3
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.entity.EntityReference
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.OBBEntity
@@ -45,6 +56,11 @@ import kotlin.math.sign
 import kotlin.math.sqrt
 
 open class C4Entity : Entity, OwnableEntity {
+    override fun hurtServer(serverLevel: net.minecraft.server.level.ServerLevel, source: net.minecraft.world.damagesource.DamageSource, amount: Float): Boolean {
+        if (!this.isInvulnerableToBase(source)) this.markHurt()
+        return false
+    }
+
     protected var inGround: Boolean = false
     var onEntity by ON_ENTITY
     open val modelInstance = ProjectileModelReloadListener.getModel(MODEL)?.createInstance()
@@ -86,13 +102,13 @@ open class C4Entity : Entity, OwnableEntity {
         }
     }
 
-    fun setOwnerUUID(pUuid: UUID?) {
-        this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
-    }
+    var ownerUUID: UUID?
+        get() = this.entityData.get(OWNER_UUID).orElse(null)
+        set(pUuid) {
+            this.entityData.set(OWNER_UUID, Optional.ofNullable(pUuid))
+        }
 
-    override fun getOwnerUUID(): UUID? {
-        return this.entityData.get(OWNER_UUID).orElse(null)
-    }
+    override fun getOwnerReference(): EntityReference<LivingEntity>? = ownerUUID?.let { EntityReference.of(it) }
 
     // Quaternion synched data delegate
     var quaternion by QUATERNION
@@ -117,7 +133,9 @@ open class C4Entity : Entity, OwnableEntity {
         super.baseTick()
     }
 
-    public override fun addAdditionalSaveData(compound: CompoundTag) {
+    public override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
         compound.putString("Target", this.entityData.get(TARGET_UUID))
         compound.putString("LastAttacker", this.entityData.get(LAST_ATTACKER_UUID))
         compound.putBoolean("IsControllable", this.entityData.get(IS_CONTROLLABLE))
@@ -147,56 +165,58 @@ open class C4Entity : Entity, OwnableEntity {
         }
     }
 
-    public override fun readAdditionalSaveData(compound: CompoundTag) {
+    public override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
         if (compound.contains("LastAttacker")) {
-            this.entityData.set(LAST_ATTACKER_UUID, compound.getString("LastAttacker"))
+            this.entityData.set(LAST_ATTACKER_UUID, compound.getStringOr("LastAttacker", ""))
         }
 
         if (compound.contains("Target")) {
-            this.entityData.set(TARGET_UUID, compound.getString("Target"))
+            this.entityData.set(TARGET_UUID, compound.getStringOr("Target", ""))
         }
 
-        if (compound.contains("InBlockState", 10)) {
+        if (compound.contains("InBlockState")) {
             this.lastState = NbtUtils.readBlockState(
                 this.level().holderLookup(Registries.BLOCK),
-                compound.getCompound("InBlockState")
+                compound.getCompoundOrEmpty("InBlockState")
             )
         }
 
         if (compound.contains("IsControllable")) {
-            this.entityData.set(IS_CONTROLLABLE, compound.getBoolean("IsControllable"))
+            this.entityData.set(IS_CONTROLLABLE, compound.getBooleanOr("IsControllable", false))
         }
 
         if (compound.contains("BombTick")) {
-            this.entityData.set(BOMB_TICK, compound.getInt("BombTick"))
+            this.entityData.set(BOMB_TICK, compound.getIntOr("BombTick", 0))
         }
 
         if (compound.contains("StickyOnObb")) {
-            this.entityData.set(STICKY_ON_OBB, compound.getBoolean("StickyOnObb"))
+            this.entityData.set(STICKY_ON_OBB, compound.getBooleanOr("StickyOnObb", false))
             this.entityData.set(
                 STICKY_OBB_LOCAL_POS,
                 Vector3f(
-                    compound.getFloat("StickyObbLocalX"),
-                    compound.getFloat("StickyObbLocalY"),
-                    compound.getFloat("StickyObbLocalZ")
+                    compound.getFloatOr("StickyObbLocalX", 0f),
+                    compound.getFloatOr("StickyObbLocalY", 0f),
+                    compound.getFloatOr("StickyObbLocalZ", 0f)
                 )
             )
-            this.entityData.set(STICKY_OBB_FACE, compound.getInt("StickyObbFace"))
-            this.entityData.set(STICKY_OBB_INDEX, compound.getInt("StickyObbIndex"))
+            this.entityData.set(STICKY_OBB_FACE, compound.getIntOr("StickyObbFace", 0))
+            this.entityData.set(STICKY_OBB_INDEX, compound.getIntOr("StickyObbIndex", 0))
         }
 
         if (compound.contains("StickyYOffset")) {
-            this.entityData.set(STICKY_Y_OFFSET, compound.getFloat("StickyYOffset"))
+            this.entityData.set(STICKY_Y_OFFSET, compound.getFloatOr("StickyYOffset", 0f))
         }
 
         if (compound.contains("InGround")) {
-            this.inGround = compound.getBoolean("InGround")
+            this.inGround = compound.getBooleanOr("InGround", false)
         }
 
         if (compound.contains("Qx")) {
             this.entityData.set(
                 QUATERNION,
-                Quaternionf(compound.getFloat("Qx"), compound.getFloat("Qy"), compound.getFloat("Qz"), compound.getFloat("Qw"))
+                Quaternionf(compound.getFloatOr("Qx", 0f), compound.getFloatOr("Qy", 0f), compound.getFloatOr("Qz", 0f), compound.getFloatOr("Qw", 0f))
             )
         }
 
@@ -204,7 +224,7 @@ open class C4Entity : Entity, OwnableEntity {
         if (compound.hasUUID("Owner")) {
             uuid = compound.getUUID("Owner")
         } else {
-            val s = compound.getString("Owner")
+            val s = compound.getStringOr("Owner", "")
             val server = this.server
 
             uuid = if (server == null) {
@@ -226,8 +246,8 @@ open class C4Entity : Entity, OwnableEntity {
         }
     }
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
-        if (this.owner === player && player.isShiftKeyDown) {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
+        if (this.getOwner() === player && player.isShiftKeyDown) {
             if (!this.level().isClientSide()) {
                 this.discard()
             }
@@ -235,7 +255,7 @@ open class C4Entity : Entity, OwnableEntity {
             if (!player.abilities.instabuild) {
                 ItemHandlerHelper.giveItemToPlayer(player, this.itemStack)
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide())
+            return InteractionResult.SUCCESS
         }
         return InteractionResult.PASS
     }
@@ -307,7 +327,7 @@ open class C4Entity : Entity, OwnableEntity {
 
                 if (hitResult != null && hitResult.type != HitResult.Type.MISS) {
                     this.onHit(hitResult)
-                    this.hasImpulse = true
+                    this.needsSync = true
                     break
                 }
 
@@ -350,7 +370,7 @@ open class C4Entity : Entity, OwnableEntity {
             }
 
             this.setPos(nX, nY, nZ)
-            this.checkInsideBlocks()
+            this.applyEffectsFromBlocks()
         } else {
             val target = EntityFindUtil.findEntity(level(), entityData.get(TARGET_UUID))
             if (target != null) {
@@ -510,15 +530,17 @@ open class C4Entity : Entity, OwnableEntity {
             this,
             pStartVec,
             pEndVec,
-            this.boundingBox.expandTowards(this.deltaMovement).inflate(1.0)
-        ) { this.canHitEntity(it) }
+            this.boundingBox.expandTowards(this.deltaMovement).inflate(1.0),
+            { this.canHitEntity(it) },
+            0.3f
+        )
     }
 
     protected fun canHitEntity(pTarget: Entity): Boolean {
         if (!pTarget.canBeHitByProjectile()) {
             return false
         } else {
-            val entity: Entity? = this.owner
+            val entity: Entity? = this.getOwner()
             return entity == null
                     || (entity === pTarget && this.tickCount > 2)
                     || !entity.isPassengerOfSameVehicle(pTarget)
@@ -601,7 +623,7 @@ open class C4Entity : Entity, OwnableEntity {
         val vec31 = vec3.normalize().scale(0.05)
         this.setPosRaw(this.x - vec31.x, this.y - vec31.y, this.z - vec31.z)
 
-        this.look(Vec3.atLowerCornerOf(pResult.direction.normal))
+        this.look(Vec3.atLowerCornerOf(pResult.direction.unitVec3i))
         this.yRot = (pResult.direction.get2DDataValue() * 90).toFloat()
 
         val resultPos = pResult.blockPos
@@ -631,7 +653,7 @@ open class C4Entity : Entity, OwnableEntity {
             val target = EntityFindUtil.findEntity(level(), entityData.get(TARGET_UUID))
             if (target != null) {
                 target.forceHurt(
-                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), this, this.owner),
+                    ModDamageTypes.causeCustomExplosionDamage(this.level().registryAccess(), this, this.getOwner()),
                     ExplosionConfig.C4_EXPLOSION_DAMAGE.get().toFloat() * 0.5f
                 )
                 target.invulnerableTime = 0
@@ -651,7 +673,7 @@ open class C4Entity : Entity, OwnableEntity {
         val radius = ExplosionConfig.C4_EXPLOSION_RADIUS.get().toFloat()
 
         CustomExplosion.Builder(this)
-            .attacker(this.owner)
+            .attacker(this.getOwner())
             .damage(ExplosionConfig.C4_EXPLOSION_DAMAGE.get().toFloat())
             .radius(radius)
             .position(pos)
@@ -694,7 +716,7 @@ open class C4Entity : Entity, OwnableEntity {
 
         @JvmField
         protected val OWNER_UUID: EntityDataAccessor<Optional<UUID>> =
-            SynchedEntityData.defineId(C4Entity::class.java, EntityDataSerializers.OPTIONAL_UUID)
+            SynchedEntityData.defineId(C4Entity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.OPTIONAL_UUID)
 
         @JvmField
         protected val LAST_ATTACKER_UUID: EntityDataAccessor<String> =
@@ -718,7 +740,7 @@ open class C4Entity : Entity, OwnableEntity {
 
         @JvmField
         val STICKY_OBB_LOCAL_POS: EntityDataAccessor<Vector3f> =
-            SynchedEntityData.defineId(C4Entity::class.java, EntityDataSerializers.VECTOR3)
+            SynchedEntityData.defineId(C4Entity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.VECTOR3F)
 
         @JvmField
         val STICKY_OBB_FACE: EntityDataAccessor<Int> =
@@ -738,7 +760,7 @@ open class C4Entity : Entity, OwnableEntity {
 
         @JvmField
         val QUATERNION: EntityDataAccessor<Quaternionf> =
-            SynchedEntityData.defineId(C4Entity::class.java, EntityDataSerializers.QUATERNION)
+            SynchedEntityData.defineId(C4Entity::class.java, com.atsuishio.superbwarfare.init.ModSerializers.QUATERNIONF)
 
         const val DEFAULT_DEFUSE_PROGRESS: Int = 100
 

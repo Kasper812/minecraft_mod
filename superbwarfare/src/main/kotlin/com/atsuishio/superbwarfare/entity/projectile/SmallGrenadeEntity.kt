@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModEntities
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
@@ -9,7 +11,7 @@ open class SmallGrenadeEntity : GunGrenadeEntity {
     constructor(type: EntityType<out SmallGrenadeEntity>, level: Level) : super(type, level)
 
     constructor(owner: Entity?, level: Level) : super(ModEntities.SMALL_GRENADE, level) {
-        this.owner = owner
+        this.setOwner(getOwner())
     }
 
     override fun trail() {

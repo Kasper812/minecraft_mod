@@ -1,22 +1,24 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.particle.*
-import net.fabricmc.fabric.api.client.particle.v1.ParticleFactoryRegistry
+import net.fabricmc.fabric.api.client.particle.v1.ParticleProviderRegistry
 
 object ModParticles {
 
     @JvmStatic
     fun init() {
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.FIRE_STAR, FireStarParticle::provider)
-        ParticleFactoryRegistry.getInstance()
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.FIRE_STAR, FireStarParticle::provider)
+        ParticleProviderRegistry.getInstance()
             .register(ModParticleTypes.EXPLOSION_DEBRIS, ExplosionDebrisParticle::Provider)
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.WHITE_STAR, WhiteStarParticle::provider)
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.RISING_SMOKE, RisingSmokeParticle::provider)
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.BULLET_DECAL, BulletDecalParticle.Provider())
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.CUSTOM_CLOUD, CustomCloudParticle::Provider)
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.CUSTOM_SMOKE, CustomSmokeParticle::Provider)
-        ParticleFactoryRegistry.getInstance()
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.WHITE_STAR, WhiteStarParticle::provider)
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.RISING_SMOKE, RisingSmokeParticle::provider)
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.BULLET_DECAL, BulletDecalParticle.Provider())
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.CUSTOM_CLOUD, CustomCloudParticle::Provider)
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.CUSTOM_SMOKE, CustomSmokeParticle::Provider)
+        ParticleProviderRegistry.getInstance()
             .register(ModParticleTypes.CANNON_MUZZLE_FLARE, CannonMuzzleFlareParticle::Provider)
-        ParticleFactoryRegistry.getInstance().register(ModParticleTypes.CUSTOM_FLARE, CustomFlareParticle::Provider)
+        ParticleProviderRegistry.getInstance().register(ModParticleTypes.CUSTOM_FLARE, CustomFlareParticle::Provider)
     }
 }

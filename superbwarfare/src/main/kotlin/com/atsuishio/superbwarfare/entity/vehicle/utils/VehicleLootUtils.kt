@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.utils
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.data.loot.WreckageLootData
 import com.atsuishio.superbwarfare.data.loot.WreckageLootDataManager
@@ -64,7 +66,7 @@ object VehicleLootUtils {
 
                     if (random > chance) return@forEach
                     val name = entry.name
-                    val item = BuiltInRegistries.ITEM.get(Identifier.parse(name))
+                    val item = BuiltInRegistries.ITEM.getValue(Identifier.parse(name))
                     val count = entry.count
                     val entity =
                         ItemEntity(vehicle.level(), vehicle.x, (vehicle.y + 1), vehicle.z, ItemStack(item, count))

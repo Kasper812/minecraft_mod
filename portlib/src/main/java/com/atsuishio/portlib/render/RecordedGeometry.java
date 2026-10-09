@@ -27,6 +27,26 @@ public final class RecordedGeometry implements VertexConsumer, SubmitNodeCollect
         return count == 0;
     }
 
+    public int vertexCount() {
+        return count;
+    }
+
+    public float[] bounds2d() {
+        float minX = Float.POSITIVE_INFINITY;
+        float minY = Float.POSITIVE_INFINITY;
+        float maxX = Float.NEGATIVE_INFINITY;
+        float maxY = Float.NEGATIVE_INFINITY;
+        for (int i = 0; i < count; i++) {
+            float x = floats[i * F_STRIDE];
+            float y = floats[i * F_STRIDE + 1];
+            minX = Math.min(minX, x);
+            minY = Math.min(minY, y);
+            maxX = Math.max(maxX, x);
+            maxY = Math.max(maxY, y);
+        }
+        return new float[]{minX, minY, maxX, maxY};
+    }
+
     private void ensure() {
         if ((count + 1) * F_STRIDE > floats.length) {
             floats = Arrays.copyOf(floats, floats.length * 2);

@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.item.misc.firingParameters
 import com.atsuishio.superbwarfare.network.message.send.FiringParametersEditMessage
@@ -7,7 +13,7 @@ import com.atsuishio.superbwarfare.tools.sendPacketToServer
 import com.mojang.math.Axis
 import net.minecraft.ChatFormatting
 import net.minecraft.client.GameNarrator
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -17,7 +23,7 @@ import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import kotlin.math.max
 open class FiringParametersScreen(private val stack: ItemStack, private val hand: InteractionHand) :
-    Screen(GameNarrator.NO_TITLE) {
+    LegacyScreen(GameNarrator.NO_TITLE) {
     lateinit var posX: EditBox
     lateinit var posY: EditBox
     lateinit var posZ: EditBox
@@ -147,8 +153,7 @@ open class FiringParametersScreen(private val stack: ItemStack, private val hand
         editBox.setEditable(true)
         editBox.setFilter { it.matches("-?\\d*".toRegex()) }
     }
-    internal inner class ModeButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) :
-        AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    internal inner class ModeButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun onPress() {
             this@FiringParametersScreen.isDepressed = !this@FiringParametersScreen.isDepressed
         }
@@ -171,8 +176,7 @@ open class FiringParametersScreen(private val stack: ItemStack, private val hand
         override fun updateWidgetNarration(pNarrationElementOutput: NarrationElementOutput) {
         }
     }
-    internal inner class DoneButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) :
-        AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    internal inner class DoneButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun onPress() {
             if (!this@FiringParametersScreen.init) return
             if (this@FiringParametersScreen.minecraft != null) {

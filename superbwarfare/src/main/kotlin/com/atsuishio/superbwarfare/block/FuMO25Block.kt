@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.block
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.FuMO25BlockEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
 import com.atsuishio.superbwarfare.tools.SeekTool
@@ -73,18 +75,18 @@ open class FuMO25Block :
     }
 
     override fun getRenderShape(pState: BlockState): RenderShape {
-        return RenderShape.ENTITYBLOCK_ANIMATED
+        return RenderShape.INVISIBLE
     }
 
     override fun newBlockEntity(pPos: BlockPos, pState: BlockState): BlockEntity? {
         return FuMO25BlockEntity(pPos, pState)
     }
 
-    override fun <T : BlockEntity?> getTicker(
+    override fun <T : BlockEntity> getTicker(
         pLevel: Level,
         pState: BlockState,
-        pBlockEntityType: BlockEntityType<T?>
-    ): BlockEntityTicker<T?>? {
+        pBlockEntityType: BlockEntityType<T>
+    ): BlockEntityTicker<T>? {
         if (!pLevel.isClientSide) {
             return createTickerHelper(
                 pBlockEntityType,
@@ -107,25 +109,17 @@ open class FuMO25Block :
         val entity = level.getBlockEntity(pos) as? FuMO25BlockEntity ?: return
         entity.ownerUUID = placer.uuid
     }
-
-    override fun onRemove(
+    override fun affectNeighborsAfterRemoval(
         pState: BlockState,
-        pLevel: Level,
+        pLevel: net.minecraft.server.level.ServerLevel,
         pPos: BlockPos,
-        pNewState: BlockState,
         pMovedByPiston: Boolean
     ) {
-        if (!pState.`is`(pNewState.block)) {
-            val blockEntity = pLevel.getBlockEntity(pPos)
-            if (blockEntity is FuMO25BlockEntity) {
-                pLevel.updateNeighbourForOutputSignal(pPos, this)
-            }
-        }
-
-        super.onRemove(pState, pLevel, pPos, pNewState, pMovedByPiston)
+        pLevel.updateNeighbourForOutputSignal(pPos, this)
+        super.affectNeighborsAfterRemoval(pState, pLevel, pPos, pMovedByPiston)
     }
 
-    override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(pBuilder: StateDefinition.Builder<Block, BlockState>) {
         pBuilder.add(POWERED)
     }
 

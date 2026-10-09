@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.C4Entity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModItems
@@ -17,7 +21,6 @@ import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -28,11 +31,11 @@ import net.minecraft.world.phys.Vec3
 
 @RegistryName("c4_bomb")
 open class C4BombItem : Item(Properties()), DispenserLaunchable {
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack?> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val stack = player.getItemInHand(hand)
 
         if (!level.isClientSide) {
-            val flag = stack.getOrCreateTag().getBoolean(TAG_CONTROL)
+            val flag = stack.getOrCreateTag().getBooleanOr(TAG_CONTROL, false)
 
             val entity = C4Entity(player, level, flag)
             entity.setPos(
@@ -60,17 +63,19 @@ open class C4BombItem : Item(Properties()), DispenserLaunchable {
             stack.shrink(1)
         }
 
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val tag = NBTTool.getTag(stack)
-        if (tag.getBoolean(TAG_CONTROL)) {
+        if (tag.getBooleanOr(TAG_CONTROL, false)) {
             tooltipComponents.add(
                 Component.translatable("des.superbwarfare.c4_bomb.control").withStyle(ChatFormatting.GRAY)
             )

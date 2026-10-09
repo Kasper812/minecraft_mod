@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -14,7 +16,7 @@ import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.entity.EntityType
-import net.minecraft.world.entity.animal.Pig
+import net.minecraft.world.entity.animal.pig.Pig
 import net.minecraft.world.entity.boss.enderdragon.EnderDragon
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.Level
@@ -46,7 +48,7 @@ open class Ru9m100MissileEntity(type: EntityType<out Ru9m100MissileEntity>, leve
                 entity.level().playSound(
                     null,
                     entity.onPos,
-                    if (entity is Pig) SoundEvents.PIG_HURT else ModSounds.MISSILE_WARNING,
+                    if (entity is Pig) legacyPigHurtSound() else ModSounds.MISSILE_WARNING,
                     SoundSource.PLAYERS,
                     2f,
                     1f

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.capability.energy
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.api.EnergyStorage
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.IntTag
@@ -63,7 +65,7 @@ open class SyncedEntityEnergyStorage(
 
     override fun deserializeNBT(provider: HolderLookup.Provider, nbt: Tag) {
         if (nbt is IntTag) {
-            this.energy = nbt.asInt.toLong()
+            this.energy = nbt.intValue().toLong()
         } else {
             super.deserializeNBT(provider, nbt)
         }

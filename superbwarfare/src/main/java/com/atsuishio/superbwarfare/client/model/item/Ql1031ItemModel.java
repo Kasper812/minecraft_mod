@@ -44,9 +44,9 @@ public class Ql1031ItemModel extends CustomGunModel<Ql1031Item> {
         int type = data.attachment.get(AttachmentType.SCOPE);
 
         var tag = data.tag;
-        posYAlt = Mth.lerp(times, posYAlt, tag.getBoolean("ScopeAlt") ? -0.7375f : 0.4325f);
-        scaleZAlt = Mth.lerp(times, scaleZAlt, tag.getBoolean("ScopeAlt") ? 0.4f : 0.88f);
-        posZAlt = Mth.lerp(times, posZAlt, tag.getBoolean("ScopeAlt") ? 5.5f : 8.3f);
+        posYAlt = Mth.lerp(times, posYAlt, tag.getBooleanOr("ScopeAlt", false) ? -0.7375f : 0.4325f);
+        scaleZAlt = Mth.lerp(times, scaleZAlt, tag.getBooleanOr("ScopeAlt", false) ? 0.4f : 0.88f);
+        posZAlt = Mth.lerp(times, posZAlt, tag.getBooleanOr("ScopeAlt", false) ? 5.5f : 8.3f);
         rotXSight = Mth.lerp(1.5f * times, rotXSight, type == 0 ? 0 : 90);
 
         float posY = switch (type) {

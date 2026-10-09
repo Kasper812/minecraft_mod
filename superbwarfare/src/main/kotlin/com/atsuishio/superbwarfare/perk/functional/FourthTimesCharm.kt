@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.functional
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.entity.projectile.ProjectileEntity
@@ -17,7 +19,7 @@ object FourthTimesCharm : Perk("fourth_times_charm", Type.FUNCTIONAL) {
     ) {
         data.perk.reduceCooldown(this, "FourthTimesCharmTick")
         val tag = data.perk.getTag(this) ?: return
-        val count = tag.getInt("FourthTimesCharmCount")
+        val count = tag.getIntOr("FourthTimesCharmCount", 0)
 
         if (count >= 4) {
             tag.remove("FourthTimesCharmTick")
@@ -53,12 +55,12 @@ object FourthTimesCharm : Perk("fourth_times_charm", Type.FUNCTIONAL) {
 
     fun handleFourthTimesCharm(data: GunData, instance: PerkInstance) {
         val tag = data.perk.getTag(this) ?: return
-        val fourthTimesCharmTick = tag.getInt("FourthTimesCharmTick")
+        val fourthTimesCharmTick = tag.getIntOr("FourthTimesCharmTick", 0)
         if (fourthTimesCharmTick <= 0) {
             tag.putInt("FourthTimesCharmTick", 40 + 10 * instance.level)
             tag.putInt("FourthTimesCharmCount", 1)
         } else {
-            val count = tag.getInt("FourthTimesCharmCount")
+            val count = tag.getIntOr("FourthTimesCharmCount", 0)
             if (count < 4) {
                 tag.putInt("FourthTimesCharmCount", 4.coerceAtMost(count + 1))
             }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.entity.misc.CatapultShuttleEntity
@@ -19,7 +21,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
@@ -29,12 +31,14 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback
 open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltip: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltip = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val tag = stack.tag
-        val target = tag?.getString(TAG_TOW_TARGET)
+        val target = tag?.getStringOr(TAG_TOW_TARGET, "")
         if (!target.isNullOrBlank()) {
             tooltip.add(
                 Component.translatable("des.superbwarfare.tow_bar.target_selected")
@@ -57,7 +61,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
         if (player.level().isClientSide) return InteractionResult.SUCCESS
 
         val tag = stack.getOrCreateTag()
-        val existingTarget = tag.getString(TAG_TOW_TARGET)
+        val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
 
         // Shift+right-click: clear towing / clear stored target
         if (player.isShiftKeyDown) {
@@ -116,12 +120,12 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
         if (player.level().isClientSide) return InteractionResult.SUCCESS
 
         val tag = stack.getOrCreateTag()
-        val existingTarget = tag.getString(TAG_TOW_TARGET)
+        val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
 
         // Shift+right-click on living entity: clear towing relationship / stored target
         if (player.isShiftKeyDown) {
             val towedByShuttle =
-                interactionTarget.persistentData.getString(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY)
+                interactionTarget.persistentData.getStringOr(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY, "")
             if (towedByShuttle.isNotBlank()) {
                 val shuttle =
                     EntityFindUtil.findEntity(interactionTarget.level(), towedByShuttle) as? CatapultShuttleEntity
@@ -221,7 +225,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
             }
         } else {
             // Check if target entity is already being towed
-            val towedBy = targetEntity.persistentData.getString(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY)
+            val towedBy = targetEntity.persistentData.getStringOr(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY, "")
             if (towedBy.isNotBlank()) {
                 player.displayClientMessage(
                     Component.translatable("tips.superbwarfare.tow_bar.already_linked")
@@ -307,7 +311,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
                 val target = if (originalTarget is EnderDragonPart) originalTarget.parentMob else originalTarget
 
                 if (level.isClientSide) {
-                    val selected = stack.tag?.getString(TAG_TOW_TARGET)?.isNotBlank() == true
+                    val selected = stack.tag?.getStringOr(TAG_TOW_TARGET, "")?.isNotBlank() == true
                     return@callback if (target is CatapultShuttleEntity || (target !is VehicleEntity && target !is LivingEntity && (player.isShiftKeyDown || selected))) {
                         InteractionResult.SUCCESS
                     } else {
@@ -328,7 +332,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
                 }
 
                 val tag = stack.tag
-                if (tag != null && tag.getString(TAG_TOW_TARGET).isNotBlank()) {
+                if (tag != null && tag.getStringOr(TAG_TOW_TARGET, "").isNotBlank()) {
                     item.clearTowTargetTag(stack)
                     player.displayClientMessage(
                         Component.translatable("tips.superbwarfare.tow_bar.selection_cleared")
@@ -342,7 +346,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
             // --- First click on CatapultShuttleEntity: select it ---
             if (target is CatapultShuttleEntity) {
                 val tag = stack.getOrCreateTag()
-                val existingTarget = tag.getString(TAG_TOW_TARGET)
+                val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
 
                 if (existingTarget.isBlank()) {
                     tag.putString(TAG_TOW_TARGET, target.stringUUID)
@@ -379,7 +383,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
 
             // --- Shift+right-click on non-vehicle, non-living entity: clear towing relationship ---
             if (player.isShiftKeyDown) {
-                val towedByShuttle = target.persistentData.getString(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY)
+                val towedByShuttle = target.persistentData.getStringOr(CatapultShuttleEntity.TOWED_BY_SHUTTLE_TAG_KEY, "")
                 if (towedByShuttle.isNotBlank()) {
                     val shuttle = EntityFindUtil.findEntity(target.level(), towedByShuttle) as? CatapultShuttleEntity
                     shuttle?.clearTowingInfo()
@@ -395,7 +399,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
                 }
 
                 val tag = stack.tag
-                if (tag != null && tag.getString(TAG_TOW_TARGET).isNotBlank()) {
+                if (tag != null && tag.getStringOr(TAG_TOW_TARGET, "").isNotBlank()) {
                     item.clearTowTargetTag(stack)
                     player.displayClientMessage(
                         Component.translatable("tips.superbwarfare.tow_bar.selection_cleared")
@@ -408,7 +412,7 @@ open class TowBarItem : Item(Properties().stacksTo(1)), IVehicleInteract {
 
             // --- Right-click on other entity: link with stored shuttle ---
             val tag = stack.getOrCreateTag()
-            val existingTarget = tag.getString(TAG_TOW_TARGET)
+            val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
             if (existingTarget.isBlank()) {
                 player.displayClientMessage(
                     Component.translatable("tips.superbwarfare.tow_bar.select_shuttle_first")

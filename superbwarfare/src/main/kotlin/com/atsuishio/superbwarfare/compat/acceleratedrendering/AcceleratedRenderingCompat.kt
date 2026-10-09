@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.acceleratedrendering
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.resource.gun.pojo
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedResourceLocation
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedVector3f
 import kotlinx.serialization.SerialName

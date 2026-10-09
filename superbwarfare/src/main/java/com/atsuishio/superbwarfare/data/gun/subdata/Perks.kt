@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.subdata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.init.ModPerks
 import com.atsuishio.superbwarfare.item.misc.PerkItem
@@ -57,10 +59,10 @@ class Perks(private val gun: GunData) {
      */
     fun getOrCreateList(type: Perk.Type): ListTag {
         val typeName = type.typeName
-        return if (rootTag.contains(typeName, Tag.TAG_LIST.toInt())) {
-            rootTag.getList(typeName, Tag.TAG_COMPOUND.toInt())
+        return if (rootTag.contains(typeName)) {
+            rootTag.getListOrEmpty(typeName)
         } else {
-            val tag = rootTag.getCompound(typeName)
+            val tag = rootTag.getCompoundOrEmpty(typeName)
             ListTag().also { rootTag.put(typeName, tag) }
         }
     }
@@ -72,8 +74,8 @@ class Perks(private val gun: GunData) {
      * @return `true` if active.
      */
     fun has(perk: Perk): Boolean {
-        val list = rootTag.getList(perk.type.typeName, Tag.TAG_COMPOUND.toInt())
-        return list.any { (it as CompoundTag).getString("Name") == perk.name }
+        val list = rootTag.getListOrEmpty(perk.type.typeName)
+        return list.any { (it as CompoundTag).getStringOr("Name", "") == perk.name }
     }
 
     /**
@@ -83,7 +85,7 @@ class Perks(private val gun: GunData) {
      * @return `true` if any perk of this type exists.
      */
     fun has(type: Perk.Type): Boolean {
-        val list = rootTag.getList(type.typeName, Tag.TAG_COMPOUND.toInt())
+        val list = rootTag.getListOrEmpty(type.typeName)
         return !list.isEmpty()
     }
 
@@ -97,16 +99,16 @@ class Perks(private val gun: GunData) {
         val name = perk.type.typeName
 
         // TODO 自动转换旧版tag
-        if (rootTag.contains(name, Tag.TAG_COMPOUND.toInt()) && rootTag.getCompound(name)
-                .getString("Name") == perk.name
+        if (rootTag.contains(name) && rootTag.getCompoundOrEmpty(name)
+                .getStringOr("Name", "") == perk.name
         ) {
-            return rootTag.getCompound(name).getShort("Level")
+            return rootTag.getCompoundOrEmpty(name).getShortOr("Level", 0.toShort())
         }
 
-        if (rootTag.contains(name, Tag.TAG_LIST.toInt())) {
-            val list = rootTag.getList(name, Tag.TAG_COMPOUND.toInt())
-            val entry = list.firstOrNull { (it as CompoundTag).getString("Name") == perk.name } as? CompoundTag
-            return entry?.getShort("Level") ?: 0
+        if (rootTag.contains(name)) {
+            val list = rootTag.getListOrEmpty(name)
+            val entry = list.firstOrNull { (it as CompoundTag).getStringOr("Name", "") == perk.name } as? CompoundTag
+            return entry?.getShortOr("Level", 0.toShort()) ?: 0
         }
 
         return 0
@@ -124,17 +126,17 @@ class Perks(private val gun: GunData) {
         val typeName = type.typeName
         val instances = mutableListOf<PerkInstance>()
 
-        if (rootTag.contains(typeName, Tag.TAG_LIST.toInt())) {
-            val list = rootTag.getList(typeName, Tag.TAG_COMPOUND.toInt())
+        if (rootTag.contains(typeName)) {
+            val list = rootTag.getListOrEmpty(typeName)
             for (i in list.indices) {
-                val tag = list.getCompound(i)
-                val perk = findPerkByName(tag.getString("Name")) ?: continue
-                instances.add(PerkInstance(perk, tag.getShort("Level")))
+                val tag = list.getCompoundOrEmpty(i)
+                val perk = findPerkByName(tag.getStringOr("Name", "")) ?: continue
+                instances.add(PerkInstance(perk, tag.getShortOr("Level", 0.toShort())))
             }
         } else {
-            val tag = rootTag.getCompound(typeName)
-            val perk = findPerkByName(tag.getString("Name")) ?: return instances
-            instances.add(PerkInstance(perk, tag.getShort("Level")))
+            val tag = rootTag.getCompoundOrEmpty(typeName)
+            val perk = findPerkByName(tag.getStringOr("Name", "")) ?: return instances
+            instances.add(PerkInstance(perk, tag.getShortOr("Level", 0.toShort())))
         }
 
         return instances
@@ -149,7 +151,7 @@ class Perks(private val gun: GunData) {
     fun set(perk: Perk, level: Short) {
         val list = getOrCreateList(perk.type)
         val existing = list.firstOrNull {
-            (it as CompoundTag).getString("Name") == perk.name
+            (it as CompoundTag).getStringOr("Name", "") == perk.name
         } as? CompoundTag
 
         if (existing != null) {
@@ -173,10 +175,10 @@ class Perks(private val gun: GunData) {
      */
     fun remove(perk: Perk) {
         val typeName = perk.type.typeName
-        if (!rootTag.contains(typeName, Tag.TAG_LIST.toInt())) return
+        if (!rootTag.contains(typeName)) return
 
-        val list = rootTag.getList(typeName, Tag.TAG_COMPOUND.toInt())
-        val removed = list.removeIf { (it as CompoundTag).getString("Name") == perk.name }
+        val list = rootTag.getListOrEmpty(typeName)
+        val removed = list.removeIf { (it as CompoundTag).getStringOr("Name", "") == perk.name }
 
         if (removed) {
             if (list.isEmpty()) rootTag.remove(typeName)
@@ -209,14 +211,14 @@ class Perks(private val gun: GunData) {
      * @param cooldownKey the NBT key of the cooldown counter.
      */
     fun reduceCooldown(perk: Perk, cooldownKey: String) {
-        val list = rootTag.getList(perk.type.typeName, Tag.TAG_COMPOUND.toInt())
+        val list = rootTag.getListOrEmpty(perk.type.typeName)
         val entry = list.firstOrNull {
-            (it as CompoundTag).getString("Name") == perk.name
+            (it as CompoundTag).getStringOr("Name", "") == perk.name
         } as? CompoundTag ?: return
 
         if (!entry.contains(cooldownKey)) return
 
-        val next = entry.getInt(cooldownKey) - 1
+        val next = entry.getIntOr(cooldownKey, 0) - 1
         if (next <= 0) entry.remove(cooldownKey) else entry.putInt(cooldownKey, next)
 
         // Perk cooldowns affect modifyProperty() output — invalidate PMC.
@@ -236,7 +238,7 @@ class Perks(private val gun: GunData) {
      */
     fun putStructuralInt(perk: Perk, key: String, value: Int) {
         val tag = getTag(perk) ?: return
-        val old = if (tag.contains(key)) tag.getInt(key) else 0
+        val old = if (tag.contains(key)) tag.getIntOr(key, 0) else 0
         tag.putInt(key, value)
 
         // Invalidate ONLY on status transition (0 -> Active or Active -> 0)
@@ -248,26 +250,26 @@ class Perks(private val gun: GunData) {
     fun getTag(perk: Perk): CompoundTag? =
         getOrCreateList(perk.type)
             .filterIsInstance<CompoundTag>()
-            .firstOrNull { perk.name == it.getString("Name") }
+            .firstOrNull { perk.name == it.getStringOr("Name", "") }
 
     fun getOrCreateTag(perk: Perk): CompoundTag {
         val type = perk.type
         if (!rootTag.contains(type.typeName)) {
             rootTag.put(type.typeName, CompoundTag())
         }
-        return rootTag.getCompound(type.typeName)
+        return rootTag.getCompoundOrEmpty(type.typeName)
     }
 
     fun get(perk: Perk): Perk? = get(perk.type)
 
     fun get(type: Perk.Type): Perk? {
         val typeName = type.typeName
-        return if (rootTag.contains(typeName, Tag.TAG_LIST.toInt())) {
-            val list = rootTag.getList(typeName, Tag.TAG_COMPOUND.toInt())
+        return if (rootTag.contains(typeName)) {
+            val list = rootTag.getListOrEmpty(typeName)
             if (list.isEmpty()) null
-            else findPerkByName(list.getCompound(0).getString("Name"))
+            else findPerkByName(list.getCompoundOrEmpty(0).getStringOr("Name", ""))
         } else {
-            findPerkByName(rootTag.getCompound(typeName).getString("Name"))
+            findPerkByName(rootTag.getCompoundOrEmpty(typeName).getStringOr("Name", ""))
         }
     }
 }

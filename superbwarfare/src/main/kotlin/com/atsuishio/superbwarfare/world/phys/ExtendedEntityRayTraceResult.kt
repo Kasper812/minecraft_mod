@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.world.phys
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.world.phys.EntityHitResult
 
 class ExtendedEntityRayTraceResult(result: EntityResult) : EntityHitResult(result.entity, result.hitVec) {

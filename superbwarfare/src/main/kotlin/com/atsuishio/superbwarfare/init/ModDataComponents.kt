@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.gun.Ammo
 import com.atsuishio.superbwarfare.init.ModDataComponents.ITEM_TAG
@@ -98,7 +100,7 @@ object ModDataComponents {
         override fun hashCode(): Int = System.identityHashCode(this)
     }
 
-    private fun <T> register(
+    private fun <T : Any> register(
         name: String,
         builderOperator: (DataComponentType.Builder<T>) -> DataComponentType.Builder<T>
     ): DataComponentType<T> {

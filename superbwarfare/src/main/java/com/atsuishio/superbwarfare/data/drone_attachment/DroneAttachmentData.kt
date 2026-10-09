@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.drone_attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.IDBasedData
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

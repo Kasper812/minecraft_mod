@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModDamageTypes.causeShockDamage
 import com.atsuishio.superbwarfare.init.ModMobEffects
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -16,7 +18,7 @@ import net.minecraft.world.entity.LightningBolt
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.monster.Creeper
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.projectile.AbstractArrow
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow
 import net.minecraft.world.entity.projectile.ItemSupplier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
@@ -50,7 +52,7 @@ open class TaserBulletEntity(type: EntityType<out TaserBulletEntity>, level: Lev
 
     override fun onHitEntity(result: EntityHitResult) {
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (owner != null && owner.vehicle != null && entity == owner.vehicle) return
         if (owner is ServerPlayer) {
             owner.level()
@@ -59,7 +61,7 @@ open class TaserBulletEntity(type: EntityType<out TaserBulletEntity>, level: Lev
         }
         if (entity is LivingEntity) {
             entity.invulnerableTime = 0
-            entity.forceHurt(causeShockDamage(this.level().registryAccess(), owner), this.damage)
+            entity.forceHurt(causeShockDamage(this.level().registryAccess(), getOwner()), this.damage)
             if (entity is Player && entity.isCreative) {
                 return
             }
@@ -67,11 +69,11 @@ open class TaserBulletEntity(type: EntityType<out TaserBulletEntity>, level: Lev
             val level = entity.level()
             if (level is ServerLevel) {
                 if (entity is Creeper) {
-                    entity.thunderHit(level, LightningBolt(EntityType.LIGHTNING_BOLT, level))
+                    entity.thunderHit(level, LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT, level))
                 } else {
                     entity.forceApplyEffect(
                         MobEffectInstance(ModMobEffects.SHOCK, 100 + volt * 30, volt),
-                        owner
+                        getOwner()
                     )
                 }
             }

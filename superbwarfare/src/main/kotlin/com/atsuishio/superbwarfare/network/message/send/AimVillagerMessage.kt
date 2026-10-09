@@ -1,12 +1,14 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.PayloadContext
 import com.atsuishio.superbwarfare.network.ServerPacketPayload
 import kotlinx.serialization.Serializable
 import net.minecraft.world.entity.ai.gossip.GossipType
-import net.minecraft.world.entity.npc.AbstractVillager
-import net.minecraft.world.entity.npc.Villager
+import net.minecraft.world.entity.npc.villager.AbstractVillager
+import net.minecraft.world.entity.npc.villager.Villager
 import net.minecraft.world.entity.schedule.Activity
 
 @Serializable

@@ -4,9 +4,20 @@
   "package": "com.atsuishio.portlib.mixin",
   "compatibilityLevel": "JAVA_25",
   "client": [
-    "EntityRendererMixin"
+    "EntityRendererMixin",
+    "EditBoxMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "ItemMixin",
+    "ItemTooltipMixin",
+    "EntityFlagsMixin",
+    "ItemPropertiesAccessor",
+    "BlockBehaviourMixin",
+    "BlockPropertiesAccessor",
+    "BlockItemMixin",
+    "InventoryTickMixin"
+  ]
 }

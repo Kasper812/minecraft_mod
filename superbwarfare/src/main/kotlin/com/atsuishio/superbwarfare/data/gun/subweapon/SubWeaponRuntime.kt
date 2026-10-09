@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.subweapon
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.data.attachment.SubWeaponInfo
@@ -90,7 +92,7 @@ object SubWeaponRuntime {
 
         for (attachment in gun.attachment.installed()) {
             val info = attachment.definition.subWeapon ?: continue
-            val item = BuiltInRegistries.ITEM.get(attachment.id) as? SubWeaponItem ?: continue
+            val item = BuiltInRegistries.ITEM.getValue(attachment.id) as? SubWeaponItem ?: continue
 
             val cached = cache[attachment.slot]
 
@@ -223,15 +225,15 @@ object SubWeaponRuntime {
 
     /** 根 tag 里的枪械状态子 tag；`null` = 这个槽位还没被装配过 */
     private fun gunStateOf(tag: CompoundTag): CompoundTag? =
-        if (tag.contains(GunState.KEY_GUN_DATA, Tag.TAG_COMPOUND.toInt())) {
-            tag.getCompound(GunState.KEY_GUN_DATA)
+        if (tag.contains(GunState.KEY_GUN_DATA)) {
+            tag.getCompoundOrEmpty(GunState.KEY_GUN_DATA)
         } else {
             null
         }
 
     /** 根 tag 里记录的枪械状态 revision（没有状态就是 0） */
     private fun revisionOf(tag: CompoundTag): Long =
-        gunStateOf(tag)?.getLong(GunState.KEY_REVISION) ?: 0L
+        gunStateOf(tag)?.getLongOr(GunState.KEY_REVISION, 0L) ?: 0L
 
     private fun carriesGunState(tag: CompoundTag): Boolean = gunStateOf(tag) != null
 

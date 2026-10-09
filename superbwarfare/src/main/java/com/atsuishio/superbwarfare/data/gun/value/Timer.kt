@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.gun.value
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 /**
@@ -9,7 +11,7 @@ open class Timer(private val tag: CompoundTag, name: String) {
     val name: String = name + "Time"
 
     open fun get(): Int {
-        return tag.getInt(name)
+        return tag.getIntOr(name, 0)
     }
 
     open fun set(time: Int) {

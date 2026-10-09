@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.level.redstone.Orientation
+
+import net.minecraft.world.entity.InsideBlockEffectApplier
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.misc.CatapultShuttleEntity
 import net.minecraft.core.BlockPos
 import net.minecraft.core.Direction
@@ -16,7 +22,7 @@ import net.minecraft.world.level.block.SoundType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.level.block.state.properties.IntegerProperty
 import net.minecraft.world.phys.Vec3
 import kotlin.math.atan2
@@ -62,7 +68,7 @@ open class AircraftCatapultBlock :
         }
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING).add(LAUNCH_POWER).add(UPDATING).add(CONTROLLED).add(REVERSED)
     }
 
@@ -80,7 +86,7 @@ open class AircraftCatapultBlock :
         pLevel: Level,
         pPos: BlockPos,
         pBlock: Block,
-        pFromPos: BlockPos,
+        orientation: Orientation?,
         pIsMoving: Boolean
     ) {
         if (!pLevel.isClientSide && !pState.getValue(UPDATING)) {
@@ -124,8 +130,15 @@ open class AircraftCatapultBlock :
         return max
     }
 
-    override fun entityInside(pState: BlockState, pLevel: Level, pPos: BlockPos, pEntity: Entity) {
-        super.entityInside(pState, pLevel, pPos, pEntity)
+    override fun entityInside(
+        pState: BlockState,
+        pLevel: Level,
+        pPos: BlockPos,
+        pEntity: Entity,
+        effectApplier: InsideBlockEffectApplier,
+        isPrecise: Boolean
+    ) {
+        super.entityInside(pState, pLevel, pPos, pEntity, effectApplier, isPrecise)
         if (pEntity !is CatapultShuttleEntity) return
 
         val diffY = Mth.wrapDegrees(-getWorldYRot(pState) - pEntity.yRot)
@@ -161,7 +174,7 @@ open class AircraftCatapultBlock :
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val LAUNCH_POWER: IntegerProperty = IntegerProperty.create("launch_power", 0, 15)

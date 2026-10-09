@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.block
 
+import net.minecraft.world.item.Item
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.entity.ContainerBlockEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModBlockEntities
@@ -19,7 +23,7 @@ import net.minecraft.network.chat.Style
 import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.ItemInteractionResult
+import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
@@ -37,7 +41,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.block.state.StateDefinition
 import net.minecraft.world.level.block.state.properties.BooleanProperty
-import net.minecraft.world.level.block.state.properties.DirectionProperty
+import net.minecraft.world.level.block.state.properties.EnumProperty
 import net.minecraft.world.phys.BlockHitResult
 import net.minecraft.world.phys.HitResult
 import net.minecraft.world.phys.shapes.CollisionContext
@@ -46,7 +50,7 @@ import kotlin.math.ceil
 
 @Suppress("OVERRIDE_DEPRECATION", "DEPRECATION")
 open class ContainerBlock :
-    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()) {
+    BaseEntityBlock(Properties.of().sound(SoundType.METAL).strength(3.0f).noOcclusion().requiresCorrectToolForDrops()), com.atsuishio.portlib.item.LegacyBlockTooltip {
     init {
         this.registerDefaultState(
             this.stateDefinition.any()
@@ -63,22 +67,22 @@ open class ContainerBlock :
         player: Player,
         hand: InteractionHand,
         hitResult: BlockHitResult
-    ): ItemInteractionResult {
+    ): InteractionResult {
         val blockEntity = level.getBlockEntity(pos)
         if (level.isClientSide
             || state.getValue(OPENED)
             || blockEntity !is ContainerBlockEntity
             || hand == InteractionHand.OFF_HAND
-        ) return ItemInteractionResult.FAIL
+        ) return InteractionResult.FAIL
 
         if (!stack.`is`(ModTags.Items.TOOLS_CROWBAR)) {
             player.displayClientMessage(Component.translatable("des.superbwarfare.container.fail.crowbar"), true)
-            return ItemInteractionResult.FAIL
+            return InteractionResult.FAIL
         }
 
         if (!hasEntity(level, pos)) {
             player.displayClientMessage(Component.translatable("des.superbwarfare.container.fail.empty"), true)
-            return ItemInteractionResult.FAIL
+            return InteractionResult.FAIL
         }
 
         if (canOpen(level, pos, blockEntity.entityType, blockEntity.entityTag)) {
@@ -92,10 +96,10 @@ open class ContainerBlock :
                 1f
             )
 
-            return ItemInteractionResult.SUCCESS
+            return InteractionResult.SUCCESS
         } else {
             player.displayClientMessage(Component.translatable("des.superbwarfare.container.fail.open"), true)
-            return ItemInteractionResult.FAIL
+            return InteractionResult.FAIL
         }
     }
 
@@ -105,11 +109,11 @@ open class ContainerBlock :
         return blockEntity.entityTag != null || blockEntity.entityType != null
     }
 
-    override fun <T : BlockEntity?> getTicker(
+    override fun <T : BlockEntity> getTicker(
         pLevel: Level,
         pState: BlockState,
         pBlockEntityType: BlockEntityType<T>
-    ): BlockEntityTicker<T?>? {
+    ): BlockEntityTicker<T>? {
         if (!pLevel.isClientSide) {
             return createTickerHelper<ContainerBlockEntity, T>(
                 pBlockEntityType,
@@ -122,23 +126,22 @@ open class ContainerBlock :
 
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
+        context: Item.TooltipContext,
         tooltip: MutableList<Component>,
         flag: TooltipFlag
     ) {
-        super.appendHoverText(stack, context, tooltip, flag)
 
         val data = stack.get(DataComponents.BLOCK_ENTITY_DATA)
         val tag = if (data != null) data.copyTag() else CompoundTag()
         if (tag.contains("EntityType")) {
-            val type = tag.getString("EntityType")
+            val type = tag.getStringOr("EntityType", "")
             val location = Identifier.tryParse(type) ?: return
             var entity: Entity? = null
 
             val info = Component.translatableWithFallback("info." + location.namespace + "." + location.path, "")
             val hasDescription = !info.string.isEmpty()
 
-            if (Screen.hasShiftDown() && hasDescription) {
+            if (com.atsuishio.portlib.gui.LegacyInput.hasShiftDown() && hasDescription) {
                 // 详细描述
                 tooltip.add(info.withStyle(ChatFormatting.GRAY))
                 tooltip.add(Component.empty())
@@ -156,7 +159,7 @@ open class ContainerBlock :
                 )
             }
 
-            val entityType = EntityType.byString(type).orElse(null)
+            val entityType = entityTypeByString(type).orElse(null)
             val level = clientLevel
             if (entityType != null && level is Level) {
                 var w = 0f
@@ -165,7 +168,7 @@ open class ContainerBlock :
 
                 // N * N * N
                 if (tag.contains("Entity") && entity != null) {
-                    entity.load(tag.getCompound("Entity"))
+                    entity.load(tag.getCompoundOrEmpty("Entity"))
                     w = ceil((entity.type.dimensions.width() / 2).toDouble()).toFloat()
                     h = (entity.type.dimensions.height() + 1).toInt()
                 } else {
@@ -206,14 +209,14 @@ open class ContainerBlock :
     override fun codec() = CODEC
 
     override fun getRenderShape(state: BlockState): RenderShape {
-        return RenderShape.ENTITYBLOCK_ANIMATED
+        return RenderShape.INVISIBLE
     }
 
     override fun newBlockEntity(blockPos: BlockPos, blockState: BlockState): BlockEntity? {
         return ContainerBlockEntity(blockPos, blockState)
     }
 
-    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block?, BlockState?>) {
+    override fun createBlockStateDefinition(builder: StateDefinition.Builder<Block, BlockState>) {
         builder.add(FACING).add(OPENED)
     }
 
@@ -240,7 +243,7 @@ open class ContainerBlock :
 
     companion object {
         @JvmField
-        val FACING: DirectionProperty = HorizontalDirectionalBlock.FACING
+        val FACING: EnumProperty<Direction> = HorizontalDirectionalBlock.FACING
 
         @JvmField
         val OPENED: BooleanProperty = BooleanProperty.create("opened")

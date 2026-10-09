@@ -1,12 +1,14 @@
 package com.atsuishio.superbwarfare.advancement.criteria
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.init.ModCriteriaTriggers
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.advancements.Criterion
-import net.minecraft.advancements.critereon.ContextAwarePredicate
-import net.minecraft.advancements.critereon.EntityPredicate
-import net.minecraft.advancements.critereon.SimpleCriterionTrigger
+import net.minecraft.advancements.triggers.Criterion
+import net.minecraft.advancements.predicates.ContextAwarePredicate
+import net.minecraft.advancements.predicates.entity.EntityPredicate
+import net.minecraft.advancements.triggers.SimpleCriterionTrigger
 import net.minecraft.server.level.ServerPlayer
 import java.util.*
 

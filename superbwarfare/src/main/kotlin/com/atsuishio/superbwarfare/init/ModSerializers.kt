@@ -1,5 +1,10 @@
 package com.atsuishio.superbwarfare.init
 
+import com.atsuishio.superbwarfare.Mod
+import net.fabricmc.fabric.api.`object`.builder.v1.entity.FabricEntityDataRegistry
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunData
 import io.netty.buffer.ByteBuf
 import net.minecraft.network.RegistryFriendlyByteBuf
@@ -61,12 +66,42 @@ object ModSerializers {
             ByteBufCodecs.SHORT.apply(ByteBufCodecs.list()).apply(ByteBufCodecs.list())
         )
 
+    @JvmField
+    val OPTIONAL_UUID: EntityDataSerializer<java.util.Optional<java.util.UUID>> =
+        EntityDataSerializer.forValueType(
+            net.minecraft.core.UUIDUtil.STREAM_CODEC.apply(ByteBufCodecs::optional)
+        )
+
+    @JvmField
+    val VECTOR3F: EntityDataSerializer<org.joml.Vector3f> =
+        EntityDataSerializer.forValueType(
+            ByteBufCodecs.VECTOR3F.map({ org.joml.Vector3f(it) }, { it })
+        )
+
+    @JvmField
+    val QUATERNIONF: EntityDataSerializer<org.joml.Quaternionf> =
+        EntityDataSerializer.forValueType(
+            ByteBufCodecs.QUATERNIONF.map({ org.joml.Quaternionf(it) }, { it })
+        )
+
+    @JvmField
+    val COMPOUND_TAG: EntityDataSerializer<net.minecraft.nbt.CompoundTag> =
+        object : EntityDataSerializer<net.minecraft.nbt.CompoundTag> {
+            override fun codec(): StreamCodec<in RegistryFriendlyByteBuf, net.minecraft.nbt.CompoundTag> = ByteBufCodecs.TRUSTED_COMPOUND_TAG
+
+            override fun copy(value: net.minecraft.nbt.CompoundTag): net.minecraft.nbt.CompoundTag = value.copy()
+        }
+
     @JvmStatic
     fun init() {
-        EntityDataSerializers.registerSerializer(INT_LIST_SERIALIZER)
-        EntityDataSerializers.registerSerializer(FLOAT_LIST_SERIALIZER)
-        EntityDataSerializers.registerSerializer(VEC3_SERIALIZER)
-        EntityDataSerializers.registerSerializer(VEHICLE_GUN_DATA_MAP_SERIALIZER)
-        EntityDataSerializers.registerSerializer(SHORT_LIST_LIST_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("int_list"), INT_LIST_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("float_list"), FLOAT_LIST_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("vec3"), VEC3_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("vehicle_gun_data_map"), VEHICLE_GUN_DATA_MAP_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("short_list_list"), SHORT_LIST_LIST_SERIALIZER)
+        FabricEntityDataRegistry.register(Mod.loc("optional_uuid"), OPTIONAL_UUID)
+        FabricEntityDataRegistry.register(Mod.loc("vector3f"), VECTOR3F)
+        FabricEntityDataRegistry.register(Mod.loc("compound_tag"), COMPOUND_TAG)
+        FabricEntityDataRegistry.register(Mod.loc("quaternionf"), QUATERNIONF)
     }
 }

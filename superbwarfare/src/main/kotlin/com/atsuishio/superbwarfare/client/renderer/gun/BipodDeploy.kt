@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.model.attachment.BedrockAttachmentModel
 import com.atsuishio.superbwarfare.client.renderer.gun.BipodDeploy.apply
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.BoneState

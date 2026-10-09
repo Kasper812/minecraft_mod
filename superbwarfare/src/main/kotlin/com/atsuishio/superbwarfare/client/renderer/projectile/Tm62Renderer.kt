@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -14,7 +18,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 
-class Tm62Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<Tm62Entity>(renderManager) {
+class Tm62Renderer(renderManager: EntityRendererProvider.Context) : LegacyEntityRenderer<Tm62Entity>(renderManager) {
     override fun render(
         entityIn: Tm62Entity,
         entityYaw: Float,

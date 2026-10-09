@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.js
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.tags.EntityTypeTags
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity

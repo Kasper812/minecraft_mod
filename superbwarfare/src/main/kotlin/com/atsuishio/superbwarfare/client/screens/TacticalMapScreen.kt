@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.ClientSyncedEntityHandler
 import com.atsuishio.superbwarfare.client.map.*
@@ -23,18 +27,18 @@ import com.atsuishio.superbwarfare.tools.EntityFindUtil
 import com.atsuishio.superbwarfare.tools.SeekTool
 import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
-import com.mojang.blaze3d.platform.GlStateManager
-import com.mojang.blaze3d.systems.RenderSystem
+import com.atsuishio.portlib.gui.LegacyGlStateManager as GlStateManager
+import com.atsuishio.portlib.gui.LegacyRenderSystem as RenderSystem
 import com.mojang.math.Axis
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.Button
 import net.minecraft.client.gui.screens.Screen
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.vehicle.Boat
+import net.minecraft.world.entity.vehicle.boat.Boat
 import net.minecraft.world.level.chunk.LevelChunk
 import net.minecraft.world.phys.Vec3
 import net.fabricmc.api.EnvType
@@ -43,7 +47,7 @@ import java.util.*
 import kotlin.math.atan2
 
 @Environment(EnvType.CLIENT)
-class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare.tactical_map")) {
+class TacticalMapScreen : LegacyScreen(Component.translatable("container.superbwarfare.tactical_map")) {
 
     override fun removed() {
         super.removed()
@@ -423,7 +427,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
         RenderSystem.defaultBlendFunc()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -1025,7 +1028,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -1145,7 +1147,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         if (radars.isEmpty()) return
 
         // 雷达图标
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         for (radar in radars) {
             if (radar.showIcon) {
                 val rx = (mapCenterX + (radar.pos.x - viewBlockX) * scale).toFloat()
@@ -1176,7 +1177,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         RenderSystem.defaultBlendFunc()
 
         // 绘制扇面（始终绘制）
-        RenderSystem.setShader { GameRenderer.getPositionShader() }
         for (radar in radars) {
             val rx = (mapCenterX + (radar.pos.x - viewBlockX) * scale).toFloat()
             val ry = (mapCenterY + (radar.pos.z - viewBlockZ) * scale).toFloat()
@@ -1206,7 +1206,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         pose.translate(cx, cy, 0f)
 
         // TODO 如何
-        val tess = com.mojang.blaze3d.vertex.Tesselator.getInstance()
 //        val buf = tess.builder
         // 根据屏幕像素弧长动态计算分段数，小扇面少三角形以优化性能，允许棱角感
         val arcPixels = sweepDeg / 180f * kotlin.math.PI.toFloat() * radius
@@ -1308,7 +1307,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         }
 
         // 目标位置贴图 16x16，呼吸缩放 + 慢速顺时针旋转
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f)
         val time = System.currentTimeMillis() / 1000.0
         val breathScale = (1.0 + 0.25 * kotlin.math.sin(time * 4.0)).toFloat()  // ~1.5s 周期, 0.75~1.25
@@ -1349,7 +1347,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,
@@ -1440,7 +1437,6 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         RenderSystem.disableDepthTest()
         RenderSystem.depthMask(false)
         RenderSystem.enableBlend()
-        RenderSystem.setShader { GameRenderer.getPositionTexShader() }
         RenderSystem.blendFuncSeparate(
             GlStateManager.SourceFactor.SRC_ALPHA,
             GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA,

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.attachment
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.attachment.AttachmentDefinition
 
 /**

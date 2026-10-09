@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.nbt.CompoundTag
 
 /**

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation.gun
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.animation.AnimationPlayType
 
 enum class GunAnimationState(val playType: AnimationPlayType) {

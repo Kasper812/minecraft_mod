@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.container
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.api.event.RegisterContainersEvent
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -16,7 +18,6 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
@@ -37,14 +38,14 @@ class ContainerBlockItem : BlockItem(ModBlocks.CONTAINER, Properties().stacksTo(
 
     override fun useOn(context: UseOnContext) = InteractionResult.PASS
 
-    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResultHolder<ItemStack?> {
+    override fun use(level: Level, player: Player, hand: InteractionHand): InteractionResult {
         val playerPOVHitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY)
         if (playerPOVHitResult.type == HitResult.Type.MISS) {
             return super.use(level, player, hand)
         }
         val blockHitResult = playerPOVHitResult.withPosition(playerPOVHitResult.blockPos.above())
         val result = super.useOn(UseOnContext(player, hand, blockHitResult))
-        return InteractionResultHolder(result, player.getItemInHand(hand))
+        return result
     }
 
     override fun placeBlock(
@@ -60,13 +61,13 @@ class ContainerBlockItem : BlockItem(ModBlocks.CONTAINER, Properties().stacksTo(
         val tag = context.itemInHand.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag()
         if (!(tag?.contains("EntityType") ?: false)) return false
 
-        val type = tag.getString("EntityType")
-        val entityType = EntityType.byString(type).getOrNull() ?: return false
+        val type = tag.getStringOr("EntityType", "")
+        val entityType = entityTypeByString(type).getOrNull() ?: return false
 
         val level = context.level
         val entity = entityType.create(level) ?: return false
 
-        entity.load(tag.getCompound("Entity"))
+        entity.load(tag.getCompoundOrEmpty("Entity"))
         val (x, y, z) = context.clickedPos
         entity.setPos(
             x + 0.5 + (2 * Math.random() - 1) * 0.1f,
@@ -107,8 +108,8 @@ class ContainerBlockItem : BlockItem(ModBlocks.CONTAINER, Properties().stacksTo(
         val tag = stack.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag()
         var args = Component.translatable("des.superbwarfare.container.empty")
         if (tag != null && tag.contains("EntityType")) {
-            val type = tag.getString("EntityType")
-            val entityType = EntityType.byString(type)
+            val type = tag.getStringOr("EntityType", "")
+            val entityType = entityTypeByString(type)
             if (entityType.isPresent) {
                 args = Component.translatable(entityType.get().descriptionId)
             }
@@ -178,7 +179,7 @@ class ContainerBlockItem : BlockItem(ModBlocks.CONTAINER, Properties().stacksTo(
             tag.put("Entity", entityTag)
 
             tag.putString("EntityType", EntityType.getKey(entity.type).toString())
-            setBlockEntityData(stack, ModBlockEntities.CONTAINER, tag)
+            legacySetBlockEntityData(stack, ModBlockEntities.CONTAINER, tag)
             return stack
         }
 
@@ -189,7 +190,7 @@ class ContainerBlockItem : BlockItem(ModBlocks.CONTAINER, Properties().stacksTo(
             val tag = if (data != null) data.copyTag() else CompoundTag()
 
             tag.putString("EntityType", EntityType.getKey(entityType).toString())
-            setBlockEntityData(stack, ModBlockEntities.CONTAINER, tag)
+            legacySetBlockEntityData(stack, ModBlockEntities.CONTAINER, tag)
             return stack
         }
     }

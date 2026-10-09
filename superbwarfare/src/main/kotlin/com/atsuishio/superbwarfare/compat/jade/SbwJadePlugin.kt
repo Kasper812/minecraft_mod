@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jade
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.block.CatapultControllerBlock
 import com.atsuishio.superbwarfare.block.ContainerBlock
 import com.atsuishio.superbwarfare.block.VehicleDeployerBlock

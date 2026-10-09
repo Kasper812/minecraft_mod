@@ -583,6 +583,7 @@
     "jei.superbwarfare.ancient_cpu": "神秘的古代科技，可在古城找到。",
     "jei.superbwarfare.charging_station": "使用燃料或食物進行發電，亦可接收主動輸入的FE能量。能夠為相鄰的方塊提供FE能量，為周圍一定範圍內的可充能載具充能。",
     "jei.superbwarfare.gun_perks": "武器可用模組",
+    "key.category.superbwarfare.main": "卓越前線",
     "key.categories.superbwarfare": "卓越前線",
     "key.superbwarfare.breath": "屏息",
     "key.superbwarfare.change_ammo_backward": "向後切換彈種",

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -23,7 +25,6 @@ import net.minecraft.client.player.LocalPlayer
 import net.minecraft.util.LightCoordsUtil
 import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.rendertype.RenderType
-import net.minecraft.client.renderer.entity.player.PlayerRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.HumanoidArm
@@ -485,7 +486,7 @@ object AnimationHelper {
             return
         }
 
-        val playerRenderer = mc.entityRenderDispatcher.getRenderer(localPlayer) as PlayerRenderer
+        val playerRenderer = mc.entityRenderDispatcher.getPlayerRenderer(localPlayer)
         val model = playerRenderer.getModel()
         stack.pushPose()
         RenderUtil.translateMatrixToBone(stack, bone)
@@ -512,7 +513,7 @@ object AnimationHelper {
             return
         }
 
-        val loc = localPlayer.skin.texture
+        val loc = localPlayer.skin.body().texturePath()
         val overlayTexture = if (activeThermalImaging) OverlayTexture.pack(15, 10) else OverlayTexture.NO_OVERLAY
 
         var effectivePackedLight = packedLightIn

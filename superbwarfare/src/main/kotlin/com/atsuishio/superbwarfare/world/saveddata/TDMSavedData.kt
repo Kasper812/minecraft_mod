@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.world.saveddata
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.atsuishio.superbwarfare.network.message.receive.TDMSyncMessage
 import com.atsuishio.superbwarfare.tools.sendPacketToAll
@@ -25,7 +27,7 @@ class TDMSavedData : SavedData {
         this.entities.addAll(entities)
     }
 
-    override fun save(tag: CompoundTag, registries: HolderLookup.Provider): CompoundTag {
+    fun save(tag: CompoundTag, registries: HolderLookup.Provider? = null): CompoundTag {
         tag.put("Entities", this.saveEntities())
         return tag
     }
@@ -40,7 +42,7 @@ class TDMSavedData : SavedData {
 
     private fun loadEntities(pTagList: ListTag) {
         for (i in pTagList.indices) {
-            this.entities.add(pTagList.getString(i))
+            this.entities.add(pTagList.getStringOr(i, ""))
         }
     }
 
@@ -62,14 +64,22 @@ class TDMSavedData : SavedData {
     }
 
     companion object {
+        @JvmField
+        val TYPE: net.minecraft.world.level.saveddata.SavedDataType<TDMSavedData> = legacySavedDataType(
+            "superbwarfare_tdm",
+            { TDMSavedData() },
+            { load(it) },
+            { it.save(net.minecraft.nbt.CompoundTag()) }
+        )
+
         const val FILE_ID: String = "superbwarfare_tdm"
 
         @JvmStatic
-        fun load(tag: CompoundTag, registries: HolderLookup.Provider): TDMSavedData {
+        fun load(tag: CompoundTag, registries: HolderLookup.Provider? = null): TDMSavedData {
             val data = TDMSavedData()
 
-            if (tag.contains("Entities", Tag.TAG_LIST.toInt())) {
-                data.loadEntities(tag.getList("Entities", Tag.TAG_STRING.toInt()))
+            if (tag.contains("Entities")) {
+                data.loadEntities(tag.getListOrEmpty("Entities"))
             }
 
             return data
@@ -81,13 +91,7 @@ class TDMSavedData : SavedData {
 
             return if (level is ServerLevel) {
                 level.dataStorage.computeIfAbsent(
-                    Factory(
-                        { TDMSavedData() },
-                        TDMSavedData::load,
-                        null
-                    ),
-                    FILE_ID
-                ).containsEntity(entity.stringUUID)
+                    TYPE).containsEntity(entity.stringUUID)
             } else {
                 ClientEventHandler.tdmSavedData.containsEntity(entity.stringUUID)
             }
@@ -100,13 +104,7 @@ class TDMSavedData : SavedData {
                 val level = player.serverLevel()
 
                 val data = level.dataStorage.get(
-                    Factory(
-                        { TDMSavedData() },
-                        TDMSavedData::load,
-                        null
-                    ),
-                    FILE_ID
-                ) ?: return@join
+                    TYPE) ?: return@join
 
                 // 同样传快照：玩家登录时若刚好有人在跑 /sbw tdm，活集合可能在编码期间被改动
                 ServerPlayNetworking.send(player, TDMSyncMessage(Sets.newHashSet(data.entities)))

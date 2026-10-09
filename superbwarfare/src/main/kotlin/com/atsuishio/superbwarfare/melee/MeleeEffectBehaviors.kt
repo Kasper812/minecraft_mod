@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.melee
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunProp
 import com.atsuishio.superbwarfare.data.gun.melee.ResolvedMeleeEffect
 import com.atsuishio.superbwarfare.init.ModDamageTypes
@@ -196,7 +198,7 @@ object MeleeEffectBehaviors {
             val level = context.level
             val pos = context.position
 
-            val bolt = LightningBolt(EntityType.LIGHTNING_BOLT, level)
+            val bolt = LightningBolt(net.minecraft.world.entity.EntityTypes.LIGHTNING_BOLT, level)
             bolt.moveTo(pos.x, pos.y, pos.z)
             // 视觉模式 = 不伤害、不点燃；与爆炸的 DestroyBlocks 保持同一套"默认不搞破坏"的取向
             bolt.setVisualOnly(context.effect.destroyBlocks != true)
@@ -344,16 +346,16 @@ object MeleeEffectBehaviors {
 
     private fun resolveMobEffect(id: String?): Holder.Reference<MobEffect>? {
         val location = id?.let { Identifier.tryParse(it) } ?: return null
-        return BuiltInRegistries.MOB_EFFECT.getHolder(location).getOrNull()
+        return BuiltInRegistries.MOB_EFFECT.get(location).getOrNull()
     }
 
     private fun resolveSound(id: String): SoundEvent? {
         val location = Identifier.tryParse(id) ?: return null
-        return BuiltInRegistries.SOUND_EVENT.get(location)
+        return BuiltInRegistries.SOUND_EVENT.getValue(location)
     }
 
     private fun resolveParticle(id: String): SimpleParticleType? {
         val location = Identifier.tryParse(id) ?: return null
-        return BuiltInRegistries.PARTICLE_TYPE.get(location) as? SimpleParticleType
+        return BuiltInRegistries.PARTICLE_TYPE.getValue(location) as? SimpleParticleType
     }
 }

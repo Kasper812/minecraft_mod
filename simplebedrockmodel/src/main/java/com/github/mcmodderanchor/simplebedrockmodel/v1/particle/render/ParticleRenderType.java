@@ -14,4 +14,16 @@ public final class ParticleRenderType {
     public static RenderType additiveParticle(Identifier texture) {
         return SbmRenderTypes.entityTranslucentAdditive(texture);
     }
+
+    public static RenderType emissiveParticle(Identifier texture) {
+        return SbmRenderTypes.entityEmissiveAdditive(texture);
+    }
+
+    public static RenderType createAdditiveParticle(Identifier texture) {
+        return SbmRenderTypes.entityTranslucentAdditive(texture);
+    }
+
+    public static RenderType createEmissiveParticle(Identifier texture) {
+        return SbmRenderTypes.entityEmissiveAdditive(texture);
+    }
 }

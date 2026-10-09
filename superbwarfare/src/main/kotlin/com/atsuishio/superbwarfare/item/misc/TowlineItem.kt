@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.item.misc
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.config.server.VehicleConfig
 import com.atsuishio.superbwarfare.entity.misc.CatapultShuttleEntity
@@ -18,7 +20,7 @@ import net.minecraft.world.InteractionResult
 import net.minecraft.world.entity.*
 import net.minecraft.world.entity.decoration.HangingEntity
 import net.minecraft.world.entity.player.Player
-import net.minecraft.world.entity.boss.EnderDragonPart
+import net.minecraft.world.entity.boss.enderdragon.EnderDragonPart
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
@@ -28,12 +30,14 @@ import net.fabricmc.fabric.api.event.player.UseEntityCallback
 open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         val tag = stack.tag
-        val target = tag?.getString(TAG_TOW_TARGET)
+        val target = tag?.getStringOr(TAG_TOW_TARGET, "")
         if (!target.isNullOrBlank()) {
             tooltipComponents.add(
                 Component.translatable("des.superbwarfare.towline.target_selected")
@@ -56,7 +60,7 @@ open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
         if (player.level().isClientSide) return InteractionResult.SUCCESS
 
         val tag = stack.getOrCreateTag()
-        val existingTarget = tag.getString(TAG_TOW_TARGET)
+        val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
 
         // Shift+right-click: clear towing / clear stored target
         if (player.isShiftKeyDown) {
@@ -119,7 +123,7 @@ open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
         if (player.level().isClientSide) return InteractionResult.SUCCESS
 
         val tag = stack.getOrCreateTag()
-        val existingTarget = tag.getString(TAG_TOW_TARGET)
+        val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
 
         // First click must be on a vehicle; ignore if no vehicle stored yet
         if (existingTarget.isBlank()) return InteractionResult.PASS
@@ -132,7 +136,7 @@ open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
         // Shift+right-click on living entity: clear towing relationship / stored target
         if (player.isShiftKeyDown) {
             // First check if this entity is being towed by a vehicle
-            val towedByUUID = interactionTarget.persistentData.getString(TOWED_BY_TAG_KEY)
+            val towedByUUID = interactionTarget.persistentData.getStringOr(TOWED_BY_TAG_KEY, "")
             if (towedByUUID.isNotBlank()) {
                 val towingVehicle = EntityFindUtil.findEntity(interactionTarget.level(), towedByUUID) as? VehicleEntity
                 towingVehicle?.clearTowingInfo()
@@ -294,13 +298,13 @@ open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
                 }
 
                 if (level.isClientSide) {
-                    val selected = stack.tag?.getString(TAG_TOW_TARGET)?.isNotBlank() == true
+                    val selected = stack.tag?.getStringOr(TAG_TOW_TARGET, "")?.isNotBlank() == true
                     return@callback if (player.isShiftKeyDown || selected) InteractionResult.SUCCESS else InteractionResult.PASS
                 }
 
             // Shift+right-click on non-vehicle, non-living entity: clear towing relationship
             if (player.isShiftKeyDown) {
-                val towedByUUID = target.persistentData.getString(TOWED_BY_TAG_KEY)
+                val towedByUUID = target.persistentData.getStringOr(TOWED_BY_TAG_KEY, "")
                 if (towedByUUID.isNotBlank()) {
                     val towingVehicle = EntityFindUtil.findEntity(target.level(), towedByUUID) as? VehicleEntity
                     towingVehicle?.clearTowingInfo()
@@ -318,7 +322,7 @@ open class TowlineItem : Item(Properties().stacksTo(1)), IVehicleInteract {
             }
 
             val tag = stack.getOrCreateTag()
-            val existingTarget = tag.getString(TAG_TOW_TARGET)
+            val existingTarget = tag.getStringOr(TAG_TOW_TARGET, "")
                 if (existingTarget.isBlank()) return@callback InteractionResult.PASS
 
                 item.linkTowTarget(stack, player, target, existingTarget)

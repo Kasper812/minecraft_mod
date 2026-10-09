@@ -1,6 +1,7 @@
 package com.atsuishio.superbwarfare.client
 
-import com.atsuishio.superbwarfare.accessor.RenderTargetStencilAccessor
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.ClientRenderHandler.bulletRenderOffset
 import com.atsuishio.superbwarfare.client.animation.AnimationCurves
 import com.atsuishio.superbwarfare.client.decorator.ContainerItemDecorator
@@ -73,18 +74,18 @@ import com.atsuishio.superbwarfare.item.armor.UsChestIotvItem
 import com.atsuishio.superbwarfare.item.armor.UsHelmetPasgtItem
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.vertex.PoseStack
-import dev.emi.trinkets.api.client.TrinketRendererRegistry
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketRendererCompat as TrinketRendererRegistry
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
-import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
+import net.fabricmc.fabric.api.client.rendering.v1.ModelLayerRegistry
 import com.atsuishio.portlib.render.BuiltinItemRendererRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback
 import net.minecraft.client.DeltaTracker
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
-import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.gui.LayeredDraw
+import com.atsuishio.portlib.gui.GuiGraphics
+import com.atsuishio.portlib.gui.LegacyHudLayer
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers
-import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer
+import com.atsuishio.portlib.render.BlockEntityWithoutLevelRenderer
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.item.ItemStack
@@ -95,7 +96,7 @@ object ClientRenderHandler {
     private val containerDecorator = ContainerItemDecorator()
     private val luckyContainerDecorator = LuckyContainerItemDecorator()
     private val vehicleKeyDecorator = VehicleKeyItemDecorator()
-    private val overlays = listOf<LayeredDraw.Layer>(
+    private val overlays = listOf<LegacyHudLayer>(
         SodayoRocketInfoOverlay,
         Type63InfoOverlay,
         MortarInfoOverlay,
@@ -220,7 +221,7 @@ object ClientRenderHandler {
 
     @JvmStatic
     fun registerTooltip() {
-        TooltipComponentCallback.EVENT.register { component ->
+        ClientTooltipComponentCallback.EVENT.register { component ->
             when (component) {
                 is BocekImageComponent -> ClientBocekImageTooltip(component)
                 is CellImageComponent -> ClientCellImageTooltip(component)
@@ -268,10 +269,10 @@ object ClientRenderHandler {
     @JvmStatic
     fun renderOverlays(guiGraphics: GuiGraphics, deltaTracker: DeltaTracker) {
         guiGraphics.pose().pushPose()
-        guiGraphics.pose().translate(0f, 0f, -LayeredDraw.Z_SEPARATION * overlays.size)
+        guiGraphics.pose().translate(0f, 0f, -LegacyHudLayer.Z_SEPARATION * overlays.size)
         overlays.forEach {
             it.render(guiGraphics, deltaTracker)
-            guiGraphics.pose().translate(0f, 0f, LayeredDraw.Z_SEPARATION)
+            guiGraphics.pose().translate(0f, 0f, LegacyHudLayer.Z_SEPARATION)
         }
         guiGraphics.pose().popPose()
     }
@@ -289,13 +290,6 @@ object ClientRenderHandler {
 
     @JvmStatic
     fun onClientSetup() {
-        val mainRenderTarget = mc.mainRenderTarget as RenderTargetStencilAccessor
-        val stencilWasEnabled = mainRenderTarget.`superbwarfare$isStencilEnabled`()
-        mainRenderTarget.`superbwarfare$enableStencil`()
-        if (!stencilWasEnabled) {
-            mc.levelRenderer.graphicsChanged()
-        }
-
         BuiltInRegistries.ITEM.filterIsInstance<GeoGunItemV2>().forEach { item ->
             BuiltinItemRendererRegistry.INSTANCE.register(item, item.createRenderer())
         }
@@ -335,8 +329,8 @@ object ClientRenderHandler {
 
     @JvmStatic
     fun registerLayer() {
-        EntityModelLayerRegistry.registerModelLayer(ParachuteModel.LAYER_LOCATION, ParachuteModel::createBodyLayer)
-        EntityModelLayerRegistry.registerModelLayer(
+        ModelLayerRegistry.registerModelLayer(ParachuteModel.LAYER_LOCATION, ParachuteModel::createBodyLayer)
+        ModelLayerRegistry.registerModelLayer(
             ThermalImagingGogglesModel.LAYER_LOCATION,
             ThermalImagingGogglesModel::createBodyLayer
         )

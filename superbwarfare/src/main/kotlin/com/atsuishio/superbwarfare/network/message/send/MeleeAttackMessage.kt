@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.network.message.send
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.ActiveGun
 import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.GunProp
@@ -371,7 +373,7 @@ data class MeleeAttackMessage(
 
         var hurt = false
         if (armored > 0) {
-            hurt = target.hurt(source, armored.toFloat())
+            hurt = target.hurtOrSimulate(source, armored.toFloat())
         }
         if (byPassed > 0) {
             hurt = target.forceHurt(source, byPassed.toFloat()) || hurt

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.stack
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.gun.GunState
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
@@ -113,15 +115,15 @@ interface GunStackStorage {
 
         /** 直接取枪械状态子 tag；没有就创建一个（**写回由调用方负责**，见 [GunStackStorage.writeRoot]） */
         fun gunStateTag(root: CompoundTag): CompoundTag =
-            if (root.contains(KEY_GUN_DATA, Tag.TAG_COMPOUND.toInt())) {
-                root.getCompound(KEY_GUN_DATA)
+            if (root.contains(KEY_GUN_DATA)) {
+                root.getCompoundOrEmpty(KEY_GUN_DATA)
             } else {
                 CompoundTag().also { root.put(KEY_GUN_DATA, it) }
             }
 
         /** 只读版的枪械状态子 tag；没有就是 `null` */
         fun gunStateTagOrNull(root: CompoundTag): CompoundTag? =
-            if (root.contains(KEY_GUN_DATA, Tag.TAG_COMPOUND.toInt())) root.getCompound(KEY_GUN_DATA) else null
+            if (root.contains(KEY_GUN_DATA)) root.getCompoundOrEmpty(KEY_GUN_DATA) else null
 
         /**
          * 把 [source] 折进 [target]，**两边都有的 compound 保持 [target] 那一侧的对象身份**。

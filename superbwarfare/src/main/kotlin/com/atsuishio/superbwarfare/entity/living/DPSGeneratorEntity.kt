@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.entity.living
 
+import net.minecraft.server.level.ServerLevel
+
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.capability.energy.SyncedEntityEnergyStorage
 import com.atsuishio.superbwarfare.capability.energy.EnergyStorageHelper
@@ -59,20 +69,18 @@ open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level
             .define(LEVEL, 0)
     }
 
-    override fun getArmorSlots(): Iterable<ItemStack> {
-        return NonNullList.withSize(1, ItemStack.EMPTY)
-    }
-
     override fun getItemBySlot(pSlot: EquipmentSlot): ItemStack = ItemStack.EMPTY
 
     override fun setItemSlot(pSlot: EquipmentSlot, pStack: ItemStack) {}
 
-    override fun causeFallDamage(l: Float, d: Float, source: DamageSource) = false
+    override fun causeFallDamage(l: Double, d: Float, source: DamageSource) = false
 
     override fun shouldRenderAtSqrDistance(pDistance: Double) = true
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putInt("Level", generatorLevel)
 
         val entityCap = this.energyStorage
@@ -80,23 +88,25 @@ open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level
         compound.putInt("Energy", entityCap.amount.toInt())
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
-        generatorLevel = compound.getInt("Level")
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
+        generatorLevel = compound.getIntOr("Level", 0)
 
         val entityCap = this.energyStorage
 
-        entityCap.setEnergy(compound.getInt("Energy"))
+        entityCap.setEnergy(compound.getIntOr("Energy", 0))
         entityCap.setCapacity(this.maxEnergy)
         entityCap.setMaxExtract(this.maxTransfer)
     }
 
-    override fun hurt(source: DamageSource, amount: Float): Boolean {
+    override fun hurtServer(serverLevel: ServerLevel, source: DamageSource, amount: Float): Boolean {
         // 不处理/kill伤害
         var amount = DAMAGE_MODIFIER.compute(this, source, amount)
         if (source.`is`(DamageTypes.GENERIC_KILL)) {
             this.remove(RemovalReason.KILLED)
-            return super.hurt(source, amount)
+            return super.hurtServer(serverLevel, source, amount)
         }
 
         damageDealt += amount
@@ -126,7 +136,7 @@ open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level
                 false
             )
         }
-        return super.hurt(source, (amount / 2.0.pow(this.generatorLevel.toDouble())).toFloat())
+        return super.hurtServer(serverLevel, source, (amount / 2.0.pow(this.generatorLevel.toDouble())).toFloat())
     }
 
     override fun isPickable() = downTime == 0
@@ -145,7 +155,7 @@ open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level
 
     fun facePlayer(player: Player) = faceTowards(player.x, player.z)
 
-    override fun interact(player: Player, hand: InteractionHand): InteractionResult {
+    override fun interact(player: Player, hand: InteractionHand, location: Vec3): InteractionResult {
         if (!player.mainHandItem.isEmpty && !player.mainHandItem.`is`(ModTags.Items.TOOLS_CROWBAR)) {
             return InteractionResult.PASS
         }
@@ -163,7 +173,7 @@ open class DPSGeneratorEntity(type: EntityType<DPSGeneratorEntity>, level: Level
             this.downTime = 0
         }
 
-        return InteractionResult.sidedSuccess(this.level().isClientSide())
+        return InteractionResult.SUCCESS
     }
 
     override fun tick() {

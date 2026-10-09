@@ -1,5 +1,11 @@
 package com.atsuishio.superbwarfare.client.screens
 
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.portlib.gui.LegacyAbstractButton
+
+import com.atsuishio.portlib.gui.LegacyScreen
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.init.ModDataComponents
 import com.atsuishio.superbwarfare.item.trinket.DogTagItem.Companion.getColors
@@ -9,7 +15,7 @@ import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.sendPacketTo
 import com.atsuishio.superbwarfare.tools.sendPacketToServer
 import net.minecraft.client.GameNarrator
-import net.minecraft.client.gui.GuiGraphics
+import com.atsuishio.portlib.gui.GuiGraphics
 import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.components.EditBox
 import net.minecraft.client.gui.narration.NarrationElementOutput
@@ -23,7 +29,7 @@ import net.minecraft.world.item.ItemStack
 import java.util.*
 import kotlin.math.ceil
 import kotlin.math.floor
-open class DogTagEditorScreen(var stack: ItemStack, private val hand: InteractionHand) : Screen(GameNarrator.NO_TITLE) {
+open class DogTagEditorScreen(var stack: ItemStack, private val hand: InteractionHand) : LegacyScreen(GameNarrator.NO_TITLE) {
     lateinit var name: EditBox
     private var currentColor: Short = 0
     private var icon: Array<ShortArray> = Array(16) { ShortArray(16) }
@@ -187,8 +193,7 @@ open class DogTagEditorScreen(var stack: ItemStack, private val hand: Interactio
             return false
         }
     }
-    internal inner class ColorButton(var color: Short, pX: Int, pY: Int, pWidth: Int, pHeight: Int) :
-        AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    internal inner class ColorButton(var color: Short, pX: Int, pY: Int, pWidth: Int, pHeight: Int) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun onPress() {
             this@DogTagEditorScreen.currentColor = this.color
             if (this.color.toInt() == -1 && hasShiftDown()) {
@@ -215,8 +220,7 @@ open class DogTagEditorScreen(var stack: ItemStack, private val hand: Interactio
             }
         }
     }
-    internal open inner class FinishButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) :
-        AbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
+    internal open inner class FinishButton(pX: Int, pY: Int, pWidth: Int, pHeight: Int) : LegacyAbstractButton(pX, pY, pWidth, pHeight, Component.empty()) {
         override fun onPress() {
             if (!this@DogTagEditorScreen.init) return
             if (this@DogTagEditorScreen.minecraft != null) {

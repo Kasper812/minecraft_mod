@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.perk.js
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.IBulletProperties
 import com.atsuishio.superbwarfare.entity.projectile.TaserBulletEntity
 import net.minecraft.world.entity.Entity

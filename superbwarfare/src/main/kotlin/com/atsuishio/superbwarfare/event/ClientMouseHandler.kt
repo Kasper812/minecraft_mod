@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.event
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.client.MouseMovementHandler
 import com.atsuishio.superbwarfare.config.client.ControlConfig
 import com.atsuishio.superbwarfare.data.gun.ActiveGun
@@ -80,11 +82,11 @@ object ClientMouseHandler {
 
         val stack = player.mainHandItem
 
-        if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBoolean("Using")
-            && stack.getOrCreateTag().getBoolean("Linked")
+        if (stack.`is`(ModItems.MONITOR) && stack.getOrCreateTag().getBooleanOr("Using", false)
+            && stack.getOrCreateTag().getBooleanOr("Linked", false)
         ) {
             val drone =
-                EntityFindUtil.findDrone(player.level(), stack.getOrCreateTag().getString("LinkedDrone")) ?: return
+                EntityFindUtil.findDrone(player.level(), stack.getOrCreateTag().getStringOr("LinkedDrone", "")) ?: return
 
             speedX = (drone.mouseSensitivity / ClientEventHandler.droneFovLerp) * moveSpeedX
             speedY = (drone.mouseSensitivity / ClientEventHandler.droneFovLerp) * moveSpeedY
@@ -267,7 +269,7 @@ object ClientMouseHandler {
         val stack = player.mainHandItem
         val tag = NBTTool.getTag(stack)
 
-        if (stack.`is`(ModItems.MONITOR) && tag.getBoolean("Using") && tag.getBoolean("Linked")) {
+        if (stack.`is`(ModItems.MONITOR) && tag.getBooleanOr("Using", false) && tag.getBooleanOr("Linked", false)) {
             return 0.0
         }
 

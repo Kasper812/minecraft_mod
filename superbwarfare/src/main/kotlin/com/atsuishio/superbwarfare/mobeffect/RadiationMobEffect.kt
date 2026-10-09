@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mobeffect
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.capability.persistentData
 import com.atsuishio.superbwarfare.event.custom.LivingHealCallback
@@ -56,7 +58,7 @@ object RadiationMobEffect : MobEffect(MobEffectCategory.HARMFUL, 0x55FF55) {
         return duration % 40 == 0
     }
 
-    override fun applyEffectTick(entity: LivingEntity, amplifier: Int): Boolean {
+    override fun applyEffectTick(serverLevel: net.minecraft.server.level.ServerLevel, entity: LivingEntity, amplifier: Int): Boolean {
         if (entity.level().isClientSide) return false
 
         val level = getLevel(amplifier)
@@ -88,7 +90,7 @@ object RadiationMobEffect : MobEffect(MobEffectCategory.HARMFUL, 0x55FF55) {
 
         val level = getLevel(entity.getEffect(ModMobEffects.RADIATION) ?: return)
         val gameTime = entity.level().gameTime
-        val lastBleedTime = entity.persistentData.getLong(LAST_BLEED_TIME_TAG)
+        val lastBleedTime = entity.persistentData.getLongOr(LAST_BLEED_TIME_TAG, 0L)
         val cooldown = max(10, 200 / level)
         if (gameTime - lastBleedTime < cooldown) return
 

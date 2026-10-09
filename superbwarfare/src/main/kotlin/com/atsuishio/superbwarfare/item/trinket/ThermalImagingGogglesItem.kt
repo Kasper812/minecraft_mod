@@ -1,8 +1,10 @@
 package com.atsuishio.superbwarfare.item.trinket
 
-import dev.emi.trinkets.api.SlotReference
-import dev.emi.trinkets.api.TrinketItem
-import dev.emi.trinkets.api.TrinketsApi
+import com.atsuishio.superbwarfare.port.*
+
+import com.atsuishio.superbwarfare.compat.trinkets.SlotReference
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketItem
+import com.atsuishio.superbwarfare.compat.trinkets.TrinketsApi
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.item.ItemStack
 

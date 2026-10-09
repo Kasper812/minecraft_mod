@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.entity.vehicle.damage
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.data.DeserializeFromString
 import com.atsuishio.superbwarfare.data.StringInstanceBuilder

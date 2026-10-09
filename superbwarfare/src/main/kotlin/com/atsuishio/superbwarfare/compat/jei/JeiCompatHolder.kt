@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.compat.jei
 
+import com.atsuishio.superbwarfare.port.*
+
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.world.item.ItemStack
 

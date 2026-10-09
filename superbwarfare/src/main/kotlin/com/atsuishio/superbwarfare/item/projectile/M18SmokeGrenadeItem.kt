@@ -1,5 +1,15 @@
 package com.atsuishio.superbwarfare.item.projectile
 
+import net.minecraft.world.item.Item
+
+import net.minecraft.world.item.TooltipFlag
+
+import net.minecraft.world.item.ItemStack
+
+import net.minecraft.world.InteractionResult
+
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.entity.projectile.M18SmokeGrenadeEntity
 import com.atsuishio.superbwarfare.init.ModEntities
 import com.atsuishio.superbwarfare.init.ModSounds
@@ -19,7 +29,6 @@ import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
-import net.minecraft.world.InteractionResultHolder
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.projectile.Projectile
@@ -35,16 +44,18 @@ open class M18SmokeGrenadeItem : Item(Properties().rarity(Rarity.UNCOMMON)), Dis
     }
 
     override fun getColor(stack: ItemStack): Int {
-        return if (stack.tag != null && stack.tag!!.contains(TAG_COLOR)) stack.tag!!.getInt(TAG_COLOR) else 0xFFFFFF
+        return if (stack.tag != null && stack.tag!!.contains(TAG_COLOR)) stack.tag!!.getIntOr(TAG_COLOR, 0) else 0xFFFFFF
     }
 
     @ParametersAreNonnullByDefault
     override fun appendHoverText(
         stack: ItemStack,
-        context: TooltipContext,
-        tooltipComponents: MutableList<Component>,
+        context: Item.TooltipContext,
+        tooltipDisplay: net.minecraft.world.item.component.TooltipDisplay,
+        tooltipAdder: java.util.function.Consumer<Component>,
         tooltipFlag: TooltipFlag
     ) {
+        val tooltipComponents = com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder)
         tooltipComponents.add(
             Component.translatable("des.superbwarfare.m18_smoke_grenade").withStyle(ChatFormatting.GRAY)
                 .append(Component.empty().withStyle(ChatFormatting.RESET))
@@ -55,20 +66,20 @@ open class M18SmokeGrenadeItem : Item(Properties().rarity(Rarity.UNCOMMON)), Dis
         )
     }
 
-    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResultHolder<ItemStack> {
+    override fun use(worldIn: Level, playerIn: Player, handIn: InteractionHand): InteractionResult {
         val stack = playerIn.getItemInHand(handIn)
         playerIn.startUsingItem(handIn)
         if (playerIn is ServerPlayer) {
             playerIn.level().playSound(null, playerIn.onPos, ModSounds.GRENADE_PULL, SoundSource.PLAYERS, 1f, 1f)
         }
-        return InteractionResultHolder.consume(stack)
+        return InteractionResult.CONSUME
     }
 
-    override fun getUseAnimation(stack: ItemStack): UseAnim {
-        return UseAnim.SPEAR
+    override fun getUseAnimation(stack: ItemStack): ItemUseAnimation {
+        return ItemUseAnimation.SPEAR
     }
 
-    override fun releaseUsing(stack: ItemStack, level: Level, living: LivingEntity, timeLeft: Int) {
+    override fun releaseUsing(stack: ItemStack, level: Level, living: LivingEntity, timeLeft: Int): Boolean {
         if (!level.isClientSide && living is Player) {
             val usingTime = this.getUseDuration(stack, living) - timeLeft
             if (usingTime > 3) {
@@ -91,6 +102,7 @@ open class M18SmokeGrenadeItem : Item(Properties().rarity(Rarity.UNCOMMON)), Dis
                 }
             }
         }
+        return false
     }
 
     override fun finishUsingItem(pStack: ItemStack, pLevel: Level, pLivingEntity: LivingEntity): ItemStack {

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.item.gun.GunItem
 import net.minecraft.world.item.ItemDisplayContext
 import net.fabricmc.api.EnvType
@@ -17,12 +19,13 @@ object ItemRendererFixOverlay : CommonOverlay("item_renderer_fix") {
         // 手持副武器时按普通物品处理
         if (!GunItem.isHeldWeapon(stack)) return
 
-        guiGraphics.pose().pushPose()
-        guiGraphics.pose().translate(-1145f, 0f, 0f)
-        mc.gameRenderer.itemInHandRenderer.renderItem(
-            player, stack,
-            ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, false, guiGraphics.pose(), guiGraphics.bufferSource(), 0
+        val renderer = com.atsuishio.portlib.render.BuiltinItemRendererRegistry.INSTANCE.get(stack) ?: return
+        val poseStack = com.mojang.blaze3d.vertex.PoseStack()
+        poseStack.translate(-1145f, 0f, 0f)
+        renderer.render(
+            stack, ItemDisplayContext.THIRD_PERSON_RIGHT_HAND, poseStack,
+            com.atsuishio.portlib.render.DiscardBufferSource.INSTANCE, 0,
+            net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY
         )
-        guiGraphics.pose().popPose()
     }
 }

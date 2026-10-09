@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.overlay
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.config.server.MiscConfig
@@ -37,7 +39,7 @@ object ArmorPlateOverlay : CommonOverlay("armor_plate") {
         }
 
         val max = armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()
-        val amount = 60 * (NBTTool.getTag(stack).getDouble("ArmorPlate") / max)
+        val amount = 60 * (NBTTool.getTag(stack).getDoubleOr("ArmorPlate", 0.0) / max)
 
         val texture: Identifier = when (armorLevel) {
             2 -> BAR_2

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.map
 
+import com.atsuishio.superbwarfare.port.*
+
 /**
  * 战术地图坐标转换工具。
  * 纯函数，无状态 —— 在 Screen 中替代所有内联 world↔screen 坐标计算。

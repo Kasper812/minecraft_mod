@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.block.entity
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.LuckyContainerBlock
 import com.atsuishio.superbwarfare.client.animation.block.LuckyContainerBlockAnimationInstance
@@ -53,7 +61,7 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
                 for (entry in list) {
                     cumulativeWeight += entry.second()
                     if (rand < cumulativeWeight) {
-                        return EntityType.byString(entry.first()).orElse(null)
+                        return entityTypeByString(entry.first()).orElse(null)
                     }
                 }
             }
@@ -69,14 +77,14 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
     }
 
     private fun loadFromTag(tag: CompoundTag) {
-        if (tag.contains("Location", 8)) {
-            this.location = Identifier.parse(tag.getString("Location"))
+        if (tag.contains("Location")) {
+            this.location = Identifier.parse(tag.getStringOr("Location", ""))
         }
-        if (tag.contains("Icon", 8)) {
-            this.icon = Identifier.parse(tag.getString("Icon"))
+        if (tag.contains("Icon")) {
+            this.icon = Identifier.parse(tag.getStringOr("Icon", ""))
         }
-        this.tick = tag.getInt("Tick")
-        this.opened = tag.getBoolean("Opened")
+        this.tick = tag.getIntOr("Tick", 0)
+        this.opened = tag.getBooleanOr("Opened", false)
     }
 
     private fun saveDataToTag(tag: CompoundTag) {
@@ -90,15 +98,23 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
         tag.putBoolean("Opened", this.opened)
     }
 
-    override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.loadAdditional(tag, registries)
-        if (tag.contains("Location", 8)) {
-            this.location = Identifier.parse(tag.getString("Location"))
+    override fun loadAdditional(input: ValueInput) {
+
+        val tag = LegacyNbt.tagOf(input)
+
+        val registries = input.lookup()
+        super.loadAdditional(input)
+        if (tag.contains("Location")) {
+            this.location = Identifier.parse(tag.getStringOr("Location", ""))
         }
     }
 
-    override fun saveAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
-        super.saveAdditional(tag, registries)
+    override fun saveAdditional(output: ValueOutput) {
+
+        val tag = LegacyNbt.tagOf(output)
+
+        val registries = LegacyNbt.lookupOrEmpty(this.level?.registryAccess())
+        super.saveAdditional(output)
         this.saveDataToTag(tag)
     }
 
@@ -110,7 +126,7 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
         return this.saveWithFullMetadata(registries)
     }
 
-    override fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
+    open fun saveToItem(stack: ItemStack, registries: HolderLookup.Provider) {
         val tag = CompoundTag()
         if (this.location != null) {
             tag.putString("Location", this.location.toString())
@@ -118,7 +134,7 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
         if (this.icon != null) {
             tag.putString("Icon", this.icon.toString())
         }
-        BlockItem.setBlockEntityData(stack, this.type, tag)
+        legacySetBlockEntityData(stack, this.type, tag)
     }
 
     companion object {

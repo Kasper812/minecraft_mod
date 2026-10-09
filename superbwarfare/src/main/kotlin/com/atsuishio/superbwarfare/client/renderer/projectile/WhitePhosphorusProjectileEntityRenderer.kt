@@ -1,5 +1,9 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import com.atsuishio.portlib.render.legacy.LegacyEntityRenderer
+
+import com.atsuishio.superbwarfare.port.*
+
 import net.minecraft.client.renderer.rendertype.RenderTypes
 
 import com.atsuishio.superbwarfare.Mod.Companion.loc
@@ -15,8 +19,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
 import net.minecraft.resources.Identifier
 
-class WhitePhosphorusProjectileEntityRenderer(pContext: EntityRendererProvider.Context) :
-    EntityRenderer<WhitePhosphorusProjectileEntity>(pContext) {
+class WhitePhosphorusProjectileEntityRenderer(pContext: EntityRendererProvider.Context) : LegacyEntityRenderer<WhitePhosphorusProjectileEntity>(pContext) {
     override fun getBlockLightLevel(pEntity: WhitePhosphorusProjectileEntity, pPos: BlockPos): Int {
         return 15
     }

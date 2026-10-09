@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.recipe.vehicle
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.data.StringOrObject
 import com.atsuishio.superbwarfare.tools.serializerToJsonMapCodec
@@ -9,7 +11,7 @@ import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
 import net.minecraft.world.item.crafting.RecipeSerializer
 
-object VehicleAssemblingRecipeSerializer : RecipeSerializer<VehicleAssemblingRecipe> {
+object VehicleAssemblingRecipeSerializer {
     private val DATA_CODEC = serializerToJsonMapCodec(VehicleAssemblingRecipeData.serializer())
 
     val CODEC: MapCodec<VehicleAssemblingRecipe> = DATA_CODEC.xmap(
@@ -46,7 +48,6 @@ object VehicleAssemblingRecipeSerializer : RecipeSerializer<VehicleAssemblingRec
             }
         )
 
-    override fun codec(): MapCodec<VehicleAssemblingRecipe> = CODEC
-
-    override fun streamCodec(): StreamCodec<RegistryFriendlyByteBuf, VehicleAssemblingRecipe> = STREAM_CODEC
+    @JvmField
+    val INSTANCE: RecipeSerializer<VehicleAssemblingRecipe> = RecipeSerializer(CODEC, STREAM_CODEC)
 }

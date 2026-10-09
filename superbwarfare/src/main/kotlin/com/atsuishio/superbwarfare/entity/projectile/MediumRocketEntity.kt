@@ -1,5 +1,13 @@
 package com.atsuishio.superbwarfare.entity.projectile
 
+import com.atsuishio.superbwarfare.port.*
+
+import net.minecraft.world.level.storage.ValueOutput
+
+import net.minecraft.world.level.storage.ValueInput
+
+import com.atsuishio.portlib.nbt.LegacyNbt
+
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.init.ModDamageTypes.causeProjectileHitDamage
@@ -76,20 +84,24 @@ open class MediumRocketEntity : FastThrowableProjectile, BasicGeoProjectileEntit
         return true
     }
 
-    override fun addAdditionalSaveData(compound: CompoundTag) {
-        super.addAdditionalSaveData(compound)
+    override fun addAdditionalSaveData(output: ValueOutput) {
+
+        val compound = LegacyNbt.tagOf(output)
+        super.addAdditionalSaveData(output)
         compound.putFloat("FireProbability", this.fireProbability)
         compound.putInt("FireTime", this.fireTime)
     }
 
-    override fun readAdditionalSaveData(compound: CompoundTag) {
-        super.readAdditionalSaveData(compound)
+    override fun readAdditionalSaveData(input: ValueInput) {
+
+        val compound = LegacyNbt.tagOf(input)
+        super.readAdditionalSaveData(input)
         if (compound.contains("FireProbability")) {
-            this.fireProbability = compound.getFloat("FireProbability")
+            this.fireProbability = compound.getFloatOr("FireProbability", 0f)
         }
 
         if (compound.contains("FireTime")) {
-            this.fireTime = compound.getInt("FireTime")
+            this.fireTime = compound.getIntOr("FireTime", 0)
         }
     }
 
@@ -192,7 +204,7 @@ open class MediumRocketEntity : FastThrowableProjectile, BasicGeoProjectileEntit
         if (level !is ServerLevel) return
 
         val entity = result.entity
-        val owner = this.owner
+        val owner = this.getOwner()
         if (owner != null && entity == owner.vehicle) return
 
         if (entity is VehicleEntity) {
@@ -212,7 +224,7 @@ open class MediumRocketEntity : FastThrowableProjectile, BasicGeoProjectileEntit
                     val target = rayTraceResultEntity.entity
                     if (rayTraceResultEntity.entity !== entity) {
                         target.forceHurt(
-                            causeProjectileHitDamage(level.registryAccess(), this, owner),
+                            causeProjectileHitDamage(level.registryAccess(), this, getOwner()),
                             (this.damageValue * resistance).toFloat()
                         )
                         if (target is LivingEntity) {
@@ -249,7 +261,7 @@ open class MediumRocketEntity : FastThrowableProjectile, BasicGeoProjectileEntit
             )
 
             if (hitResult.type == HitResult.Type.BLOCK) {
-                releaseClusterMunitions(owner)
+                releaseClusterMunitions(getOwner())
             }
         }
     }

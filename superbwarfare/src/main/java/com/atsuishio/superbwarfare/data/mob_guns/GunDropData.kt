@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.data.mob_guns
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.config.server.SpawnConfig
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

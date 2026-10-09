@@ -2,6 +2,8 @@
 
 package com.atsuishio.superbwarfare.serialization
 
+import com.atsuishio.superbwarfare.port.*
+
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PolymorphicKind
 import kotlinx.serialization.descriptors.SerialDescriptor
@@ -209,27 +211,27 @@ private abstract class AbstractNbtDecoder(
         currentElement(tag) as? StringTag ?: StringTag.valueOf("")
 
     override fun decodeTaggedBoolean(tag: String): Boolean =
-        numericTag(tag).asByte != 0.toByte()
+        numericTag(tag).byteValue() != 0.toByte()
 
     /** Numeric kinds truncate exactly like the casts they replace, so an out-of-range value is read too. */
-    override fun decodeTaggedByte(tag: String): Byte = numericTag(tag).asByte
+    override fun decodeTaggedByte(tag: String): Byte = numericTag(tag).byteValue()
 
-    override fun decodeTaggedShort(tag: String): Short = numericTag(tag).asShort
+    override fun decodeTaggedShort(tag: String): Short = numericTag(tag).shortValue()
 
-    override fun decodeTaggedInt(tag: String): Int = numericTag(tag).asInt
+    override fun decodeTaggedInt(tag: String): Int = numericTag(tag).intValue()
 
-    override fun decodeTaggedLong(tag: String): Long = numericTag(tag).asLong
+    override fun decodeTaggedLong(tag: String): Long = numericTag(tag).longValue()
 
-    override fun decodeTaggedFloat(tag: String): Float = numericTag(tag).asFloat
+    override fun decodeTaggedFloat(tag: String): Float = numericTag(tag).floatValue()
 
-    override fun decodeTaggedDouble(tag: String): Double = numericTag(tag).asDouble
+    override fun decodeTaggedDouble(tag: String): Double = numericTag(tag).doubleValue()
 
-    override fun decodeTaggedChar(tag: String): Char = stringTag(tag).asString.singleOrNull() ?: '\u0000'
+    override fun decodeTaggedChar(tag: String): Char = stringTag(tag).value().singleOrNull() ?: '\u0000'
 
-    override fun decodeTaggedString(tag: String): String = stringTag(tag).asString
+    override fun decodeTaggedString(tag: String): String = stringTag(tag).value()
 
     override fun decodeTaggedEnum(tag: String, enumDescriptor: SerialDescriptor): Int {
-        val name = stringTag(tag).asString
+        val name = stringTag(tag).value()
         for (i in 0 until enumDescriptor.elementsCount) {
             if (enumDescriptor.getElementName(i) == name) return i
         }

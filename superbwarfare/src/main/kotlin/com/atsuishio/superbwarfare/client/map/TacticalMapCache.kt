@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.map
 
+import com.atsuishio.superbwarfare.port.*
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.map.TacticalMapCache.LOD_SAMPLE_SIZE
@@ -875,7 +877,7 @@ object TacticalMapCache {
             mc.textureManager.release(loc)
         } catch (_: Exception) {
         }
-        val texture = DynamicTexture(image)
+        val texture = DynamicTexture({ "superbwarfare" }, image)
         mc.textureManager.register(loc, texture)
         lodTileTextures[key] = texture
 
@@ -972,7 +974,7 @@ object TacticalMapCache {
                 mc.textureManager.release(loc)
             } catch (_: Exception) {
             }
-            DynamicTexture(tileImages[RegionPos(rx, rz)]!!).also {
+            DynamicTexture({ "superbwarfare" }, tileImages[RegionPos(rx, rz)]!!).also {
                 mc.textureManager.register(loc, it)
             }
         }
