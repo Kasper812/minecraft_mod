@@ -1,0 +1,386 @@
+package com.atsuishio.superbwarfare.network.message.send
+
+import com.atsuishio.superbwarfare.data.gun.ActiveGun
+import com.atsuishio.superbwarfare.data.gun.GunData
+import com.atsuishio.superbwarfare.data.gun.GunProp
+import com.atsuishio.superbwarfare.data.gun.MeleeSound
+import com.atsuishio.superbwarfare.data.gun.melee.ResolvedMeleeAction
+import com.atsuishio.superbwarfare.data.gun.subdata.Cooldown
+import com.atsuishio.superbwarfare.init.ModDamageTypes
+import com.atsuishio.superbwarfare.init.ModSounds
+import com.atsuishio.superbwarfare.item.gun.GunItem
+import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
+import com.atsuishio.superbwarfare.melee.MeleeEffectDispatcher
+import com.atsuishio.superbwarfare.network.PayloadContext
+import com.atsuishio.superbwarfare.network.ServerPacketPayload
+import com.atsuishio.superbwarfare.perk.MeleeAttackContext
+import com.atsuishio.superbwarfare.perk.Perk
+import com.atsuishio.superbwarfare.serialization.kserializer.SerializedUUID
+import com.atsuishio.superbwarfare.tools.EntityFindUtil
+import com.atsuishio.superbwarfare.tools.MeleeQuery
+import com.atsuishio.superbwarfare.tools.forceHurt
+import com.atsuishio.superbwarfare.tools.sendPacketTo
+import net.fabricmc.fabric.api.event.player.AttackEntityCallback
+import kotlinx.serialization.Serializable
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.server.level.ServerPlayer
+import net.minecraft.sounds.SoundEvents
+import net.minecraft.sounds.SoundSource
+import net.minecraft.stats.Stats
+import net.minecraft.world.InteractionHand
+import net.minecraft.world.InteractionResult
+import net.minecraft.world.damagesource.DamageSource
+import net.minecraft.world.entity.Entity
+import net.minecraft.world.entity.EquipmentSlot
+import net.minecraft.world.entity.LivingEntity
+import net.minecraft.world.entity.ai.attributes.Attributes
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.enchantment.EnchantmentHelper
+import kotlin.math.*
+import net.minecraft.world.phys.Vec3
+import kotlin.random.Random
+
+/**
+ * 近战命中报文（客户端 → 服务端）。
+ *
+ * **不做距离/角度/视线复核**（与现状相同的信任模型）：几何判定在客户端算，
+ * 服务端只做**动作级健壮性校验**（越界下标、主手是不是枪、自己是不是在换弹/拉栓），
+ * 不是反作弊。
+ *
+ * 相对旧版（只有 `uuidList`）的三处关键变化：
+ * 1. 带上 `actionIndex`——伤害/倍率/冷却全部按**数据字段**算，不再靠「客户端列表下标」（缺陷 8）；
+ * 2. 带上每个目标的命中区域判定点——打头/打腿由服务端用同一套阈值判定，客户端与服务端不再各算一遍；
+ * 3. 带上 `source`（perk 上下文用）。**四期起只认 `MAIN`**：副武器没有近战，
+ *    三期的 `SUB:<slot>` 链路已删除（§9.8.11）。
+ */
+@RegisterPacket
+@Serializable
+data class MeleeAttackMessage(
+    /** 只认 `MAIN`（主武器近战）。未知来源一律拒掉 */
+    val source: String,
+    /** 客户端锁存的连招下标；服务端只做越界校验 */
+    val actionIndex: Int,
+    val targets: List<TargetPayload>,
+) : ServerPacketPayload() {
+
+    @Serializable
+    data class TargetPayload(
+        val uuid: SerializedUUID,
+        /**
+         * **命中区域判定点**：客户端算的"准星射线到该目标 AABB 的最近点"。
+         *
+         * 服务端拿它算打头/打腿（`MeleeQuery.isHeadshot`/`isLegshot`）。
+         * 注意它**不是**判定体与碰撞箱的接触点——那个点的 y 会被夹到眼睛高度，
+         * 平地上打哪儿都是爆头（客户端不再发那个点）。
+         */
+        val hitX: Double,
+        val hitY: Double,
+        val hitZ: Double,
+        val distance: Double = 0.0,
+        /**
+         * 是否是**准星正对**的那一个目标（客户端沿视线射线取最近的一个）。
+         *
+         * 只有它为 `true` 时才可能打出爆头：横扫会同时打到好几个目标，
+         * 但"入射点落在头部高度"本身并不等于"瞄着头打"。
+         */
+        val aimed: Boolean = false,
+    )
+
+    override fun PayloadContext.handler() {
+        val player = sender()
+        if (player.isSpectator) return
+
+        // ⚠ **恒用主手那把枪**（四期不变）：近战是主武器的能力，副武器没有近战（§9.8.2 / §9.8.11）。
+        // 部署中的副武器不会从这里进来 —— 客户端 `MeleeClientHandler` 的近战分支也只收主手。
+        val stack = player.mainHandItem
+        val item = stack.item
+        // 缺陷 7：主手不是枪时不该继续往下走（旧实现在这里只判了 `isNotEmpty`）
+        if (item !is GunItem || !GunItem.isHeldWeapon(stack)) return
+
+        // 四期：只认主武器近战。副武器没有近战，"副武器的近战形态"这条链路已删除（§9.8.11）
+        if (source.isNotEmpty() && source != SOURCE_MAIN) return
+
+        val data = GunData.from(stack)
+
+        // 服务端一层廉价检查：自己这边正在换弹/拉栓就拒掉（健壮性，不是反作弊）
+        //
+        // ⚠ **"忙不忙"看的是当前操控的枪，不是主手。** 部署着副武器时换弹的是**副武器**，
+        // 主武器自己的换弹在部署那一刻就被中断了（`ActiveGun.deploy` → `SubWeaponRuntime.interruptReload`），
+        // 所以只查主手会整条放行 —— 表现为"副武器换弹期间能近战"（客户端那侧同样修了，
+        // 见 `MeleeClientHandler.tick` 的 `operated.busyForMelee()`）。
+        // 未部署时 `operated === data`，与三期行为逐字一致。
+        if (data.reloading() || data.bolt.actionTimer.get() > 0) return
+
+        val operated = ActiveGun.dataOf(data, false)
+        if (operated !== data && (operated.reloading() || operated.bolt.actionTimer.get() > 0)) return
+
+        // 越界健壮性：下标按当前动作表大小取模，而不是直接信任客户端
+        val actions = data.meleeActions()
+        val index = ((actionIndex % actions.size) + actions.size) % actions.size
+        val action = data.resolveMeleeAction(index)
+
+        // 本段冷却没走完就拒掉（客户端也会拦，这里是双保险）
+        if (action.cooldown > 0 && data.cooldown.isCoolingDown(Cooldown.meleeKey(index))) return
+
+        val meleeSound = data.get(GunProp.MELEE_SOUND)
+
+        // 本段动作 + 来源交给 perk 钩子（同 tick 传递，见 `MeleeAttackContext`）
+        val context = MeleeAttackContext.Entry(
+            actionIndex = index,
+            source = source.ifEmpty { MeleeAttackContext.SOURCE_MAIN },
+            action = action,
+        )
+        MeleeAttackContext.put(player, context)
+
+        // 缺陷 3：`player.swing` 只在客户端调一次就够了；服务端这里不再调，
+        // 否则一次近战会触发两次 `onEntitySwing`（`swing` 双端各一次）。
+        for (type in Perk.Type.entries) {
+            val instances = data.perk.getInstances(type)
+            instances.forEach {
+                it.perk.onMeleeSwing(data, it, player, context)
+                it.perk.onMeleeSwing(data, it, player)
+            }
+        }
+
+        // 近战额外效果：结算器只看服务端这一侧，`Swing` 触发与是否命中无关，
+        // 所以放在 `targets.isNotEmpty()` 判断之外。
+        val level = player.level() as? ServerLevel
+        val dispatcher = level?.let { MeleeEffectDispatcher(it, player, data, index, action) }
+        dispatcher?.swing()
+
+        try {
+            if (targets.isNotEmpty() && dispatcher != null) {
+                attack(
+                    player,
+                    action.resolvedHeadshot(data.get(GunProp.MELEE_HEADSHOT)),
+                    action.resolvedLegshot(data.get(GunProp.MELEE_LEGSHOT)),
+                    action,
+                    meleeSound,
+                    targets,
+                    dispatcher,
+                )
+            }
+        } finally {
+            // 伤害是在上面的调用栈里打出去的，事件已经跑完，上下文不该留到下一 tick
+            MeleeAttackContext.remove(player.uuid)
+        }
+
+        if (action.durability > 0 && data.get(GunProp.MAX_DURABILITY) > 0) {
+            // 本段自带的耐久消耗（`MeleeAction.Durability`）
+            stack.hurtAndBreak(action.durability, player, EquipmentSlot.MAINHAND)
+        }
+    }
+
+    /**
+     * 结算。
+     *
+     * 全部数值读自 [action]（本段数据），不再从「客户端列表下标」推衰减（缺陷 8）。
+     *
+     * @param headshotMultiplier 打头倍率（已按「本段覆盖 ?: 枪的 `MeleeHeadshot`」解析完）
+     * @param legshotMultiplier 打腿倍率（同上，取枪的 `MeleeLegshot`）
+     * @param effects 近战额外效果的结算器；每个真正受伤的目标都会走一次
+     */
+    private fun attack(
+        attacker: Player,
+        headshotMultiplier: Double,
+        legshotMultiplier: Double,
+        action: ResolvedMeleeAction,
+        meleeSound: MeleeSound?,
+        targets: List<TargetPayload>,
+        effects: MeleeEffectDispatcher,
+    ) {
+        val level = attacker.level()
+        var hurtCount = 0
+        var playedHitSound = false
+        var playedNoDamageSound = false
+
+        for ((order, payload) in targets.withIndex()) {
+            val target = EntityFindUtil.findEntity(level, payload.uuid.toString()) ?: continue
+            if (
+                AttackEntityCallback.EVENT.invoker()
+                    .interact(attacker, level, InteractionHand.MAIN_HAND, target, null) != InteractionResult.PASS
+            ) continue
+            if (!target.isAttackable) continue
+            if (target.skipAttackInteraction(attacker)) continue
+
+            val wasAlive = (target as? LivingEntity)?.isAlive == true
+
+            val zonePos = Vec3(payload.hitX, payload.hitY, payload.hitZ)
+
+            // 命中区域 → 伤害倍率（阈值与客户端同一套；服务端算，客户端不再算一遍）。
+            // **爆头只给准星正对的那一个目标**：横扫打到的一片目标里，入射点落在头部高度
+            // 并不等于"瞄着头打"，所以还要客户端在报文里标出 `aimed`。
+            val headshot = payload.aimed && MeleeQuery.isHeadshot(target, zonePos)
+            val legshot = !headshot && MeleeQuery.isLegshot(target, zonePos)
+            val zoneMultiplier = when {
+                headshot -> headshotMultiplier
+                legshot -> legshotMultiplier
+                else -> 1.0
+            }
+
+            // 衰减：第 order 个目标乘 max(1 - order * Falloff, 0.1)
+            val falloff = if (order == 0) 1.0 else (1.0 - order * action.falloff).coerceAtLeast(0.1)
+
+            // 伤害数值 = 枪的 `MeleeDamage` × 本段 `DamageMultiplier`（已在 resolve 里算完）；
+            // `ATTACK_DAMAGE` 属性加成保留在 `GunItem.getAttributeModifiers` 里，但不参与这里的结算
+            // ——否则 `MeleeDamage` 会被"属性加成"二次放大，和动作倍率叠在一起就说不清是谁放大的。
+            val damage = action.damage * zoneMultiplier * falloff
+            if (damage <= 0) continue
+
+            val damageSource = if (headshot) {
+                ModDamageTypes.causeGunMeleeHeadshotDamage(level.registryAccess(), attacker, attacker)
+            } else {
+                ModDamageTypes.causeGunMeleeDamage(level.registryAccess(), attacker, attacker)
+            }
+
+            val currentHealth = (target as? LivingEntity)?.health ?: 0.0F
+            val canHurt = hurtWithBypass(target, damageSource, damage, action.bypassesArmor)
+
+            if (!canHurt) {
+                // 缺陷 5：未命中的"无伤害"反馈只该响一次，不该对每个目标都响
+                if (!playedNoDamageSound) {
+                    level.playSound(
+                        null, attacker.x, attacker.y, attacker.z,
+                        SoundEvents.PLAYER_ATTACK_NODAMAGE, attacker.soundSource, 1.0f, 1.0f
+                    )
+                    playedNoDamageSound = true
+                }
+                continue
+            }
+
+            hurtCount++
+
+            // 缺陷 6：旧实现把**受害者的**速度设成了攻击者的动量。
+            //   正确写法是保留攻击者自己的动量，只在需要时把受击者的新速度同步给客户端。
+            val attackerMotion = attacker.deltaMovement
+
+            // 缺陷 5：击退音效只在该目标真的被击退时播一次
+            var knockback = action.knockback + attacker.getAttributeValue(Attributes.ATTACK_KNOCKBACK)
+            if (attacker.isSprinting) knockback += 1.0
+            if (knockback > 0) {
+                level.playSound(
+                    null, attacker.x, attacker.y, attacker.z,
+                    SoundEvents.PLAYER_ATTACK_KNOCKBACK, attacker.soundSource, 1.0f, 1.0f
+                )
+
+                if (target is LivingEntity) {
+                    target.knockback(
+                        knockback * 0.5,
+                        sin(attacker.yRot * Math.PI / 180.0),
+                        -cos(attacker.yRot * Math.PI / 180.0),
+                    )
+                } else {
+                    target.push(
+                        -sin(attacker.yRot * Math.PI / 180.0) * knockback / 2.0,
+                        0.1,
+                        cos(attacker.yRot * Math.PI / 180.0) * knockback / 2.0,
+                    )
+                }
+
+                attacker.deltaMovement = attackerMotion.multiply(0.6, 1.0, 0.6)
+
+                // ⚠ **绝不能在这里 `attacker.isSprinting = false`。**
+                //
+                // 原版冲刺攻击确实会顺手停疾跑，但那是 `Player.attack` 在**双端各跑一次**的结果，
+                // 客户端自己也停了；枪械近战只有服务端这一侧。
+                //
+                // 服务端这一停会顺着 DataTracker 的共享标志（`Entity.getFlag(3)`，
+                // `EntityTrackerEntry.sendSyncPacket` 对 `ServerPlayer` 会把更新直接发回玩家自己）
+                // 打回客户端，把 LocalPlayer 的疾跑标志按成 false；而客户端
+                // `ClientPlayerEntity.tickMovement` 只要还按着疾跑键就会立刻重新起跑 ——
+                // 两边互相打架的结果就是"卡在疾跑与非疾跑之间"。
+                //
+                // 原版 FOV 倍率来自 `MOVEMENT_SPEED` 属性（`AbstractClientPlayerEntity.getFovMultiplier`），
+                // 属性跟着疾跑标志一加一减，`GameRenderer` 再按帧 lerp，就表现为近战结束后 FOV 抽搐。
+                //
+                // 所以枪械近战**不打断疾跑**：速度与 FOV 全程不受影响。
+                // 冲刺击退加成（上面的 `if (attacker.isSprinting) knockback += 1.0`）保留。
+            }
+
+            if (target is ServerPlayer && target.hurtMarked) {
+                sendPacketTo(target, ClientboundSetEntityMotionPacket(target))
+                target.hurtMarked = false
+            }
+
+            // 命中音效：每次挥击只播一次，位置在**第一个真正受伤的目标**身上
+            if (!playedHitSound) {
+                level.playSound(
+                    null,
+                    target,
+                    action.hit ?: meleeSound?.hit ?: ModSounds.MELEE_HIT,
+                    SoundSource.PLAYERS,
+                    1f,
+                    ((2 * Random.nextDouble() - 1) * 0.1f + 1.0f).toFloat(),
+                )
+                attacker.crit(target)
+                playedHitSound = true
+            }
+
+            attacker.setLastHurtMob(target)
+
+            // 1.21 这一次调用已合并 1.20 的 doPostHurtEffects + doPostDamageEffects，对 attacker 再调一遍会让他吃自己的附魔
+            if (target is LivingEntity && level is ServerLevel) {
+                EnchantmentHelper.doPostAttackEffects(level, target, attacker.damageSources().playerAttack(attacker))
+            }
+
+            if (target is LivingEntity) {
+                attacker.awardStat(Stats.DAMAGE_DEALT, ((currentHealth - target.health) * 10.0F).roundToInt())
+            }
+
+            // 近战额外效果。放在这里而不是伤害之前：
+            //   - `Hit`/`FirstHit` 只在"真的造成了伤害"时才该触发；
+            //   - 效果自己打出伤害（`extra_damage`/`explosion`）时，上面的原版收尾已经跑完，
+            //     不会被后续的 `setLastHurtMob`/`awardStat` 覆盖掉。
+            if (target is LivingEntity) {
+                effects.hit(target, target.position())
+                if (wasAlive && target.isDeadOrDying) {
+                    effects.kill(target, target.position())
+                }
+            }
+        }
+
+        // 缺陷 4：`sweepAttack()` 曾在 `forEachIndexed` 循环体内，命中 N 个目标就挥 N 次。
+        //   挪到循环外，一次挥击只挥一次。
+        if (hurtCount > 0) {
+            attacker.sweepAttack()
+        }
+    }
+
+    /**
+     * 按 `BypassesArmor` 拆成「护甲部分 + 穿甲部分」两段伤害。
+     *
+     * 两段都走 `LivingEntity` 原生的受伤流程（无敌帧 / 护甲 / 减伤 / 死亡处理都还在，
+     * 也保留了原版语义），只是穿甲段额外叠一层 [forceHurt] 兜底：
+     * 被护甲/无敌帧挡掉时仍然生效，这正是"穿甲"该有的样子。
+     *
+     * 之所以不用一个 `DamageSource` 打两遍：`hurt()` 自带 10 tick 无敌帧，
+     * 第二段会被 `damage <= lastHurt` 判掉，两段就只剩第一段生效了。
+     *
+     * @return 是否至少有一段真的造成了伤害
+     */
+    private fun hurtWithBypass(
+        target: Entity,
+        source: DamageSource,
+        damage: Double,
+        bypassesArmor: Double,
+    ): Boolean {
+        val bypassRate = bypassesArmor.coerceIn(0.0, 1.0)
+        val byPassed = damage * bypassRate
+        val armored = damage - byPassed
+
+        var hurt = false
+        if (armored > 0) {
+            hurt = target.hurt(source, armored.toFloat())
+        }
+        if (byPassed > 0) {
+            hurt = target.forceHurt(source, byPassed.toFloat()) || hurt
+        }
+        return hurt
+    }
+
+    companion object {
+        /** 主武器近战 */
+        const val SOURCE_MAIN: String = "MAIN"
+    }
+}

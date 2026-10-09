@@ -1,0 +1,194 @@
+package com.atsuishio.superbwarfare.config.client
+
+import com.atsuishio.superbwarfare.config.buildClientConfig
+import com.atsuishio.superbwarfare.config.client.DisplayConfig.MELEE_HITBOX_RENDER
+
+object DisplayConfig {
+
+    @JvmField
+    val ENABLE_GUN_LOD = buildClientConfig {
+        push("display")
+
+        comment("Set true to enable gun lod")
+        comment("是否启用枪械低模")
+        define("enable_gun_lod", false)
+    }
+
+    @JvmField
+    val VEHICLE_LOD_DISTANCE = buildClientConfig {
+        comment("The global LOD distance for rendering vehicles. Set -1 to disable this config")
+        comment("渲染载具低模的最小全局距离，设置为-1则不生效")
+        defineInRange("vehicle_lod_distance", 64, -1, Int.MAX_VALUE)
+    }
+
+    @JvmField
+    val WEAPON_HUD_X_OFFSET = buildClientConfig {
+        comment("The x offset of weapon hud")
+        comment("枪械HUD的水平方向偏移量")
+        defineInRange("weapon_hud_x_offset", 0, -1000, 1000)
+    }
+
+    @JvmField
+    val WEAPON_HUD_Y_OFFSET = buildClientConfig {
+        comment("The y offset of weapon hud")
+        comment("枪械HUD的竖直方向偏移量")
+        defineInRange("weapon_hud_y_offset", 0, -1000, 1000)
+    }
+
+    @JvmField
+    val ENABLE_HEAT_BAR_HUD = buildClientConfig {
+        comment("Set true to enable heat bar hud")
+        comment("是否启用武器过热条HUD")
+        define("enable_heat_bar_hud", true)
+    }
+
+    @JvmField
+    val HEAT_BAR_HUD_X_OFFSET = buildClientConfig {
+        comment("The x offset of heat bar hud")
+        comment("武器过热条HUD的水平偏移量")
+        defineInRange("heat_bar_hud_x_offset", 0, -1000, 1000)
+    }
+
+    @JvmField
+    val HEAT_BAR_HUD_Y_OFFSET = buildClientConfig {
+        comment("The y offset of heat bar hud")
+        comment("武器过热条HUD的竖直偏移量")
+        defineInRange("heat_bar_hud_y_offset", 0, -1000, 1000)
+    }
+
+    @JvmField
+    val KILL_INDICATION = buildClientConfig {
+        comment("Set true if you want to show kill indication while killing an entity")
+        comment("是否开启准星周围的击杀提示")
+        define("kill_indication", true)
+    }
+
+    @JvmField
+    val AMMO_HUD = buildClientConfig {
+        comment("Set true to show ammo and gun info on HUD")
+        comment("是否开启枪械和弹药HUD")
+        define("ammo_hud", true)
+    }
+
+    @JvmField
+    val ADVANCED_AMMO_HUD = buildClientConfig {
+        comment("Set true to show advanced ammo info on HUD")
+        comment("是否开启高级弹药显示HUD（显示弹种）")
+        define("advanced_ammo_hud", true)
+    }
+
+    @JvmField
+    val VEHICLE_INFO = buildClientConfig {
+        comment("Set true to display vehicle info when aiming at a vehicle")
+        comment("是否开启看向载具时的信息显示")
+        define("vehicle_info", true)
+    }
+
+    @JvmField
+    val IFF_HUD = buildClientConfig {
+        comment("Set true to display IFF HUD")
+        comment("是否开启敌我识别装置位置HUD")
+        define("iff_hud", true)
+    }
+
+    @JvmField
+    val FLOAT_CROSS_HAIR = buildClientConfig {
+        comment("Set true to enable float cross hair")
+        comment("是否开启浮动准星")
+        define("float_cross_hair", true)
+    }
+
+    @JvmField
+    val ARMOR_PLATE_HUD = buildClientConfig {
+        comment("Set true to enable armor plate hud")
+        comment("是否开启护甲板HUD")
+        define("armor_plate_hud", true)
+    }
+
+    @JvmField
+    val STAMINA_HUD = buildClientConfig {
+        comment("Set true to enable stamina hud")
+        comment("是否开启耐力条HUD")
+        define("stamina_hud", true)
+    }
+
+    @JvmField
+    val DOG_TAG_NAME_VISIBLE = buildClientConfig {
+        comment("Set true to show the name of dog tag in kill messages")
+        comment("是否开启击杀提示的狗牌名称显示")
+        define("dog_tag_name_visible", true)
+    }
+
+    @JvmField
+    val DOG_TAG_ICON_VISIBLE = buildClientConfig {
+        comment("Set true to show the icon of dog tag in kill messages")
+        comment("是否开启击杀提示的狗牌图标显示")
+        define("dog_tag_icon_visible", false)
+    }
+
+    @JvmField
+    val WEAPON_SCREEN_SHAKE = buildClientConfig {
+        comment("The strength of screen shaking while firing with a weapon")
+        comment("使用武器开火时的屏幕晃动强度")
+        defineInRange("weapon_screen_shake", 100, 0, 100)
+    }
+
+    @JvmField
+    val EXPLOSION_SCREEN_SHAKE = buildClientConfig {
+        comment("The strength of screen shaking while exploding")
+        comment("爆炸时的屏幕晃动强度")
+        defineInRange("explosion_screen_shake", 100, 0, 100)
+    }
+
+    @JvmField
+    val SHOCK_SCREEN_SHAKE = buildClientConfig {
+        comment("The strength of screen shaking when shocked")
+        comment("被麻痹时的屏幕晃动强度")
+        defineInRange("shock_screen_shake", 100, 0, 100)
+    }
+
+    @JvmField
+    val ENABLE_VERSION_CHECK_WARNING = buildClientConfig {
+        comment("Set true to enable version check warning when version of this mod has been changed")
+        comment("是否启用版本检查警告")
+        define("enable_version_check_warning", true)
+    }
+
+    @JvmField
+    val ENABLE_FIRE_FLASH_LIGHT = buildClientConfig {
+        comment("Set true to enable flashlights when firing")
+        comment("是否启用开火时照明效果")
+        define("enable_fire_flash_light", true)
+    }
+
+    @JvmField
+    val TACTICAL_MAP_ZOOM = buildClientConfig {
+        comment("Zoom level for the tactical map (1=closest, 10=farthest)")
+        comment("战术地图缩放等级")
+        defineInRange("tactical_map_zoom", 5.0, 0.05, 20.0).also { pop() }
+    }
+    /**
+     * 近战调试：打印挥击/命中/未命中原因、动作锁拒绝原因。
+     *
+     * 只影响**日志**。判定体外框另有开关，见 [MELEE_HITBOX_RENDER]。
+     */
+    @JvmField
+    val MELEE_DEBUG_LOG = buildClientConfig {
+        comment("Set true to log melee swing/hit details (action index, hitbox, targets)")
+        comment("是否打印近战调试日志（挥击/命中详情）")
+        define("melee_debug_log", false)
+    }
+
+    /**
+     * 近战判定体外框常显。
+     *
+     * **不是唯一的开启方式**：原版 `F3 + B`（实体 hitbox 显示）同样能开，
+     * 两者任一即可（见 `MeleeDebugRenderer`）。
+     */
+    @JvmField
+    val MELEE_HITBOX_RENDER = buildClientConfig {
+        comment("Set true to always draw the melee hitbox wireframe without pressing F3+B")
+        comment("是否常显近战判定体外框（不按 F3+B 也显示；按 F3+B 也能显示）")
+        define("melee_hitbox_render", false).also { pop() }
+    }
+}

@@ -1,0 +1,43 @@
+package cn.sh1rocu.simplebedrockmodel.api.event;
+
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.event.Event;
+import net.fabricmc.fabric.api.event.EventFactory;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+
+@Environment(EnvType.CLIENT)
+public class RenderFrameEvent extends BaseEvent {
+    private final Minecraft client;
+    public final Phase phase;
+    private final DeltaTracker.Timer timer;
+
+    public static final Event<Callback> EVENT = EventFactory.createArrayBacked(Callback.class, callbacks -> event -> {
+        for (Callback callback : callbacks) {
+            callback.post(event);
+        }
+    });
+
+    public RenderFrameEvent(Minecraft client, Phase phase, DeltaTracker.Timer timer) {
+        this.client = client;
+        this.phase = phase;
+        this.timer = timer;
+    }
+
+    public Minecraft getClient() {
+        return client;
+    }
+
+    public DeltaTracker.Timer getTimer() {
+        return timer;
+    }
+
+    public interface Callback {
+        void post(RenderFrameEvent event);
+    }
+
+    public enum Phase {
+        START, END;
+    }
+}

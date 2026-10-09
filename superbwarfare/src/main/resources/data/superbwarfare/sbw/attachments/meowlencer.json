@@ -1,0 +1,27 @@
+{
+  "Slot": "Muzzle",
+  "Level": 1,
+  "Bone": "muzzle_pos",
+  "Modifiers": [
+    {
+      "Prop": "Weight",
+      "Op": "Add",
+      "Value": 1.0
+    }
+  ],
+  "IsSilenced": true,
+  "Override": {
+    "SoundInfo": {
+      "Fire1P": "minecraft:entity.cat.ambient",
+      "Fire3P": "minecraft:entity.cat.ambient",
+      "Fire3PFar": "minecraft:entity.cat.ambient",
+      "Fire3PVeryFar": "minecraft:entity.cat.ambient",
+      "Fire1PSilent": "minecraft:entity.cat.ambient",
+      "Fire3PSilent": "minecraft:entity.cat.ambient",
+      "Fire3PFarSilent": "minecraft:entity.cat.ambient",
+      "Fire3PVeryFarSilent": "minecraft:entity.cat.ambient"
+    }
+  },
+  "Model": "superbwarfare:models/bedrock/attachment/meowlencer.geo.json",
+  "Texture": "superbwarfare:textures/bedrock/attachment/hissilencer.png"
+}

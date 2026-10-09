@@ -1,0 +1,793 @@
+package com.atsuishio.superbwarfare.init
+
+import com.atsuishio.superbwarfare.Mod
+import com.atsuishio.superbwarfare.data.gun.Ammo
+import com.atsuishio.superbwarfare.entity.projectile.MediumRocketEntity
+import com.atsuishio.superbwarfare.item.*
+import com.atsuishio.superbwarfare.item.ammo.*
+import com.atsuishio.superbwarfare.item.armor.*
+import com.atsuishio.superbwarfare.item.attachment.BasicAttachmentItem
+import com.atsuishio.superbwarfare.item.attachment.SubWeaponItem
+import com.atsuishio.superbwarfare.item.blockitem.BlueprintResearchTableBlockItem
+import com.atsuishio.superbwarfare.item.blockitem.ChargingStationBlockItem
+import com.atsuishio.superbwarfare.item.blockitem.CreativeChargingStationBlockItem
+import com.atsuishio.superbwarfare.item.blockitem.VehicleAssemblingTableBlockItem
+import com.atsuishio.superbwarfare.item.container.ContainerBlockItem
+import com.atsuishio.superbwarfare.item.container.LuckyContainerBlockItem
+import com.atsuishio.superbwarfare.item.container.SmallContainerBlockItem
+import com.atsuishio.superbwarfare.item.food.CrustItem
+import com.atsuishio.superbwarfare.item.gun.EmptyGunItem
+import com.atsuishio.superbwarfare.item.trinket.DogTagItem
+import com.atsuishio.superbwarfare.item.trinket.IffItem
+import com.atsuishio.superbwarfare.item.trinket.ParachuteItem
+import com.atsuishio.superbwarfare.item.trinket.TacticalTerminalItem
+import com.atsuishio.superbwarfare.item.trinket.ThermalImagingGogglesItem
+import com.atsuishio.superbwarfare.item.gun.GeoGunItemV2
+import com.atsuishio.superbwarfare.item.gun.GunItem
+import com.atsuishio.superbwarfare.item.gun.handgun.TracheliumItem
+import com.atsuishio.superbwarfare.item.gun.launcher.*
+import com.atsuishio.superbwarfare.item.gun.machinegun.M2HBItem
+import com.atsuishio.superbwarfare.item.gun.machinegun.MinigunItem
+import com.atsuishio.superbwarfare.item.gun.shotgun.HomemadeShotgunItem
+import com.atsuishio.superbwarfare.item.gun.sniper.Ql1031Item
+import com.atsuishio.superbwarfare.item.gun.sniper.SentinelItem
+import com.atsuishio.superbwarfare.item.gun.special.BeastGunTestItem
+import com.atsuishio.superbwarfare.item.gun.special.BocekItem
+import com.atsuishio.superbwarfare.item.gun.special.RepairToolItem
+import com.atsuishio.superbwarfare.item.gun.vehicle.VehicleGunItem
+import com.atsuishio.superbwarfare.item.material.*
+import com.atsuishio.superbwarfare.item.misc.*
+import com.atsuishio.superbwarfare.item.misc.PerkItem
+import com.atsuishio.superbwarfare.item.projectile.*
+import com.atsuishio.superbwarfare.item.projectile.C4BombItem
+import com.atsuishio.superbwarfare.item.projectile.Blu43MineItem
+import com.atsuishio.superbwarfare.item.projectile.Ptkm1rItem
+import com.atsuishio.superbwarfare.item.projectile.Tm62Item
+import com.atsuishio.superbwarfare.item.weapon.*
+import com.atsuishio.superbwarfare.perk.Perk
+import com.atsuishio.superbwarfare.tiers.ModItemTier
+import net.fabricmc.fabric.api.registry.FuelRegistry
+import net.minecraft.core.Registry
+import net.minecraft.core.registries.BuiltInRegistries
+import net.minecraft.world.item.*
+import net.minecraft.world.item.Item.Properties
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.DispenserBlock
+
+@Suppress("unused")
+object ModItems {
+
+    val LEGENDARY: Rarity by lazy { ModRarities.LEGENDARY }
+    val SUPERB: Rarity by lazy { ModRarities.SUPERB }
+    val VIRTUAL: Rarity by lazy { ModRarities.VIRTUAL }
+
+    private val REGISTERED_ITEMS = mutableListOf<Item>()
+    val GUNS = mutableListOf<Item>()
+    val AMMO = mutableListOf<Item>()
+    val ITEMS = mutableListOf<Item>()
+    val BLOCKS = mutableListOf<Item>()
+    val PERKS = mutableListOf<Item>()
+    val ATTACHMENTS = mutableListOf<Item>()
+
+    private fun <T : Item> register(id: String, item: T): T {
+        val registered = Registry.register(BuiltInRegistries.ITEM, Mod.loc(id), item)
+        REGISTERED_ITEMS.add(registered)
+        return registered
+    }
+
+    /**
+     * guns
+     */
+    private fun <T : GunItem> registerGun(id: String, gun: () -> T): T {
+        val item = register(id, gun())
+        GUNS.add(item)
+        return item
+    }
+
+    // @formatter:off
+    @JvmField val REPAIR_TOOL = registerGun("repair_tool") { RepairToolItem() }
+    @JvmField val TASER = registerGun("taser") { GeoGunItemV2(Properties()) }
+    @JvmField val GLOCK_17 = registerGun("glock_17") { GeoGunItemV2(Properties()) }
+    @JvmField val GLOCK_18 = registerGun("glock_18") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val MP_443 = registerGun("mp_443") { GeoGunItemV2(Properties()) }
+    @JvmField val M_1911 = registerGun("m_1911") { GeoGunItemV2(Properties()) }
+    @JvmField val HOMEMADE_SHOTGUN = registerGun("homemade_shotgun") { HomemadeShotgunItem }
+    @JvmField val NAIL_GUN = registerGun("nail_gun") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val TRACHELIUM = registerGun("trachelium") { TracheliumItem() }
+    @JvmField val MP_5 = registerGun("mp_5") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val VECTOR = registerGun("vector") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val AK_47 = registerGun("ak_47") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val AK_12 = registerGun("ak_12") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val SKS = registerGun("sks") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val M_4 = registerGun("m_4") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val HK_416 = registerGun("hk_416") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val QBZ_95 = registerGun("qbz_95") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val QBZ_191 = registerGun("qbz_191") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val INSIDIOUS = registerGun("insidious") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val MK_14 = registerGun("mk_14") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val QL_1031 = registerGun("ql_1031") { Ql1031Item() }
+    @JvmField val MARLIN = registerGun("marlin") { GeoGunItemV2(Properties()) }
+    @JvmField val K_98 = registerGun("k_98") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val MOSIN_NAGANT = registerGun("mosin_nagant") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val SVD = registerGun("svd") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val AWM = registerGun("awm") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val M_98B = registerGun("m_98b") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val SENTINEL = registerGun("sentinel") { SentinelItem() }
+    @JvmField val HUNTING_RIFLE = registerGun("hunting_rifle") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val NTW_20 = registerGun("ntw_20") { GeoGunItemV2(Properties().rarity(LEGENDARY)) }
+    @JvmField val M_870 = registerGun("m_870") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val M_1897 = registerGun("m_1897") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val AA_12 = registerGun("aa_12") { GeoGunItemV2(Properties().rarity(LEGENDARY)) }
+    @JvmField val DEVOTION = registerGun("devotion") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val RPK = registerGun("rpk") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val M_60 = registerGun("m_60") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val M_2_HB = registerGun("m_2_hb") { M2HBItem }
+    @JvmField val MINIGUN = registerGun("minigun") { MinigunItem() }
+    @JvmField val M_79 = registerGun("m_79") { GeoGunItemV2(Properties().rarity(Rarity.RARE)) }
+    @JvmField val GP_25 = registerGun("gp_25") { GeoGunItemV2(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val SECONDARY_CATACLYSM = registerGun("secondary_cataclysm") { SecondaryCataclysmItem }
+    @JvmField val RPG = registerGun("rpg") { RpgItem }
+    @JvmField val JAVELIN = registerGun("javelin") { JavelinItem }
+    @JvmField val IGLA_9K38 = registerGun("igla_9k38") { IglaItem }
+    @JvmField val BOCEK = registerGun("bocek") { BocekItem() }
+    @JvmField val SUPER_STAR_SHOOTER = registerGun("super_star_shooter") { SuperStarShooterItem() }
+    @JvmField val REFORGING = registerGun("reforging") { GeoGunItemV2(Properties().rarity(SUPERB)) }
+    @JvmField val RAUBTIER = registerGun("raubtier") { GeoGunItemV2(Properties().rarity(SUPERB)) }
+
+    @JvmField val BEAST_GUN_TEST = registerGun("beast_gun_test") { BeastGunTestItem() }
+
+    @JvmField val VEHICLE_GUN = registerGun("vehicle_gun") { VehicleGunItem() }
+    @JvmField val EMPTY_GUN = registerGun("empty_gun") { EmptyGunItem() }
+    // @formatter:on
+
+    /**
+     * Ammo
+     */
+    private fun registerAmmo(id: String) = registerAmmo(id) { Item(Properties()) }
+
+    private fun <T : Item> registerAmmo(id: String, ammo: () -> T): T {
+        val item = register(id, ammo())
+        AMMO.add(item)
+        return item
+    }
+
+    // @formatter:off
+    @JvmField val HANDGUN_AMMO = registerAmmo("handgun_ammo") { AmmoSupplierItem(Ammo.HANDGUN, 1, Properties()) }
+    @JvmField val RIFLE_AMMO = registerAmmo("rifle_ammo") { AmmoSupplierItem(Ammo.RIFLE, 1, Properties()) }
+    @JvmField val SNIPER_AMMO = registerAmmo("sniper_ammo") { AmmoSupplierItem(Ammo.SNIPER, 1, Properties()) }
+    @JvmField val SHOTGUN_AMMO = registerAmmo("shotgun_ammo") { AmmoSupplierItem(Ammo.SHOTGUN, 1, Properties()) }
+    @JvmField val HEAVY_AMMO = registerAmmo("heavy_ammo") { AmmoSupplierItem(Ammo.HEAVY, 1, Properties()) }
+    @JvmField val HANDGUN_AMMO_BOX = registerAmmo("handgun_ammo_box") { HandgunAmmoBoxItem() }
+    @JvmField val RIFLE_AMMO_BOX = registerAmmo("rifle_ammo_box") { RifleAmmoBoxItem() }
+    @JvmField val SNIPER_AMMO_BOX = registerAmmo("sniper_ammo_box") { SniperAmmoBoxItem() }
+    @JvmField val SHOTGUN_AMMO_BOX = registerAmmo("shotgun_ammo_box") { ShotgunAmmoBoxItem() }
+    @JvmField val CREATIVE_AMMO_BOX = registerAmmo("creative_ammo_box") { CreativeAmmoBoxItem }
+    @JvmField val AMMO_BOX = registerAmmo("ammo_box") { AmmoBoxItem() }
+    @JvmField val TASER_ELECTRODE = registerAmmo("taser_electrode")
+    @JvmField val GRENADE_40MM = registerAmmo("grenade_40mm")
+    @JvmField val SMOKE_GUN_GRENADE = registerAmmo("smoke_gun_grenade")
+    @JvmField val FLYING_FLARE_AMMO = registerAmmo("flying_flare_ammo")
+    @JvmField val VEHICLE_SMOKE_AMMO = registerAmmo("vehicle_smoke_ammo")
+
+    @JvmField val MORTAR_SHELL = registerAmmo("mortar_shell") { MortarShellItem() }
+    @JvmField val MORTAR_SHELL_WP = registerAmmo("mortar_shell_wp") { MortarShellItem() }
+    @JvmField val MORTAR_SHELL_SMOKE = registerAmmo("mortar_shell_smoke") { SmokeMortarShellItem() }
+    @JvmField val POTION_MORTAR_SHELL = registerAmmo("potion_mortar_shell") { PotionMortarShellItem() }
+    @JvmField val RPG_ROCKET_STANDARD = registerAmmo("rpg_rocket_standard") { RpgRocketStandardItem() }
+    @JvmField val RPG_ROCKET_TBG = registerAmmo("rpg_rocket_tbg") { RpgRocketTBGItem() }
+    @JvmField val JAVELIN_MISSILE = registerAmmo("javelin_missile") { Item(Properties().stacksTo(4)) }
+    @JvmField val LUNGE_MINE = registerAmmo("lunge_mine") { LungeMineItem() }
+    @JvmField val SMALL_SHELL_AP = registerAmmo("small_shell_ap")
+    @JvmField val SMALL_SHELL_HE = registerAmmo("small_shell_he")
+    @JvmField val SMALL_SHELL_GS = registerAmmo("small_shell_gs")
+    @JvmField val SMALL_SHELL_AA = registerAmmo("small_shell_aa")
+    @JvmField val MEDIUM_SHELL_AP = registerAmmo("medium_shell_ap")
+    @JvmField val MEDIUM_SHELL_HE = registerAmmo("medium_shell_he")
+    @JvmField val MEDIUM_SHELL_GS = registerAmmo("medium_shell_gs")
+    @JvmField val MEDIUM_SHELL_AA = registerAmmo("medium_shell_aa")
+    @JvmField val LARGE_SHELL_AP = registerAmmo("large_shell_ap") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val LARGE_SHELL_HE = registerAmmo("large_shell_he") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val LARGE_SHELL_CM = registerAmmo("large_shell_cm") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val LARGE_SHELL_GS = registerAmmo("large_shell_gs") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val LARGE_SHELL_WP = registerAmmo("large_shell_wp") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val HAND_GRENADE = registerAmmo("hand_grenade") { HandGrenadeItem() }
+    @JvmField val RGO_GRENADE = registerAmmo("rgo_grenade") { RgoGrenadeItem() }
+    @JvmField val TYPE_88_CLUSTER_GRENADES = registerAmmo("type_88_cluster_grenades") { Type88ClusterGrenadesItem() }
+    @JvmField val M18_SMOKE_GRENADE = registerAmmo("m18_smoke_grenade") { M18SmokeGrenadeItem() }
+    @JvmField val CLAYMORE_MINE = registerAmmo("claymore_mine") { ClaymoreMineItem() }
+    @JvmField val TM_62 = registerAmmo("tm_62") { Tm62Item() }
+    @JvmField val PTKM_1R = registerAmmo("ptkm_1r") { Ptkm1rItem() }
+    @JvmField val C4_BOMB = registerAmmo("c4_bomb") { C4BombItem() }
+    @JvmField val BLU_43_MINE = registerAmmo("blu_43_mine") { Blu43MineItem() }
+    @JvmField val EDD = registerAmmo("edd") { EDDItem() }
+    @JvmField val SMALL_ROCKET = registerAmmo("small_rocket") { Item(Properties().stacksTo(16)) }
+    @JvmField val MEDIUM_ROCKET_AP = registerAmmo("medium_rocket_ap") { MediumRocketItem(500f, 6f, 100f, 0f, 0, MediumRocketEntity.Type.AP, 0) }
+    @JvmField val MEDIUM_ROCKET_HE = registerAmmo("medium_rocket_he") { MediumRocketItem(200f, 12f, 200f, 0.2f, 40, MediumRocketEntity.Type.HE, 0) }
+    @JvmField val MEDIUM_ROCKET_CM = registerAmmo("medium_rocket_cm") { MediumRocketItem(300f, 12f, 300f, 0f, 0, MediumRocketEntity.Type.CM, 20) }
+    @JvmField val MEDIUM_ANTI_AIR_MISSILE = registerAmmo("medium_anti_air_missile") { Item(Properties().stacksTo(4)) }
+    @JvmField val MEDIUM_ANTI_GROUND_MISSILE = registerAmmo("medium_anti_ground_missile") { Item(Properties().stacksTo(4)) }
+    @JvmField val LARGE_ANTI_AIR_MISSILE = registerAmmo("large_anti_air_missile") { Item(Properties().stacksTo(2)) }
+    @JvmField val LARGE_ANTI_GROUND_MISSILE = registerAmmo("large_anti_ground_missile") { Item(Properties().stacksTo(2)) }
+    @JvmField val EXTRA_LARGE_ANTI_GROUND_MISSILE = registerAmmo("extra_large_anti_ground_missile") { Item(Properties().stacksTo(1)) }
+    @JvmField val SWARM_DRONE = registerAmmo("swarm_drone") { Item(Properties().stacksTo(14)) }
+    @JvmField val SMALL_AERIAL_BOMB = registerAmmo("small_aerial_bomb") { Item(Properties().stacksTo(4)) }
+    @JvmField val MEDIUM_AERIAL_BOMB = registerAmmo("medium_aerial_bomb") { Item(Properties().stacksTo(2)) }
+    @JvmField val LARGE_AERIAL_BOMB = registerAmmo("large_aerial_bomb") { Item(Properties().stacksTo(1)) }
+    // @formatter:on
+
+    /**
+     * items
+     */
+    private fun registerItem(id: String) = registerItem(id) { Item(Properties()) }
+
+    private fun <T : Item> registerItem(id: String, item: () -> T): T {
+        val registered = register(id, item())
+        ITEMS.add(registered)
+        return registered
+    }
+
+    private fun registerAttachment(id: String, rarity: Rarity = Rarity.COMMON) =
+        registerAttachment(id, rarity, ::BasicAttachmentItem)
+
+    private fun <T : Item> registerAttachment(
+        id: String,
+        rarity: Rarity,
+        factory: (String, Rarity) -> T
+    ): T {
+        val registered = register(id, factory("${Mod.MODID}:$id", rarity))
+        ATTACHMENTS.add(registered)
+        return registered
+    }
+
+    private fun registerBlueprint(id: String, rarity: Rarity) = registerItem(id) { BlueprintItem(rarity) }
+
+    /**
+     * 注册一个**副武器**配件：物品类换成 [SubWeaponItem]（`GunItem` + `AttachmentProvider`）。
+     *
+     * 物品注册 id 与配件数据 id 由 [registerAttachment] 保证一致，
+     * 而 `GunData` 在 `SubWeapon.Data` 为空时按物品注册 id 解析数据 —— 所以
+     * `sbw/attachments/<id>.json` 与 `sbw/guns/<id>.json` 同名成对出现即可；
+     * 想让多个配件共用一份副武器数据时才需要在配件里写 `Data`。
+     */
+    fun registerSubWeapon(id: String, rarity: Rarity = Rarity.COMMON): Item =
+        registerAttachment(id, rarity, ::SubWeaponItem)
+
+    // Stock
+    // @formatter:off
+    @JvmField val OEM_STOCK_LIGHT = registerAttachment("oem_stock_light")
+    @JvmField val OEM_STOCK_HEAVY = registerAttachment("oem_stock_heavy")
+    @JvmField val STOCK_UBR = registerAttachment("stock_ubr")
+    @JvmField val STOCK_PRS = registerAttachment("stock_prs")
+    @JvmField val STOCK_AR_TACTICAL = registerAttachment("stock_ar_tactical")
+    @JvmField val STOCK_ZENIT_PT_1 = registerAttachment("stock_zenit_pt_1")
+    @JvmField val STOCK_STR = registerAttachment("stock_str")
+    @JvmField val STOCK_ELITE = registerAttachment("stock_elite")
+    @JvmField val STEEL_PIPE_STOCK = registerAttachment("steel_pipe_stock", Rarity.RARE)
+    // @formatter:on
+
+    // Magazine
+    // @formatter:off
+    @JvmField val MAGAZINE_EXTEND = registerAttachment("magazine_extend", Rarity.RARE)
+    @JvmField val MAGAZINE_EXTEND_PRO = registerAttachment("magazine_extend_pro", Rarity.EPIC)
+    // @formatter:on
+
+    // Muzzle
+    // @formatter:off
+    @JvmField val MEOWLENCER = registerAttachment("meowlencer", Rarity.RARE)
+    @JvmField val HISSILENCER = registerAttachment("hissilencer", Rarity.RARE)
+    @JvmField val SILAOWUNCER = registerAttachment("silaowuncer", Rarity.RARE)
+    @JvmField val MILENCER = registerAttachment("milencer", ModRarities.VIRTUAL)
+    @JvmField val MUZZLE_BRAKE_RU = registerAttachment("muzzle_brake_ru")
+    @JvmField val MUZZLE_BRAKE_AR = registerAttachment("muzzle_brake_ar")
+    @JvmField val MUZZLE_BREAK_BIRDCAGE = registerAttachment("muzzle_break_birdcage")
+    @JvmField val MUZZLE_ZENIT_DTK_1 = registerAttachment("muzzle_zenit_dtk_1", Rarity.RARE)
+    @JvmField val MUZZLE_COMPENSATOR_R_17 = registerAttachment("muzzle_compensator_r_17")
+    @JvmField val RU_SILENCER = registerAttachment("ru_silencer")
+    @JvmField val SILENCER_SUPERB_12 = registerAttachment("silencer_superb_12")
+    @JvmField val SILENCER_50_CAL = registerAttachment("silencer_50_cal")
+    @JvmField val AR_SILENCER = registerAttachment("ar_silencer")
+    @JvmField val HANDGUN_SILENCER = registerAttachment("handgun_silencer")
+    @JvmField val STEEL_PIPE_SILENCER = registerAttachment("steel_pipe_silencer", Rarity.RARE)
+    @JvmField val OSPREY_SILENCER = registerAttachment("osprey_silencer", Rarity.RARE)
+    @JvmField val LOUDSPEAKER = registerAttachment("loudspeaker", ModRarities.LEGENDARY)
+    @JvmField val OSPREY_SILENCER_TRACHELIUM = registerAttachment("osprey_silencer_trachelium", ModRarities.VIRTUAL)
+    @JvmField val SILENCER_QINGLAN = registerAttachment("silencer_qinglan", ModRarities.VIRTUAL)
+    @JvmField val TRIANGULAR_MUZZLE = registerAttachment("triangular_muzzle", Rarity.RARE)
+    @JvmField val LINEAR_MUZZLE = registerAttachment("linear_muzzle", Rarity.RARE)
+    @JvmField val CROSS_MUZZLE = registerAttachment("cross_muzzle", Rarity.RARE)
+    @JvmField val STAR_MUZZLE = registerAttachment("star_muzzle", Rarity.EPIC)
+    @JvmField val LOVE_MUZZLE = registerAttachment("love_muzzle", ModRarities.VIRTUAL)
+    // @formatter:on
+
+    // Scope / sight
+    // @formatter:off
+    @JvmField val SCOPE_COYOTE = registerAttachment("scope_coyote")
+    @JvmField val SCOPE_AIMPOINT_T2 = registerAttachment("scope_aimpoint_t2")
+    @JvmField val SCOPE_HANDGUN_RED_DOT = registerAttachment("scope_handgun_red_dot")
+    @JvmField val SCOPE_EOTECH_551 = registerAttachment("scope_eotech_551")
+    @JvmField val SCOPE_OKP_7 = registerAttachment("scope_okp_7")
+    @JvmField val SCOPE_PKAS = registerAttachment("scope_pkas")
+    @JvmField val SCOPE_BRUISER = registerAttachment("scope_bruiser", Rarity.RARE)
+    @JvmField val SCOPE_ACOG = registerAttachment("scope_acog", Rarity.RARE)
+    @JvmField val SCOPE_1P_78 = registerAttachment("scope_1p_78", Rarity.RARE)
+    @JvmField val SCOPE_SPYGLASS = registerAttachment("scope_spyglass", Rarity.RARE)
+    @JvmField val SCOPE_PSO_1 = registerAttachment("scope_pso_1", Rarity.RARE)
+    @JvmField val SCOPE_PU = registerAttachment("scope_pu", Rarity.RARE)
+    @JvmField val SCOPE_PK_A = registerAttachment("scope_pk_a", Rarity.RARE)
+    @JvmField val STEEL_PIPE_SCOPE = registerAttachment("steel_pipe_scope", Rarity.RARE)
+    @JvmField val SCOPE_RANGER = registerAttachment("scope_ranger", Rarity.EPIC)
+    @JvmField val SCOPE_QMK171 = registerAttachment("scope_qmk171", Rarity.EPIC)
+    @JvmField val SCOPE_HAMR = registerAttachment("scope_hamr", Rarity.EPIC)
+    @JvmField val SCOPE_ELCAN_4X = registerAttachment("scope_elcan_4x", Rarity.EPIC)
+    @JvmField val SCOPE_LPVO = registerAttachment("scope_lpvo", Rarity.EPIC)
+    @JvmField val SCOPE_SNIPER = registerAttachment("scope_sniper", Rarity.EPIC)
+    @JvmField val SCOPE_WINEFOX = registerAttachment("scope_winefox", ModRarities.LEGENDARY)
+    // @formatter:on
+
+    // Grip
+    // @formatter:off
+    @JvmField val VERTICAL_GRIP = registerAttachment("vertical_grip")
+    @JvmField val GRIP_RECTANGLE_VERTICAL = registerAttachment("grip_rectangle_vertical")
+    @JvmField val TRIANGLE_GRIP = registerAttachment("triangle_grip")
+    @JvmField val GRIP_VERTICAL_PINEAPPLE = registerAttachment("grip_vertical_pineapple")
+    @JvmField val GRIP_CQR_GEN2 = registerAttachment("grip_cqr_gen2", Rarity.RARE)
+    @JvmField val GRIP_VERTICAL_BIPOD = registerAttachment("grip_vertical_bipod", Rarity.RARE)
+    @JvmField val STEEL_PIPE_GRIP = registerAttachment("steel_pipe_grip", Rarity.RARE)
+    // @formatter:on
+
+    // UpperRail
+    // @formatter:off
+    @JvmField val SHIELD_TEST = registerAttachment("shield_test")
+    @JvmField val PEQ_15 = registerAttachment("peq_15")
+    // @formatter:on
+
+    // LowerRail
+    // @formatter:off
+    @JvmField val PISTOL_LASER = registerAttachment("pistol_laser")
+    @JvmField val LOWER_RAIL_BIPOD = registerAttachment("lower_rail_bipod", Rarity.RARE)
+    // @formatter:on
+
+    // LeftRail
+    // @formatter:off
+    @JvmField val RANGE_FINDER = registerAttachment("range_finder", Rarity.RARE)
+    // @formatter:on
+
+    // RightRail
+    // @formatter:off
+
+    // @formatter:on
+
+    // Bayonet
+    // @formatter:off
+    @JvmField val BAYONET_M_9 = registerAttachment("bayonet_m_9")
+    @JvmField val BAYONET_6KH2 = registerAttachment("bayonet_6kh2")
+    @JvmField val BAYONET_SEITENGEWEHR_84 = registerAttachment("bayonet_seitengewehr_84")
+    @JvmField val BAYONET_M_91_30 = registerAttachment("bayonet_m_91_30")
+    @JvmField val BAYONET_TRIANGULAR = registerAttachment("bayonet_triangular")
+    @JvmField val BAYONET_M1917 = registerAttachment("bayonet_m1917")
+    // @formatter:on
+
+    @JvmField val SUB_WEAPON_GP_25 = registerSubWeapon("sub_weapon_gp_25", Rarity.EPIC)
+
+    // Charm（吊坠：纯装饰，第一人称下会摆）
+    // @formatter:off
+    @JvmField val CHARM_PIG = registerAttachment("charm_pig")
+    @JvmField val CHARM_BEE = registerAttachment("charm_bee")
+    @JvmField val CHARM_CHEST = registerAttachment("charm_chest")
+    @JvmField val CHARM_AXOLOTL = registerAttachment("charm_axolotl")
+    @JvmField val CHARM_COW = registerAttachment("charm_cow")
+    @JvmField val CHARM_SNOWGOLEM = registerAttachment("charm_snowgolem")
+    @JvmField val CHARM_SMALL_CONTAINER = registerAttachment("charm_small_container")
+    @JvmField val CHARM_SHEEP = registerAttachment("charm_sheep")
+    @JvmField val CHARM_CHICKEN = registerAttachment("charm_chicken")
+    @JvmField val CHARM_PUFFERFISH = registerAttachment("charm_pufferfish")
+    @JvmField val CHARM_DOG_TAG = registerAttachment("charm_dog_tag")
+    @JvmField val CHARM_CONTAINER = registerAttachment("charm_container")
+    @JvmField val CHARM_M67_GRENADE = registerAttachment("charm_m67_grenade")
+    @JvmField val CHARM_ZOMBIE_HEAD = registerAttachment("charm_zombie_head", Rarity.RARE)
+    @JvmField val CHARM_SKELETON_SKULL = registerAttachment("charm_skeleton_skull", Rarity.RARE)
+    @JvmField val CHARM_CREEPER_HEAD = registerAttachment("charm_creeper_head", Rarity.RARE)
+    @JvmField val CHARM_AXOLOTL_BLUE = registerAttachment("charm_axolotl_blue", Rarity.RARE)
+    @JvmField val CHARM_MOOSHROOM = registerAttachment("charm_mooshroom", Rarity.RARE)
+    @JvmField val CHARM_PIGLIN_HEAD = registerAttachment("charm_piglin_head", Rarity.RARE)
+    @JvmField val CHARM_FUKAMIZU_FISH = registerAttachment("charm_fukamizu_fish", Rarity.RARE)
+    @JvmField val CHARM_SPIDER_HEAD = registerAttachment("charm_spider_head", Rarity.RARE)
+    @JvmField val CHARM_WITHER_SKELETON_SKULL = registerAttachment("charm_wither_skeleton_skull", Rarity.RARE)
+    @JvmField val CHARM_ELDER_GUARDIAN = registerAttachment("charm_elder_guardian", Rarity.RARE)
+    @JvmField val CHARM_MK_82 = registerAttachment("charm_mk_82", Rarity.RARE)
+    @JvmField val CHARM_RICE_CAKE_FOX_LOLITA = registerAttachment("charm_rice_cake_fox_lolita", Rarity.EPIC)
+    @JvmField val CHARM_WINEFOX_TAIL = registerAttachment("charm_winefox_tail", Rarity.EPIC)
+    @JvmField val CHARM_STARS_IL = registerAttachment("charm_stars_il", Rarity.EPIC)
+    @JvmField val CHARM_ORANGE_PLUSHIE = registerAttachment("charm_orange_plushie", Rarity.EPIC)
+    @JvmField val CHARM_HAKUREI_REIMU = registerAttachment("charm_hakurei_reimu", Rarity.EPIC)
+    @JvmField val CHARM_KIRISAME_MARISA = registerAttachment("charm_kirisame_marisa", Rarity.EPIC)
+    @JvmField val CHARM_FLANDRE_SCARLET = registerAttachment("charm_flandre_scarlet", Rarity.EPIC)
+    @JvmField val CHARM_SAIGYOUJI_YUYUKO = registerAttachment("charm_saigyouji_yuyuko", Rarity.EPIC)
+    @JvmField val CHARM_HOURAISAN_KAGUYA = registerAttachment("charm_houraisan_kaguya", Rarity.EPIC)
+    @JvmField val CHARM_SEPT_WOLVES = registerAttachment("charm_sept_wolves", ModRarities.LEGENDARY)
+    @JvmField val CHARM_ANCIENT_CPU = registerAttachment("charm_ancient_cpu", ModRarities.LEGENDARY)
+    @JvmField val CHARM_DRAGON_HEAD = registerAttachment("charm_dragon_head", ModRarities.LEGENDARY)
+    @JvmField val CHARM_THE_EMPERORS_NEW_CHARM = registerAttachment("charm_the_emperors_new_charm", ModRarities.LEGENDARY)
+    @JvmField val CHARM_BEAST = registerAttachment("charm_beast", ModRarities.LEGENDARY)
+    @JvmField val CHARM_CRYSTAL_POPCORN = registerAttachment("charm_crystal_popcorn", ModRarities.LEGENDARY)
+    @JvmField val CHARM_NETHER_STAR = registerAttachment("charm_nether_star", ModRarities.LEGENDARY)
+    @JvmField val CHARM_CONDUIT = registerAttachment("charm_conduit", ModRarities.LEGENDARY)
+    @JvmField val CHARM_SENPAI = registerAttachment("charm_senpai", ModRarities.SUPERB)
+    @JvmField val CHARM_MRAHC = registerAttachment("charm_mrahc", ModRarities.SUPERB)
+    @JvmField val CHARM_CHIRAM_CORE = registerAttachment("charm_chiram_core", ModRarities.VIRTUAL)
+    @JvmField val CHARM_LILY = registerAttachment("charm_lily", ModRarities.VIRTUAL)
+    @JvmField val CHARM_HIRU_HEAD = registerAttachment("charm_hiru_head", ModRarities.VIRTUAL)
+    @JvmField val CHARM_SUI_CONTAINER = registerAttachment("charm_sui_container", ModRarities.VIRTUAL)
+    // @formatter:on
+
+    // @formatter:off
+    @JvmField val SENPAI_SPAWN_EGG = registerItem("senpai_spawn_egg") {
+        SpawnEggItem(ModEntities.SENPAI, -11584987, -14014413, Properties())
+    }
+    @JvmField val CREEPING_SENPAI_SPAWN_EGG = registerItem("creeping_senpai_spawn_egg") {
+        SpawnEggItem(ModEntities.CREEPING_SENPAI, -11584987, 3288889, Properties())
+    }
+    @JvmField val STEEL_COIL_SPAWN_EGG = registerItem("steel_coil_spawn_egg") {
+        SpawnEggItem(ModEntities.STEEL_COIL, 0, 0xc0c0c0, Properties())
+    }
+    @JvmField val ANCIENT_CPU = registerItem("ancient_cpu") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val PROPELLER = registerItem("propeller")
+    @JvmField val LARGE_PROPELLER = registerItem("large_propeller")
+    @JvmField val MOTOR = registerItem("motor")
+    @JvmField val LARGE_MOTOR = registerItem("large_motor")
+    @JvmField val WHEEL = registerItem("wheel")
+    @JvmField val TRACK = registerItem("track")
+    @JvmField val DRONE = registerItem("drone") { DroneItem() }
+
+    @JvmField val MONITOR = registerItem("monitor") { MonitorItem() }
+    @JvmField val ARTILLERY_INDICATOR = registerItem("artillery_indicator") { ArtilleryIndicatorItem() }
+
+    @JvmField val DETONATOR = registerItem("detonator") { DetonatorItem() }
+    @JvmField val TARGET_DEPLOYER = registerItem("target_deployer") { TargetDeployerItem() }
+    @JvmField val DPS_GENERATOR_DEPLOYER = registerItem("dps_generator_deployer") { DPSGeneratorDeployerItem() }
+    @JvmField val KNIFE = registerItem("knife") { KnifeItem() }
+    @JvmField val KNIFE_6KH2 = registerItem("knife_6kh2") { Knife6kh2Item() }
+    @JvmField val KNIFE_SEITENGEWEHR_84 = registerItem("knife_seitengewehr_84") { KnifeSeitengewehr84Item() }
+    @JvmField val KNIFE_M1917 = registerItem("knife_m1917") { KnifeM1917Item() }
+    @JvmField val HAMMER = registerItem("hammer") { HammerItem(Tiers.IRON, 11, -3.2f, Properties().durability(400)) }
+    @JvmField val GOLDEN_HAMMER = registerItem("golden_hammer") { HammerItem(Tiers.GOLD, 11, -3.2f, Properties().durability(150)) }
+    @JvmField val STEEL_HAMMER = registerItem("steel_hammer") { HammerItem(ModItemTier.STEEL, 9, -3.2f, Properties().durability(600)) }
+    @JvmField val DIAMOND_HAMMER = registerItem("diamond_hammer") { HammerItem(Tiers.DIAMOND, 12, -3.2f, Properties().durability(1500)) }
+    @JvmField val CEMENTED_CARBIDE_HAMMER = registerItem("cemented_carbide_hammer") { HammerItem(ModItemTier.CEMENTED_CARBIDE, 8, -3.2f, Properties().durability(2000)) }
+    @JvmField val NETHERITE_HAMMER = registerItem("netherite_hammer") { NetheriteHammerItem() }
+    @JvmField val CEMENTED_CARBIDE_SWORD = registerItem("cemented_carbide_sword") { SwordItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -2, -2.4f))) }
+    @JvmField val CEMENTED_CARBIDE_PICKAXE = registerItem("cemented_carbide_pickaxe") { PickaxeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -4, -2.8f))) }
+    @JvmField val CEMENTED_CARBIDE_AXE = registerItem("cemented_carbide_axe") { AxeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, 0, -3.0f))) }
+    @JvmField val CEMENTED_CARBIDE_SHOVEL = registerItem("cemented_carbide_shovel") { ShovelItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -3, -3.0f))) }
+    @JvmField val CEMENTED_CARBIDE_HOE = registerItem("cemented_carbide_hoe") { HoeItem(ModItemTier.CEMENTED_CARBIDE, Properties().attributes(SwordItem.createAttributes(ModItemTier.CEMENTED_CARBIDE, -8, 0.0f))) }
+
+    @JvmField val T_BATON = registerItem("t_baton") { TBatonItem() }
+    @JvmField val ELECTRIC_BATON = registerItem("electric_baton") { ElectricBatonItem() }
+    @JvmField val STEEL_PIPE = registerItem("steel_pipe") { SteelPipeItem() }
+    @JvmField val CROWBAR = registerItem("crowbar") { CrowbarItem() }
+    @JvmField val MILITARY_SHOVEL = registerItem("military_shovel") { MilitaryShovelItem() }
+    @JvmField val DEFUSER = registerItem("defuser") { DefuserItem() }
+    @JvmField val ARMOR_PLATE = registerItem("armor_plate") { ArmorPlateItem() }
+
+    @JvmField val RU_HELMET_6B47 = registerItem("ru_helmet_6b47") { RuHelmet6b47Item() }
+    @JvmField val RU_CHEST_6B43 = registerItem("ru_chest_6b43") { RuChest6b43Item() }
+    @JvmField val US_HELMET_PASGT = registerItem("us_helmet_pasgt") { UsHelmetPasgtItem() }
+    @JvmField val US_CHEST_IOTV = registerItem("us_chest_iotv") { UsChestIotvItem() }
+    @JvmField val GE_HELMET_M_35 = registerItem("ge_helmet_m_35") { GeHelmetM35Item() }
+    @JvmField val PARACHUTE = registerItem("parachute") { ParachuteItem() }
+    @JvmField val THERMAL_IMAGING_GOGGLES = registerItem("thermal_imaging_goggles") { ThermalImagingGogglesItem() }
+    @JvmField val HANDSOME_GOGGLES = registerItem("handsome_goggles") { HandsomeGogglesItem() }
+    @JvmField val TACTICAL_TERMINAL = registerItem("tactical_terminal") { TacticalTerminalItem() }
+
+    @JvmField val CRUST = registerItem("crust") { CrustItem() }
+
+    @JvmField val MORTAR_DEPLOYER = registerItem("mortar_deployer") { MortarDeployerItem() }
+    @JvmField val MORTAR_BARREL = registerItem("mortar_barrel")
+    @JvmField val MORTAR_BASE_PLATE = registerItem("mortar_base_plate")
+    @JvmField val MORTAR_BIPOD = registerItem("mortar_bipod")
+    @JvmField val SEEKER = registerItem("seeker")
+    @JvmField val MISSILE_ENGINE = registerItem("missile_engine")
+    @JvmField val FUSEE = registerItem("fusee")
+    @JvmField val PRIMER = registerItem("primer")
+    @JvmField val AP_HEAD = registerItem("ap_head")
+    @JvmField val HE_HEAD = registerItem("he_head")
+    @JvmField val CM_HEAD = registerItem("cm_head")
+    @JvmField val GS_HEAD = registerItem("gs_head")
+    @JvmField val WP_HEAD = registerItem("wp_head")
+    @JvmField val CANNON_CORE = registerItem("cannon_core")
+    @JvmField val COPPER_PLATE = registerItem("copper_plate")
+    @JvmField val STEEL_PLATE = registerItem("steel_plate")
+    @JvmField val ENGINEERING_PLASTIC = registerItem("engineering_plastic")
+    @JvmField val STEEL_INGOT = registerItem("steel_ingot")
+    @JvmField val LEAD_INGOT = registerItem("lead_ingot")
+    @JvmField val SILVER_INGOT = registerItem("silver_ingot")
+    @JvmField val TUNGSTEN_INGOT = registerItem("tungsten_ingot")
+    @JvmField val CEMENTED_CARBIDE_INGOT = registerItem("cemented_carbide_ingot")
+    @JvmField val HIGH_ENERGY_EXPLOSIVES = registerItem("high_energy_explosives")
+    @JvmField val NITROCELLULOSE = registerItem("nitrocellulose")
+    @JvmField val GRAIN = registerItem("grain")
+    @JvmField val IRON_POWDER = registerItem("iron_powder")
+    @JvmField val TUNGSTEN_POWDER = registerItem("tungsten_powder")
+    @JvmField val COAL_POWDER = registerItem("coal_powder")
+    @JvmField val COAL_IRON_POWDER = registerItem("coal_iron_powder")
+    @JvmField val RAW_CEMENTED_CARBIDE_POWDER = registerItem("raw_cemented_carbide_powder")
+    @JvmField val GALENA = registerItem("galena")
+    @JvmField val SCHEELITE = registerItem("scheelite")
+    @JvmField val RAW_SILVER = registerItem("raw_silver")
+    @JvmField val SLIME_COVERED_LEATHER = registerItem("slime_covered_leather")
+    @JvmField val DOG_TAG = registerItem("dog_tag") { DogTagItem() }
+    @JvmField val IFF = registerItem("iff") { IffItem() }
+    @JvmField val CELL = registerItem("cell") { BatteryItem(24000, Properties()) }
+    @JvmField val BATTERY = registerItem("battery") { BatteryItem(100000, Properties()) }
+    @JvmField val SMALL_BATTERY_PACK = registerItem("small_battery_pack") { BatteryItem(500000, Properties()) }
+    @JvmField val MEDIUM_BATTERY_PACK = registerItem("medium_battery_pack") { BatteryItem(5000000, Properties()) }
+    @JvmField val LARGE_BATTERY_PACK = registerItem("large_battery_pack") { BatteryItem(20000000, Properties()) }
+    @JvmField val LASER_UNIT = registerItem("laser_unit")
+    @JvmField val BEAST = registerItem("beast") { BeastItem() }
+    @JvmField val TRANSCRIPT = registerItem("transcript") { TranscriptItem() }
+    @JvmField val FIRING_PARAMETERS = registerItem("firing_parameters") { FiringParametersItem() }
+    @JvmField val MEDICAL_KIT = registerItem("medical_kit") { MedicalKitItem() }
+    @JvmField val RAD_AWAY = registerItem("rad_away") { RadAwayItem() }
+    @JvmField val VEHICLE_DAMAGE_ANALYZER = registerItem("vehicle_damage_analyzer") { VehicleDamageAnalyzerItem() }
+    @JvmField val VEHICLE_RESET_KIT = registerItem("vehicle_reset_kit") { VehicleResetKitItem() }
+    @JvmField val SKIN_SPRAY = registerItem("skin_spray") { SkinSprayItem() }
+    @JvmField val VEHICLE_KEY = registerItem("vehicle_key") { VehicleKeyItem() }
+    @JvmField val CREATIVE_VEHICLE_KEY = registerItem("creative_vehicle_key") { CreativeVehicleKeyItem() }
+    @JvmField val TOWLINE = registerItem("towline") { TowlineItem() }
+    @JvmField val TOW_BAR = registerItem("tow_bar") { TowBarItem() }
+    @JvmField val CATAPULT_SHUTTLE = registerItem("catapult_shuttle") { CatapultShuttleItem() }
+
+    @JvmField val TUNGSTEN_ROD = registerItem("tungsten_rod")
+
+    @JvmField val IRON_MATERIALS = registerMaterials("iron")
+    @JvmField val STEEL_MATERIALS = registerMaterials("steel")
+    @JvmField val CEMENTED_CARBIDE_MATERIALS = registerMaterials("cemented_carbide")
+    @JvmField val NETHERITE_MATERIALS = registerMaterials("netherite")
+    @JvmField val CRYSTAL_MATERIALS = registerMaterials("crystal")
+
+    @JvmField val COMMON_MATERIAL_PACK = registerItem("common_material_pack") { MaterialPackItem(Rarity.COMMON) }
+    @JvmField val RARE_MATERIAL_PACK = registerItem("rare_material_pack") { MaterialPackItem(Rarity.RARE) }
+    @JvmField val EPIC_MATERIAL_PACK = registerItem("epic_material_pack") { MaterialPackItem(Rarity.EPIC) }
+    @JvmField val LEGENDARY_MATERIAL_PACK = registerItem("legendary_material_pack") { MaterialPackItem(LEGENDARY) }
+    @JvmField val SUPERB_MATERIAL_PACK = registerItem("superb_material_pack") { MaterialPackItem(SUPERB) }
+    @JvmField val VIRTUAL_MATERIAL_PACK = registerItem("virtual_material_pack") { MaterialPackItem(VIRTUAL) }
+
+    @JvmField val COMMON_ACCESSORY_KIT = registerItem("common_accessory_kit") { MaterialPackItem(Rarity.COMMON) }
+    @JvmField val RARE_ACCESSORY_KIT = registerItem("rare_accessory_kit") { MaterialPackItem(Rarity.RARE) }
+    @JvmField val EPIC_ACCESSORY_KIT = registerItem("epic_accessory_kit") { MaterialPackItem(Rarity.EPIC) }
+    @JvmField val LEGENDARY_ACCESSORY_KIT = registerItem("legendary_accessory_kit") { MaterialPackItem(LEGENDARY) }
+    @JvmField val SUPERB_ACCESSORY_KIT = registerItem("superb_accessory_kit") { MaterialPackItem(SUPERB) }
+    @JvmField val VIRTUAL_ACCESSORY_KIT = registerItem("virtual_accessory_kit") { MaterialPackItem(VIRTUAL) }
+
+    @JvmField val LIGHT_ARMAMENT_MODULE = registerItem("light_armament_module") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val MEDIUM_ARMAMENT_MODULE = registerItem("medium_armament_module") { Item(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val HEAVY_ARMAMENT_MODULE = registerItem("heavy_armament_module") { Item(Properties().rarity(LEGENDARY)) }
+
+    @JvmField val DATA_CHIP_SUBSTRATE = registerItem("data_chip_substrate")
+    @JvmField val COMMON_BLUEPRINT_DATA_CHIP = registerItem("common_blueprint_data_chip")
+    @JvmField val RARE_BLUEPRINT_DATA_CHIP = registerItem("rare_blueprint_data_chip") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val EPIC_BLUEPRINT_DATA_CHIP = registerItem("epic_blueprint_data_chip") { Item(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val LEGENDARY_BLUEPRINT_DATA_CHIP = registerItem("legendary_blueprint_data_chip") { Item(Properties().rarity(LEGENDARY)) }
+    @JvmField val SUPERB_BLUEPRINT_DATA_CHIP = registerItem("superb_blueprint_data_chip") { Item(Properties().rarity(SUPERB)) }
+    @JvmField val VIRTUAL_BLUEPRINT_DATA_CHIP = registerItem("virtual_blueprint_data_chip") { Item(Properties().rarity(VIRTUAL)) }
+
+    @JvmField val AMMO_PERK_DATA_CHIP = registerItem("ammo_perk_data_chip")
+    @JvmField val FUNCTIONAL_PERK_DATA_CHIP = registerItem("functional_perk_data_chip")
+    @JvmField val DAMAGE_PERK_DATA_CHIP = registerItem("damage_perk_data_chip")
+
+    @JvmField val DIRECTIONAL_RESEARCH_MODULE = registerItem("directional_research_module") { Item(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val ENLARGEMENT_RESEARCH_MODULE = registerItem("enlargement_research_module") { Item(Properties().rarity(Rarity.EPIC)) }
+    @JvmField val EFFECTIVE_RESEARCH_MODULE = registerItem("effective_research_module") { Item(Properties().rarity(Rarity.RARE)) }
+    @JvmField val BOOST_RESEARCH_MODULE = registerItem("boost_research_module") { Item(Properties().rarity(Rarity.RARE)) }
+
+    @JvmField val TRACHELIUM_BLUEPRINT = registerBlueprint("trachelium_blueprint", VIRTUAL)
+    @JvmField val GLOCK_17_BLUEPRINT = registerBlueprint("glock_17_blueprint", Rarity.COMMON)
+    @JvmField val MP_443_BLUEPRINT = registerBlueprint("mp_443_blueprint", Rarity.COMMON)
+    @JvmField val GLOCK_18_BLUEPRINT = registerBlueprint("glock_18_blueprint", Rarity.RARE)
+    @JvmField val HUNTING_RIFLE_BLUEPRINT = registerBlueprint("hunting_rifle_blueprint", Rarity.EPIC)
+    @JvmField val M_79_BLUEPRINT = registerBlueprint("m_79_blueprint", Rarity.RARE)
+    @JvmField val GP_25_BLUEPRINT = registerBlueprint("gp_25_blueprint", Rarity.EPIC)
+    @JvmField val RPG_BLUEPRINT = registerBlueprint("rpg_blueprint", Rarity.RARE)
+    @JvmField val BOCEK_BLUEPRINT = registerBlueprint("bocek_blueprint", Rarity.EPIC)
+    @JvmField val M_4_BLUEPRINT = registerBlueprint("m_4_blueprint", Rarity.RARE)
+    @JvmField val AA_12_BLUEPRINT = registerBlueprint("aa_12_blueprint", LEGENDARY)
+    @JvmField val HK_416_BLUEPRINT = registerBlueprint("hk_416_blueprint", Rarity.RARE)
+    @JvmField val RPK_BLUEPRINT = registerBlueprint("rpk_blueprint", Rarity.EPIC)
+    @JvmField val SKS_BLUEPRINT = registerBlueprint("sks_blueprint", Rarity.RARE)
+    @JvmField val NTW_20_BLUEPRINT = registerBlueprint("ntw_20_blueprint", LEGENDARY)
+    @JvmField val MP_5_BLUEPRINT = registerBlueprint("mp_5_blueprint", Rarity.RARE)
+    @JvmField val VECTOR_BLUEPRINT = registerBlueprint("vector_blueprint", Rarity.EPIC)
+    @JvmField val MINIGUN_BLUEPRINT = registerBlueprint("minigun_blueprint", LEGENDARY)
+    @JvmField val MK_14_BLUEPRINT = registerBlueprint("mk_14_blueprint", Rarity.EPIC)
+    @JvmField val SENTINEL_BLUEPRINT = registerBlueprint("sentinel_blueprint", Rarity.EPIC)
+    @JvmField val M_60_BLUEPRINT = registerBlueprint("m_60_blueprint", Rarity.EPIC)
+    @JvmField val SVD_BLUEPRINT = registerBlueprint("svd_blueprint", Rarity.EPIC)
+    @JvmField val MARLIN_BLUEPRINT = registerBlueprint("marlin_blueprint", Rarity.COMMON)
+    @JvmField val M_870_BLUEPRINT = registerBlueprint("m_870_blueprint", Rarity.RARE)
+    @JvmField val M_1897_BLUEPRINT = registerBlueprint("m_1897_blueprint", Rarity.RARE)
+    @JvmField val AWM_BLUEPRINT = registerBlueprint("awm_blueprint", Rarity.EPIC)
+    @JvmField val M_98B_BLUEPRINT = registerBlueprint("m_98b_blueprint", Rarity.EPIC)
+    @JvmField val AK_47_BLUEPRINT = registerBlueprint("ak_47_blueprint", Rarity.RARE)
+    @JvmField val AK_12_BLUEPRINT = registerBlueprint("ak_12_blueprint", Rarity.RARE)
+    @JvmField val DEVOTION_BLUEPRINT = registerBlueprint("devotion_blueprint", Rarity.EPIC)
+    @JvmField val TASER_BLUEPRINT = registerBlueprint("taser_blueprint", Rarity.COMMON)
+    @JvmField val M_1911_BLUEPRINT = registerBlueprint("m_1911_blueprint", Rarity.COMMON)
+    @JvmField val QBZ_95_BLUEPRINT = registerBlueprint("qbz_95_blueprint", Rarity.RARE)
+    @JvmField val QBZ_191_BLUEPRINT = registerBlueprint("qbz_191_blueprint", Rarity.EPIC)
+    @JvmField val K_98_BLUEPRINT = registerBlueprint("k_98_blueprint", Rarity.RARE)
+    @JvmField val MOSIN_NAGANT_BLUEPRINT = registerBlueprint("mosin_nagant_blueprint", Rarity.RARE)
+    @JvmField val IGLA_BLUEPRINT = registerBlueprint("igla_9k38_blueprint", Rarity.EPIC)
+    @JvmField val JAVELIN_BLUEPRINT = registerBlueprint("javelin_blueprint", LEGENDARY)
+    @JvmField val M_2_HB_BLUEPRINT = registerBlueprint("m_2_hb_blueprint", Rarity.RARE)
+    @JvmField val NAIL_GUN_BLUEPRINT = registerBlueprint("nail_gun_blueprint", Rarity.RARE)
+    @JvmField val SECONDARY_CATACLYSM_BLUEPRINT = registerBlueprint("secondary_cataclysm_blueprint", VIRTUAL)
+    @JvmField val INSIDIOUS_BLUEPRINT = registerBlueprint("insidious_blueprint", Rarity.EPIC)
+    @JvmField val QL_1031_BLUEPRINT = registerBlueprint("ql_1031_blueprint", VIRTUAL)
+    @JvmField val SUPER_STAR_SHOOTER_BLUEPRINT = registerBlueprint("super_star_shooter_blueprint", SUPERB)
+    @JvmField val RAUBTIER_BLUEPRINT = registerBlueprint("raubtier_blueprint", SUPERB)
+    @JvmField val REFORGING_BLUEPRINT = registerBlueprint("reforging_blueprint", SUPERB)
+
+    @JvmField val MK_42_BLUEPRINT = registerBlueprint("mk_42_blueprint", LEGENDARY)
+    @JvmField val MLE_1934_BLUEPRINT = registerBlueprint("mle_1934_blueprint", LEGENDARY)
+    @JvmField val BL_132_BLUEPRINT = registerBlueprint("bl_132_blueprint", LEGENDARY)
+    @JvmField val HPJ_11_BLUEPRINT = registerBlueprint("hpj_11_blueprint", LEGENDARY)
+    @JvmField val ANNIHILATOR_BLUEPRINT = registerBlueprint("annihilator_blueprint", LEGENDARY)
+    // @formatter:on
+
+    /**
+     * Block
+     */
+
+    private fun <T : Block> registerBlock(block: T): BlockItem {
+        return registerBlock(BuiltInRegistries.BLOCK.getKey(block).path) {
+            BlockItem(block, Properties())
+        }
+    }
+
+    private fun registerBlock(id: String, block: () -> BlockItem): BlockItem {
+        val item = register(id, block())
+        BLOCKS.add(item)
+        return item
+    }
+
+    // @formatter:off
+    @JvmField val GALENA_ORE = registerBlock(ModBlocks.GALENA_ORE)
+    @JvmField val DEEPSLATE_GALENA_ORE = registerBlock(ModBlocks.DEEPSLATE_GALENA_ORE)
+    @JvmField val SCHEELITE_ORE = registerBlock(ModBlocks.SCHEELITE_ORE)
+    @JvmField val DEEPSLATE_SCHEELITE_ORE = registerBlock(ModBlocks.DEEPSLATE_SCHEELITE_ORE)
+    @JvmField val SILVER_ORE = registerBlock(ModBlocks.SILVER_ORE)
+    @JvmField val DEEPSLATE_SILVER_ORE = registerBlock(ModBlocks.DEEPSLATE_SILVER_ORE)
+    @JvmField val RAW_GALENA_BLOCK = registerBlock(ModBlocks.RAW_GALENA_BLOCK)
+    @JvmField val RAW_SCHEELITE_BLOCK = registerBlock(ModBlocks.RAW_SCHEELITE_BLOCK)
+    @JvmField val RAW_SILVER_BLOCK = registerBlock(ModBlocks.RAW_SILVER_BLOCK)
+    @JvmField val URANIUM_INGOT = registerItem("uranium_ingot")
+    @JvmField val SULFUR = registerItem("sulfur")
+    @JvmField val NITER = registerItem("niter")
+    @JvmField val RAW_URANIUM = registerItem("raw_uranium")
+    @JvmField val URANIUM_ORE = registerBlock(ModBlocks.URANIUM_ORE)
+    @JvmField val DEEPSLATE_URANIUM_ORE = registerBlock(ModBlocks.DEEPSLATE_URANIUM_ORE)
+    @JvmField val SULFUR_ORE = registerBlock(ModBlocks.SULFUR_ORE)
+    @JvmField val DEEPSLATE_SULFUR_ORE = registerBlock(ModBlocks.DEEPSLATE_SULFUR_ORE)
+    @JvmField val NITER_ORE = registerBlock(ModBlocks.NITER_ORE)
+    @JvmField val DEEPSLATE_NITER_ORE = registerBlock(ModBlocks.DEEPSLATE_NITER_ORE)
+    @JvmField val RAW_URANIUM_BLOCK = registerBlock(ModBlocks.RAW_URANIUM_BLOCK)
+    @JvmField val URANIUM_BLOCK = registerBlock(ModBlocks.URANIUM_BLOCK)
+    @JvmField val SULFUR_BLOCK = registerBlock(ModBlocks.SULFUR_BLOCK)
+    @JvmField val NITER_BLOCK = registerBlock(ModBlocks.NITER_BLOCK)
+    @JvmField val JUMP_PAD = registerBlock(ModBlocks.JUMP_PAD)
+    @JvmField val SANDBAG = registerBlock(ModBlocks.SANDBAG)
+    @JvmField val BARBED_WIRE = registerBlock(ModBlocks.BARBED_WIRE)
+    @JvmField val DRAGON_TEETH = registerBlock(ModBlocks.DRAGON_TEETH)
+    @JvmField val REFORGING_TABLE = registerBlock(ModBlocks.REFORGING_TABLE)
+    @JvmField val CHARGING_STATION = registerBlock("charging_station") { ChargingStationBlockItem() }
+    @JvmField val CREATIVE_CHARGING_STATION = registerBlock("creative_charging_station") { CreativeChargingStationBlockItem() }
+    @JvmField val LEAD_BLOCK = registerBlock(ModBlocks.LEAD_BLOCK)
+    @JvmField val STEEL_BLOCK = registerBlock(ModBlocks.STEEL_BLOCK)
+    @JvmField val TUNGSTEN_BLOCK = registerBlock(ModBlocks.TUNGSTEN_BLOCK)
+    @JvmField val SILVER_BLOCK = registerBlock(ModBlocks.SILVER_BLOCK)
+    @JvmField val CEMENTED_CARBIDE_BLOCK = registerBlock(ModBlocks.CEMENTED_CARBIDE_BLOCK)
+    @JvmField val FUMO_25 = registerBlock(ModBlocks.FUMO_25)
+    @JvmField val VEHICLE_DEPLOYER = registerBlock(BuiltInRegistries.BLOCK.getKey(ModBlocks.VEHICLE_DEPLOYER).path) {
+        BlockItem(ModBlocks.VEHICLE_DEPLOYER, Properties().stacksTo(1).rarity(Rarity.EPIC))
+    }
+    @JvmField val AIRCRAFT_CATAPULT = registerBlock(ModBlocks.AIRCRAFT_CATAPULT)
+    @JvmField val CATAPULT_CONTROLLER = registerBlock(ModBlocks.CATAPULT_CONTROLLER)
+    @JvmField val SUPERB_ITEM_INTERFACE = registerBlock(ModBlocks.SUPERB_ITEM_INTERFACE)
+    @JvmField val CREATIVE_SUPERB_ITEM_INTERFACE = registerBlock(BuiltInRegistries.BLOCK.getKey(ModBlocks.CREATIVE_SUPERB_ITEM_INTERFACE).path) {
+        BlockItem(ModBlocks.CREATIVE_SUPERB_ITEM_INTERFACE, Properties().rarity(Rarity.EPIC))
+    }
+    @JvmField val VEHICLE_ASSEMBLING_TABLE = registerBlock("vehicle_assembling_table") { VehicleAssemblingTableBlockItem() }
+    @JvmField val BLUEPRINT_RESEARCH_TABLE = registerBlock("blueprint_research_table") { BlueprintResearchTableBlockItem() }
+    @JvmField val BIOGAS_GENERATOR = registerBlock(ModBlocks.BIOGAS_GENERATOR)
+    // @formatter:on
+
+    /**
+     * Vehicle
+     */
+    private fun registerVehicle(id: String) = registerVehicle(id) { Item(Properties()) }
+
+    private fun <T : Item> registerVehicle(id: String, item: () -> T): T {
+        return register(id, item())
+    }
+
+    // @formatter:off
+    @JvmField val CONTAINER = registerVehicle("container") { ContainerBlockItem() }
+    @JvmField val SMALL_CONTAINER = registerVehicle("small_container") { SmallContainerBlockItem() }
+    @JvmField val LUCKY_CONTAINER = registerVehicle("lucky_container") { LuckyContainerBlockItem() }
+    // @formatter:on
+
+    @JvmRecord
+    data class Materials(
+        val name: String,
+        val barrel: Item,
+        val action: Item,
+        val spring: Item,
+        val trigger: Item,
+    )
+
+    private fun registerMaterials(name: String): Materials {
+        return Materials(
+            name,
+            registerItem(name + "_barrel"),
+            registerItem(name + "_action"),
+            registerItem(name + "_spring"),
+            registerItem(name + "_trigger"),
+        )
+    }
+
+    /**
+     * Perk Items
+     */
+
+    private fun <T : Item> registerPerkItem(id: String, item: () -> T): T {
+        val registered = register(id, item())
+        PERKS.add(registered)
+        return registered
+    }
+
+    @JvmField
+    val PERK_ITEMS: MutableMap<Perk, Item> = mutableMapOf()
+
+    /**
+     * 单独注册，用于Tab图标，不要删
+     */
+    // @formatter:off
+    @JvmField var AP_BULLET: Item = Items.AIR
+    @JvmField var INTELLIGENT_CHIP: Item = Items.AIR
+    // @formatter:on
+
+    private fun registerPerkItems() {
+        ModPerks.AMMO_PERKS.forEach { registerSinglePerkItem(it) }
+        ModPerks.FUNC_PERKS.forEach { registerSinglePerkItem(it) }
+        ModPerks.DAMAGE_PERKS.forEach { registerSinglePerkItem(it) }
+
+        AP_BULLET = PERK_ITEMS[ModPerks.AP_BULLET] ?: Items.AIR
+        INTELLIGENT_CHIP = PERK_ITEMS[ModPerks.INTELLIGENT_CHIP] ?: Items.AIR
+    }
+
+    private fun registerSinglePerkItem(perk: Perk) {
+        PERK_ITEMS[perk] = registerPerkItem(perk.getId().path) { PerkItem(perk) }
+    }
+
+    // @formatter:off
+    @JvmField val SHORTCUT_PACK = registerPerkItem("shortcut_pack") { ShortcutPackItem() }
+    @JvmField val EMPTY_PERK = registerPerkItem("empty_perk") { Item(Properties()) }
+    // @formatter:on
+
+    fun registerDispenserBehavior() {
+        for (item in REGISTERED_ITEMS) {
+            if (item is ProjectileItem) {
+                DispenserBlock.registerProjectileBehavior(item)
+            }
+            if (item is DispenserLaunchable) {
+                DispenserBlock.registerBehavior(item, item.getLaunchBehavior())
+            }
+        }
+    }
+
+    @JvmStatic
+    fun init() {
+        registerPerkItems()
+        FuelRegistry.INSTANCE.add(C4_BOMB, 20000)
+    }
+}

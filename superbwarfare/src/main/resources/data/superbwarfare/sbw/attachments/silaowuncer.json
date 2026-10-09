@@ -1,0 +1,27 @@
+{
+  "Slot": "Muzzle",
+  "Level": 1,
+  "Bone": "muzzle_pos",
+  "Modifiers": [
+    {
+      "Prop": "Weight",
+      "Op": "Add",
+      "Value": 1.0
+    }
+  ],
+  "IsSilenced": true,
+  "Override": {
+    "SoundInfo": {
+      "Fire1P": "superbwarfare:laowu",
+      "Fire3P": "superbwarfare:laowu_single",
+      "Fire3PFar": "superbwarfare:laowu_single",
+      "Fire3PVeryFar": "superbwarfare:laowu_single",
+      "Fire1PSilent": "superbwarfare:laowu",
+      "Fire3PSilent": "superbwarfare:laowu_single",
+      "Fire3PFarSilent": "superbwarfare:laowu_single",
+      "Fire3PVeryFarSilent": "superbwarfare:laowu_single"
+    }
+  },
+  "Model": "superbwarfare:models/bedrock/attachment/silaowuncer.geo.json",
+  "Texture": "superbwarfare:textures/bedrock/attachment/silaowuncer.png"
+}

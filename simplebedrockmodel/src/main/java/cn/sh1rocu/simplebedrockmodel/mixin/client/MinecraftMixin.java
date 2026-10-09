@@ -1,0 +1,40 @@
+package cn.sh1rocu.simplebedrockmodel.mixin.client;
+
+import cn.sh1rocu.simplebedrockmodel.api.event.RegisterClientReloadListenersEvent;
+import cn.sh1rocu.simplebedrockmodel.api.event.RenderFrameEvent;
+import net.minecraft.client.DeltaTracker;
+import net.minecraft.client.Minecraft;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import org.objectweb.asm.Opcodes;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+@Mixin(Minecraft.class)
+public class MinecraftMixin {
+    @Shadow
+    @Final
+    private ReloadableResourceManager resourceManager;
+
+    @Shadow
+    @Final
+    private DeltaTracker.Timer deltaTracker;
+
+    @Inject(method = "<init>", at = @At(value = "FIELD", target = "Lnet/minecraft/client/Minecraft;resourceManager:Lnet/minecraft/server/packs/resources/ReloadableResourceManager;", opcode = Opcodes.PUTFIELD, shift = At.Shift.AFTER))
+    private void sbm$onInit(CallbackInfo ci) {
+        RegisterClientReloadListenersEvent.EVENT.invoker().post(new RegisterClientReloadListenersEvent(this.resourceManager));
+    }
+
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;update(Lnet/minecraft/client/DeltaTracker;)V"))
+    private void sbm$renderTickStart(boolean tick, CallbackInfo ci) {
+        RenderFrameEvent.EVENT.invoker().post(new RenderFrameEvent((Minecraft) (Object) this, RenderFrameEvent.Phase.START, this.deltaTracker));
+    }
+
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GameRenderer;render(Lnet/minecraft/client/DeltaTracker;Z)V", shift = At.Shift.AFTER))
+    private void sbm$renderTickEnd(boolean tick, CallbackInfo ci) {
+        RenderFrameEvent.EVENT.invoker().post(new RenderFrameEvent((Minecraft) (Object) this, RenderFrameEvent.Phase.END, this.deltaTracker));
+    }
+}
