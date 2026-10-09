@@ -58,17 +58,25 @@ public abstract class CameraMixin {
     @Shadow
     private float yRot;
 
-    @Inject(method = "setup", at = @At("HEAD"))
-    private void superbWarfare$capturePartialTicks(BlockGetter level, Entity entity, boolean detached,
-                                                    boolean thirdPersonReverse, float partialTicks, CallbackInfo ci) {
+    @Shadow
+    private Entity entity;
+
+    @Shadow
+    private boolean detached;
+
+    @Inject(method = "alignWithEntity", at = @At("HEAD"))
+    private void superbWarfare$capturePartialTicks(float partialTicks, CallbackInfo ci) {
         superbWarfare$anglesComputed = false;
         superbWarfare$partialTicks = partialTicks;
     }
 
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 0),
-            method = "setup",
+    @Inject(at = {
+            @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 0),
+            @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V", ordinal = 1)
+    },
+            method = "alignWithEntity",
             cancellable = true)
-    private void onSetup(BlockGetter level, Entity entity, boolean detached, boolean thirdPersonReverse, float partialTicks, CallbackInfo info) {
+    private void onSetup(float partialTicks, CallbackInfo info) {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null) return;
@@ -130,11 +138,25 @@ public abstract class CameraMixin {
     }
 
     @ModifyArgs(
-            method = "setup",
+            method = "alignWithEntity",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/Camera;setRotation(FF)V",
                     ordinal = 0
+            )
+    )
+    private void superbWarfare$applyComputedAnglesMinecart(Args args) {
+        superbWarfare$computeAngles(args.get(0), args.get(1));
+        args.set(0, superbWarfare$computedYaw);
+        args.set(1, superbWarfare$computedPitch);
+    }
+
+    @ModifyArgs(
+            method = "alignWithEntity",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/Camera;setRotation(FF)V",
+                    ordinal = 1
             )
     )
     private void superbWarfare$applyComputedAngles(Args args) {
@@ -185,8 +207,10 @@ public abstract class CameraMixin {
         setRotation(superbWarfare$computedYaw, superbWarfare$computedPitch);
     }
 
-    @Inject(method = "setup", at = @At("TAIL"))
-    public void superbWarfare$setup(BlockGetter area, Entity entity, boolean thirdPerson, boolean inverseView, float tickDelta, CallbackInfo ci) {
+    @Inject(method = "alignWithEntity", at = @At("TAIL"))
+    public void superbWarfare$setup(float tickDelta, CallbackInfo ci) {
+        Entity entity = this.entity;
+        boolean thirdPerson = this.detached;
         if (Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_BACK
                 && entity instanceof Player player
                 && GunItem.isHeldWeapon(player.getMainHandItem())
@@ -207,4 +231,18 @@ public abstract class CameraMixin {
 
     @Shadow
     protected abstract float getMaxZoom(float maxZoom);
+
+    @Inject(method = "calculateFov", at = @At("RETURN"), cancellable = true)
+    private void superbWarfare$getFov(float partialTick, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Float> cir) {
+        ClientEventHandler.FovContext context = new ClientEventHandler.FovContext(
+                (double) cir.getReturnValueF(),
+                (double) partialTick,
+                true
+        );
+
+        ClientEventHandler.onFovUpdate(context);
+        ClientEventHandler.captureFov(context);
+
+        cir.setReturnValue((float) context.getFov());
+    }
 }

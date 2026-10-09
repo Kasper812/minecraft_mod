@@ -21,13 +21,16 @@ public abstract class ClientPacketListenerMixin {
     @Shadow
     private ClientLevel level;
 
+    @Shadow
+    private java.util.OptionalInt removedPlayerVehicleId;
+
     /**
      * 正确处理VehicleEntity的带顺序乘客
      */
     @Inject(method = "handleSetEntityPassengersPacket(Lnet/minecraft/network/protocol/game/ClientboundSetPassengersPacket;)V", at = @At("HEAD"), cancellable = true)
     public void vehicleEntityUpdate(ClientboundSetPassengersPacket pPacket, CallbackInfo ci) {
         var minecraft = Minecraft.getInstance();
-        PacketUtils.ensureRunningOnSameThread(pPacket, (ClientPacketListener) (Object) this, minecraft);
+        PacketUtils.ensureRunningOnSameThread(pPacket, (ClientPacketListener) (Object) this, minecraft.packetProcessor());
 
         // 只处理VehicleEntity
         Entity entity = this.level.getEntity(pPacket.getVehicle());
@@ -56,7 +59,10 @@ public abstract class ClientPacketListenerMixin {
 
             Entity passenger = this.level.getEntity(i);
             if (passenger != null) {
-                passenger.startRiding(entity, true);
+                passenger.startRiding(entity, true, false);
+                if (passenger == player) {
+                    this.removedPlayerVehicleId = java.util.OptionalInt.empty();
+                }
 
                 if (passenger == player || hasIndirectPassenger) {
                     Component component = Component.translatable("mount.onboard", ModKeyMappings.DISMOUNT.getTranslatedKeyMessage());
@@ -64,8 +70,8 @@ public abstract class ClientPacketListenerMixin {
                         component = Component.translatable("tips.superbwarfare.mount.onboard", ModKeyMappings.DISMOUNT.getTranslatedKeyMessage());
                     }
 
-                    Minecraft.getInstance().gui.setOverlayMessage(component, false);
-                    Minecraft.getInstance().getNarrator().sayNow(component);
+                    Minecraft.getInstance().gui.hud.setOverlayMessage(component, false);
+                    Minecraft.getInstance().getNarrator().saySystemNow(component);
                 }
             }
         }

@@ -68,17 +68,15 @@ public abstract class EntityMixin implements OBBHitter, PersistentDataAccessor {
     }
 
     @Inject(method = "saveWithoutId", at = @At("HEAD"))
-    private void superbwarfare$savePersistentData(CompoundTag tag, CallbackInfoReturnable<CompoundTag> cir) {
+    private void superbwarfare$savePersistentData(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
         if (this.superbwarfare$persistentData != null) {
-            tag.put("NeoForgeData", this.superbwarfare$persistentData.copy());
+            output.store("NeoForgeData", CompoundTag.CODEC, this.superbwarfare$persistentData.copy());
         }
     }
 
     @Inject(method = "load", at = @At("HEAD"))
-    private void superbwarfare$loadPersistentData(CompoundTag tag, CallbackInfo ci) {
-        if (tag.contains("NeoForgeData", CompoundTag.TAG_COMPOUND)) {
-            this.superbwarfare$persistentData = tag.getCompoundOrEmpty("NeoForgeData");
-        }
+    private void superbwarfare$loadPersistentData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+        input.read("NeoForgeData", CompoundTag.CODEC).ifPresent(tag -> this.superbwarfare$persistentData = tag);
     }
 
     @Override
@@ -179,13 +177,14 @@ public abstract class EntityMixin implements OBBHitter, PersistentDataAccessor {
     }
 
     @Inject(
-            method = "spawnAtLocation(Lnet/minecraft/world/item/ItemStack;F)Lnet/minecraft/world/entity/item/ItemEntity;",
+            method = "spawnAtLocation(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/entity/item/ItemEntity;",
             at = @At("HEAD"),
             cancellable = true
     )
     private void superbwarfare$powerfulAttractionDrop(
+            net.minecraft.server.level.ServerLevel level,
             ItemStack stack,
-            float yOffset,
+            Vec3 offset,
             CallbackInfoReturnable<ItemEntity> cir
     ) {
         Entity entity = (Entity) (Object) this;
@@ -199,12 +198,13 @@ public abstract class EntityMixin implements OBBHitter, PersistentDataAccessor {
     }
 
     @Inject(
-            method = "spawnAtLocation(Lnet/minecraft/world/item/ItemStack;F)Lnet/minecraft/world/entity/item/ItemEntity;",
+            method = "spawnAtLocation(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/Vec3;)Lnet/minecraft/world/entity/item/ItemEntity;",
             at = @At("RETURN")
     )
     private void superbwarfare$captureLivingDrop(
+            net.minecraft.server.level.ServerLevel level,
             ItemStack stack,
-            float yOffset,
+            Vec3 offset,
             CallbackInfoReturnable<ItemEntity> cir
     ) {
         ItemEntity drop = cir.getReturnValue();

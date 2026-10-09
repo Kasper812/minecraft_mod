@@ -25,7 +25,7 @@ public abstract class EnchantedCountIncreaseFunctionMixin {
 
     @Final
     @Shadow
-    private NumberProvider value;
+    private NumberProvider count;
 
     @Final
     @Shadow
@@ -41,14 +41,14 @@ public abstract class EnchantedCountIncreaseFunctionMixin {
     @Inject(method = "run(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/level/storage/loot/LootContext;)Lnet/minecraft/world/item/ItemStack;",
             at = @At("HEAD"), cancellable = true)
     private void run(ItemStack stack, LootContext context, CallbackInfoReturnable<ItemStack> cir) {
-        Entity entity = context.getParamOrNull(LootContextParams.ATTACKING_ENTITY);
+        Entity entity = context.getOptionalParameter(LootContextParams.ATTACKING_ENTITY);
         if (entity instanceof LivingEntity living && this.enchantment.is(Enchantments.LOOTING)) {
             ItemStack mainHandItem = living.getMainHandItem();
             if (!(mainHandItem.getItem() instanceof GunItem)) return;
 
             int level = GunData.from(mainHandItem).perk.getLevel(ModPerks.INSTANCE.getPOWERFUL_ATTRACTION());
             if (level > 0) {
-                float f = (float) level * this.value.getFloatOr(context, 0.0F);
+                float f = (float) level * this.count.getFloat(context);
                 stack.grow(Math.round(f));
                 if (this.hasLimit()) {
                     stack.limitSize(this.limit);

@@ -16,7 +16,7 @@ public abstract class VehicleFireSoundInstance extends AbstractTickableSoundInst
     private boolean die = false;
 
     public VehicleFireSoundInstance(SoundEvent sound, Minecraft client, Entity entity) {
-        super(sound, SoundSource.AMBIENT, entity.getCommandSenderWorld().getRandom());
+        super(sound, SoundSource.AMBIENT, entity.level().getRandom());
         this.client = client;
         this.entity = entity;
         this.looping = true;

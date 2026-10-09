@@ -54,8 +54,10 @@ public class MultiPlayerGameModeMixin {
     @Unique
     private static CompoundTag superbwarfare$getCreativeContainerTag(ItemStack stack) {
         if (stack.is(ModItems.CONTAINER) || stack.is(ModItems.LUCKY_CONTAINER)) {
-            CustomData data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
-            return data != null && !data.isEmpty() ? data.copyTag() : null;
+            var data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+            if (data == null) return null;
+            CompoundTag tag = data.copyTagWithoutId();
+            return tag.isEmpty() ? null : tag;
         }
 
         if (stack.is(ModItems.SMALL_CONTAINER)) {
@@ -63,7 +65,7 @@ public class MultiPlayerGameModeMixin {
             if (loot == null) return null;
 
             CompoundTag tag = new CompoundTag();
-            tag.putString("LootTable", loot.lootTable().location().toString());
+            tag.putString("LootTable", loot.lootTable().identifier().toString());
             if (loot.seed() != 0L) {
                 tag.putLong("LootTableSeed", loot.seed());
             }

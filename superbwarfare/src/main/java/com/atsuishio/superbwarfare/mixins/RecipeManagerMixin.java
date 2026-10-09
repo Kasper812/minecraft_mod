@@ -16,18 +16,15 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(RecipeManager.class)
+@Mixin(net.minecraft.world.inventory.ResultSlot.class)
 public abstract class RecipeManagerMixin {
 
-    @Inject(method = "getRemainingItemsFor", at = @At("RETURN"), cancellable = true)
-    private <I extends RecipeInput, T extends Recipe<I>> void superbwarfare$recipeRemainders(
-            RecipeType<T> recipeType,
-            I recipeInput,
+    @Inject(method = "getRemainingItems", at = @At("RETURN"), cancellable = true)
+    private void superbwarfare$recipeRemainders(
+            net.minecraft.world.item.crafting.CraftingInput recipeInput,
             Level level,
             CallbackInfoReturnable<NonNullList<ItemStack>> cir
     ) {
-        if (!RecipeType.CRAFTING.equals(recipeType)) return;
-
         var remainingItems = cir.getReturnValue();
         boolean changed = false;
 

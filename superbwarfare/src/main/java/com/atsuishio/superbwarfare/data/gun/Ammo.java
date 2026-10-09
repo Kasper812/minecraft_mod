@@ -173,7 +173,7 @@ public enum Ammo {
     }
 
     public boolean set(Entity entity, int count) {
-        if (entity.level().isClientSide || count > getLimit()) return false;
+        if (entity.level().isClientSide() || count > getLimit()) return false;
 
         return ModComponents.PLAYER_VARIABLE
                 .maybeGet(entity)

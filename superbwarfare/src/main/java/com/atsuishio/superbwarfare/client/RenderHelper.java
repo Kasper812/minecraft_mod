@@ -221,12 +221,12 @@ public class RenderHelper {
     ) {
         LegacyRenderSystem.setShaderTexture(0, atlasLocation);
         Matrix4f matrix4f = gui.pose().last().pose();
-        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        var bufferbuilder = gui.begin(GuiGraphics.Mode.QUADS, true);
         bufferbuilder.addVertex(matrix4f, x1, y1, blitOffset).setUv(minU, minV);
         bufferbuilder.addVertex(matrix4f, x1, y2, blitOffset).setUv(minU, maxV);
         bufferbuilder.addVertex(matrix4f, x2, y2, blitOffset).setUv(maxU, maxV);
         bufferbuilder.addVertex(matrix4f, x2, y1, blitOffset).setUv(maxU, minV);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        bufferbuilder.end();
     }
 
     /**
@@ -259,7 +259,7 @@ public class RenderHelper {
         LegacyRenderSystem.setShaderTexture(0, atlasLocation);
         LegacyRenderSystem.enableBlend();
         Matrix4f matrix4f = gui.pose().last().pose();
-        BufferBuilder bufferbuilder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
+        var bufferbuilder = gui.begin(GuiGraphics.Mode.QUADS, true);
         bufferbuilder.addVertex(matrix4f, x1, y1, blitOffset)
                 .setUv(minU, minV)
                 .setColor(color);
@@ -272,7 +272,7 @@ public class RenderHelper {
         bufferbuilder.addVertex(matrix4f, x2, y1, blitOffset)
                 .setUv(maxU, minV)
                 .setColor(color);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        bufferbuilder.end();
         LegacyRenderSystem.disableBlend();
     }
 
@@ -340,7 +340,7 @@ public class RenderHelper {
      * @param useRate         是否使用占据屏幕百分比形式的半径
      */
     public static void renderCircularRing(GuiGraphics guiGraphics, float centerX, float centerY, float outerRadius, float innerRadius, float[] backgroundColor, float[] progressColor, float progress, boolean useRate) {
-        PoseStack poseStack = guiGraphics.pose();
+        var poseStack = guiGraphics.pose();
         poseStack.pushPose();
 
         LegacyRenderSystem.enableBlend();
@@ -361,9 +361,9 @@ public class RenderHelper {
     }
 
     public static void drawCircularRing(GuiGraphics guiGraphics, float centerX, float centerY, float outerRadius, float innerRadius, float[] color, float progressAngle) {
-        BufferBuilder buffer = Tesselator.getInstance().begin(VertexFormat.Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_COLOR);
+        var buffer = guiGraphics.begin(GuiGraphics.Mode.TRIANGLE_STRIP, false);
 
-        PoseStack.Pose pose = guiGraphics.pose().last();
+        var pose = guiGraphics.pose().last();
         Matrix4f matrix = pose.pose();
         float angleStep = (float) (2 * Math.PI / 180);
         float maxAngle = (float) (2 * Math.PI * progressAngle);
@@ -392,6 +392,6 @@ public class RenderHelper {
             if (angle >= maxAngle) break;
         }
 
-        BufferUploader.drawWithShader(buffer.buildOrThrow());
+        buffer.end();
     }
 }

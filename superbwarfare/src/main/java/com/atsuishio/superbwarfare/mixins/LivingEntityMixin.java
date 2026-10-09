@@ -73,7 +73,7 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
     protected abstract void playHurtSound(DamageSource pSource);
 
     @Shadow
-    protected abstract void actuallyHurt(DamageSource pDamageSource, float pDamageAmount);
+    protected abstract void actuallyHurt(ServerLevel level, DamageSource pDamageSource, float pDamageAmount);
 
     @Shadow
     public abstract void hurtHelmet(DamageSource pDamageSource, float pDamageAmount);
@@ -104,7 +104,7 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
 
     @Inject(method = "setSprinting(Z)V", at = @At("HEAD"), cancellable = true)
     public void setSprinting(boolean pSprinting, CallbackInfo ci) {
-        if (((LivingEntity) (Object) this) instanceof Player player && player.level().isClientSide) {
+        if (((LivingEntity) (Object) this) instanceof Player player && player.level().isClientSide()) {
             if (pSprinting && ClientEventHandler.zoom) {
                 ci.cancel();
             }
@@ -128,7 +128,9 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
 
     @Override
     public void superbWarfare$actuallyHurt(DamageSource pDamageSource, float pDamageAmount) {
-        this.actuallyHurt(pDamageSource, pDamageAmount);
+        if (((LivingEntity) (Object) this).level() instanceof ServerLevel serverLevel) {
+            this.actuallyHurt(serverLevel, pDamageSource, pDamageAmount);
+        }
     }
 
     @Override
@@ -147,7 +149,7 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
             @Nullable Entity source
     ) {
         LivingEntity self = (LivingEntity) (Object) this;
-        if (self.level().isClientSide) {
+        if (self.level().isClientSide()) {
             return false;
         }
 
@@ -177,8 +179,8 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
         }
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void superbwarfare$onHurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void superbwarfare$onHurt(ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         LivingEntity self = (LivingEntity) (Object) this;
         Entity directEntity = source.getDirectEntity();
 
@@ -192,8 +194,8 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
         }
     }
 
-    @Inject(method = "hurt(Lnet/minecraft/world/damagesource/DamageSource;F)Z", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z"), cancellable = true)
-    private void superbwarfare$onIncomingDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) LocalFloatRef damage) {
+    @Inject(method = "hurtServer", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;isSleeping()Z"), cancellable = true)
+    private void superbwarfare$onIncomingDamage(ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir, @Local(argsOnly = true) LocalFloatRef damage) {
         LivingIncomingDamageCallback.Event event = new LivingIncomingDamageCallback.Event(
                 (LivingEntity) (Object) this, source, amount
         );
@@ -205,8 +207,8 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
         }
     }
 
-    @ModifyVariable(method = "hurt", at = @At("HEAD"), argsOnly = true)
-    private float superbwarfare$modifyHurtAmount(float amount, DamageSource source) {
+    @ModifyVariable(method = "hurtServer", at = @At("HEAD"), argsOnly = true)
+    private float superbwarfare$modifyHurtAmount(float amount, ServerLevel level, DamageSource source) {
         LivingEntity self = (LivingEntity) (Object) this;
         LivingHurtCallback.Event event = new LivingHurtCallback.Event(self, source, amount);
         LivingHurtCallback.EVENT.invoker().onLivingHurt(event);
@@ -228,7 +230,7 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
         }
     }
 
-    @ModifyVariable(method = "knockback(DDD)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
+    @ModifyVariable(method = "knockback(DDDLnet/minecraft/world/damagesource/DamageSource;FZ)V", at = @At("HEAD"), argsOnly = true, ordinal = 0)
     private double superbwarfare$customKnockback(double strength) {
         float customStrength = LivingEventHandler.onKnockback((LivingEntity) (Object) this);
         return customStrength >= 0 ? customStrength : strength;
@@ -236,12 +238,12 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
 
     @Inject(method = "causeFallDamage", at = @At("HEAD"), cancellable = true)
     private void superbwarfare$vehicleFallProtection(
-            float fallDistance,
+            double fallDistance,
             float damageMultiplier,
             DamageSource source,
             CallbackInfoReturnable<Boolean> cir
     ) {
-        if (LivingEventHandler.onEntityFall((LivingEntity) (Object) this, fallDistance, damageMultiplier)) {
+        if (LivingEventHandler.onEntityFall((LivingEntity) (Object) this, (float) fallDistance, damageMultiplier)) {
             cir.setReturnValue(false);
         }
     }
@@ -284,11 +286,18 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
         );
     }
 
-    @Inject(method = "onEffectRemoved", at = @At("HEAD"))
+    @Inject(method = "onEffectsRemoved", at = @At("HEAD"))
     private void superbwarfare$onEffectRemoved(
-            MobEffectInstance effectInstance,
+            java.util.Collection<MobEffectInstance> effects,
             CallbackInfo ci
     ) {
+        for (MobEffectInstance effectInstance : effects) {
+            superbwarfare$onSingleEffectRemoved(effectInstance);
+        }
+    }
+
+    @Unique
+    private void superbwarfare$onSingleEffectRemoved(MobEffectInstance effectInstance) {
         BurnMobEffect.onBurnRemoved(
                 (LivingEntity) (Object) this,
                 effectInstance
@@ -359,10 +368,10 @@ public abstract class LivingEntityMixin implements ICustomKnockback, DamageAcces
 
     @Shadow
     @Nullable
-    public DamageSource lastDamageSource;
+    private DamageSource lastDamageSource;
 
     @Shadow
-    public long lastDamageStamp;
+    private long lastDamageStamp;
 
     @Inject(method = "playHurtSound", at = @At("HEAD"), cancellable = true)
     protected void playHurtSound(DamageSource pSource, CallbackInfo ci) {

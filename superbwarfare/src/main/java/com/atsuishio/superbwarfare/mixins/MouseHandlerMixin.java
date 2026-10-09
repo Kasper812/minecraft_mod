@@ -29,14 +29,16 @@ public class MouseHandlerMixin {
     }
 
     @Inject(
-            method = "onPress(JIII)V",
+            method = "onButton",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/client/KeyMapping;click(Lcom/mojang/blaze3d/platform/InputConstants$Key;)V"
             ),
             cancellable = true
     )
-    private void superbwarfare$onMousePressed(long window, int button, int action, int modifiers, CallbackInfo ci) {
+    private void superbwarfare$onMousePressed(long window, net.minecraft.client.input.MouseButtonInfo info, int action, CallbackInfo ci) {
+        int button = info.button();
+        int modifiers = info.modifiers();
         if (ClickEventHandler.onButtonPressed(button, action, modifiers)) {
             ClickEventHandler.releaseVanillaMouseButton(button);
             ci.cancel();
@@ -46,8 +48,10 @@ public class MouseHandlerMixin {
         ClickEventHandler.forwardVanillaMouseButtonIfNeeded(button, action);
     }
 
-    @Inject(method = "onPress(JIII)V", at = @At("TAIL"))
-    private void superbwarfare$onMouseReleased(long window, int button, int action, int modifiers, CallbackInfo ci) {
+    @Inject(method = "onButton", at = @At("TAIL"))
+    private void superbwarfare$onMouseReleased(long window, net.minecraft.client.input.MouseButtonInfo info, int action, CallbackInfo ci) {
+        int button = info.button();
+        int modifiers = info.modifiers();
         if (action == GLFW.GLFW_RELEASE) {
             ClickEventHandler.onButtonReleased(button, action, modifiers);
             ClickEventHandler.forwardVanillaMouseButtonIfNeeded(button, action);

@@ -20,18 +20,23 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(ItemInHandLayer.class)
 public class ItemInHandLayerMixin {
 
-    @SuppressWarnings({"ConstantConditions"})
-    @Inject(method = "renderArmWithItem(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/world/entity/HumanoidArm;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At(value = "HEAD"), cancellable = true)
-    private void renderArmWithItemHead(LivingEntity entity, ItemStack stack, ItemDisplayContext display, HumanoidArm arm, PoseStack poseStack, MultiBufferSource source, int light, CallbackInfo ci) {
-        if (entity.getType() == EntityType.PLAYER) {
+    @Inject(method = "submitArmWithItem", at = @At(value = "HEAD"), cancellable = true)
+    private void renderArmWithItemHead(net.minecraft.client.renderer.entity.state.ArmedEntityRenderState state,
+                                       net.minecraft.client.renderer.item.ItemStackRenderState item,
+                                       ItemStack stack,
+                                       HumanoidArm arm,
+                                       PoseStack poseStack,
+                                       net.minecraft.client.renderer.SubmitNodeCollector submitNodeCollector,
+                                       int light,
+                                       CallbackInfo ci) {
+        if (com.atsuishio.portlib.render.PortRenderStates.entity(state) instanceof Player player) {
             if (arm == HumanoidArm.LEFT || arm == HumanoidArm.RIGHT) {
-                if (entity instanceof Player player && player.getVehicle() instanceof VehicleEntity vehicle && vehicle.banHand(player)) {
+                if (player.getVehicle() instanceof VehicleEntity vehicle && vehicle.banHand(player)) {
                     ci.cancel();
                 }
             }
             if (arm == HumanoidArm.LEFT) {
-                ItemStack mainHand = entity.getMainHandItem();
+                ItemStack mainHand = player.getMainHandItem();
                 if (GunItem.isHeldWeapon(mainHand) || mainHand.is(ModItems.LUNGE_MINE)) {
                     ci.cancel();
                 }

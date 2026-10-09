@@ -19,7 +19,7 @@ public abstract class FastProjectileSoundInstance extends AbstractTickableSoundI
     private boolean die = false;
 
     public FastProjectileSoundInstance(SoundEvent sound, Minecraft client, FastThrowableProjectile entity) {
-        super(sound, SoundSource.AMBIENT, entity.getCommandSenderWorld().getRandom());
+        super(sound, SoundSource.AMBIENT, entity.level().getRandom());
         this.client = client;
         this.entity = entity;
         this.looping = true;
@@ -59,7 +59,7 @@ public abstract class FastProjectileSoundInstance extends AbstractTickableSoundI
         this.z = this.entity.getZ();
 
         this.pitch = this.getPitch(this.entity);
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().getPosition();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
 
         if (player.getVehicle() != this.entity) {
             double distance = this.entity.position().subtract(cameraPos).length();

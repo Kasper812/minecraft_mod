@@ -36,7 +36,7 @@ public class EnergyStorage extends SnapshotParticipant<Long> implements team.reb
 
     public void deserializeNBT(HolderLookup.Provider provider, @NotNull Tag nbt) {
         if (nbt instanceof NumericTag numericTag) {
-            this.energy = Math.max(0, Math.min(capacity, numericTag.getAsLong()));
+            this.energy = Math.max(0, Math.min(capacity, numericTag.longValue()));
         }
     }
 

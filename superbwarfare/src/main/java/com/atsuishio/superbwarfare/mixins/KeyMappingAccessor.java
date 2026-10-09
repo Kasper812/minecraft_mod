@@ -11,7 +11,7 @@ import java.util.Map;
 public interface KeyMappingAccessor {
 
     @Accessor("MAP")
-    static Map<InputConstants.Key, KeyMapping> superbwarfare$getMap() {
+    static Map<InputConstants.Key, java.util.List<KeyMapping>> superbwarfare$getMap() {
         throw new AssertionError();
     }
 

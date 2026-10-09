@@ -35,6 +35,7 @@ public class SuperbWarfareFabricClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        com.atsuishio.superbwarfare.client.renderer.ModPipelines.init();
         DragonTeethObjModelLoader.register();
         ModScreens.init();
         ModEntityRenderers.init();

@@ -149,7 +149,7 @@ object ClickEventHandler {
 
     private fun isShadowedMouseMapping(keyMapping: KeyMapping, button: Int): Boolean {
         val key = InputConstants.Type.MOUSE.getOrCreate(button)
-        return KeyMappingAccessor.`superbwarfare$getMap`()[key] != keyMapping
+        return KeyMappingAccessor.`superbwarfare$getMap`()[key]?.contains(keyMapping) != true
     }
 
     @JvmStatic

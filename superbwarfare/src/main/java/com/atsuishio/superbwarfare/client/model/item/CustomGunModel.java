@@ -67,8 +67,8 @@ public abstract class CustomGunModel<T extends GunGeoItem & GeoAnimatable> exten
 
         if (mc.level != null) {
             set(MolangQueries.ACTOR_COUNT, mc.level::getEntityCount);
-            set(MolangQueries.TIME_OF_DAY, () -> mc.level.getDayTime() / 24000f);
-            set(MolangQueries.MOON_PHASE, mc.level::getMoonPhase);
+            set(MolangQueries.TIME_OF_DAY, () -> (mc.level.getDefaultClockTime() % 24000L) / 24000f);
+            set(MolangQueries.MOON_PHASE, () -> mc.player == null ? 0 : mc.level.environmentAttributes().getValue(net.minecraft.world.attribute.EnvironmentAttributes.MOON_PHASE, mc.player.blockPosition()).index());
         }
 
         // GunData

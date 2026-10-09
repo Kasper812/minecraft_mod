@@ -26,14 +26,14 @@ public class VillagerMixin implements CupidLove {
         return this.superbwarfare$cupidLove;
     }
 
-    @Inject(method = "addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
-    public void addAdditionalSaveData(CompoundTag pCompound, CallbackInfo ci) {
-        pCompound.putBoolean("SuperbwarfareCupidLove", this.superbwarfare$cupidLove);
+    @Inject(method = "addAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueOutput;)V", at = @At("RETURN"))
+    public void addAdditionalSaveData(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
+        output.putBoolean("SuperbwarfareCupidLove", this.superbwarfare$cupidLove);
     }
 
-    @Inject(method = "readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V", at = @At("RETURN"))
-    public void readAdditionalSaveData(CompoundTag pCompound, CallbackInfo ci) {
-        this.superbwarfare$cupidLove = pCompound.getBooleanOr("SuperbwarfareCupidLove", false);
+    @Inject(method = "readAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueInput;)V", at = @At("RETURN"))
+    public void readAdditionalSaveData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+        this.superbwarfare$cupidLove = input.getBooleanOr("SuperbwarfareCupidLove", false);
     }
 
     @Inject(method = "canBreed()Z", at = @At("HEAD"), cancellable = true)

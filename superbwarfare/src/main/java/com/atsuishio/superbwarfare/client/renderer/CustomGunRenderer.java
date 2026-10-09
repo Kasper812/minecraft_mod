@@ -62,7 +62,7 @@ public class CustomGunRenderer<T extends GunGeoItem & GeoAnimatable> extends Geo
     @Override
     public RenderType getRenderType(T animatable, Identifier texture, MultiBufferSource bufferSource, float partialTick) {
         if (texture == null) {
-            return RenderType.translucent();
+            return RenderTypes.entityTranslucent(net.minecraft.client.renderer.texture.MissingTextureAtlasSprite.getLocation());
         }
         return RenderTypes.entityTranslucent(texture);
     }

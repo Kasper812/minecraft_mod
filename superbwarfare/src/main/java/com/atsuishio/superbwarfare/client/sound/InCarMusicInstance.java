@@ -18,7 +18,7 @@
 //    private boolean die = false;
 //
 //    public InCarMusicInstance(SoundEvent sound, Minecraft client, VehicleEntity entity) {
-//        super(sound, SoundSource.RECORDS, entity.getCommandSenderWorld().getRandom());
+//        super(sound, SoundSource.RECORDS, entity.level().getRandom());
 //        this.client = client;
 //        this.entity = entity;
 //        this.looping = true;

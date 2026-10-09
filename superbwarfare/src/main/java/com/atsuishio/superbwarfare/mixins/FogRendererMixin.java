@@ -14,33 +14,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(FogRenderer.class)
 public abstract class FogRendererMixin {
 
-    @Shadow
-    private static float fogRed;
-
-    @Shadow
-    private static float fogGreen;
-
-    @Shadow
-    private static float fogBlue;
-
-    @Inject(method = "setupColor", at = @At("RETURN"))
-    private static void superbwarfare$thermalFogColor(
+    @Inject(method = "computeFogColor", at = @At("TAIL"))
+    private void superbwarfare$thermalFogColor(
             Camera camera,
             float partialTick,
             ClientLevel level,
             int renderDistance,
             float darkenWorldAmount,
+            org.joml.Vector4f dest,
             CallbackInfo ci
     ) {
-        if (!ClientEventHandler.activeThermalImaging) {
-            return;
+        if (ClientEventHandler.activeThermalImaging) {
+            dest.set(0.1F, 0.1F, 0.1F, 1.0F);
         }
-
-        fogRed = 0.1F;
-        fogGreen = 0.1F;
-        fogBlue = 0.1F;
-
-        LegacyRenderSystem.clearColor(0.1F, 0.1F, 0.1F, 0.0F);
-        LegacyRenderSystem.setShaderFogColor(0.1F, 0.1F, 0.1F, 1.0F);
     }
 }

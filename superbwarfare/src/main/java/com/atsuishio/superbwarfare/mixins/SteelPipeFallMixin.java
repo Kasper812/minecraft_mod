@@ -17,8 +17,8 @@ public abstract class SteelPipeFallMixin {
 
     @Shadow public abstract boolean onGround();
 
-    @Inject(method = "setOnGroundWithMovement", at = @At("HEAD"))
-    public void playSteelPipeDropSound(boolean onGround, Vec3 movement, CallbackInfo ci) {
+    @Inject(method = "setOnGroundWithMovement(ZZLnet/minecraft/world/phys/Vec3;)V", at = @At("HEAD"))
+    public void playSteelPipeDropSound(boolean onGround, boolean horizontalCollision, Vec3 movement, CallbackInfo ci) {
         if (!onGround || onGround()) return;
 
         var entity = (Entity) (Object) this;

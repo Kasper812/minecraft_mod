@@ -11,21 +11,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ClientLevel.class)
 public abstract class ClientLevelMixin {
 
-    @Inject(method = "getSkyColor(Lnet/minecraft/world/phys/Vec3;F)Lnet/minecraft/world/phys/Vec3;",
-            at = @At("RETURN"), cancellable = true)
-    public void getSkyColor(Vec3 pPos, float pPartialTick, CallbackInfoReturnable<Vec3> cir) {
-        if (ClientEventHandler.activeThermalImaging) {
-            cir.cancel();
-            cir.setReturnValue(new Vec3(0.1, 0.1, 0.1));
-        }
-    }
-
-    @Inject(method = "getCloudColor(F)Lnet/minecraft/world/phys/Vec3;",
-            at = @At("RETURN"), cancellable = true)
-    public void getCloudColor(float pPartialTick, CallbackInfoReturnable<Vec3> cir) {
-        if (ClientEventHandler.activeThermalImaging) {
-            cir.cancel();
-            cir.setReturnValue(new Vec3(0.2, 0.2, 0.2));
-        }
+    @Inject(method = "addEnvironmentAttributeLayers", at = @At("RETURN"))
+    private void superbwarfare$thermalImagingLayers(net.minecraft.world.attribute.EnvironmentAttributeSystem.Builder builder,
+                                                    CallbackInfoReturnable<net.minecraft.world.attribute.EnvironmentAttributeSystem.Builder> cir) {
+        builder.addTimeBasedLayer(net.minecraft.world.attribute.EnvironmentAttributes.SKY_COLOR,
+                (color, cacheTickId) -> ClientEventHandler.activeThermalImaging ? (color & 0xFF000000) | 0x1A1A1A : color);
+        builder.addTimeBasedLayer(net.minecraft.world.attribute.EnvironmentAttributes.CLOUD_COLOR,
+                (color, cacheTickId) -> ClientEventHandler.activeThermalImaging ? (color & 0xFF000000) | 0x333333 : color);
     }
 }

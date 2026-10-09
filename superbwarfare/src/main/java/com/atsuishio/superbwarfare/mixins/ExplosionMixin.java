@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
  * Implements ExplosionAccess to expose the explosion radius field
  * to both client and server code without reflection.
  */
-@Mixin(Explosion.class)
+@Mixin(net.minecraft.world.level.ServerExplosion.class)
 public abstract class ExplosionMixin implements ExplosionAccess {
 
     @Shadow
@@ -30,15 +30,15 @@ public abstract class ExplosionMixin implements ExplosionAccess {
     }
 
     @Redirect(
-            method = "explode",
+            method = "hurtEntities",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/entity/Entity;setDeltaMovement(Lnet/minecraft/world/phys/Vec3;)V"
+                    target = "Lnet/minecraft/world/entity/Entity;push(Lnet/minecraft/world/phys/Vec3;)V"
             )
     )
-    private void superbwarfare$cancelVehicleKnockback(Entity entity, Vec3 deltaMovement) {
+    private void superbwarfare$cancelVehicleKnockback(Entity entity, Vec3 knockback) {
         if (!LivingEventHandler.onExplosionKnockback(entity)) {
-            entity.setDeltaMovement(deltaMovement);
+            entity.push(knockback);
         }
     }
 }

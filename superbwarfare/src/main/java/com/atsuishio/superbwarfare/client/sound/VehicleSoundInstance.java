@@ -22,7 +22,7 @@ public abstract class VehicleSoundInstance extends AbstractTickableSoundInstance
     private boolean die = false;
 
     public VehicleSoundInstance(SoundEvent sound, Minecraft client, VehicleEntity mobileVehicle) {
-        super(sound, SoundSource.AMBIENT, mobileVehicle.getCommandSenderWorld().getRandom());
+        super(sound, SoundSource.AMBIENT, mobileVehicle.level().getRandom());
         this.client = client;
         this.mobileVehicle = mobileVehicle;
         this.looping = true;
@@ -62,7 +62,7 @@ public abstract class VehicleSoundInstance extends AbstractTickableSoundInstance
         this.z = this.mobileVehicle.getZ();
 
         this.pitch = this.getPitch(this.mobileVehicle);
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().getPosition();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
 
         if (player.getVehicle() != this.mobileVehicle) {
             double distance = this.mobileVehicle.position().subtract(cameraPos).length();
@@ -73,7 +73,7 @@ public abstract class VehicleSoundInstance extends AbstractTickableSoundInstance
             this.lastDistance = 0;
         }
 
-        if (this.mobileVehicle instanceof DroneEntity drone && Minecraft.getInstance().gameRenderer.mainCamera().getPosition().distanceToSqr(drone.position()) < 0.0625) {
+        if (this.mobileVehicle instanceof DroneEntity drone && Minecraft.getInstance().gameRenderer.mainCamera().position().distanceToSqr(drone.position()) < 0.0625) {
             pitch = 1;
         }
     }

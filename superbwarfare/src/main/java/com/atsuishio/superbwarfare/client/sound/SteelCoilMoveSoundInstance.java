@@ -21,7 +21,7 @@ public abstract class SteelCoilMoveSoundInstance extends AbstractTickableSoundIn
     private boolean die = false;
 
     public SteelCoilMoveSoundInstance(SoundEvent sound, Minecraft client, SteelCoilEntity entity) {
-        super(sound, SoundSource.NEUTRAL, entity.getCommandSenderWorld().getRandom());
+        super(sound, SoundSource.NEUTRAL, entity.level().getRandom());
         this.client = client;
         this.entity = entity;
         this.looping = true;
@@ -61,7 +61,7 @@ public abstract class SteelCoilMoveSoundInstance extends AbstractTickableSoundIn
         this.z = this.entity.getZ();
 
         this.pitch = this.getPitch(this.entity);
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().getPosition();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().position();
 
         if (player.getVehicle() != this.entity) {
             double distance = this.entity.position().subtract(cameraPos).length();

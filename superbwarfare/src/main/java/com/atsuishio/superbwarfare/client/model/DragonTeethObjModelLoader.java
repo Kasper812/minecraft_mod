@@ -2,27 +2,21 @@ package com.atsuishio.superbwarfare.client.model;
 
 import com.atsuishio.superbwarfare.Mod;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
-import net.fabricmc.fabric.api.renderer.v1.Renderer;
-import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
-import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
-import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
-import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.builders.UVPair;
+import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
+import net.minecraft.client.renderer.block.dispatch.SingleVariant;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.SimpleModelWrapper;
+import net.minecraft.client.resources.model.geometry.QuadCollection;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.resources.model.cuboid.ItemTransforms;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.sprite.Material;
-import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.dispatch.ModelState;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix3f;
 import org.joml.Matrix4f;
@@ -33,11 +27,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 public final class DragonTeethObjModelLoader {
     private static final Identifier BLOCK_ID = Mod.loc("dragon_teeth");
@@ -52,19 +44,17 @@ public final class DragonTeethObjModelLoader {
         ModelLoadingPlugin.register(pluginContext -> {
             ModelCache cache = new ModelCache();
 
-            pluginContext.modifyModelAfterBake().register((bakedModel, context) -> {
-                ModelResourceLocation topLevelId = context.topLevelId();
-                if (bakedModel == null || topLevelId == null || !BLOCK_ID.equals(topLevelId.id())
-                        || bakedModel instanceof DragonTeethBakedModel) {
-                    return bakedModel;
+            pluginContext.modifyBlockModelAfterBake().register((model, context) -> {
+                if (model == null || !BLOCK_ID.equals(BuiltInRegistries.BLOCK.getKey(context.state().getBlock()))) {
+                    return model;
                 }
 
                 try {
-                    BakedObj bakedObj = cache.get().bake(context.textureGetter(), context.settings());
-                    return new DragonTeethBakedModel(bakedModel, bakedObj);
+                    QuadCollection quads = cache.get().bake(context.baker());
+                    return new SingleVariant(new SimpleModelWrapper(quads, true, model.particleMaterial()));
                 } catch (RuntimeException exception) {
                     cache.logFailure(exception);
-                    return bakedModel;
+                    return model;
                 }
             });
         });
@@ -161,31 +151,20 @@ public final class DragonTeethObjModelLoader {
             );
         }
 
-        private BakedObj bake(Function<Material, TextureAtlasSprite> textureGetter, ModelState modelState) {
-            Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-            if (renderer == null) {
-                throw new IllegalStateException("Fabric Rendering API has no active renderer");
-            }
+        private QuadCollection bake(ModelBaker baker) {
+            Matrix4f positionTransform = new Matrix4f();
+            Matrix3f normalTransform = new Matrix3f();
 
-            MeshBuilder meshBuilder = renderer.meshBuilder();
-            QuadEmitter emitter = meshBuilder.getEmitter();
-            Matrix4f positionTransform = centeredTransform(modelState);
-            Matrix3f normalTransform = new Matrix3f(positionTransform);
-            if (Math.abs(normalTransform.determinant()) > 1.0E-6F) {
-                normalTransform.invert().transpose();
-            }
-
-            Map<Identifier, TextureAtlasSprite> spriteCache = new HashMap<>();
-            List<TextureAtlasSprite> faceSprites = new ArrayList<>(faces.size());
+            Map<Identifier, Material.Baked> materialCache = new HashMap<>();
+            QuadCollection.Builder builder = new QuadCollection.Builder();
             for (ObjFace face : faces) {
                 Identifier texture = textureFor(face.materialName());
-                TextureAtlasSprite sprite = spriteCache.computeIfAbsent(texture, id ->
-                        textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, id))
+                Material.Baked material = materialCache.computeIfAbsent(texture, id ->
+                        baker.materials().get(new Material(id), () -> "superbwarfare:dragon_teeth")
                 );
-                emitFace(emitter, face, sprite, positionTransform, normalTransform);
-                faceSprites.add(sprite);
+                emitFace(builder, baker, face, material, positionTransform, normalTransform);
             }
-            return new BakedObj(meshBuilder.build(), List.copyOf(faceSprites));
+            return builder.build();
         }
 
         private Identifier textureFor(@Nullable String materialName) {
@@ -200,57 +179,48 @@ public final class DragonTeethObjModelLoader {
         }
 
         private void emitFace(
-                QuadEmitter emitter,
+                QuadCollection.Builder builder,
+                ModelBaker baker,
                 ObjFace face,
-                TextureAtlasSprite sprite,
+                Material.Baked material,
                 Matrix4f positionTransform,
                 Matrix3f normalTransform
         ) {
+            TextureAtlasSprite sprite = material.sprite();
             Vector3f[] transformedPositions = new Vector3f[4];
-            Vector3f[] transformedNormals = new Vector3f[4];
-            Vector2f[] uvs = new Vector2f[4];
+            long[] uvs = new long[4];
 
             for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
                 ObjVertex vertex = face.vertices().get(Math.min(vertexIndex, face.vertices().size() - 1));
                 Vector3f position = new Vector3f(positions.get(vertex.positionIndex()));
                 positionTransform.transformPosition(position);
                 transformedPositions[vertexIndex] = position;
-                uvs[vertexIndex] = vertex.uvIndex() >= 0
+                Vector2f uv = vertex.uvIndex() >= 0
                         ? textureCoordinates.get(vertex.uvIndex())
                         : defaultUv(vertexIndex);
+                uvs[vertexIndex] = UVPair.pack(sprite.getU(uv.x), sprite.getV(uv.y));
             }
 
             Vector3f geometricNormal = faceNormal(transformedPositions);
-            for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-                ObjVertex vertex = face.vertices().get(Math.min(vertexIndex, face.vertices().size() - 1));
-                if (vertex.normalIndex() < 0) {
-                    transformedNormals[vertexIndex] = new Vector3f(geometricNormal);
-                    continue;
-                }
-
-                Vector3f normal = new Vector3f(normals.get(vertex.normalIndex()));
-                normalTransform.transform(normal);
-                transformedNormals[vertexIndex] = normal.lengthSquared() > 1.0E-8F
-                        ? normal.normalize()
-                        : new Vector3f(geometricNormal);
-            }
-
             Direction nominalFace = Direction.getApproximateNearest(geometricNormal.x, geometricNormal.y, geometricNormal.z);
-            emitter.cullFace(cullFace(transformedPositions, geometricNormal));
-            emitter.nominalFace(nominalFace);
-            emitter.colorIndex(-1);
-
-            for (int vertexIndex = 0; vertexIndex < 4; vertexIndex++) {
-                Vector3f position = transformedPositions[vertexIndex];
-                Vector3f normal = transformedNormals[vertexIndex];
-                Vector2f uv = uvs[vertexIndex];
-                emitter.pos(vertexIndex, position.x, position.y, position.z);
-                emitter.color(vertexIndex, 0xFFFFFFFF);
-                // NeoForge's OBJ loader defaults flip_v to false; preserve the source UVs verbatim.
-                emitter.uv(vertexIndex, sprite.getU(uv.x), sprite.getV(uv.y));
-                emitter.normal(vertexIndex, normal.x, normal.y, normal.z);
+            BakedQuad.MaterialInfo materialInfo = baker.interner().materialInfo(
+                    BakedQuad.MaterialInfo.of(material, sprite.transparency(), -1, true, 0)
+            );
+            BakedQuad quad = new BakedQuad(
+                    baker.interner().vector(transformedPositions[0]),
+                    baker.interner().vector(transformedPositions[1]),
+                    baker.interner().vector(transformedPositions[2]),
+                    baker.interner().vector(transformedPositions[3]),
+                    uvs[0], uvs[1], uvs[2], uvs[3],
+                    nominalFace,
+                    materialInfo
+            );
+            Direction cull = cullFace(transformedPositions, geometricNormal);
+            if (cull == null) {
+                builder.addUnculledFace(quad);
+            } else {
+                builder.addCulledFace(cull, quad);
             }
-            emitter.emit();
         }
     }
 
@@ -258,78 +228,6 @@ public final class DragonTeethObjModelLoader {
     }
 
     private record ObjFace(List<ObjVertex> vertices, @Nullable String materialName) {
-    }
-
-    private record BakedObj(Mesh mesh, List<TextureAtlasSprite> faceSprites) {
-    }
-
-    private static final class DragonTeethBakedModel implements BakedModel {
-        private final BakedModel delegate;
-        private final List<BakedQuad> unculledFaces;
-        private final Map<Direction, List<BakedQuad>> culledFaces;
-
-        private DragonTeethBakedModel(BakedModel delegate, BakedObj bakedObj) {
-            this.delegate = delegate;
-
-            List<BakedQuad> unculled = new ArrayList<>();
-            Map<Direction, List<BakedQuad>> culled = new EnumMap<>(Direction.class);
-            int[] spriteIndex = {0};
-            bakedObj.mesh().forEach(quad -> {
-                TextureAtlasSprite sprite = bakedObj.faceSprites().get(spriteIndex[0]++);
-                BakedQuad bakedQuad = quad.toBakedQuad(sprite);
-                Direction cullFace = quad.cullFace();
-                if (cullFace == null) {
-                    unculled.add(bakedQuad);
-                } else {
-                    culled.computeIfAbsent(cullFace, ignored -> new ArrayList<>()).add(bakedQuad);
-                }
-            });
-
-            this.unculledFaces = List.copyOf(unculled);
-            Map<Direction, List<BakedQuad>> immutableCulled = new EnumMap<>(Direction.class);
-            culled.forEach((direction, quads) -> immutableCulled.put(direction, List.copyOf(quads)));
-            this.culledFaces = Map.copyOf(immutableCulled);
-        }
-
-        @Override
-        public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side, RandomSource random) {
-            return side == null ? unculledFaces : culledFaces.getOrDefault(side, List.of());
-        }
-
-        @Override
-        public boolean useAmbientOcclusion() {
-            return delegate.useAmbientOcclusion();
-        }
-
-        @Override
-        public boolean isGui3d() {
-            return delegate.isGui3d();
-        }
-
-        @Override
-        public boolean usesBlockLight() {
-            return delegate.usesBlockLight();
-        }
-
-        @Override
-        public boolean isCustomRenderer() {
-            return delegate.isCustomRenderer();
-        }
-
-        @Override
-        public TextureAtlasSprite getParticleIcon() {
-            return delegate.getParticleIcon();
-        }
-
-        @Override
-        public ItemTransforms getTransforms() {
-            return delegate.getTransforms();
-        }
-
-        @Override
-        public ItemOverrides getOverrides() {
-            return delegate.getOverrides();
-        }
     }
 
     private static Map<String, Identifier> loadMaterialLibrary(
@@ -444,13 +342,6 @@ public final class DragonTeethObjModelLoader {
             throw parseError(location, lineNumber, "OBJ index " + rawIndex + " is out of bounds", null);
         }
         return resolved;
-    }
-
-    private static Matrix4f centeredTransform(ModelState modelState) {
-        return new Matrix4f()
-                .translation(0.5F, 0.5F, 0.5F)
-                .mul(modelState.getRotation().getMatrix())
-                .translate(-0.5F, -0.5F, -0.5F);
     }
 
     private static Vector3f faceNormal(Vector3f[] positions) {

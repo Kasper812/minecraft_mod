@@ -47,13 +47,14 @@ public class HumanoidModelMixin {
     @Final
     public ModelPart hat;
 
-    @Inject(method = "poseRightArm(Lnet/minecraft/world/entity/LivingEntity;)V", at = @At("TAIL"))
-    private void superbwarfare$applyCustomArmPose(LivingEntity livingEntity, CallbackInfo ci) {
-        ModEnumExtensions.Client.applyArmPose((HumanoidModel<?>) (Object) this);
+    @Inject(method = "poseRightArm(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V", at = @At("TAIL"))
+    private void superbwarfare$applyCustomArmPose(net.minecraft.client.renderer.entity.state.HumanoidRenderState state, CallbackInfo ci) {
+        ModEnumExtensions.Client.applyArmPose((HumanoidModel<?>) (Object) this, state.rightArmPose);
     }
 
-    @Inject(method = "setupAnim(Lnet/minecraft/world/entity/LivingEntity;FFFFF)V", at = @At(value = "TAIL"))
-    private void setupAnim(LivingEntity livingEntity, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, CallbackInfo ci) {
+    @Inject(method = "setupAnim(Lnet/minecraft/client/renderer/entity/state/HumanoidRenderState;)V", at = @At(value = "TAIL"))
+    private void setupAnim(net.minecraft.client.renderer.entity.state.HumanoidRenderState state, CallbackInfo ci) {
+        if (!(com.atsuishio.portlib.render.PortRenderStates.entity(state) instanceof LivingEntity livingEntity)) return;
         if (ParachuteItem.isParachuteOpen(livingEntity)) {
             this.leftArm.xRot = -180 * Mth.DEG_TO_RAD;
             this.rightArm.xRot = -180 * Mth.DEG_TO_RAD;

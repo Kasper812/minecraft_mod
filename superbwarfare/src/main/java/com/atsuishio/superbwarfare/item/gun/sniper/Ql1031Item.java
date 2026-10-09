@@ -48,7 +48,8 @@ public class Ql1031Item extends GunGeoItem {
 
     @Override
     @ParametersAreNonnullByDefault
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        List<Component> tooltipComponents = new com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder);
         tooltipComponents.add(Component.empty());
         tooltipComponents.add(Component.translatable("des.superbwarfare.ql_1031_1").withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
 

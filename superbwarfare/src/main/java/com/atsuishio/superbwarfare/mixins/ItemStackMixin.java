@@ -40,17 +40,18 @@ public class ItemStackMixin {
 
     @Redirect(
             method = {
-                    "forEachModifier(Lnet/minecraft/world/entity/EquipmentSlotGroup;Ljava/util/function/BiConsumer;)V",
+                    "forEachModifier(Lnet/minecraft/world/entity/EquipmentSlotGroup;Lorg/apache/commons/lang3/function/TriConsumer;)V",
                     "forEachModifier(Lnet/minecraft/world/entity/EquipmentSlot;Ljava/util/function/BiConsumer;)V"
             },
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/Item;getDefaultAttributeModifiers()Lnet/minecraft/world/item/component/ItemAttributeModifiers;"
+                    target = "Lnet/minecraft/world/item/ItemStack;getOrDefault(Lnet/minecraft/core/component/DataComponentType;Ljava/lang/Object;)Ljava/lang/Object;"
             )
     )
-    private ItemAttributeModifiers superbwarfare$durabilityScaledAttributes(Item item) {
-        ItemAttributeModifiers modifiers = item.getDefaultAttributeModifiers();
-        ItemStack stack = (ItemStack) (Object) this;
+    private Object superbwarfare$durabilityScaledAttributes(ItemStack stack, net.minecraft.core.component.DataComponentType<?> type, Object defaultValue) {
+        @SuppressWarnings("unchecked")
+        Object value = stack.getOrDefault((net.minecraft.core.component.DataComponentType<Object>) type, defaultValue);
+        if (!(value instanceof ItemAttributeModifiers modifiers)) return value;
         if (stack.getDamageValue() <= 0) return modifiers;
 
         double scale = Math.max(0.0, 1.0 - (double) stack.getDamageValue() / stack.getMaxDamage());
@@ -62,9 +63,10 @@ public class ItemStackMixin {
             return new ItemAttributeModifiers.Entry(
                     entry.attribute(),
                     new AttributeModifier(modifier.id(), modifier.amount() * scale, modifier.operation()),
-                    entry.slot()
+                    entry.slot(),
+                    entry.display()
             );
-        }).toList(), modifiers.showInTooltip());
+        }).toList());
     }
 
     @Inject(method = "getTooltipLines", at = @At("RETURN"))

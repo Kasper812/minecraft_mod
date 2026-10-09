@@ -26,16 +26,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(LivingEntityRenderer.class)
-public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extends EntityModel<T>> extends EntityRenderer<T> implements RenderLayerParent<T, M> {
-    @Shadow
-    protected M model;
-
-    protected LivingEntityRendererMixin(EntityRendererProvider.Context pContext) {
-        super(pContext);
-    }
+public abstract class LivingEntityRendererMixin {
 
     @Inject(method = "setupRotations", at = @At("HEAD"), cancellable = true)
-    public void setupRotations(T entity, PoseStack poseStack, float bob, float yBodyRot, float partialTick, float scale, CallbackInfo ci) {
+    public void setupRotations(net.minecraft.client.renderer.entity.state.LivingEntityRenderState state, PoseStack poseStack, float yBodyRot, float scale, CallbackInfo ci) {
+        if (!(com.atsuishio.portlib.render.PortRenderStates.entity(state) instanceof LivingEntity entity)) return;
+        float partialTick = com.atsuishio.portlib.render.PortRenderStates.partialTick(state);
         if (entity.getRootVehicle() != entity && entity.getRootVehicle() instanceof VehicleEntity vehicle) {
             var seats = VehicleData.compute(vehicle).seats();
             int index = vehicle.getSeatIndex(entity);
@@ -63,37 +59,31 @@ public abstract class LivingEntityRendererMixin<T extends LivingEntity, M extend
         }
     }
 
-    @Inject(method = "isBodyVisible(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
-    protected void isBodyVisible(T pLivingEntity, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "isBodyVisible", at = @At("HEAD"), cancellable = true)
+    protected void isBodyVisible(net.minecraft.client.renderer.entity.state.LivingEntityRenderState state, CallbackInfoReturnable<Boolean> cir) {
         if (ClientEventHandler.activeThermalImaging) {
-            cir.cancel();
             cir.setReturnValue(true);
         }
     }
 
-    @Inject(
-            method = "render(Lnet/minecraft/world/entity/LivingEntity;FFLcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/MultiBufferSource;I)V",
-            at = @At("HEAD"),
-            cancellable = true
-    )
+    @Inject(method = "submit", at = @At("HEAD"), cancellable = true)
     private void superbwarfare$onRenderLiving(
-            T entity,
-            float entityYaw,
-            float partialTicks,
+            net.minecraft.client.renderer.entity.state.LivingEntityRenderState state,
             PoseStack poseStack,
-            MultiBufferSource buffer,
-            int packedLight,
+            net.minecraft.client.renderer.SubmitNodeCollector submitNodeCollector,
+            net.minecraft.client.renderer.state.level.CameraRenderState camera,
             CallbackInfo ci
     ) {
-        PhosphorusFireRenderer.render(entity, poseStack, buffer);
+        if (!(com.atsuishio.portlib.render.PortRenderStates.entity(state) instanceof LivingEntity entity)) return;
+        PhosphorusFireRenderer.INSTANCE.render(entity, poseStack, new com.atsuishio.portlib.render.SubmitBufferSource(submitNodeCollector));
 
         if (entity instanceof Player player && player.getVehicle() instanceof VehicleEntity vehicle && vehicle.hidePassenger(player)) {
             ci.cancel();
         }
     }
 
-    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;)Z", at = @At("HEAD"), cancellable = true)
-    private void superbwarfare$shouldShowName(T entity, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "shouldShowName(Lnet/minecraft/world/entity/LivingEntity;D)Z", at = @At("HEAD"), cancellable = true)
+    private void superbwarfare$shouldShowName(LivingEntity entity, double distanceToCameraSq, CallbackInfoReturnable<Boolean> cir) {
         if (!ClientEventHandler.shouldRenderNameTag(entity)) {
             cir.setReturnValue(false);
         }

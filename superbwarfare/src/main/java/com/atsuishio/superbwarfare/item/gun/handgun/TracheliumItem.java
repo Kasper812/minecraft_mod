@@ -153,7 +153,8 @@ public class TracheliumItem extends GunGeoItem {
 
     @Override
     @ParametersAreNonnullByDefault
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag tooltipFlag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, net.minecraft.world.item.component.TooltipDisplay tooltipDisplay, java.util.function.Consumer<Component> tooltipAdder, TooltipFlag tooltipFlag) {
+        List<Component> list = new com.atsuishio.portlib.item.LegacyTooltipList(tooltipAdder);
         list.add(Component.empty());
         list.add(Component.translatable("des.superbwarfare.trachelium_1").withStyle(ChatFormatting.GRAY).withStyle(ChatFormatting.ITALIC));
         list.add(Component.translatable("des.superbwarfare.trachelium_2").withStyle(ChatFormatting.GRAY));

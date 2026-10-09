@@ -58,7 +58,7 @@ public abstract class PlayerMixin extends Entity {
             if (target instanceof Player targetPlayer
                     && targetPlayer.isBlocking()
                     && targetPlayer.getUseItem().getItem() instanceof ShieldItem) {
-                targetPlayer.getCooldowns().addCooldown(targetPlayer.getUseItem().getItem(), 100);
+                targetPlayer.getCooldowns().addCooldown(targetPlayer.getUseItem(), 100);
                 targetPlayer.stopUsingItem();
                 targetPlayer.level().broadcastEntityEvent(targetPlayer, (byte) 30);
             }
@@ -66,7 +66,7 @@ public abstract class PlayerMixin extends Entity {
     }
 
     @ModifyArgs(
-            method = "attack",
+            method = "doSweepAttack",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/world/phys/AABB;inflate(DDD)Lnet/minecraft/world/phys/AABB;",

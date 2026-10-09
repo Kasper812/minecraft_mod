@@ -82,8 +82,8 @@ public class SentinelItem extends GunGeoItem {
     }
 
     @Override
-    public void inventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
-        super.inventoryTick(stack, level, entity, slot, selected);
+    public void legacyInventoryTick(@NotNull ItemStack stack, @NotNull Level level, @NotNull Entity entity, int slot, boolean selected) {
+        super.legacyInventoryTick(stack, level, entity, slot, selected);
         var cap = EnergyStorage.ITEM.find(stack, null);
         if (cap != null && cap.getAmount() > 0) {
             EnergyStorageHelper.extract(cap, 1);

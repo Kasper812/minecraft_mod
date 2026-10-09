@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mixins;
 
+import org.joml.Matrix4fc;
+import org.joml.Matrix4f;
 import com.atsuishio.superbwarfare.config.client.DisplayConfig;
 import com.atsuishio.superbwarfare.data.vehicle.VehicleData;
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
@@ -33,28 +35,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(GameRenderer.class)
 public abstract class GameRendererMixin {
 
+    @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;setProjectionMatrix(Lcom/mojang/blaze3d/buffers/GpuBufferSlice;Lcom/mojang/blaze3d/ProjectionType;)V", shift = At.Shift.AFTER))
+    private void superbWarfare$captureMatrices(DeltaTracker deltaTracker, CallbackInfo ci,
+                                               @com.llamalad7.mixinextras.sugar.Local Matrix4fc modelViewMatrix,
+                                               @com.llamalad7.mixinextras.sugar.Local Matrix4f projectionMatrix) {
+        ClientEventHandler.modelViewMatrix = new Matrix4f(modelViewMatrix);
+        ClientEventHandler.projectionMatrix = new Matrix4f(projectionMatrix);
+    }
+
     @Inject(method = "render", at = @At("HEAD"))
     private void superbWarfare$renderFramePre(DeltaTracker deltaTracker, boolean renderLevel, CallbackInfo ci) {
         ClientEventHandler.handleWeaponFire();
         ClientEventHandler.handleWeaponBreathSway();
     }
 
-    @Inject(method = "getFov", at = @At("RETURN"), cancellable = true)
-    private void superbWarfare$getFov(Camera camera, float partialTick, boolean changingFov, CallbackInfoReturnable<Double> cir) {
-        ClientEventHandler.FovContext context = new ClientEventHandler.FovContext(
-                cir.getReturnValue(),
-                partialTick,
-                changingFov
-        );
-
-        ClientEventHandler.onFovUpdate(context);
-        ClientEventHandler.captureFov(context);
-
-        cir.setReturnValue(context.getFov());
-    }
-
-    @Inject(method = "bobView(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"), cancellable = true)
-    public void bobView(PoseStack p_109139_, float p_109140_, CallbackInfo ci) {
+    @Inject(method = "bobView", at = @At("HEAD"), cancellable = true)
+    public void bobView(net.minecraft.client.renderer.state.level.CameraRenderState cameraState, PoseStack p_109139_, CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         Player player = mc.player;
         if (player != null) {
@@ -71,12 +67,13 @@ public abstract class GameRendererMixin {
     private Camera mainCamera;
 
     @SuppressWarnings("ConstantValue")
-    @Inject(method = "bobHurt(Lcom/mojang/blaze3d/vertex/PoseStack;F)V", at = @At("HEAD"))
-    public void superbWarfare$renderWorld(PoseStack matrices, float tickDelta, CallbackInfo ci) {
+    @Inject(method = "bobHurt", at = @At("HEAD"))
+    public void superbWarfare$renderWorld(net.minecraft.client.renderer.state.level.CameraRenderState cameraState, PoseStack matrices, CallbackInfo ci) {
+        float tickDelta = Minecraft.getInstance().getDeltaTracker().getGameTimeDeltaPartialTick(true);
         // Reset pushed stack from previous frame in case hand event didn't fire
         ClientEventHandler.vehiclePoseStack = null;
 
-        Entity entity = mainCamera.getEntity();
+        Entity entity = mainCamera.entity();
         matrices.mulPose(Axis.ZP.rotationDegrees(ClientEventHandler.cameraRoll));
 
         if (entity instanceof Player player && !player.isSpectator() && player.hasEffect(ModMobEffects.SHOCK)) {
@@ -95,7 +92,7 @@ public abstract class GameRendererMixin {
             ClientEventHandler.vehiclePoseStack = matrices;
 
             // rotate camera
-            float a = Mth.wrapDegrees(mainCamera.getYRot() - Mth.lerp(tickDelta, vehicle.yRotO, vehicle.getYRot()));
+            float a = Mth.wrapDegrees(mainCamera.yRot() - Mth.lerp(tickDelta, vehicle.yRotO, vehicle.getYRot()));
 
             var seat = seats.get(index);
 
@@ -130,17 +127,17 @@ public abstract class GameRendererMixin {
                 offset.rotate(quaternion);
 
                 // apply camera offset
-                matrices.mulPose(Axis.XP.rotationDegrees(mainCamera.getXRot()));
-                matrices.mulPose(Axis.YP.rotationDegrees(mainCamera.getYRot() + 180.0f));
+                matrices.mulPose(Axis.XP.rotationDegrees(mainCamera.xRot()));
+                matrices.mulPose(Axis.YP.rotationDegrees(mainCamera.yRot() + 180.0f));
                 matrices.translate(offset.x(), offset.y() + eye, offset.z());
-                matrices.mulPose(Axis.YP.rotationDegrees(-mainCamera.getYRot() - 180.0f));
-                matrices.mulPose(Axis.XP.rotationDegrees(-mainCamera.getXRot()));
+                matrices.mulPose(Axis.YP.rotationDegrees(-mainCamera.yRot() - 180.0f));
+                matrices.mulPose(Axis.XP.rotationDegrees(-mainCamera.xRot()));
             }
         }
     }
 
     @Inject(method = "bobHurt", at = @At("HEAD"), cancellable = true)
-    private void bobHurt(PoseStack pMatrixStack, float pPartialTicks, CallbackInfo ci) {
+    private void bobHurt(net.minecraft.client.renderer.state.level.CameraRenderState cameraState, PoseStack pMatrixStack, CallbackInfo ci) {
         Minecraft mc = Minecraft.getInstance();
         if (mc.getCameraEntity() instanceof LivingEntity living) {
             var source = living.getLastDamageSource();

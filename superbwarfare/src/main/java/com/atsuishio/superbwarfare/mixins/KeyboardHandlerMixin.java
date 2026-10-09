@@ -10,9 +10,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(KeyboardHandler.class)
 public class KeyboardHandlerMixin {
 
-    @Inject(method = "keyPress(JIIII)V", at = @At("HEAD"), cancellable = true)
-    private void superbwarfare$onKeyPressed(long window, int keyCode, int scanCode, int action, int modifiers, CallbackInfo ci) {
-        if (ClickEventHandler.onKeyPressed(keyCode, scanCode, action, modifiers)) {
+    @Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
+    private void superbwarfare$onKeyPressed(long window, int action, net.minecraft.client.input.KeyEvent event, CallbackInfo ci) {
+        if (ClickEventHandler.onKeyPressed(event.key(), event.scancode(), action, event.modifiers())) {
             ci.cancel();
         }
     }

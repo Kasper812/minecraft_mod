@@ -25,9 +25,9 @@ public class ItemInHandRendererMixin {
     @Shadow
     private ItemStack mainHandItem;
 
-    @Inject(method = "renderHandsWithItems", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "submitHandsWithItems", at = @At("HEAD"), cancellable = true)
     private void superbwarfare$renderHandsWithItems(
-            float partialTick, PoseStack poseStack, MultiBufferSource.BufferSource bufferSource,
+            float partialTick, PoseStack poseStack, net.minecraft.client.renderer.SubmitNodeCollector submitNodeCollector,
             LocalPlayer player, int packedLight, CallbackInfo ci
     ) {
         ClientEventHandler.handleWeaponTurn(partialTick);
@@ -43,35 +43,27 @@ public class ItemInHandRendererMixin {
         }
     }
 
-    @Redirect(
-            method = "tick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z"
-            )
-    )
-    private boolean superbwarfare$skipEquipAnimation(ItemStack oldStack, ItemStack newStack) {
+    @Inject(method = "shouldInstantlyReplaceVisibleItem", at = @At("HEAD"), cancellable = true)
+    private void superbwarfare$skipEquipAnimation(ItemStack oldStack, ItemStack newStack, org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable<Boolean> cir) {
         if (!oldStack.isEmpty() && !newStack.isEmpty()
                 && (oldStack.getItem() instanceof GunItem
                 || oldStack.getItem() instanceof MonitorItem
                 || oldStack.getItem() instanceof LungeMine)) {
-            return true;
+            cir.setReturnValue(true);
         }
-
-        return ItemStack.matches(oldStack, newStack);
     }
 
-    @ModifyVariable(method = "renderArmWithItem", at = @At("HEAD"), argsOnly = true, index = 5)
+    @ModifyVariable(method = "submitArmWithItem", at = @At("HEAD"), argsOnly = true, index = 5)
     private float superbwarfare$removeGunSwing(float value) {
         return GunItem.isHeldWeapon(mainHandItem) ? 0f : value;
     }
 
-    @Inject(method = "renderArmWithItem", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "submitArmWithItem", at = @At("HEAD"), cancellable = true)
     private void superbwarfare$renderArmWithItem(
             AbstractClientPlayer player, float partialTick, float pitch,
             InteractionHand hand, float swingProgress, ItemStack stack,
             float equipProgress, PoseStack poseStack,
-            MultiBufferSource bufferSource, int packedLight,
+            net.minecraft.client.renderer.SubmitNodeCollector submitNodeCollector, int packedLight,
             CallbackInfo ci
     ) {
         if (ClientEventHandler.shouldCancelHandRender(hand)) {

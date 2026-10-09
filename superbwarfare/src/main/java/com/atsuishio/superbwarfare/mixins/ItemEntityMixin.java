@@ -30,8 +30,8 @@ public abstract class ItemEntityMixin {
         }
     }
 
-    @Inject(method = "hurt", at = @At("HEAD"), cancellable = true)
-    private void superbwarfare$beastCannotBeHurt(DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)
+    private void superbwarfare$beastCannotBeHurt(net.minecraft.server.level.ServerLevel level, DamageSource source, float amount, CallbackInfoReturnable<Boolean> cir) {
         if (this.getItem().getItem() instanceof BeastItem || this.getItem().getItem() instanceof BeastGunTestItem) {
             cir.setReturnValue(false);
         } else if (this.getItem().is(ModItems.CONTAINER)
