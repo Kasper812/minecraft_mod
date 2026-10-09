@@ -55,7 +55,7 @@ public class SodiumBakedChunkWriter implements ISodiumVertexWriter, ChunkVertexW
         float[] positions = quads.positions();
         float[] normals = quads.normals();
         float[] uvs = quads.uvs();
-        boolean cull = !skipNormalVisibilityCull && cn.sh1rocu.simplebedrockmodel.client.port.SbmRenderContext.normalCullingEnabled();
+        boolean cull = !skipNormalVisibilityCull && com.atsuishio.portlib.render.SbmRenderContext.normalCullingEnabled();
         int emitted = 0;
         long ptr = SCRATCH;
         for (int i = 0; i < quads.quadCount(); i++) {

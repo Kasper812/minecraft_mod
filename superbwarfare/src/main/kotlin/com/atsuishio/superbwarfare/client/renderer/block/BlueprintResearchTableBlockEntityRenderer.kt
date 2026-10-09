@@ -1,12 +1,14 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.BlueprintResearchTableBlock
 import com.atsuishio.superbwarfare.block.entity.BlueprintResearchTableBlockEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.core.Direction
 import net.minecraft.world.level.block.state.properties.BedPart
@@ -45,14 +47,14 @@ class BlueprintResearchTableBlockEntityRenderer : BlockEntityRenderer<BlueprintR
 
         instance.renderToBuffer(
             poseStack,
-            buffer.getBuffer(RenderType.entityTranslucent(TEXTURE)),
+            buffer.getBuffer(RenderTypes.entityTranslucent(TEXTURE)),
             packedLight,
             packedOverlay
         )
 
         instance.renderToBuffer(
             poseStack,
-            buffer.getBuffer(RenderType.eyes(TEXTURE_E)),
+            buffer.getBuffer(RenderTypes.eyes(TEXTURE_E)),
             packedLight,
             packedOverlay
         )

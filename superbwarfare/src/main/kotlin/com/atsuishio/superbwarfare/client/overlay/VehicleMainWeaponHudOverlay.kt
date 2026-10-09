@@ -63,7 +63,7 @@ object VehicleMainWeaponHudOverlay : CommonOverlay("vehicle_main_weapon_hud") {
         val gunData = vehicle.getGunData(player) ?: return
         val seekInfo = gunData.get(GunProp.SEEK_WEAPON_INFO) ?: return
 
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         val cameraPos = camera.position
         val seekVec = vehicle.getSeekVec(player, 1f)
 

@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.data.SingleOrList
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedResourceLocation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.math.min
 
 @Serializable
@@ -25,7 +25,7 @@ class ModelResource {
     }
 
     // LOD的最小等级为1
-    fun getLODModel(level: Int): ResourceLocation? {
+    fun getLODModel(level: Int): Identifier? {
         if (level < 1 || lodModel == null || lodModel!!.list.isEmpty()) return model
 
         val availableLevel = min(level - 1, lodModel!!.list.size - 1)
@@ -40,7 +40,7 @@ class ModelResource {
     private var lodTexture: SingleOrList<SerializedResourceLocation>? = null
 
     // LOD的最小等级为1
-    fun getLODTexture(level: Int): ResourceLocation? {
+    fun getLODTexture(level: Int): Identifier? {
         if (level < 1 || lodTexture == null || lodTexture!!.list.isEmpty()) return texture
         val availableLevel = min(level - 1, lodTexture!!.list.size - 1)
         return lodTexture!!.list[availableLevel]

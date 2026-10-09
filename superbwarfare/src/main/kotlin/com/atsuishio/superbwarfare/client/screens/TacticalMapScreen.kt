@@ -1451,7 +1451,7 @@ class TacticalMapScreen : Screen(Component.translatable("container.superbwarfare
         guiGraphics.blit(SEL_TARGET, (centerX - 8).toInt(), (centerY - 8).toInt(), 0f, 0f, 16, 16, 16, 16)
     }
 
-    private fun getVehicleIcon(entity: Entity): net.minecraft.resources.ResourceLocation {
+    private fun getVehicleIcon(entity: Entity): net.minecraft.resources.Identifier {
         return if (entity is Boat) {
             ICON_BOAT
         } else if (entity is VehicleEntity) {

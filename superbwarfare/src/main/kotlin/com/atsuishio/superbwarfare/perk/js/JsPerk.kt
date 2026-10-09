@@ -12,7 +12,7 @@ import com.atsuishio.superbwarfare.perk.PerkInstance
 import com.atsuishio.superbwarfare.script.ScriptManager
 import net.minecraft.core.Holder
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.effect.MobEffect
 import net.minecraft.world.effect.MobEffectInstance
@@ -32,7 +32,7 @@ open class JsPerk(val perkId: String, private val descriptor: PerkDescriptor) : 
         if (type == Type.AMMO) {
             val effects = mutableListOf<Holder<MobEffect>>()
             descriptor.mobEffects?.forEach { name ->
-                val rl = ResourceLocation.tryParse(name) ?: return@forEach
+                val rl = Identifier.tryParse(name) ?: return@forEach
                 val effect = BuiltInRegistries.MOB_EFFECT.getHolder(rl)
                 if (effect.isPresent) {
                     effects.add(effect.get())
@@ -325,7 +325,7 @@ open class JsPerk(val perkId: String, private val descriptor: PerkDescriptor) : 
         }
     }
 
-    private fun loadScriptSource(location: ResourceLocation): String? {
+    private fun loadScriptSource(location: Identifier): String? {
         val path = "/data/${location.namespace}/${location.path}"
         return try {
             JsPerk::class.java.getResourceAsStream(path)?.bufferedReader()?.use { it.readText() }

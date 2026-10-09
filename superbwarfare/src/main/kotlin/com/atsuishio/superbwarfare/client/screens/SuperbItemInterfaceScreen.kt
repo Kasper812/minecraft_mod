@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.inventory.menu.SuperbItemInterfaceMenu
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Inventory
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -30,6 +30,6 @@ class SuperbItemInterfaceScreen(menu: SuperbItemInterfaceMenu, playerInventory: 
     }
 
     companion object {
-        private val HOPPER_LOCATION = ResourceLocation.withDefaultNamespace("textures/gui/container/hopper.png")
+        private val HOPPER_LOCATION = Identifier.withDefaultNamespace("textures/gui/container/hopper.png")
     }
 }

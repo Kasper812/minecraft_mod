@@ -7,7 +7,7 @@ import net.minecraft.advancements.critereon.*
 import net.minecraft.core.registries.Registries
 import net.minecraft.network.chat.Component
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -30,7 +30,7 @@ class ModAdvancement(private val id: String, b: UnaryOperator<Builder>) {
         val builtInBuilder = Builder()
         b.apply(builtInBuilder)
 
-        var bg: Optional<ResourceLocation> = Optional.empty()
+        var bg: Optional<Identifier> = Optional.empty()
         if (id == "root") {
             bg = Optional.of(MAIN_BACKGROUND)
         }
@@ -161,7 +161,7 @@ class ModAdvancement(private val id: String, b: UnaryOperator<Builder>) {
             return this
         }
 
-        fun rewardLootTable(location: ResourceLocation): Builder {
+        fun rewardLootTable(location: Identifier): Builder {
             builder.rewards(
                 AdvancementRewards.Builder.loot(
                     ResourceKey.create(
@@ -175,7 +175,7 @@ class ModAdvancement(private val id: String, b: UnaryOperator<Builder>) {
     }
 
     companion object {
-        val MAIN_BACKGROUND: ResourceLocation = loc("textures/block/sandbag.png")
-        val LEGENDARY_BACKGROUND: ResourceLocation = loc("textures/block/steel_block.png")
+        val MAIN_BACKGROUND: Identifier = loc("textures/block/sandbag.png")
+        val LEGENDARY_BACKGROUND: Identifier = loc("textures/block/steel_block.png")
     }
 }

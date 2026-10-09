@@ -6,7 +6,7 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.core.registries.Registries
 import net.minecraft.data.PackOutput
 import net.minecraft.data.tags.EntityTypeTagsProvider
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.entity.EntityType
 import java.util.concurrent.CompletableFuture
@@ -45,12 +45,12 @@ class ModEntityTypeTagProvider(
         )
 
         this.tag(ModTags.EntityTypes.NO_EXPERIENCE).add(ModEntities.TARGET, ModEntities.DPS_GENERATOR)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dummmmmmy", "target_dummy"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("powerful_dummy", "test_dummy"))
+            .addOptional(Identifier.fromNamespaceAndPath("dummmmmmy", "target_dummy"))
+            .addOptional(Identifier.fromNamespaceAndPath("powerful_dummy", "test_dummy"))
 
         this.tag(ModTags.EntityTypes.CAN_REPAIR).add(
             EntityType.IRON_GOLEM
-        ).addOptional(ResourceLocation.fromNamespaceAndPath("touhou_little_maid", "maid"))
+        ).addOptional(Identifier.fromNamespaceAndPath("touhou_little_maid", "maid"))
 
         this.tag(ModTags.EntityTypes.MINE).add(
             ModEntities.BLU_43,
@@ -84,26 +84,26 @@ class ModEntityTypeTagProvider(
             EntityType.AREA_EFFECT_CLOUD,
             ModEntities.CLAYMORE,
             ModEntities.C4
-        ).addOptional(ResourceLocation.fromNamespaceAndPath("touhou_little_maid", "power_point"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("evilcraft", "vengeance_spirit"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("mts", "builder_rendering"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("create", "carriage_contraption"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("create", "stationary_contraption"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("create", "gantry_contraption"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("create", "super_glue"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("zombiekit", "flares"))
+        ).addOptional(Identifier.fromNamespaceAndPath("touhou_little_maid", "power_point"))
+            .addOptional(Identifier.fromNamespaceAndPath("evilcraft", "vengeance_spirit"))
+            .addOptional(Identifier.fromNamespaceAndPath("mts", "builder_rendering"))
+            .addOptional(Identifier.fromNamespaceAndPath("create", "carriage_contraption"))
+            .addOptional(Identifier.fromNamespaceAndPath("create", "stationary_contraption"))
+            .addOptional(Identifier.fromNamespaceAndPath("create", "gantry_contraption"))
+            .addOptional(Identifier.fromNamespaceAndPath("create", "super_glue"))
+            .addOptional(Identifier.fromNamespaceAndPath("zombiekit", "flares"))
 
         this.tag(ModTags.EntityTypes.BIOGAS_GENERATOR_WHITELIST).add(
             EntityType.PLAYER,
             EntityType.VILLAGER,
             EntityType.WANDERING_TRADER,
             ModEntities.SENPAI
-        ).addOptional(ResourceLocation.fromNamespaceAndPath("touhou_little_maid", "maid"))
+        ).addOptional(Identifier.fromNamespaceAndPath("touhou_little_maid", "maid"))
 
         this.tag(
             TagKey.create(
                 Registries.ENTITY_TYPE,
-                ResourceLocation.fromNamespaceAndPath("touhou_little_maid", "maid_vehicle_rotate_blocklist")
+                Identifier.fromNamespaceAndPath("touhou_little_maid", "maid_vehicle_rotate_blocklist")
             )
         ).add(
             ModEntities.TYPE_63,

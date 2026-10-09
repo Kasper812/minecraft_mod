@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.Mod
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.client.resources.language.ClientLanguage
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
@@ -20,7 +20,7 @@ object ClientLanguageGetter {
     }
 
     object ReloadListener : SimplePreparableReloadListener<ClientLanguage>(), IdentifiableResourceReloadListener {
-        override fun getFabricId(): ResourceLocation {
+        override fun getFabricId(): Identifier {
             return Mod.loc("client_language_getter")
         }
 

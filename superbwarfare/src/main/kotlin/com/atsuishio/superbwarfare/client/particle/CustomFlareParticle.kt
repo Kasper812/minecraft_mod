@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.particle
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.renderer.ModParticleRenderTypes
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.particle.*

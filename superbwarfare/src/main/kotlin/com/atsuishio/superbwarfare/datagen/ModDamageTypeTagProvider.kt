@@ -7,7 +7,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.data.PackOutput
 import net.minecraft.data.tags.DamageTypeTagsProvider
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageType
@@ -27,21 +27,21 @@ class ModDamageTypeTagProvider(
             .addOptional(mod(ModDamageTypes.SUPER_STAR_HIT))
             .addOptional(mod(ModDamageTypes.SUPER_STAR_SLASH))
             .add(DamageTypes.ARROW, DamageTypes.TRIDENT, DamageTypes.THROWN)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("tacz", "bullet"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("tacz", "bullet_void"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("virtuarealcraft", "rain_crystal"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("virtuarealcraft", "rain_shower_butterfly"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("virtuarealcraft", "sparkle_butterfly"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "blood_crystal"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "leviy_beam"))
+            .addOptional(Identifier.fromNamespaceAndPath("tacz", "bullet"))
+            .addOptional(Identifier.fromNamespaceAndPath("tacz", "bullet_void"))
+            .addOptional(Identifier.fromNamespaceAndPath("virtuarealcraft", "rain_crystal"))
+            .addOptional(Identifier.fromNamespaceAndPath("virtuarealcraft", "rain_shower_butterfly"))
+            .addOptional(Identifier.fromNamespaceAndPath("virtuarealcraft", "sparkle_butterfly"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "blood_crystal"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "leviy_beam"))
         this.tag(ModTags.DamageTypes.PROJECTILE_ABSOLUTE)
             .addOptional(mod(ModDamageTypes.GUN_FIRE_ABSOLUTE))
             .addOptional(mod(ModDamageTypes.GUN_FIRE_HEADSHOT_ABSOLUTE))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("tacz", "bullet_ignore_armor"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("tacz", "bullet_void_ignore_armor"))
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "leviy_beam_absolute"))
+            .addOptional(Identifier.fromNamespaceAndPath("tacz", "bullet_ignore_armor"))
+            .addOptional(Identifier.fromNamespaceAndPath("tacz", "bullet_void_ignore_armor"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "leviy_beam_absolute"))
         this.tag(ModTags.DamageTypes.VEHICLE_IGNORE)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("sona", "injury"))
+            .addOptional(Identifier.fromNamespaceAndPath("sona", "injury"))
         this.tag(ModTags.DamageTypes.VEHICLE_NOT_ABSORB)
             .add(DamageTypes.EXPLOSION, DamageTypes.PLAYER_EXPLOSION)
             .addOptional(mod(ModDamageTypes.CUSTOM_EXPLOSION))
@@ -50,7 +50,7 @@ class ModDamageTypeTagProvider(
             .addOptional(mod(ModDamageTypes.AMMO_CONSUMPTION))
         this.tag(ModTags.DamageTypes.VEHICLE_IMMUNE)
             .add(DamageTypes.CACTUS, DamageTypes.SWEET_BERRY_BUSH, DamageTypes.IN_WALL)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("iceandfire", "gorgon"))
+            .addOptional(Identifier.fromNamespaceAndPath("iceandfire", "gorgon"))
         this.tag(ModTags.DamageTypes.GUN_DAMAGE)
             .addOptional(mod(ModDamageTypes.GUN_FIRE))
             .addOptional(mod(ModDamageTypes.GUN_FIRE_HEADSHOT))
@@ -187,7 +187,7 @@ class ModDamageTypeTagProvider(
 
     companion object {
         fun otherModTag(modId: String, name: String): TagKey<DamageType> {
-            return TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.fromNamespaceAndPath(modId, name))
+            return TagKey.create(Registries.DAMAGE_TYPE, Identifier.fromNamespaceAndPath(modId, name))
         }
     }
 }

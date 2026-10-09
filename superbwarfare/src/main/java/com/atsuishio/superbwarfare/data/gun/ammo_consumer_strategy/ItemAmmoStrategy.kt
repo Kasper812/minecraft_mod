@@ -12,7 +12,7 @@ import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.NbtUtils
 import net.minecraft.network.chat.contents.TranslatableContents
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -48,7 +48,7 @@ object ItemAmmoStrategy : AmmoConsumeStrategy() {
             data = ""
         }
 
-        val location = ResourceLocation.tryParse(id)
+        val location = Identifier.tryParse(id)
         if (location == null) {
             Mod.LOGGER.warn("invalid item id: {}", id)
             source.type = AmmoConsumer.AmmoConsumeType.INVALID

@@ -6,7 +6,7 @@ import com.atsuishio.superbwarfare.ksp.annotation.RegisterPacket
 import com.atsuishio.superbwarfare.network.ClientPacketPayload
 import com.atsuishio.superbwarfare.network.PayloadContext
 import kotlinx.serialization.Serializable
-import net.minecraft.Util
+import net.minecraft.util.Util
 
 /**
  * `/sbw data dump` 导出完成后，自动用系统文件管理器打开导出目录。

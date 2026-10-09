@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.gun
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoDisplayRenderer
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoReadout
@@ -17,11 +19,11 @@ import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBed
 import com.maydaymemory.mae.basic.Pose
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher
 import net.minecraft.client.renderer.entity.player.PlayerRenderer
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.HumanoidArm
 import org.joml.Matrix3f
 import org.joml.Matrix4f
@@ -279,17 +281,17 @@ open class GeoGunModel @JvmOverloads constructor(
     open fun renderToBuffer(
         poseStack: PoseStack,
         bufferSource: MultiBufferSource,
-        texture: ResourceLocation,
+        texture: Identifier,
         packedLight: Int,
         packedOverlay: Int,
         readout: AmmoReadout = AmmoReadout(),
         handAnchors: Map<HumanoidArm, Matrix4f> = emptyMap(),
-        emissiveTexture: ResourceLocation? = null
+        emissiveTexture: Identifier? = null
     ) {
         renderToBuffer(
             poseStack,
             bufferSource,
-            RenderType.entityTranslucent(texture),
+            RenderTypes.entityTranslucent(texture),
             BedrockModelRenderTypes.polyMeshCutout(texture),
             packedLight,
             packedOverlay,
@@ -331,7 +333,7 @@ open class GeoGunModel @JvmOverloads constructor(
         packedOverlay: Int,
         readout: AmmoReadout = AmmoReadout(),
         handAnchors: Map<HumanoidArm, Matrix4f> = emptyMap(),
-        emissiveTexture: ResourceLocation? = null
+        emissiveTexture: Identifier? = null
     ) {
         hideBone(leftHandBoneIndex)
         hideBone(rightHandBoneIndex)
@@ -368,7 +370,7 @@ open class GeoGunModel @JvmOverloads constructor(
                 instance,
                 poseStack,
                 bufferSource,
-                RenderType.eyes(emissiveTexture),
+                RenderTypes.eyes(emissiveTexture),
                 ModRenderTypes.polyMeshEyes(emissiveTexture),
                 packedLight,
                 packedOverlay,
@@ -503,12 +505,12 @@ open class GeoGunModel @JvmOverloads constructor(
         private val BULLET_CHAIN_PATTERN = Regex("^bullet_(\\d+)$", RegexOption.IGNORE_CASE)
 
         @JvmStatic
-        fun create(modelPath: ResourceLocation): GeoGunModel? {
+        fun create(modelPath: Identifier): GeoGunModel? {
             return GunModelReloadListener.getModel(modelPath)
         }
 
         @JvmStatic
-        fun createLOD(modelPath: ResourceLocation): GeoGunModel? {
+        fun createLOD(modelPath: Identifier): GeoGunModel? {
             return GunLODModelReloadListener.getModel(modelPath)
         }
 

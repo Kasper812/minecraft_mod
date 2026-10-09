@@ -11,7 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;

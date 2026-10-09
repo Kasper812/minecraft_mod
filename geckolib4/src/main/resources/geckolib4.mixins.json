@@ -1,0 +1,16 @@
+{
+  "required": true,
+  "package": "software.bernie.geckolib.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "minVersion": "0.8",
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+    "common.AbstractContainerMenuMixin",
+    "common.ItemStackMixin"
+  ],
+  "client": [
+    "client.HumanoidArmorLayerMixin"
+  ]
+}

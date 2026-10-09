@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.animation.gun.GeoGunAnimationInstance
 import com.atsuishio.superbwarfare.client.model.gun.GeoGunModel
 import com.atsuishio.superbwarfare.client.model.shell.BedrockShellModel
@@ -11,10 +13,10 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.client.handler.FirstPerso
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.item.ItemStack
 import org.joml.Matrix4f
@@ -86,7 +88,7 @@ object ShellCasingFxRenderer {
     private fun renderActive(
         bufferSource: MultiBufferSource,
         shellModel: BedrockShellModel,
-        shellTexture: ResourceLocation,
+        shellTexture: Identifier,
         config: ShellEjectInfo,
         packedLight: Int
     ) {
@@ -98,7 +100,7 @@ object ShellCasingFxRenderer {
         }
         if (queue.isEmpty()) return
 
-        val quadType = RenderType.entityCutout(shellTexture)
+        val quadType = RenderTypes.entityCutout(shellTexture)
         val triangleType = BedrockModelRenderTypes.polyMeshCutout(shellTexture)
         for (shell in queue) {
             renderSingle(bufferSource, shellModel, quadType, triangleType, config, shell, now, packedLight)

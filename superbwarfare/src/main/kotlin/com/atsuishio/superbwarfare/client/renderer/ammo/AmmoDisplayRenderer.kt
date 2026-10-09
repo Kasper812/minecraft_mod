@@ -9,9 +9,9 @@ import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBed
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
-import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.util.LightCoordsUtil
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
 
 /**
@@ -231,7 +231,7 @@ internal class AmmoDisplayRenderer(
      * on. `rendertype_text.vsh` computes `vertexColor = Color * texelFetch(Sampler2, UV2 / 16, 0)`,
      * i.e. the packed light handed to [Font.drawInBatch] is a lightmap texel, so passing the world
      * light would dim the readout to the point of being unreadable in the dark — and inside a scope
-     * tube there is no sky access to brighten it either. [LightTexture.FULL_BRIGHT] is the corner
+     * tube there is no sky access to brighten it either. [LightCoordsUtil.FULL_BRIGHT] is the corner
      * texel of the 16x16 lightmap, which is the brightest it can be at the player's own brightness
      * setting, and is the same coordinate vanilla uses for GUI items.
      *
@@ -277,7 +277,7 @@ internal class AmmoDisplayRenderer(
             bufferSource,
             Font.DisplayMode.NORMAL,
             0,
-            LightTexture.FULL_BRIGHT
+            LightCoordsUtil.FULL_BRIGHT
         )
         // drawInBatch queues the glyphs into the caller's own buffer source, and they would sit there
         // until something asks for a different render type. They have to go out now instead: what

@@ -1,7 +1,7 @@
 package com.atsuishio.superbwarfare.mixins;
 
 import net.minecraft.client.renderer.EffectInstance;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,10 +17,10 @@ public abstract class EffectInstanceMixin {
             method = "<init>(Lnet/minecraft/server/packs/resources/ResourceProvider;Ljava/lang/String;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/resources/ResourceLocation;withDefaultNamespace(Ljava/lang/String;)Lnet/minecraft/resources/ResourceLocation;"
+                    target = "Lnet/minecraft/resources/Identifier;withDefaultNamespace(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;"
             )
     )
-    private ResourceLocation superbwarfare$resolveEffectDefinition(String path) {
+    private Identifier superbwarfare$resolveEffectDefinition(String path) {
         return superbwarfare$resolveNamespacedProgram(path);
     }
 
@@ -28,17 +28,17 @@ public abstract class EffectInstanceMixin {
             method = "getOrCreate(Lnet/minecraft/server/packs/resources/ResourceProvider;Lcom/mojang/blaze3d/shaders/Program$Type;Ljava/lang/String;)Lcom/mojang/blaze3d/shaders/EffectProgram;",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/resources/ResourceLocation;withDefaultNamespace(Ljava/lang/String;)Lnet/minecraft/resources/ResourceLocation;"
+                    target = "Lnet/minecraft/resources/Identifier;withDefaultNamespace(Ljava/lang/String;)Lnet/minecraft/resources/Identifier;"
             )
     )
-    private static ResourceLocation superbwarfare$resolveEffectProgram(String path) {
+    private static Identifier superbwarfare$resolveEffectProgram(String path) {
         return superbwarfare$resolveNamespacedProgram(path);
     }
 
     @Unique
-    private static ResourceLocation superbwarfare$resolveNamespacedProgram(String path) {
-        ResourceLocation location = ResourceLocation.parse(path.substring(SUPERBWARFARE$PROGRAM_PREFIX.length()));
-        return ResourceLocation.fromNamespaceAndPath(
+    private static Identifier superbwarfare$resolveNamespacedProgram(String path) {
+        Identifier location = Identifier.parse(path.substring(SUPERBWARFARE$PROGRAM_PREFIX.length()));
+        return Identifier.fromNamespaceAndPath(
                 location.getNamespace(),
                 SUPERBWARFARE$PROGRAM_PREFIX + location.getPath()
         );

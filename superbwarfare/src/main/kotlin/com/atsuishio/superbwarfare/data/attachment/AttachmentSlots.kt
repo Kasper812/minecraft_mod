@@ -15,7 +15,7 @@ import com.atsuishio.superbwarfare.data.gun.GunData
 import com.atsuishio.superbwarfare.data.gun.value.AttachmentType
 import com.atsuishio.superbwarfare.init.ModItems
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.concurrent.ConcurrentHashMap
 
 /** 槽位的挂载骨骼从哪来，见 [AttachmentSlot.mountBone] */
@@ -374,7 +374,7 @@ object AttachmentSlots {
     }
 
     /** [registeredIds] 的结果缓存，按 [GunData.DATA_VERSION] 整体失效 */
-    private val registeredIdsCache = ConcurrentHashMap<AttachmentType, List<ResourceLocation>>()
+    private val registeredIdsCache = ConcurrentHashMap<AttachmentType, List<Identifier>>()
 
     /** 缓存对应的 [GunData.DATA_VERSION]，`Int.MIN_VALUE` = 还没算过 */
     private var registeredIdsVersion = Int.MIN_VALUE
@@ -390,7 +390,7 @@ object AttachmentSlots {
      * 而枚举几十个配件物品再逐条查数据表并不便宜
      */
     @JvmStatic
-    fun registeredIds(type: AttachmentType): List<ResourceLocation> {
+    fun registeredIds(type: AttachmentType): List<Identifier> {
         if (registeredIdsVersion != GunData.DATA_VERSION) {
             registeredIdsCache.clear()
             registeredIdsVersion = GunData.DATA_VERSION

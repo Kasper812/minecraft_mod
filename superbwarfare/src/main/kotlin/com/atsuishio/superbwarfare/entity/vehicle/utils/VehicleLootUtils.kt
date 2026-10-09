@@ -8,7 +8,7 @@ import com.atsuishio.superbwarfare.init.ModDamageTypes
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
 import kotlin.random.Random
@@ -36,7 +36,7 @@ object VehicleLootUtils {
             val source = pool.source
             if (source != "@Default") {
                 val lastSource = vehicle.lastDamageSource ?: return@poolLoop
-                val parsedLoc = ResourceLocation.tryParse(source) ?: return@poolLoop
+                val parsedLoc = Identifier.tryParse(source) ?: return@poolLoop
                 val damageType = ResourceKey.create(Registries.DAMAGE_TYPE, parsedLoc)
                 if (!lastSource.`is`(damageType)) return@poolLoop
             } else if (vehicle.lastDamageSource?.`is`(ModDamageTypes.REPAIR_TOOL) == true) {
@@ -64,7 +64,7 @@ object VehicleLootUtils {
 
                     if (random > chance) return@forEach
                     val name = entry.name
-                    val item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(name))
+                    val item = BuiltInRegistries.ITEM.get(Identifier.parse(name))
                     val count = entry.count
                     val entity =
                         ItemEntity(vehicle.level(), vehicle.x, (vehicle.y + 1), vehicle.z, ItemStack(item, count))

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.SmallContainerBlock
 import com.atsuishio.superbwarfare.block.entity.SmallContainerBlockEntity
@@ -10,8 +12,8 @@ import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.core.Direction
 
@@ -54,7 +56,7 @@ class SmallContainerBlockEntityRenderer : BlockEntityRenderer<SmallContainerBloc
 
         instance.renderToBuffer(
             poseStack,
-            buffer.getBuffer(RenderType.entityTranslucent(texture)),
+            buffer.getBuffer(RenderTypes.entityTranslucent(texture)),
             packedLight,
             packedOverlay
         )

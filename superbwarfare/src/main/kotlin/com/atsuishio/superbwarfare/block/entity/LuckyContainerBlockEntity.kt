@@ -13,7 +13,7 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -32,8 +32,8 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
 
     open val modelInstance = BlockModelReloadListener.getModel(MODEL)?.createInstance()
 
-    var location: ResourceLocation? = null
-    var icon: ResourceLocation? = null
+    var location: Identifier? = null
+    var icon: Identifier? = null
     var tick: Int = 0
     var opened: Boolean = false
 
@@ -70,10 +70,10 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
 
     private fun loadFromTag(tag: CompoundTag) {
         if (tag.contains("Location", 8)) {
-            this.location = ResourceLocation.parse(tag.getString("Location"))
+            this.location = Identifier.parse(tag.getString("Location"))
         }
         if (tag.contains("Icon", 8)) {
-            this.icon = ResourceLocation.parse(tag.getString("Icon"))
+            this.icon = Identifier.parse(tag.getString("Icon"))
         }
         this.tick = tag.getInt("Tick")
         this.opened = tag.getBoolean("Opened")
@@ -93,7 +93,7 @@ open class LuckyContainerBlockEntity(pos: BlockPos, state: BlockState) :
     override fun loadAdditional(tag: CompoundTag, registries: HolderLookup.Provider) {
         super.loadAdditional(tag, registries)
         if (tag.contains("Location", 8)) {
-            this.location = ResourceLocation.parse(tag.getString("Location"))
+            this.location = Identifier.parse(tag.getString("Location"))
         }
     }
 

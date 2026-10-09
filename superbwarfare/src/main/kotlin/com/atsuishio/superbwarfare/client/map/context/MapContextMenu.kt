@@ -932,7 +932,7 @@ class MapContextMenu {
             mapTop: Int,
             mapAreaW: Int,
             mapAreaH: Int,
-            markerTexture: net.minecraft.resources.ResourceLocation,
+            markerTexture: net.minecraft.resources.Identifier,
             isDragging: Boolean
         ) {
             // 世界坐标 → 屏幕坐标（贴图底边中点 = 世界坐标锚点）

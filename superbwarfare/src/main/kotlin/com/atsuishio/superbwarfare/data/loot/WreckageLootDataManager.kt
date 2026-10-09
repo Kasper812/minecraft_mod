@@ -9,7 +9,7 @@ import kotlinx.serialization.json.decodeFromJsonElement
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
@@ -17,10 +17,10 @@ import net.minecraft.util.profiling.ProfilerFiller
 import net.minecraft.world.entity.EntityType
 
 object WreckageLootDataManager : SimpleJsonResourceReloadListener(Gson(), "sbw/loot"), IdentifiableResourceReloadListener {
-    private val data: MutableMap<ResourceLocation, WreckageLootData> = mutableMapOf()
+    private val data: MutableMap<Identifier, WreckageLootData> = mutableMapOf()
 
     override fun apply(
-        pObject: Map<ResourceLocation, JsonElement>,
+        pObject: Map<Identifier, JsonElement>,
         pResourceManager: ResourceManager,
         pProfiler: ProfilerFiller
     ) {
@@ -36,11 +36,11 @@ object WreckageLootDataManager : SimpleJsonResourceReloadListener(Gson(), "sbw/l
         }
     }
 
-    override fun getFabricId(): ResourceLocation {
+    override fun getFabricId(): Identifier {
         return Mod.loc("wreckage_loot")
     }
 
-    fun getLootData(id: ResourceLocation): WreckageLootData? {
+    fun getLootData(id: Identifier): WreckageLootData? {
         return data[id]
     }
 

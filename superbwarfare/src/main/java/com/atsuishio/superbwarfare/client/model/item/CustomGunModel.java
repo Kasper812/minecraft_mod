@@ -8,7 +8,7 @@ import com.atsuishio.superbwarfare.resource.ModelResource;
 import com.atsuishio.superbwarfare.resource.gun.DefaultGunResource;
 import com.atsuishio.superbwarfare.resource.gun.GunResource;
 import net.minecraft.client.Minecraft;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import software.bernie.geckolib.animatable.GeoAnimatable;
@@ -25,25 +25,25 @@ public abstract class CustomGunModel<T extends GunGeoItem & GeoAnimatable> exten
     public ItemStack gunItemStack;
 
     @Override
-    public ResourceLocation getAnimationResource(T animatable) {
+    public Identifier getAnimationResource(T animatable) {
         return getModel(animatable).animation;
     }
 
     @Override
-    public ResourceLocation getModelResource(T animatable) {
+    public Identifier getModelResource(T animatable) {
         return getModel(animatable).model;
     }
 
     @Override
-    public ResourceLocation getTextureResource(T animatable) {
+    public Identifier getTextureResource(T animatable) {
         return getModel(animatable).texture;
     }
 
-    public ResourceLocation getLODModelResource(T animatable) {
+    public Identifier getLODModelResource(T animatable) {
         return getModel(animatable).getLODModel(Integer.MAX_VALUE);
     }
 
-    public ResourceLocation getLODTextureResource(T animatable) {
+    public Identifier getLODTextureResource(T animatable) {
         return getModel(animatable).getLODTexture(Integer.MAX_VALUE);
     }
 

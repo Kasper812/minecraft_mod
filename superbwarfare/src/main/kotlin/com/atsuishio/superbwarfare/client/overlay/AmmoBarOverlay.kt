@@ -20,9 +20,9 @@ import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.ModKeyMappings
 import com.atsuishio.superbwarfare.item.gun.GunItem
 import com.atsuishio.superbwarfare.tools.FormatTool.format1DZZ
-import net.minecraft.Util
+import net.minecraft.util.Util
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.ItemStack
@@ -39,7 +39,7 @@ object AmmoBarOverlay : CommonOverlay("ammo_bar") {
     private val AMMO_STACK = loc("textures/gui/attachment/ammo_stack.png")
 
     private val TO_RESOURCE_LOCATION =
-        Util.memoize<String, ResourceLocation> { str -> loc("textures/overlay/ammo_bar/fire_mode/$str.png") }
+        Util.memoize<String, Identifier> { str -> loc("textures/overlay/ammo_bar/fire_mode/$str.png") }
 
     /**
      * 图标文件里是 32×32 的这几张（见 [fireModeIconSize]）：RPM 那一组。
@@ -126,7 +126,7 @@ object AmmoBarOverlay : CommonOverlay("ammo_bar") {
 
             // 渲染开火模式
             val fireModeName = toUnderScores(data.selectedFireModeInfo().name)
-            val fireMode: ResourceLocation = TO_RESOURCE_LOCATION.apply(fireModeName)
+            val fireMode: Identifier = TO_RESOURCE_LOCATION.apply(fireModeName)
             val fireModeSize = fireModeIconSize(fireModeName)
 
             val selectedFireMode = data.selectedFireMode.get()

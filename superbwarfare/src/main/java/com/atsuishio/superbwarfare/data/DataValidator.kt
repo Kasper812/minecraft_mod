@@ -22,7 +22,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.FileToIdConverter
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.tags.TagKey
 import kotlin.jvm.optionals.getOrNull
@@ -202,8 +202,8 @@ object DataValidator {
                 )
             }
 
-            val accepted = mutableSetOf<ResourceLocation>()
-            val excluded = mutableSetOf<ResourceLocation>()
+            val accepted = mutableSetOf<Identifier>()
+            val excluded = mutableSetOf<Identifier>()
             var declared = 0
 
             for (declaration in declarations) {
@@ -219,7 +219,7 @@ object DataValidator {
                 val tagged = body.startsWith("#")
                 val target = (if (tagged) body.substring(1) else body).trim()
 
-                val id = ResourceLocation.tryParse(target)
+                val id = Identifier.tryParse(target)
                 if (id == null) {
                     warn(
                         "AvailableAttachments['$slotKey'] entry '$raw' is not a valid " +
@@ -447,7 +447,7 @@ object DataValidator {
         validateSubWeaponReload(gunDataId, warn)
 
         // 物品存在性与类型只能在注册表可用之后查；数据包侧注册表可能还没就绪，查不到就只提示
-        val item = ResourceLocation.tryParse(attachmentId)?.let { BuiltInRegistries.ITEM.get(it) }
+        val item = Identifier.tryParse(attachmentId)?.let { BuiltInRegistries.ITEM.get(it) }
         if (item == null) {
             warn("attachment '$attachmentId' has no registered item; it cannot be installed")
         } else if (item !is SubWeaponItem) {

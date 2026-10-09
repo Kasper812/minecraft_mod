@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.block.entity.*
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.block.entity.BlockEntityType
 
 object ModBlockEntities {
@@ -14,7 +14,7 @@ object ModBlockEntities {
     ): T {
         return Registry.register(
             BuiltInRegistries.BLOCK_ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(Mod.MODID, id),
+            Identifier.fromNamespaceAndPath(Mod.MODID, id),
             blockEntity()
         )
     }

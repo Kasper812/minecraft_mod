@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.client.screens.DogTagEditorScreen
 import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.*
 import kotlin.random.Random
 
@@ -41,7 +41,7 @@ object SpritePixelHelper {
         return (red shl 16) or (green shl 8) or blue
     }
 
-    fun getDogTagIcon(list: List<List<Short>>, path: String): ResourceLocation {
+    fun getDogTagIcon(list: List<List<Short>>, path: String): Identifier {
         val newDogTagIcon = createDogTagImage(list)
         val newTextureLoc = loc("${path.lowercase(Locale.ROOT)}_dog_tag.png")
 

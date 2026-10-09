@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.client.language.ClientLanguageGetter;
 import com.atsuishio.superbwarfare.client.DataDumpChatHandler;
@@ -13,7 +15,6 @@ import com.atsuishio.superbwarfare.client.renderer.SyncedEntityWorldRenderer;
 import com.atsuishio.superbwarfare.client.renderer.ModParticleRenderTypes;
 import com.atsuishio.superbwarfare.client.molang.MolangVariable;
 import com.atsuishio.superbwarfare.client.screens.SnapshotWarningScreen;
-import com.atsuishio.superbwarfare.compat.ponder.SBWPonderPlugin;
 import com.atsuishio.superbwarfare.compat.acceleratedrendering.AcceleratedRenderingCompat;
 import com.atsuishio.superbwarfare.data.DataLoader;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
@@ -24,7 +25,6 @@ import com.atsuishio.superbwarfare.init.*;
 import com.atsuishio.superbwarfare.item.projectile.PotionMortarShellItem;
 import com.atsuishio.superbwarfare.network.NetworkRegistryKt;
 import com.atsuishio.superbwarfare.sound.SoundLimit;
-import net.createmod.ponder.foundation.PonderIndex;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -66,9 +66,7 @@ public class SuperbWarfareFabricClient implements ClientModInitializer {
         AcceleratedRenderingCompat.INSTANCE.init();
         ModSoundInstances.init();
         SoundLimit.INSTANCE.init();
-        if (FabricLoader.getInstance().isModLoaded("ponder")) {
-            PonderIndex.addPlugin(SBWPonderPlugin.INSTANCE);
-        }
+
         ClientEventHandler.register();
         NetworkRegistryKt.registerClientReceivers();
         ClientEntityEvents.ENTITY_LOAD.register((entity, world) -> {

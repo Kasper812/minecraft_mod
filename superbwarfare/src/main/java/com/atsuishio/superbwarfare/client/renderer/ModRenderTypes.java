@@ -4,11 +4,11 @@ import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.resources.Identifier;
 
 import java.util.function.Function;
 
@@ -18,7 +18,7 @@ public class ModRenderTypes extends RenderType {
         super(pName, pFormat, pMode, pBufferSize, pAffectsCrumbling, pSortOnUpload, pSetupState, pClearState);
     }
 
-    public static final Function<ResourceLocation, RenderType> LASER = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> LASER = Util.memoize((location) -> {
         TextureStateShard shard = new TextureStateShard(location, false, false);
         CompositeState state = CompositeState.builder().setTextureState(shard)
                 .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER).setTransparencyState(ADDITIVE_TRANSPARENCY)
@@ -37,7 +37,7 @@ public class ModRenderTypes extends RenderType {
     });
 
     /** 枪械激光瞄准器的光束 */
-    public static final Function<ResourceLocation, RenderType> LASER_BEAM = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> LASER_BEAM = Util.memoize((location) -> {
         TextureStateShard shard = new RenderStateShard.TextureStateShard(location, false, false);
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(RENDERTYPE_ENTITY_TRANSLUCENT_EMISSIVE_SHADER)
@@ -53,11 +53,11 @@ public class ModRenderTypes extends RenderType {
         return RenderType.create("laser_beam", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.QUADS, 256, true, true, state);
     });
 
-    public static RenderType laserBeam(ResourceLocation location) {
+    public static RenderType laserBeam(Identifier location) {
         return LASER_BEAM.apply(location);
     }
 
-    public static final Function<ResourceLocation, RenderType> ILLUMINATED = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> ILLUMINATED = Util.memoize((location) -> {
         TextureStateShard shard = new RenderStateShard.TextureStateShard(location, false, false);
         RenderType.CompositeState state = RenderType.CompositeState.builder().setTextureState(shard)
                 .setShaderState(RENDERTYPE_BEACON_BEAM_SHADER).setTransparencyState(RenderStateShard.GLINT_TRANSPARENCY)
@@ -75,7 +75,7 @@ public class ModRenderTypes extends RenderType {
     });
 
     // 支持半透明和自发光的多边形网格渲染类型，用于载具特效（如枪口火焰）
-    public static final Function<ResourceLocation, RenderType> POLY_MESH_TRANSLUCENT_EMISSIVE = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> POLY_MESH_TRANSLUCENT_EMISSIVE = Util.memoize((location) -> {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(RENDERTYPE_EYES_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(location, false, false))
@@ -88,11 +88,11 @@ public class ModRenderTypes extends RenderType {
         return RenderType.create("poly_mesh_translucent_emissive", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 256, false, true, state);
     });
 
-    // 自发光多边形网格：与 net.minecraft.client.renderer.RenderType.eyes 同一套状态
+    // 自发光多边形网格：与 net.minecraft.client.renderer.rendertype.RenderType.eyes 同一套状态
     // （rendertype_eyes 着色器、加法混合、无光照、只写颜色），只是换成 TRIANGLES + NO_CULL，
     // 好和 polyMeshCutout 那一遍的剪影对齐（那一遍就是 NO_CULL）。
     // 枪械的自发光层（_e 贴图）就是靠它 + RenderType.eyes 把模型再画一遍，见 GunEmissiveTextures。
-    public static final Function<ResourceLocation, RenderType> POLY_MESH_EYES = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> POLY_MESH_EYES = Util.memoize((location) -> {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(RENDERTYPE_EYES_SHADER)
                 .setTextureState(new RenderStateShard.TextureStateShard(location, false, false))
@@ -105,11 +105,11 @@ public class ModRenderTypes extends RenderType {
         return RenderType.create("poly_mesh_eyes", DefaultVertexFormat.NEW_ENTITY, VertexFormat.Mode.TRIANGLES, 256, false, true, state);
     });
 
-    public static RenderType polyMeshEyes(ResourceLocation location) {
+    public static RenderType polyMeshEyes(Identifier location) {
         return POLY_MESH_EYES.apply(location);
     }
 
-    public static final Function<ResourceLocation, RenderType> MUZZLE_FLASH_TYPE = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> MUZZLE_FLASH_TYPE = Util.memoize((location) -> {
         TextureStateShard shard = new TextureStateShard(location, false, false);
         CompositeState state = RenderType.CompositeState.builder()
                 // 关键：使用位置-颜色-贴图着色器
@@ -127,7 +127,7 @@ public class ModRenderTypes extends RenderType {
         return RenderType.create("muzzle_flash", DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS, 256, false, true, state);
     });
 
-    public static final Function<ResourceLocation, RenderType> TOW_CHAIN = Util.memoize((location) -> {
+    public static final Function<Identifier, RenderType> TOW_CHAIN = Util.memoize((location) -> {
         RenderType.CompositeState state = RenderType.CompositeState.builder()
                 .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getPositionTexColorShader))
                 .setTextureState(new RenderStateShard.TextureStateShard(location, false, false))

@@ -49,7 +49,7 @@ public final class SodiumTreeGeometryWriter implements ISodiumVertexWriter {
     private synchronized boolean writeCubes(ICube[] cubes, VertexBufferWriter writer, int lightmap, int overlay, float red, float green, float blue, float alpha,
                                             Matrix4f finalPose, Matrix3f finalNormal, boolean skipNormalVisibilityCull) {
         int color = color(red, green, blue, alpha);
-        boolean cull = !skipNormalVisibilityCull && cn.sh1rocu.simplebedrockmodel.client.port.SbmRenderContext.normalCullingEnabled();
+        boolean cull = !skipNormalVisibilityCull && com.atsuishio.portlib.render.SbmRenderContext.normalCullingEnabled();
         int emitted = 0;
         long ptr = SCRATCH;
         for (ICube cube : cubes) {

@@ -3,7 +3,7 @@ package com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer;
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.handler.FirstPersonArmorHandler;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.AbstractClientPlayer;
-import cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.world.entity.HumanoidArm;
 import org.jetbrains.annotations.NotNull;
 

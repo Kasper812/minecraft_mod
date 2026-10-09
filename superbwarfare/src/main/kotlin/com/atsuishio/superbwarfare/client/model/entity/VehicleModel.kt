@@ -9,7 +9,7 @@ import com.atsuishio.superbwarfare.resource.vehicle.VehicleResource
 import com.atsuishio.superbwarfare.tools.RenderDistanceHelper
 import com.atsuishio.superbwarfare.tools.ResourceOnceLogger
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.entity.player.Player
@@ -42,20 +42,20 @@ open class VehicleModel<T> : GeoModel<T>() where T : VehicleEntity, T : GeoAnima
 
     private val LOGGER = ResourceOnceLogger()
 
-    override fun getAnimationResource(vehicle: T): ResourceLocation? {
+    override fun getAnimationResource(vehicle: T): Identifier? {
         return getDefault(vehicle).getModel().animation
     }
 
-    protected var modelCache: ResourceLocation? = null
+    protected var modelCache: Identifier? = null
 
     @Deprecated("Deprecated in Java")
-    override fun getModelResource(vehicle: T): ResourceLocation? {
+    override fun getModelResource(vehicle: T): Identifier? {
         if (RenderDistanceHelper.isInGui()) {
             return getDefault(vehicle).getModel().model
         }
 
         val lodLevel = getLODLevel(vehicle)
-        val lodModel: ResourceLocation? = getDefault(vehicle).getModel().getLODModel(lodLevel)
+        val lodModel: Identifier? = getDefault(vehicle).getModel().getLODModel(lodLevel)
 
         if (lodModel == null) {
             if (modelCache != null) {
@@ -72,18 +72,18 @@ open class VehicleModel<T> : GeoModel<T>() where T : VehicleEntity, T : GeoAnima
         return lodModel
     }
 
-    fun getPreciseModelResource(vehicle: T): ResourceLocation? = getDefault(vehicle).getModel().model
+    fun getPreciseModelResource(vehicle: T): Identifier? = getDefault(vehicle).getModel().model
 
-    protected var textureCache: ResourceLocation? = null
+    protected var textureCache: Identifier? = null
 
     @Deprecated("Deprecated in Java")
-    override fun getTextureResource(vehicle: T): ResourceLocation? {
+    override fun getTextureResource(vehicle: T): Identifier? {
         if (RenderDistanceHelper.isInGui()) {
             return getDefault(vehicle).getModel().texture
         }
 
         val lodLevel = getLODLevel(vehicle)
-        val lodTexture: ResourceLocation? = getDefault(vehicle).getModel().getLODTexture(lodLevel)
+        val lodTexture: Identifier? = getDefault(vehicle).getModel().getLODTexture(lodLevel)
 
         if (lodTexture == null) {
             if (textureCache != null) {
@@ -100,7 +100,7 @@ open class VehicleModel<T> : GeoModel<T>() where T : VehicleEntity, T : GeoAnima
         return lodTexture
     }
 
-    fun getPreciseTextureResource(vehicle: T): ResourceLocation? = getDefault(vehicle).getModel().texture
+    fun getPreciseTextureResource(vehicle: T): Identifier? = getDefault(vehicle).getModel().texture
 
     fun getLODLevel(vehicle: T): Int {
         val defaultData: DefaultVehicleResource = getDefault(vehicle)

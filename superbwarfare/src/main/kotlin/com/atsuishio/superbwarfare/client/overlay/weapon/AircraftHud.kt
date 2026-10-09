@@ -103,7 +103,7 @@ object AircraftHud {
         }
 
         if (player !== vehicle.getFirstPassenger()) return
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         val cameraPos = camera.position
         val poseStack = guiGraphics.pose()
         val gunData = vehicle.getGunData(player)

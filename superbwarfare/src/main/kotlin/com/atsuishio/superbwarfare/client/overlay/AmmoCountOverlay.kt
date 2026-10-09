@@ -12,7 +12,7 @@ import com.atsuishio.superbwarfare.item.ammo.ammoBoxData
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.network.chat.Component
-import net.minecraft.util.FastColor
+import net.minecraft.util.ARGB
 import kotlin.math.roundToInt
 
 object AmmoCountOverlay : CommonOverlay("ammo_count") {
@@ -115,7 +115,7 @@ object AmmoCountOverlay : CommonOverlay("ammo_count") {
                 animator.lerp(animator.oldValue()!!.toFloat(), ammoCount.toFloat(), currentTime).roundToInt().toString()
 
             // 弹药增加时，颜色由绿变白，否则由红变白
-            val fontColor = FastColor.ARGB32.lerp(
+            val fontColor = ARGB.lerp(
                 progress, when (ammoAdd) {
                     1 -> -0xff0100
                     -1 -> -0x10000
@@ -155,7 +155,7 @@ object AmmoCountOverlay : CommonOverlay("ammo_count") {
             // 选中时显示为黄色，否则为白色
             val targetColor = if (boxAmmoSelected) -0x100 else -0x1
 
-            val boxFontColor = FastColor.ARGB32.lerp(
+            val boxFontColor = ARGB.lerp(
                 boxAnimator.getProgress(currentTime),
                 when (ammoBoxAdd) {
                     1 -> -0xff0100

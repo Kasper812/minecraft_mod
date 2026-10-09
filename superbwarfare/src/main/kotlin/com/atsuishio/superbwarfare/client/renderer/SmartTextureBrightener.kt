@@ -3,15 +3,15 @@ package com.atsuishio.superbwarfare.client.renderer
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.math.exp
 import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
 object SmartTextureBrightener {
-    private val BRIGHTNESS_CACHE: MutableMap<ResourceLocation, Float> = hashMapOf()
-    private val PROCESSED_TEXTURES: MutableMap<ResourceLocation, ResourceLocation> = hashMapOf()
+    private val BRIGHTNESS_CACHE: MutableMap<Identifier, Float> = hashMapOf()
+    private val PROCESSED_TEXTURES: MutableMap<Identifier, Identifier> = hashMapOf()
 
     // 计算图像的感知亮度（使用人类视觉的加权平均）
     fun calculatePerceivedBrightness(image: NativeImage): Float {
@@ -195,7 +195,7 @@ object SmartTextureBrightener {
 
     // 获取或创建智能调整后的纹理
     @JvmStatic
-    fun getSmartBrightenedTexture(originalLoc: ResourceLocation, targetBrightness: Float): ResourceLocation {
+    fun getSmartBrightenedTexture(originalLoc: Identifier, targetBrightness: Float): Identifier {
         if (PROCESSED_TEXTURES.containsKey(originalLoc)) {
             return PROCESSED_TEXTURES[originalLoc]!!
         }
@@ -208,7 +208,7 @@ object SmartTextureBrightener {
             val brightenedImage = smartBrighten(originalImage, targetBrightness)
             originalImage.close()
 
-            val newTextureLoc = ResourceLocation.fromNamespaceAndPath(
+            val newTextureLoc = Identifier.fromNamespaceAndPath(
                 originalLoc.namespace,
                 originalLoc.path.replace(".png", "_smartbright.png")
             )

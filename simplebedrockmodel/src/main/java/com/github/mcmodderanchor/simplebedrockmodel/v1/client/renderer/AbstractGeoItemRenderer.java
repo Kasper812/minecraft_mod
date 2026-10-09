@@ -10,10 +10,10 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.common.model.BedrockModel
 import com.github.mcmodderanchor.simplebedrockmodel.v1.util.RenderDistance;
 import com.maydaymemory.mae.basic.YXZRotationView;
 import com.mojang.blaze3d.vertex.PoseStack;
-import cn.sh1rocu.simplebedrockmodel.client.port.DynamicItemRenderer;
+import com.atsuishio.portlib.render.DynamicItemRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.OverlayTexture;

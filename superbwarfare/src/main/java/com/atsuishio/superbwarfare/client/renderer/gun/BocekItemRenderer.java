@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.atsuishio.superbwarfare.client.ItemModelHelper;
 import com.atsuishio.superbwarfare.client.animation.AnimationHelper;
 import com.atsuishio.superbwarfare.client.model.item.BocekItemModel;
@@ -12,10 +14,10 @@ import com.atsuishio.superbwarfare.item.gun.special.BocekItem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import com.atsuishio.portlib.render.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
@@ -49,7 +51,7 @@ public class BocekItemRenderer extends CustomGunRenderer<BocekItem> {
 
         if (bone.getName().equals("power_light")) {
             var power = Math.round((float) ClientEventHandler.bowPower * 255);
-            var c = FastColor.ARGB32.color(color & 0xFF, power, power, power);
+            var c = ARGB.color(color & 0xFF, power, power, power);
             renderCubesOfBone(poseStack, bone, bufferSource.getBuffer(ModRenderTypes.ILLUMINATED.apply(this.getTextureLocation(animatable))),
                     packedLight, OverlayTexture.NO_OVERLAY, c);
         }

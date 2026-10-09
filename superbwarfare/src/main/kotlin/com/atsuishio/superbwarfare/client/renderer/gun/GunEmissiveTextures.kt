@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.client.renderer.gun
 import com.atsuishio.superbwarfare.Mod
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
@@ -31,7 +31,7 @@ import net.minecraft.util.profiling.ProfilerFiller
  */
 object GunEmissiveTextures : SimplePreparableReloadListener<Unit>(), IdentifiableResourceReloadListener {
 
-    override fun getFabricId(): ResourceLocation = Mod.loc("gun_emissive_textures")
+    override fun getFabricId(): Identifier = Mod.loc("gun_emissive_textures")
 
     /** 插在扩展名**之前**的自发光后缀：`glock_17.png` → `glock_17_e.png`。 */
     private const val SUFFIX = "_e"
@@ -39,14 +39,14 @@ object GunEmissiveTextures : SimplePreparableReloadListener<Unit>(), Identifiabl
     private const val EXTENSION = ".png"
 
     /** 值存 `null` 表示"查过了，这张贴图没有配套的 `_e`"，免得每帧都去资源管理器里翻一遍。 */
-    private val cache = HashMap<ResourceLocation, ResourceLocation?>()
+    private val cache = HashMap<Identifier, Identifier?>()
 
     /**
      * [texture] 对应的自发光贴图；没有就返回 `null`。
      *
      * 只认 `.png`：别的扩展名（包括没有扩展名）无从推导，一律判无。
      */
-    fun get(texture: ResourceLocation): ResourceLocation? {
+    fun get(texture: Identifier): Identifier? {
         val cached = cache[texture]
         if (cached != null) return cached
         if (cache.containsKey(texture)) return null
@@ -59,11 +59,11 @@ object GunEmissiveTextures : SimplePreparableReloadListener<Unit>(), Identifiabl
         return emissive
     }
 
-    private fun resolve(texture: ResourceLocation, resourceManager: ResourceManager): ResourceLocation? {
+    private fun resolve(texture: Identifier, resourceManager: ResourceManager): Identifier? {
         val path = texture.path
         if (!path.endsWith(EXTENSION)) return null
 
-        val emissive = ResourceLocation.fromNamespaceAndPath(
+        val emissive = Identifier.fromNamespaceAndPath(
             texture.namespace,
             path.substring(0, path.length - EXTENSION.length) + SUFFIX + EXTENSION
         )

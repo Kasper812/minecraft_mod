@@ -19,7 +19,7 @@ import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.multiplayer.ClientLevel
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.FluidTags
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.chunk.LevelChunk
@@ -858,7 +858,7 @@ object TacticalMapCache {
     }
 
     /** Get or create a GPU texture for an LOD tile. */
-    fun getLodTileTexture(factor: Int, lodRX: Int, lodRZ: Int): ResourceLocation {
+    fun getLodTileTexture(factor: Int, lodRX: Int, lodRZ: Int): Identifier {
         val key = LodTileKey(factor, lodRX, lodRZ)
         val loc = loc("map_lod_${factor}_${lodRX}_${lodRZ}")
 
@@ -964,7 +964,7 @@ object TacticalMapCache {
         }
     }
 
-    fun getTileTexture(rx: Int, rz: Int): ResourceLocation? {
+    fun getTileTexture(rx: Int, rz: Int): Identifier? {
         if (!tileImages.containsKey(RegionPos(rx, rz))) return null
         tileTextures.computeIfAbsent(RegionPos(rx, rz)) {
             val loc = loc("map_tile_${rx}_${rz}")

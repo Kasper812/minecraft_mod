@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.curio
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.model.trinket.ParachuteModel
 import com.atsuishio.superbwarfare.item.trinket.ParachuteItem
@@ -12,9 +14,9 @@ import dev.emi.trinkets.api.client.TrinketRenderer
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
 import net.minecraft.client.CameraType
 import net.minecraft.client.model.EntityModel
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.RenderBuffers
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.entity.LivingEntity
@@ -56,7 +58,7 @@ class ParachuteRenderer : TrinketRenderer {
 
             val vertexConsumer = ItemRenderer.getArmorFoilBuffer(
                 vertexConsumers,
-                RenderType.armorCutoutNoCull(TEXTURE),
+                RenderTypes.armorCutoutNoCull(TEXTURE),
                 stack.hasFoil()
             )
 
@@ -96,7 +98,7 @@ class ParachuteRenderer : TrinketRenderer {
                 firstPersonModel!!.setupAnim(player, 0f, 0f, player.tickCount.toFloat(), 0f, 0f)
                 firstPersonModel!!.renderToBuffer(
                     stack!!,
-                    buffers.bufferSource().getBuffer(RenderType.armorCutoutNoCull(TEXTURE)),
+                    buffers.bufferSource().getBuffer(RenderTypes.armorCutoutNoCull(TEXTURE)),
                     0xFFFFFF,
                     OverlayTexture.NO_OVERLAY,
                     -1

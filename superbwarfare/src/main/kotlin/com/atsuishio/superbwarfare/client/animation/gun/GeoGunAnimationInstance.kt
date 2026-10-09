@@ -24,7 +24,7 @@ import com.maydaymemory.mae.basic.*
 import com.maydaymemory.mae.blend.*
 import com.maydaymemory.mae.control.runner.*
 import net.minecraft.client.Minecraft
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
@@ -1230,7 +1230,7 @@ open class GeoGunAnimationInstance(
     }
 
     private fun collectSoundEvents(animationRunner: AnimationRunner?) {
-        val sounds = animationRunner?.clip<ResourceLocation>(BedrockAnimation.SOUND_CHANNEL_NAME) ?: return
+        val sounds = animationRunner?.clip<Identifier>(BedrockAnimation.SOUND_CHANNEL_NAME) ?: return
         val player = localPlayer ?: return
         for (keyframe in sounds) {
             val soundLocation = keyframe.value ?: continue

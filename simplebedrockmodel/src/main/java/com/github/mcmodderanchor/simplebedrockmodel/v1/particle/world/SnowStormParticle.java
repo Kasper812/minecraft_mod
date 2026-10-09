@@ -14,7 +14,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Camera;
 import net.minecraft.client.multiplayer.ClientLevel;
-import cn.sh1rocu.simplebedrockmodel.client.port.LegacyParticle;
+import com.atsuishio.portlib.render.LegacyParticle;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.core.BlockPos;

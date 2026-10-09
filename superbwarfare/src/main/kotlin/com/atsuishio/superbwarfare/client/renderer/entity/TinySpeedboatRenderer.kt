@@ -1,13 +1,15 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.TinySpeedboatEntity
 import com.atsuishio.superbwarfare.event.ClientEventHandler
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.util.LightCoordsUtil
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
@@ -45,7 +47,7 @@ class TinySpeedboatRenderer(manager: EntityRendererProvider.Context) :
         super.renderCustomPart(entity, instance, poseStack, entityYaw, partialTicks, buffer, packedLight)
         val emissive = this.getEmissiveTextureLocation(poseStack, entity) ?: return
 
-        val renderType = RenderType.entityTranslucent(emissive)
+        val renderType = RenderTypes.entityTranslucent(emissive)
         var packedLight = packedLight
 
         val id: Int = entity.colorId
@@ -54,7 +56,7 @@ class TinySpeedboatRenderer(manager: EntityRendererProvider.Context) :
 
         if (entity.customName != null && entity.customName!!.string == "jeb_") {
             color = getRainbowColorHSL(entity.tickCount)
-            packedLight = LightTexture.FULL_BRIGHT
+            packedLight = LightCoordsUtil.FULL_BRIGHT
         } else {
             val intColor = DyeColor.byId(id).textureDiffuseColor
             color = floatArrayOf(
@@ -66,7 +68,7 @@ class TinySpeedboatRenderer(manager: EntityRendererProvider.Context) :
 
         if (ClientEventHandler.activeThermalImaging) {
             color = floatArrayOf(1f, 1f, 1f)
-            packedLight = LightTexture.FULL_BRIGHT
+            packedLight = LightCoordsUtil.FULL_BRIGHT
         }
 
         instance.renderToBuffer(

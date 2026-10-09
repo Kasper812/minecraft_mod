@@ -59,7 +59,7 @@ import net.minecraft.core.BlockPos
 import net.minecraft.core.particles.ParticleTypes
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
 import net.minecraft.util.Mth
@@ -1121,7 +1121,7 @@ object ClientEventHandler {
             val maxGuidedRange = data.get(GunProp.MAX_GUIDED_RANGE)
             val canGuidedByRadar = data.get(GunProp.CAN_GUIDED_BY_RADAR)
             val affectedByStealthTarget = data.get(GunProp.AFFECTED_BY_STEALTH_TARGET)
-            val cameraPos = mc.gameRenderer.mainCamera.position
+            val cameraPos = mc.gameRenderer.mainCamera().position
 
             if (zoomTime > 0.7) {
                 nearestEntity = SeekTool.Builder(player)
@@ -1338,7 +1338,7 @@ object ClientEventHandler {
         // 搜索范围
         val seekRange = seekWeaponInfo.seekRange
         // 视角位置
-        val cameraPos = mc.gameRenderer.mainCamera.position
+        val cameraPos = mc.gameRenderer.mainCamera().position
         // 搜寻方向
         val seekVec = vehicle.getSeekVec(player, 1f) ?: return
         // 最小目标高度
@@ -3100,9 +3100,9 @@ object ClientEventHandler {
         if (entity.hasEffect(ModMobEffects.SHOCK) && mc.options.cameraType == CameraType.FIRST_PERSON) {
             val shakeStrength = DisplayConfig.SHOCK_SCREEN_SHAKE.get().toFloat() / 100.0f
             if (shakeStrength <= 0.0f) return
-            event.yaw = mc.gameRenderer.mainCamera.yRot +
+            event.yaw = mc.gameRenderer.mainCamera().yRot +
                     Mth.nextDouble(RandomSource.create(), -3.0, 3.0).toFloat() * shakeStrength
-            event.pitch = mc.gameRenderer.mainCamera.xRot +
+            event.pitch = mc.gameRenderer.mainCamera().xRot +
                     Mth.nextDouble(RandomSource.create(), -3.0, 3.0).toFloat() * shakeStrength
         }
     }
@@ -3596,7 +3596,7 @@ object ClientEventHandler {
     }
 
     @JvmStatic
-    fun stopSoundEvent(location: ResourceLocation, source: SoundSource) {
+    fun stopSoundEvent(location: Identifier, source: SoundSource) {
         mc.soundManager.stop(location, source)
     }
 

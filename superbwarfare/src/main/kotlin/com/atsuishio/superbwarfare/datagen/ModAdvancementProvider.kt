@@ -17,7 +17,7 @@ import net.minecraft.core.HolderLookup
 import net.minecraft.data.CachedOutput
 import net.minecraft.data.DataProvider
 import net.minecraft.data.PackOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.function.UnaryOperator
@@ -212,7 +212,7 @@ class ModAdvancementProvider(
 
         val futures: MutableList<CompletableFuture<*>> = ArrayList()
         val pathProvider = packOutput.createPathProvider(PackOutput.Target.DATA_PACK, "advancement")
-        val generatedAdvancements = HashSet<ResourceLocation>()
+        val generatedAdvancements = HashSet<Identifier>()
 
         return this.registries.thenCompose { provider ->
             val consumer = Consumer { advancementHolder: AdvancementHolder ->

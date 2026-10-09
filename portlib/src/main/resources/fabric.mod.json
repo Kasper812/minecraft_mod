@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "sbw_portlib",
+  "version": "${version}",
+  "name": "SBW Port Library",
+  "description": "Rendering compatibility layer used by the Superb Warfare 26.2 port",
+  "license": "GPL-3.0",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "com.atsuishio.portlib.PortLibClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}"
+  },
+  "mixins": [
+    "sbw_portlib.mixins.json"
+  ]
+}

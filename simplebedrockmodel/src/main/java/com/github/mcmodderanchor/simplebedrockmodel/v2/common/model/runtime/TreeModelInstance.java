@@ -8,7 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;

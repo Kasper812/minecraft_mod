@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.curio
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.model.trinket.ThermalImagingGogglesModel
 import com.atsuishio.superbwarfare.tools.mc
@@ -8,8 +10,8 @@ import dev.emi.trinkets.api.SlotReference
 import dev.emi.trinkets.api.client.TrinketRenderer
 import net.minecraft.client.model.EntityModel
 import net.minecraft.client.model.HumanoidModel
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.ItemRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.entity.LivingEntity
@@ -52,7 +54,7 @@ class ThermalImagingGogglesRenderer : TrinketRenderer {
 
         val vertexConsumer = ItemRenderer.getArmorFoilBuffer(
             vertexConsumers,
-            RenderType.armorCutoutNoCull(TEXTURE),
+            RenderTypes.armorCutoutNoCull(TEXTURE),
             stack.hasFoil()
         )
 

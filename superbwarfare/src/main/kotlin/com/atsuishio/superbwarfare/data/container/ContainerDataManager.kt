@@ -6,7 +6,7 @@ import com.google.gson.JsonElement
 import it.unimi.dsi.fastutil.Pair
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener
@@ -16,9 +16,9 @@ object ContainerDataManager :
     SimpleJsonResourceReloadListener(Gson(), "sbw/containers"),
     IdentifiableResourceReloadListener {
 
-    private val containerData: MutableMap<ResourceLocation, MutableList<Pair<String, Int>>> = hashMapOf()
+    private val containerData: MutableMap<Identifier, MutableList<Pair<String, Int>>> = hashMapOf()
 
-    override fun getFabricId(): ResourceLocation {
+    override fun getFabricId(): Identifier {
         return Mod.loc("container_data_manager")
     }
 
@@ -28,7 +28,7 @@ object ContainerDataManager :
     }
 
     override fun apply(
-        objects: MutableMap<ResourceLocation, JsonElement>,
+        objects: MutableMap<Identifier, JsonElement>,
         manager: ResourceManager,
         profiler: ProfilerFiller
     ) {
@@ -59,7 +59,7 @@ object ContainerDataManager :
         }
     }
 
-    fun getEntityTypes(id: ResourceLocation): MutableList<Pair<String, Int>> {
+    fun getEntityTypes(id: Identifier): MutableList<Pair<String, Int>> {
         return containerData[id] ?: mutableListOf()
     }
 }

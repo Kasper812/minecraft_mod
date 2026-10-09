@@ -7,7 +7,7 @@ import com.atsuishio.superbwarfare.tools.DamageTypeTool.isGunDamage
 import net.minecraft.core.RegistryAccess
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
 
@@ -58,18 +58,18 @@ object DamageTypeTool {
         isGunDamage(damageType, registryAccess)
                 || damageType == ResourceKey.create(
             Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("tacz", "bullet")
+            Identifier.fromNamespaceAndPath("tacz", "bullet")
         )
                 || damageType == ResourceKey.create(
             Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("tacz", "bullet_void")
+            Identifier.fromNamespaceAndPath("tacz", "bullet_void")
         )
                 || damageType == ResourceKey.create(
             Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("tacz", "bullet_ignore_armor")
+            Identifier.fromNamespaceAndPath("tacz", "bullet_ignore_armor")
         )
                 || damageType == ResourceKey.create(
             Registries.DAMAGE_TYPE,
-            ResourceLocation.fromNamespaceAndPath("tacz", "bullet_void_ignore_armor")
+            Identifier.fromNamespaceAndPath("tacz", "bullet_void_ignore_armor")
         )
 }

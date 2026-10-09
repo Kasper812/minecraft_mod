@@ -27,7 +27,7 @@ import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvents
 import net.minecraft.sounds.SoundSource
@@ -293,7 +293,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
     }
 
     open fun generateWreckageLoot() {
-        val data = WreckageLootDataManager.getLootData(ResourceLocation.parse(this.vehicleName)) ?: return
+        val data = WreckageLootDataManager.getLootData(Identifier.parse(this.vehicleName)) ?: return
         val pools = data.pools
         if (pools.isEmpty()) return
         pools.forEach { pool ->
@@ -305,7 +305,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
             val source = pool.source
             if (source != "@Default") {
                 val lastSource = this.lastDamageSource ?: return@forEach
-                val parsedLoc = ResourceLocation.tryParse(source) ?: return@forEach
+                val parsedLoc = Identifier.tryParse(source) ?: return@forEach
                 val damageType = ResourceKey.create(Registries.DAMAGE_TYPE, parsedLoc)
                 if (!lastSource.`is`(damageType)) return@forEach
             } else if (this.lastDamageSource?.`is`(ModDamageTypes.REPAIR_TOOL) == true) {
@@ -323,7 +323,7 @@ open class TurretWreckEntity(type: EntityType<TurretWreckEntity>, level: Level) 
                     if (random > chance) return@forEach
 
                     val name = entry.name
-                    val item = BuiltInRegistries.ITEM.get(ResourceLocation.parse(name))
+                    val item = BuiltInRegistries.ITEM.get(Identifier.parse(name))
                     val count = entry.count
                     val entity = ItemEntity(level(), x, (y + 1), z, ItemStack(item, count))
                     entity.setPickUpDelay(10)

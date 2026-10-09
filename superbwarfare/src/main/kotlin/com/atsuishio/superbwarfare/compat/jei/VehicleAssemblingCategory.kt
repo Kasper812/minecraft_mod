@@ -12,7 +12,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole
 import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 
 class VehicleAssemblingCategory(helper: IGuiHelper) : IRecipeCategory<VehicleAssemblingRecipe> {
@@ -64,7 +64,7 @@ class VehicleAssemblingCategory(helper: IGuiHelper) : IRecipeCategory<VehicleAss
     }
 
     companion object {
-        val TEXTURE: ResourceLocation = loc("textures/gui/jei_vehicle_assembling_table.png")
+        val TEXTURE: Identifier = loc("textures/gui/jei_vehicle_assembling_table.png")
         val TYPE: RecipeType<VehicleAssemblingRecipe> =
             RecipeType<VehicleAssemblingRecipe>(loc("vehicle_assembling"), VehicleAssemblingRecipe::class.java)
     }

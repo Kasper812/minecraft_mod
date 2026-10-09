@@ -5,7 +5,7 @@ import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 import net.minecraft.client.player.AbstractClientPlayer;
-import cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.world.entity.HumanoidArm;
 
 public class RenderArmEvent extends BaseEvent implements ICancellableEvent {

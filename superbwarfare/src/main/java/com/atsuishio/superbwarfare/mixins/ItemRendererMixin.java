@@ -7,7 +7,7 @@ import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
@@ -22,8 +22,8 @@ import java.util.Set;
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
     @Unique
-    private static final Set<ResourceLocation> CUSTOM_GUI_ICON_ITEMS = Set.of(
-            ResourceLocation.fromNamespaceAndPath("superbwarfare", "lunge_mine")
+    private static final Set<Identifier> CUSTOM_GUI_ICON_ITEMS = Set.of(
+            Identifier.fromNamespaceAndPath("superbwarfare", "lunge_mine")
     );
 
     @Shadow
@@ -36,7 +36,7 @@ public class ItemRendererMixin {
             argsOnly = true
     )
     public BakedModel renderItem(BakedModel bakedModel, @Local(argsOnly = true) ItemStack stack, @Local(argsOnly = true) ItemDisplayContext displayContext) {
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
         String suffix = null;
 
         if (CUSTOM_GUI_ICON_ITEMS.contains(itemId)) {

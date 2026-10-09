@@ -1,15 +1,17 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.misc.CatapultShuttleEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class CatapultShuttleRenderer(renderManager: EntityRendererProvider.Context) :
     EntityRenderer<CatapultShuttleEntity>(renderManager) {
@@ -30,7 +32,7 @@ class CatapultShuttleRenderer(renderManager: EntityRendererProvider.Context) :
         poseStack.pushPose()
         poseStack.mulPose(Axis.YP.rotationDegrees(-entityYaw + 180f))
 
-        val renderType = RenderType.entityTranslucent(getTextureLocation(entityIn))
+        val renderType = RenderTypes.entityTranslucent(getTextureLocation(entityIn))
         val vertexConsumer = bufferIn.getBuffer(renderType)
 
         instance.renderToBuffer(
@@ -47,7 +49,7 @@ class CatapultShuttleRenderer(renderManager: EntityRendererProvider.Context) :
         return false
     }
 
-    override fun getTextureLocation(pEntity: CatapultShuttleEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: CatapultShuttleEntity): Identifier {
         return TEXTURE
     }
 

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.base.AutoAimableEntity
@@ -8,8 +10,8 @@ import com.atsuishio.superbwarfare.tools.localPlayer
 import com.atsuishio.superbwarfare.tools.options
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.CameraType
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
@@ -58,7 +60,7 @@ class Hpj11Renderer(manager: EntityRendererProvider.Context) : BasicAutoAimableR
         if (heat > 0) {
             instance.renderToBuffer(
                 poseStack,
-                buffer.getBuffer(RenderType.eyes(HEAT)),
+                buffer.getBuffer(RenderTypes.eyes(HEAT)),
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
                 heat / 100,

@@ -20,17 +20,11 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallba
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
-import cn.sh1rocu.simplebedrockmodel.client.port.BuiltinItemModel;
-import cn.sh1rocu.simplebedrockmodel.client.port.LegacyParticleGroup;
-import cn.sh1rocu.simplebedrockmodel.client.port.SbmPipelines;
 
 public class SimpleBedrockModelClient implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        SbmPipelines.init();
-        BuiltinItemModel.register();
-        LegacyParticleGroup.register();
         NetworkHandler.registerS2CReceivers();
         ReloadListenersRegister.BedrockModelClientRegister.onRegisterReloadListener();
 

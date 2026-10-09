@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.network.message.receive.SoundClientMessage
 import net.minecraft.core.Holder
 import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
@@ -27,7 +27,7 @@ fun ServerPlayer.playLocalSound(
     SoundTool.playLocalSound(this, sound, source, volume, pitch)
 }
 
-fun ServerPlayer.stopSound(sound: ResourceLocation?, source: SoundSource? = SoundSource.PLAYERS) {
+fun ServerPlayer.stopSound(sound: Identifier?, source: SoundSource? = SoundSource.PLAYERS) {
     SoundTool.stopSound(this, sound, source)
 }
 
@@ -58,7 +58,7 @@ object SoundTool {
 
     @JvmStatic
     @JvmOverloads
-    fun stopSound(player: ServerPlayer, sound: ResourceLocation?, source: SoundSource? = SoundSource.PLAYERS) {
+    fun stopSound(player: ServerPlayer, sound: Identifier?, source: SoundSource? = SoundSource.PLAYERS) {
         sendPacketTo(player, ClientboundStopSoundPacket(sound, source))
     }
 

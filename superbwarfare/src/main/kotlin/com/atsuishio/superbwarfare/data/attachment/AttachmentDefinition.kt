@@ -11,7 +11,7 @@ import com.atsuishio.superbwarfare.serialization.kserializer.SerializedResourceL
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 /**
  * 配件数据（`sbw/attachments/<id>.json`）
@@ -251,7 +251,7 @@ data class AttachmentDefinition(
         fun from(id: String): AttachmentDefinition? = CustomData.ATTACHMENTS[id]
 
         @JvmStatic
-        fun from(id: ResourceLocation): AttachmentDefinition? = CustomData.ATTACHMENTS[id.toString()]
+        fun from(id: Identifier): AttachmentDefinition? = CustomData.ATTACHMENTS[id.toString()]
 
         /**
          * 列出该枪上全部会发光束的配件。

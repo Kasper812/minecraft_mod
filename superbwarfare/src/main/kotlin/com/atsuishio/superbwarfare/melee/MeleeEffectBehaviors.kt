@@ -9,7 +9,7 @@ import com.atsuishio.superbwarfare.tools.*
 import net.minecraft.core.Holder
 import net.minecraft.core.particles.SimpleParticleType
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.effect.MobEffect
@@ -343,17 +343,17 @@ object MeleeEffectBehaviors {
     // ---------------------------------------------------------------- 解析工具
 
     private fun resolveMobEffect(id: String?): Holder.Reference<MobEffect>? {
-        val location = id?.let { ResourceLocation.tryParse(it) } ?: return null
+        val location = id?.let { Identifier.tryParse(it) } ?: return null
         return BuiltInRegistries.MOB_EFFECT.getHolder(location).getOrNull()
     }
 
     private fun resolveSound(id: String): SoundEvent? {
-        val location = ResourceLocation.tryParse(id) ?: return null
+        val location = Identifier.tryParse(id) ?: return null
         return BuiltInRegistries.SOUND_EVENT.get(location)
     }
 
     private fun resolveParticle(id: String): SimpleParticleType? {
-        val location = ResourceLocation.tryParse(id) ?: return null
+        val location = Identifier.tryParse(id) ?: return null
         return BuiltInRegistries.PARTICLE_TYPE.get(location) as? SimpleParticleType
     }
 }

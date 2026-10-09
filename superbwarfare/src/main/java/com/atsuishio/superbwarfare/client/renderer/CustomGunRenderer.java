@@ -1,15 +1,17 @@
 package com.atsuishio.superbwarfare.client.renderer;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.atsuishio.superbwarfare.client.model.item.CustomGunModel;
 import com.atsuishio.superbwarfare.config.client.DisplayConfig;
 import com.atsuishio.superbwarfare.item.gun.GunGeoItem;
 import com.atsuishio.superbwarfare.tools.RenderDistanceHelper;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import com.atsuishio.portlib.render.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
@@ -58,15 +60,15 @@ public class CustomGunRenderer<T extends GunGeoItem & GeoAnimatable> extends Geo
     }
 
     @Override
-    public RenderType getRenderType(T animatable, ResourceLocation texture, MultiBufferSource bufferSource, float partialTick) {
+    public RenderType getRenderType(T animatable, Identifier texture, MultiBufferSource bufferSource, float partialTick) {
         if (texture == null) {
             return RenderType.translucent();
         }
-        return RenderType.entityTranslucent(texture);
+        return RenderTypes.entityTranslucent(texture);
     }
 
     @Override
-    public ResourceLocation getTextureLocation(T animatable) {
+    public Identifier getTextureLocation(T animatable) {
         var geoModel = getGeoModel();
 
         if (renderPerspective != ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
@@ -80,7 +82,7 @@ public class CustomGunRenderer<T extends GunGeoItem & GeoAnimatable> extends Geo
         return geoModel.getTextureResource(animatable, null);
     }
 
-//    public ResourceLocation getTextureLocation(T animatable, PoseStack poseStack) {
+//    public Identifier getTextureLocation(T animatable, PoseStack poseStack) {
 //        var geoModel = getGeoModel();
 //
 //        if (renderPerspective != ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
@@ -127,7 +129,7 @@ public class CustomGunRenderer<T extends GunGeoItem & GeoAnimatable> extends Geo
 
 //        var player = Minecraft.getInstance().player;
 
-        ResourceLocation modelLocation;
+        Identifier modelLocation;
         var geoModel = getGeoModel();
         if (renderPerspective != ItemDisplayContext.FIRST_PERSON_RIGHT_HAND
                 && DisplayConfig.ENABLE_GUN_LOD.get()

@@ -10,14 +10,14 @@ import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.maydaymemory.mae.control.runner.AnimationContext
 import com.maydaymemory.mae.control.runner.AnimationRunner
 import com.maydaymemory.mae.control.runner.StopState
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.world.entity.Entity
 import org.joml.Vector3f
 
 class VehicleAnimationContext<T>(
     val entity: T,
-    location: ResourceLocation
+    location: Identifier
 ) where T : Entity, T : BasicGeoVehicleEntity {
     val animations = hashMapOf<String, BedrockAnimation>()
     var partialTick: Float = 0f
@@ -208,7 +208,7 @@ class VehicleAnimationContext<T>(
         }
 
         for (runner in weaponRunners.values) {
-            val namedSounds = runner.clip<ResourceLocation>(BedrockAnimation.SOUND_CHANNEL_NAME)
+            val namedSounds = runner.clip<Identifier>(BedrockAnimation.SOUND_CHANNEL_NAME)
             if (namedSounds != null) {
                 processSounds(namedSounds)
             }
@@ -239,7 +239,7 @@ class VehicleAnimationContext<T>(
         weaponRunners[weaponName] = runner
     }
 
-    private fun processSounds(sounds: Iterable<Keyframe<ResourceLocation>>) {
+    private fun processSounds(sounds: Iterable<Keyframe<Identifier>>) {
         for (keyframe in sounds) {
             val soundLocation = keyframe.getValue()
             val soundEvent = SoundEvent.createVariableRangeEvent(soundLocation)

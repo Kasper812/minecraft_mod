@@ -1,15 +1,17 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.MedicalKitEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 
 class MedicalKitEntityRenderer(renderManager: EntityRendererProvider.Context) :
@@ -38,7 +40,7 @@ class MedicalKitEntityRenderer(renderManager: EntityRendererProvider.Context) :
             poseStack.mulPose(Axis.XP.rotationDegrees(Mth.lerp(partialTicks, entityIn.xRotO, entityIn.xRot) + 90))
         }
 
-        val renderType = RenderType.entityTranslucent(getTextureLocation(entityIn))
+        val renderType = RenderTypes.entityTranslucent(getTextureLocation(entityIn))
         val vertexConsumer = bufferIn.getBuffer(renderType)
 
         instance.renderToBuffer(
@@ -51,7 +53,7 @@ class MedicalKitEntityRenderer(renderManager: EntityRendererProvider.Context) :
         poseStack.popPose()
     }
 
-    override fun getTextureLocation(pEntity: MedicalKitEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: MedicalKitEntity): Identifier {
         return TEXTURE
     }
 

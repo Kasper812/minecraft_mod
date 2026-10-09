@@ -30,7 +30,7 @@ public class SodiumBedrockCubeBox extends BedrockCubeBox implements ISodiumVerte
         int vertexCount = 0;
         long ptr = SCRATCH_BUFFER;
 
-        boolean enableCulling = cn.sh1rocu.simplebedrockmodel.client.port.SbmRenderContext.normalCullingEnabled();
+        boolean enableCulling = com.atsuishio.portlib.render.SbmRenderContext.normalCullingEnabled();
         for (int i = 0; i < NUM_CUBE_FACES; i++) {
             if (enableCulling && !shouldRenderFace(i, normals)) continue;
 

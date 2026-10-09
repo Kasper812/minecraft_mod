@@ -4,11 +4,11 @@ import com.atsuishio.superbwarfare.entity.vehicle.BasicGeoVehicleEntity
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.atsuishio.superbwarfare.resource.vehicle.VehicleResource
 import com.maydaymemory.mae.basic.Pose
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 open class VehicleAnimationInstance<T>(
     entity: T,
-    location: ResourceLocation
+    location: Identifier
 ) where T : VehicleEntity, T : BasicGeoVehicleEntity {
     val context: VehicleAnimationContext<T> = VehicleAnimationContext(entity, location)
 

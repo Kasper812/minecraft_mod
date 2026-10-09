@@ -14,6 +14,8 @@ pluginManagement {
 
 rootProject.name = "sbw-26.2-fabric"
 
+include(":portlib")
+include(":geckolib4")
 include(":simplebedrockmodel")
-//include(":ksp")
-//include(":superbwarfare")
+include(":ksp")
+include(":superbwarfare")

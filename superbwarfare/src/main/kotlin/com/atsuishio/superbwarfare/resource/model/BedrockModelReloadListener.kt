@@ -8,7 +8,7 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.common.resource.pojo.Bedr
 import com.google.gson.Gson
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.minecraft.resources.FileToIdConverter
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.GsonHelper
@@ -17,27 +17,27 @@ import net.minecraft.util.profiling.ProfilerFiller
 abstract class BedrockModelReloadListener<T> @JvmOverloads constructor(
     val modelPath: String,
     val animPath: String = ""
-) : SimplePreparableReloadListener<Map<ResourceLocation, BedrockModelPOJO>>(), IdentifiableResourceReloadListener {
+) : SimplePreparableReloadListener<Map<Identifier, BedrockModelPOJO>>(), IdentifiableResourceReloadListener {
     val gson: Gson = GsonUtil.CLIENT_GSON
-    val models: MutableMap<ResourceLocation, T> = hashMapOf()
-    val animFiles: MutableMap<ResourceLocation, BedrockAnimationFile> = hashMapOf()
-    val animations: MutableMap<ResourceLocation, List<BedrockAnimation>> = hashMapOf()
+    val models: MutableMap<Identifier, T> = hashMapOf()
+    val animFiles: MutableMap<Identifier, BedrockAnimationFile> = hashMapOf()
+    val animations: MutableMap<Identifier, List<BedrockAnimation>> = hashMapOf()
 
-    val idToModelPaths: MutableMap<ResourceLocation, ResourceLocation> = hashMapOf()
-    val animPathToIds: MutableMap<ResourceLocation, ResourceLocation> = hashMapOf()
+    val idToModelPaths: MutableMap<Identifier, Identifier> = hashMapOf()
+    val animPathToIds: MutableMap<Identifier, Identifier> = hashMapOf()
 
-    override fun getFabricId(): ResourceLocation = Mod.loc("reload/$modelPath")
+    override fun getFabricId(): Identifier = Mod.loc("reload/$modelPath")
 
     public override fun prepare(
         resourceManager: ResourceManager,
         profiler: ProfilerFiller
-    ): Map<ResourceLocation, BedrockModelPOJO> {
-        val map = hashMapOf<ResourceLocation, BedrockModelPOJO>()
+    ): Map<Identifier, BedrockModelPOJO> {
+        val map = hashMapOf<Identifier, BedrockModelPOJO>()
         val modelConverter = FileToIdConverter.json(this.modelPath)
 
         for ((location, resource) in modelConverter.listMatchingResources(resourceManager).entries) {
             var id = modelConverter.fileToId(location)
-            id = ResourceLocation.fromNamespaceAndPath(id.namespace, id.path.removeSuffix(".geo"))
+            id = Identifier.fromNamespaceAndPath(id.namespace, id.path.removeSuffix(".geo"))
             try {
                 resource.openAsReader().use {
                     val pojo = GsonHelper.fromJson(this.gson, it, BedrockModelPOJO::class.java)
@@ -57,7 +57,7 @@ abstract class BedrockModelReloadListener<T> @JvmOverloads constructor(
 
             for ((location, resource) in animConverter.listMatchingResources(resourceManager).entries) {
                 var id = animConverter.fileToId(location)
-                id = ResourceLocation.fromNamespaceAndPath(id.namespace, id.path.removeSuffix(".animation"))
+                id = Identifier.fromNamespaceAndPath(id.namespace, id.path.removeSuffix(".animation"))
 
                 try {
                     resource.openAsReader().use {
@@ -78,7 +78,7 @@ abstract class BedrockModelReloadListener<T> @JvmOverloads constructor(
     }
 
     public override fun apply(
-        map: Map<ResourceLocation, BedrockModelPOJO>,
+        map: Map<Identifier, BedrockModelPOJO>,
         resourceManager: ResourceManager,
         profiler: ProfilerFiller
     ) {
@@ -86,7 +86,7 @@ abstract class BedrockModelReloadListener<T> @JvmOverloads constructor(
         this.animations.clear()
     }
 
-    fun getModel(path: ResourceLocation): T? = this.models[path]
+    fun getModel(path: Identifier): T? = this.models[path]
 
-    fun getAnimation(path: ResourceLocation): List<BedrockAnimation>? = this.animations[path]
+    fun getAnimation(path: Identifier): List<BedrockAnimation>? = this.animations[path]
 }

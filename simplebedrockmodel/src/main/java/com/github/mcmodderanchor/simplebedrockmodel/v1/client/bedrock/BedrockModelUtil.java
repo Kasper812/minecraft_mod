@@ -12,7 +12,7 @@ import net.minecraft.resources.Identifier;
 @Environment(EnvType.CLIENT)
 public final class BedrockModelUtil {
     public static final Gson GSON = new GsonBuilder()
-            .registerTypeAdapter(Identifier.class, new cn.sh1rocu.simplebedrockmodel.util.IdentifierSerializer())
+            .registerTypeAdapter(Identifier.class, new com.atsuishio.portlib.render.IdentifierSerializer())
             .registerTypeAdapter(CubesItem.class, new CubesItem.Deserializer())
             .create();
 

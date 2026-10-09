@@ -7,7 +7,7 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.OwnableEntity
 import snownee.jade.api.EntityAccessor
 import snownee.jade.api.IEntityComponentProvider
@@ -55,7 +55,7 @@ object VehicleInfoProvider : IEntityComponentProvider, IServerDataProvider<Entit
         }
     }
 
-    override fun getUid(): ResourceLocation {
+    override fun getUid(): Identifier {
         return ID
     }
 

@@ -36,7 +36,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas
 import net.minecraft.core.component.DataComponents
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.FormattedText
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
@@ -55,11 +55,11 @@ import kotlin.math.min
 class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: Inventory, pTitle: Component) :
     AbstractContainerScreen<VehicleAssemblingMenu>(pMenu, pPlayerInventory, pTitle) {
 
-    private val recipes: MutableMap<VehicleAssemblingRecipe.Category?, MutableList<ResourceLocation?>?> =
+    private val recipes: MutableMap<VehicleAssemblingRecipe.Category?, MutableList<Identifier?>?> =
         Maps.newLinkedHashMap()
 
     private var currentCategory = VehicleAssemblingRecipe.Category.LAND
-    private var currentRecipes: MutableList<ResourceLocation?>? = ArrayList()
+    private var currentRecipes: MutableList<Identifier?>? = ArrayList()
     private var currentRecipe: RecipeHolder<VehicleAssemblingRecipe>? = null
     private var materialCount: Int2IntArrayMap? = null
     private var pageIndex = 0
@@ -160,7 +160,7 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
     // 本方法留空
     override fun renderLabels(pGuiGraphics: GuiGraphics, pMouseX: Int, pMouseY: Int) {}
 
-    private fun getRecipeById(recipeId: ResourceLocation?): RecipeHolder<VehicleAssemblingRecipe>? {
+    private fun getRecipeById(recipeId: Identifier?): RecipeHolder<VehicleAssemblingRecipe>? {
         if (recipeId == null) return null
         val level = clientLevel
         if (level != null) {
@@ -776,7 +776,7 @@ class VehicleAssemblingScreen(pMenu: VehicleAssemblingMenu, pPlayerInventory: In
     }
 
     companion object {
-        val TEXTURE: ResourceLocation = loc("textures/gui/vehicle_assembling_table.png")
+        val TEXTURE: Identifier = loc("textures/gui/vehicle_assembling_table.png")
         const val IMAGE_SIZE: Int = 356
         const val PAGE_SIZE: Int = 9
 

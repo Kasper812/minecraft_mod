@@ -6,7 +6,7 @@ import com.atsuishio.superbwarfare.init.ModBlocks
 import com.atsuishio.superbwarfare.init.ModItems
 import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.InteractionResult
@@ -50,7 +50,7 @@ class LuckyContainerBlockItem :
         )
 
         @JvmOverloads
-        fun createInstance(location: ResourceLocation, icon: ResourceLocation? = null): ItemStack {
+        fun createInstance(location: Identifier, icon: Identifier? = null): ItemStack {
             val stack = ItemStack(ModItems.LUCKY_CONTAINER)
             val tag = CompoundTag()
             tag.putString("Location", location.toString())

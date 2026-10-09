@@ -8,7 +8,7 @@
     "${mod_authors}"
   ],
   "contact": {
-    "sources": "https://github.com/CrawKatt/SuperbWarfareReFabricated"
+    "sources": "https://github.com/Mercurows/SuperbWarfare"
   },
   "license": "${mod_license}",
   "icon": "logo.png",
@@ -40,28 +40,21 @@
   ],
   "depends": {
     "fabricloader": ">=${loader_version}",
-    "minecraft": "~1.21.1",
-    "java": ">=21",
+    "minecraft": "~26.2",
+    "java": ">=25",
     "fabric-api": "*",
     "fabric-language-kotlin": "*",
-    "geckolib": "*",
     "cloth-config": "*",
     "forgeconfigapiport": "*",
-    "extensibleenums": "*",
     "trinkets": "*",
-    "mkb": "*"
+    "simplebedrockmodel": "*",
+    "geckolib4": "*",
+    "sbw_portlib": "*"
   },
   "suggests": {
     "jei": "*",
     "jade": "*",
-    "patchouli": "*",
-    "realcamera": "*",
-    "tacz": "*",
-    "thermoo": "*",
-    "touhou_little_maid": "*",
-    "scorchful": "*",
-    "frostiful": "*",
-    "ponder": "*",
-    "sable": "*"
+    "iris": "*",
+    "sodium": "*"
   }
 }

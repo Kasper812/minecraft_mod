@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.tools
 import com.atsuishio.superbwarfare.Mod
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener
@@ -27,7 +27,7 @@ class ResourceOnceLogger {
     }
 
     private class ReloadListener : ResourceManagerReloadListener, IdentifiableResourceReloadListener {
-        override fun getFabricId(): ResourceLocation {
+        override fun getFabricId(): Identifier {
             return Mod.loc("once_logger")
         }
 

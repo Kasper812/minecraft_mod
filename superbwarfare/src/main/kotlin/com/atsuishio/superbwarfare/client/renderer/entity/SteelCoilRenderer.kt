@@ -1,16 +1,18 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.living.SteelCoilEntity
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class SteelCoilRenderer(renderManager: EntityRendererProvider.Context) :
     EntityRenderer<SteelCoilEntity>(renderManager) {
@@ -36,7 +38,7 @@ class SteelCoilRenderer(renderManager: EntityRendererProvider.Context) :
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.entityCutout(getTextureLocation(entity)),
+            RenderTypes.entityCutout(getTextureLocation(entity)),
             BedrockModelRenderTypes.polyMeshCutout(getTextureLocation(entity)),
             packedLight,
             OverlayTexture.NO_OVERLAY
@@ -45,7 +47,7 @@ class SteelCoilRenderer(renderManager: EntityRendererProvider.Context) :
         poseStack.popPose()
     }
 
-    override fun getTextureLocation(entity: SteelCoilEntity): ResourceLocation {
+    override fun getTextureLocation(entity: SteelCoilEntity): Identifier {
         return if (entity.uuid.leastSignificantBits % 810 == 0L) TEXTURE_ALTER else TEXTURE
     }
 

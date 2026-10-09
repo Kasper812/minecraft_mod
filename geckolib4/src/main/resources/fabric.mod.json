@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "id": "geckolib4",
+  "version": "${version}",
+  "name": "GeckoLib 4 (26.2 port)",
+  "description": "GeckoLib 4.7 API ported to Minecraft 26.2 for Superb Warfare and its addons",
+  "authors": ["Gecko", "Tslat", "Eliot", "AzureDoom"],
+  "contact": {
+    "sources": "https://github.com/bernie-g/geckolib"
+  },
+  "license": "MIT",
+  "icon": "geckolib4.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": ["software.bernie.geckolib.GeckoLib"],
+    "client": ["software.bernie.geckolib.GeckoLibClient"]
+  },
+  "mixins": ["geckolib4.mixins.json"],
+  "accessWidener": "geckolib4.accesswidener",
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "~${minecraft_version}",
+    "sbw_portlib": "*"
+  }
+}

@@ -15,7 +15,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.ItemTags
 import net.minecraft.tags.TagKey
 import net.minecraft.core.registries.Registries
@@ -128,7 +128,7 @@ class ResearchingRecipe(
             if (resultStack != null) return resultStack!!
 
             if (item.isNotEmpty()) {
-                val itemKey = ResourceLocation.parse(item)
+                val itemKey = Identifier.parse(item)
                 val itemValue = BuiltInRegistries.ITEM.getOptional(itemKey).getOrNull()
                 if (itemValue == null) {
                     Mod.LOGGER.warn("invalid item: {}", item)
@@ -156,7 +156,7 @@ class ResearchingRecipe(
             if (list != null && list!!.isNotEmpty()) return list!!
             if (tag.isEmpty()) return mutableListOf()
 
-            val itemTag = BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, ResourceLocation.parse(tag)))
+            val itemTag = BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, Identifier.parse(tag)))
                 .map { items -> items.map { it.value() } }
                 .getOrNull()
                 ?: return mutableListOf()

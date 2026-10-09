@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.mixins;
 
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.atsuishio.superbwarfare.init.ModEnumExtensions;
 import com.atsuishio.superbwarfare.init.ModItems;
@@ -10,9 +12,9 @@ import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.PlayerModel;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.player.AbstractClientPlayer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.LightCoordsUtil;
+import com.atsuishio.portlib.render.MultiBufferSource;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.player.PlayerRenderer;
@@ -64,9 +66,9 @@ public abstract class PlayerRendererMixin extends LivingEntityRenderer<AbstractC
             playermodel.swimAmount = 0.0F;
             playermodel.setupAnim(pPlayer, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F);
             pRendererArm.xRot = 0.0F;
-            pRendererArm.render(pMatrixStack, pBuffer.getBuffer(RenderType.entitySolid(pPlayer.getSkin().texture())), LightTexture.FULL_BRIGHT, OverlayTexture.pack(15, 10));
+            pRendererArm.render(pMatrixStack, pBuffer.getBuffer(RenderTypes.entitySolid(pPlayer.getSkin().texture())), LightCoordsUtil.FULL_BRIGHT, OverlayTexture.pack(15, 10));
             pRendererArmwear.xRot = 0.0F;
-            pRendererArmwear.render(pMatrixStack, pBuffer.getBuffer(RenderType.entityTranslucent(pPlayer.getSkin().texture())), LightTexture.FULL_BRIGHT, OverlayTexture.pack(15, 10));
+            pRendererArmwear.render(pMatrixStack, pBuffer.getBuffer(RenderTypes.entityTranslucent(pPlayer.getSkin().texture())), LightCoordsUtil.FULL_BRIGHT, OverlayTexture.pack(15, 10));
         }
     }
 }

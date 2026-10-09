@@ -13,7 +13,7 @@ import com.atsuishio.superbwarfare.item.gun.GunItem
 import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.util.FastColor
+import net.minecraft.util.ARGB
 import net.minecraft.util.Mth
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -98,9 +98,9 @@ object HeatBarOverlay : CommonOverlay("heat_bar") {
         poseStack.pushPose()
 
         val color = if (rate >= 0.795f) calculateGradientColor(rate) else 0xFFFFFF
-        val red = FastColor.ARGB32.red(color) / 255f
-        val green = FastColor.ARGB32.green(color) / 255f
-        val blue = FastColor.ARGB32.blue(color) / 255f
+        val red = ARGB.red(color) / 255f
+        val green = ARGB.green(color) / 255f
+        val blue = ARGB.blue(color) / 255f
 
         RenderSystem.setShaderColor(red, green, blue, alpha)
         RenderHelper.preciseBlit(

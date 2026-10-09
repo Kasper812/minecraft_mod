@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.animation
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.api.event.RenderPlayerArmEvent
 import com.atsuishio.superbwarfare.client.renderer.CustomGunRenderer
@@ -18,9 +20,9 @@ import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
 import net.minecraft.client.model.geom.ModelPart
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.util.LightCoordsUtil
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.player.PlayerRenderer
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
@@ -231,7 +233,7 @@ object AnimationHelper {
 
         stack.scale(3f + lerpTimer * 20f, 3f + lerpTimer * 20f, 1f)
 
-        val consumer = buffer.getBuffer(RenderType.entityTranslucent(loc("textures/particle/shoot_smoke.png")))
+        val consumer = buffer.getBuffer(RenderTypes.entityTranslucent(loc("textures/particle/shoot_smoke.png")))
         val pose = stack.last()
 
         vertexSmoke(
@@ -299,7 +301,7 @@ object AnimationHelper {
         stack.scale(3f + lerpTimer * 20f, 3f + lerpTimer * 20f, 1f)
 
         val consumer =
-            buffer.getBuffer(RenderType.entityTranslucentEmissive(loc("textures/particle/shoot_smoke2.png")))
+            buffer.getBuffer(RenderTypes.entityTranslucentEmissive(loc("textures/particle/shoot_smoke2.png")))
         val pose = stack.last()
 
         vertexSmoke(
@@ -429,7 +431,7 @@ object AnimationHelper {
                 tex = getSmartBrightenedTexture(tex, 10f)
             }
 
-            val blackPart = buffer.getBuffer(RenderType.entityTranslucentEmissive(tex))
+            val blackPart = buffer.getBuffer(RenderTypes.entityTranslucentEmissive(tex))
             vertexRGB(blackPart, `$$7`, pose, 255, 0f, 0f, 0, 1, r, g, b, alpha, size)
             vertexRGB(blackPart, `$$7`, pose, 255, size, 0f, 1, 1, r, g, b, alpha, size)
             vertexRGB(blackPart, `$$7`, pose, 255, size, size, 1, 0, r, g, b, alpha, size)
@@ -515,7 +517,7 @@ object AnimationHelper {
 
         var effectivePackedLight = packedLightIn
         if (activeThermalImaging) {
-            effectivePackedLight = LightTexture.FULL_BRIGHT
+            effectivePackedLight = LightCoordsUtil.FULL_BRIGHT
         }
 
         if (arm == HumanoidArm.LEFT) {
@@ -536,7 +538,7 @@ object AnimationHelper {
                     model.leftArm,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entitySolid(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entitySolid(loc)),
                     effectivePackedLight,
                     overlayTexture
                 )
@@ -544,7 +546,7 @@ object AnimationHelper {
                     model.leftSleeve,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entityTranslucent(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entityTranslucent(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -553,7 +555,7 @@ object AnimationHelper {
                     model.leftArm,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entitySolid(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entitySolid(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -561,7 +563,7 @@ object AnimationHelper {
                     model.leftSleeve,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entityTranslucent(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entityTranslucent(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -580,7 +582,7 @@ object AnimationHelper {
                     model.rightArm,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entitySolid(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entitySolid(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -588,7 +590,7 @@ object AnimationHelper {
                     model.rightSleeve,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entityTranslucent(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entityTranslucent(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -597,7 +599,7 @@ object AnimationHelper {
                     model.rightArm,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entitySolid(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entitySolid(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )
@@ -605,7 +607,7 @@ object AnimationHelper {
                     model.rightSleeve,
                     bone,
                     stack,
-                    currentBuffer.getBuffer(RenderType.entityTranslucent(loc)),
+                    currentBuffer.getBuffer(RenderTypes.entityTranslucent(loc)),
                     effectivePackedLight,
                     overlayTexture,
                 )

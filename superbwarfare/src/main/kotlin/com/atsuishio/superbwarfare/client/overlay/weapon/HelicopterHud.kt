@@ -167,7 +167,7 @@ object HelicopterHud {
                     COMPASS,
                     screenWidth.toFloat() / 2 - 128,
                     10f,
-                    128 - (64f / 45 * VehicleVecUtils.getYRotFromVector(Vec3(mc.gameRenderer.mainCamera.lookVector))
+                    128 - (64f / 45 * VehicleVecUtils.getYRotFromVector(Vec3(mc.gameRenderer.mainCamera().lookVector))
                         .toFloat()),
                     0f,
                     256f,

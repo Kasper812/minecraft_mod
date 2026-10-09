@@ -1,6 +1,6 @@
 package com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer;
 
-import cn.sh1rocu.simplebedrockmodel.client.port.SbmPipelines;
+import com.atsuishio.portlib.render.SbmPipelines;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.rendertype.RenderSetup;

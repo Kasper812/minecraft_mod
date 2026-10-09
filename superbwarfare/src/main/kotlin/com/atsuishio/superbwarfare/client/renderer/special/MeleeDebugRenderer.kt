@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.gun.GunActionLock
 import com.atsuishio.superbwarfare.client.renderer.special.MeleeDebugRenderer.CAP_SEGMENTS
 import com.atsuishio.superbwarfare.client.renderer.special.OBBRenderer.renderOBB
@@ -16,7 +18,7 @@ import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext
 import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.world.phys.Vec3
 import kotlin.math.cos
 import kotlin.math.sin
@@ -82,7 +84,7 @@ object MeleeDebugRenderer {
         val poseStack = renderContext.matrixStack() ?: return
         val camera = renderContext.camera()
         val bufferSource = mc.renderBuffers().bufferSource()
-        val buffer = bufferSource.getBuffer(RenderType.lines())
+        val buffer = bufferSource.getBuffer(RenderTypes.lines())
 
         poseStack.pushPose()
 

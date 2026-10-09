@@ -11,7 +11,7 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.firstperson.Firs
 import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.render.CameraStateCache;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import cn.sh1rocu.simplebedrockmodel.client.port.BuiltinItemRendererRegistry;
+import com.atsuishio.portlib.render.BuiltinItemRendererRegistry;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientPacketListener;

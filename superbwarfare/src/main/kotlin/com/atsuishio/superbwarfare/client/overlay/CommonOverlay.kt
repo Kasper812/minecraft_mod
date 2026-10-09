@@ -26,7 +26,7 @@ class RenderContext(var guiGraphics: GuiGraphics, var deltaTracker: DeltaTracker
 
     val mc get() = com.atsuishio.superbwarfare.tools.mc
 
-    val camera: Camera get() = mc.gameRenderer.mainCamera
+    val camera: Camera get() = mc.gameRenderer.mainCamera()
     val cameraPos: Vec3 get() = camera.position
 
     val isFirstPerson get() = options.cameraType.isFirstPerson

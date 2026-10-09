@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.living.CreepingSenpaiEntity
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
@@ -9,13 +11,13 @@ import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.Direction
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class CreepingSenpaiRenderer(renderManager: EntityRendererProvider.Context) :
     EntityRenderer<CreepingSenpaiEntity>(renderManager) {
@@ -23,7 +25,7 @@ class CreepingSenpaiRenderer(renderManager: EntityRendererProvider.Context) :
         this.shadowRadius = 0.5f
     }
 
-    override fun getTextureLocation(pEntity: CreepingSenpaiEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: CreepingSenpaiEntity): Identifier {
         return TEXTURE
     }
 
@@ -64,7 +66,7 @@ class CreepingSenpaiRenderer(renderManager: EntityRendererProvider.Context) :
         instance.renderToBuffer(
             pPoseStack,
             pBuffer,
-            RenderType.entityCutout(getTextureLocation(pEntity)),
+            RenderTypes.entityCutout(getTextureLocation(pEntity)),
             BedrockModelRenderTypes.polyMeshCutout(getTextureLocation(pEntity)),
             pPackedLight,
             OverlayTexture.pack(0f, pEntity.hurtTime > 0 || pEntity.deathTime > 0)

@@ -9,7 +9,7 @@ import com.atsuishio.superbwarfare.network.message.receive.FinishAssemblingVehic
 import com.atsuishio.superbwarfare.recipe.vehicle.VehicleAssemblingRecipe
 import com.atsuishio.superbwarfare.tools.sendPacket
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Inventory
@@ -45,7 +45,7 @@ open class VehicleAssemblingMenu @JvmOverloads constructor(
     /**
      * Code based on TaC-Z
      */
-    fun assembleVehicle(id: ResourceLocation, player: ServerPlayer) {
+    fun assembleVehicle(id: Identifier, player: ServerPlayer) {
         val recipe = this.getRecipeById(id, player.level().recipeManager) ?: return
         val handler = ModCapabilities.ITEM_HANDLER_ENTITY.find(player, null)
         if (handler != null) {
@@ -98,7 +98,7 @@ open class VehicleAssemblingMenu @JvmOverloads constructor(
         }
     }
 
-    fun getRecipeById(id: ResourceLocation, recipeManager: RecipeManager): VehicleAssemblingRecipe? {
+    fun getRecipeById(id: Identifier, recipeManager: RecipeManager): VehicleAssemblingRecipe? {
         val recipe = recipeManager.byKey(id).orElse(null) ?: return null
         val recipeValue = recipe.value()
         if (recipeValue is VehicleAssemblingRecipe) {

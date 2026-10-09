@@ -18,7 +18,7 @@ import net.minecraft.client.resources.model.Material;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.RandomSource;
@@ -40,9 +40,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 public final class DragonTeethObjModelLoader {
-    private static final ResourceLocation BLOCK_ID = Mod.loc("dragon_teeth");
-    private static final ResourceLocation OBJ_LOCATION = Mod.loc("models/block/dragon_teeth.obj");
-    private static final ResourceLocation FALLBACK_TEXTURE = Mod.loc("block/dragon_teeth");
+    private static final Identifier BLOCK_ID = Mod.loc("dragon_teeth");
+    private static final Identifier OBJ_LOCATION = Mod.loc("models/block/dragon_teeth.obj");
+    private static final Identifier FALLBACK_TEXTURE = Mod.loc("block/dragon_teeth");
     private static final float PLANE_EPSILON = 1.0E-5F;
 
     private DragonTeethObjModelLoader() {
@@ -103,15 +103,15 @@ public final class DragonTeethObjModelLoader {
             List<Vector2f> textureCoordinates,
             List<Vector3f> normals,
             List<ObjFace> faces,
-            Map<String, ResourceLocation> materialTextures
+            Map<String, Identifier> materialTextures
     ) {
-        private static ParsedObj load(ResourceManager resourceManager, ResourceLocation modelLocation) throws IOException {
+        private static ParsedObj load(ResourceManager resourceManager, Identifier modelLocation) throws IOException {
             Resource resource = requiredResource(resourceManager, modelLocation);
             List<Vector3f> positions = new ArrayList<>();
             List<Vector2f> textureCoordinates = new ArrayList<>();
             List<Vector3f> normals = new ArrayList<>();
             List<ObjFace> faces = new ArrayList<>();
-            Map<String, ResourceLocation> materialTextures = new HashMap<>();
+            Map<String, Identifier> materialTextures = new HashMap<>();
             String currentMaterial = null;
 
             try (BufferedReader reader = resource.openAsReader()) {
@@ -175,10 +175,10 @@ public final class DragonTeethObjModelLoader {
                 normalTransform.invert().transpose();
             }
 
-            Map<ResourceLocation, TextureAtlasSprite> spriteCache = new HashMap<>();
+            Map<Identifier, TextureAtlasSprite> spriteCache = new HashMap<>();
             List<TextureAtlasSprite> faceSprites = new ArrayList<>(faces.size());
             for (ObjFace face : faces) {
-                ResourceLocation texture = textureFor(face.materialName());
+                Identifier texture = textureFor(face.materialName());
                 TextureAtlasSprite sprite = spriteCache.computeIfAbsent(texture, id ->
                         textureGetter.apply(new Material(TextureAtlas.LOCATION_BLOCKS, id))
                 );
@@ -188,11 +188,11 @@ public final class DragonTeethObjModelLoader {
             return new BakedObj(meshBuilder.build(), List.copyOf(faceSprites));
         }
 
-        private ResourceLocation textureFor(@Nullable String materialName) {
+        private Identifier textureFor(@Nullable String materialName) {
             if (materialName == null) {
                 return FALLBACK_TEXTURE;
             }
-            ResourceLocation texture = materialTextures.get(materialName);
+            Identifier texture = materialTextures.get(materialName);
             if (texture == null) {
                 throw new IllegalStateException("OBJ references unknown material '" + materialName + "'");
             }
@@ -332,12 +332,12 @@ public final class DragonTeethObjModelLoader {
         }
     }
 
-    private static Map<String, ResourceLocation> loadMaterialLibrary(
+    private static Map<String, Identifier> loadMaterialLibrary(
             ResourceManager resourceManager,
-            ResourceLocation libraryLocation
+            Identifier libraryLocation
     ) throws IOException {
         Resource resource = requiredResource(resourceManager, libraryLocation);
-        Map<String, ResourceLocation> textures = new HashMap<>();
+        Map<String, Identifier> textures = new HashMap<>();
         String currentMaterial = null;
 
         try (BufferedReader reader = resource.openAsReader()) {
@@ -367,7 +367,7 @@ public final class DragonTeethObjModelLoader {
             int uvCount,
             int normalCount,
             List<ObjFace> faces,
-            ResourceLocation location,
+            Identifier location,
             int lineNumber
     ) {
         if (tokens.length < 4) {
@@ -401,7 +401,7 @@ public final class DragonTeethObjModelLoader {
         }
     }
 
-    private static Vector3f parsePosition(String[] tokens, ResourceLocation location, int lineNumber) {
+    private static Vector3f parsePosition(String[] tokens, Identifier location, int lineNumber) {
         requireLength(tokens, 4, location, lineNumber);
         float x = parseFloat(tokens[1], location, lineNumber);
         float y = parseFloat(tokens[2], location, lineNumber);
@@ -413,7 +413,7 @@ public final class DragonTeethObjModelLoader {
         return new Vector3f(x / w, y / w, z / w);
     }
 
-    private static Vector2f parseUv(String[] tokens, ResourceLocation location, int lineNumber) {
+    private static Vector2f parseUv(String[] tokens, Identifier location, int lineNumber) {
         requireLength(tokens, 2, location, lineNumber);
         return new Vector2f(
                 parseFloat(tokens[1], location, lineNumber),
@@ -421,7 +421,7 @@ public final class DragonTeethObjModelLoader {
         );
     }
 
-    private static Vector3f parseNormal(String[] tokens, ResourceLocation location, int lineNumber) {
+    private static Vector3f parseNormal(String[] tokens, Identifier location, int lineNumber) {
         requireLength(tokens, 4, location, lineNumber);
         Vector3f normal = new Vector3f(
                 parseFloat(tokens[1], location, lineNumber),
@@ -431,7 +431,7 @@ public final class DragonTeethObjModelLoader {
         return normal.lengthSquared() > 1.0E-8F ? normal.normalize() : normal;
     }
 
-    private static int resolveIndex(String token, int count, ResourceLocation location, int lineNumber) {
+    private static int resolveIndex(String token, int count, Identifier location, int lineNumber) {
         final int rawIndex;
         try {
             rawIndex = Integer.parseInt(token);
@@ -490,30 +490,30 @@ public final class DragonTeethObjModelLoader {
         };
     }
 
-    private static Resource requiredResource(ResourceManager manager, ResourceLocation location) throws IOException {
+    private static Resource requiredResource(ResourceManager manager, Identifier location) throws IOException {
         return manager.getResource(location).orElseThrow(() -> new FileNotFoundException(location.toString()));
     }
 
-    private static ResourceLocation relativeTo(ResourceLocation base, String path) {
+    private static Identifier relativeTo(Identifier base, String path) {
         if (path.indexOf(':') >= 0) {
-            return ResourceLocation.parse(path);
+            return Identifier.parse(path);
         }
         int slash = base.getPath().lastIndexOf('/');
         String directory = slash >= 0 ? base.getPath().substring(0, slash + 1) : "";
-        return ResourceLocation.fromNamespaceAndPath(base.getNamespace(), directory + path);
+        return Identifier.fromNamespaceAndPath(base.getNamespace(), directory + path);
     }
 
-    private static ResourceLocation textureLocation(String path, ResourceLocation materialLibrary) {
+    private static Identifier textureLocation(String path, Identifier materialLibrary) {
         String normalized = path.replace('\\', '/');
         String namespace = materialLibrary.getNamespace();
         if (normalized.indexOf(':') >= 0) {
-            ResourceLocation parsed = ResourceLocation.parse(normalized);
+            Identifier parsed = Identifier.parse(normalized);
             namespace = parsed.getNamespace();
             normalized = parsed.getPath();
         }
         if (normalized.startsWith("textures/")) normalized = normalized.substring("textures/".length());
         if (normalized.endsWith(".png")) normalized = normalized.substring(0, normalized.length() - 4);
-        return ResourceLocation.fromNamespaceAndPath(namespace, normalized);
+        return Identifier.fromNamespaceAndPath(namespace, normalized);
     }
 
     private static String withoutComment(String line) {
@@ -534,13 +534,13 @@ public final class DragonTeethObjModelLoader {
         return lastSpace >= 0 ? arguments.substring(lastSpace + 1) : arguments;
     }
 
-    private static void requireLength(String[] tokens, int length, ResourceLocation location, int lineNumber) {
+    private static void requireLength(String[] tokens, int length, Identifier location, int lineNumber) {
         if (tokens.length < length) {
             throw parseError(location, lineNumber, "Not enough values for '" + tokens[0] + "'", null);
         }
     }
 
-    private static float parseFloat(String value, ResourceLocation location, int lineNumber) {
+    private static float parseFloat(String value, Identifier location, int lineNumber) {
         try {
             return Float.parseFloat(value);
         } catch (NumberFormatException exception) {
@@ -549,7 +549,7 @@ public final class DragonTeethObjModelLoader {
     }
 
     private static IllegalArgumentException parseError(
-            ResourceLocation location,
+            Identifier location,
             int lineNumber,
             String message,
             @Nullable Throwable cause

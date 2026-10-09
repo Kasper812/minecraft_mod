@@ -256,7 +256,7 @@ object BedrockBoneCoordinateTool {
         return firstPersonModelPointToWorld(
             poseStack,
             modelPoint,
-            mc.gameRenderer.mainCamera
+            mc.gameRenderer.mainCamera()
         )
     }
 
@@ -289,7 +289,7 @@ object BedrockBoneCoordinateTool {
             poseStack,
             boneTransform,
             boneLocalPoint,
-            mc.gameRenderer.mainCamera
+            mc.gameRenderer.mainCamera()
         )
     }
 
@@ -323,7 +323,7 @@ object BedrockBoneCoordinateTool {
             poseStack,
             boneTransform,
             boneLocalPoint,
-            mc.gameRenderer.mainCamera
+            mc.gameRenderer.mainCamera()
         )
     }
 

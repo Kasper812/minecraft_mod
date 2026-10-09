@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.layer.vehicle.DroneLayer
 import com.atsuishio.superbwarfare.client.model.entity.DroneModel
 import com.atsuishio.superbwarfare.entity.projectile.FastThrowableProjectile
@@ -11,10 +13,10 @@ import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
 import net.minecraft.client.CameraType
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import software.bernie.geckolib.renderer.GeoEntityRenderer
@@ -23,11 +25,11 @@ class DroneRenderer(renderManager: EntityRendererProvider.Context) :
     GeoEntityRenderer<DroneEntity>(renderManager, DroneModel()) {
     override fun getRenderType(
         animatable: DroneEntity,
-        texture: ResourceLocation?,
+        texture: Identifier?,
         bufferSource: MultiBufferSource?,
         partialTick: Float
     ): RenderType? {
-        return RenderType.entityTranslucent(getTextureLocation(animatable))
+        return RenderTypes.entityTranslucent(getTextureLocation(animatable))
     }
 
     override fun render(

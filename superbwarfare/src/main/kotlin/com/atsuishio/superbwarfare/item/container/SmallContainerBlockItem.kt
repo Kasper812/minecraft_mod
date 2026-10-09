@@ -7,7 +7,7 @@ import com.atsuishio.superbwarfare.init.RegistryName
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.DamageTypeTags
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageTypes
@@ -28,7 +28,7 @@ class SmallContainerBlockItem : BlockItem(ModBlocks.SMALL_CONTAINER, Properties(
         )
 
         @JvmOverloads
-        fun createInstance(lootTable: ResourceLocation, lootTableSeed: Long = 0L): ItemStack {
+        fun createInstance(lootTable: Identifier, lootTableSeed: Long = 0L): ItemStack {
             return createInstance(ResourceKey.create(Registries.LOOT_TABLE, lootTable), lootTableSeed)
         }
 

@@ -18,7 +18,7 @@ import net.minecraft.client.gui.components.AbstractButton
 import net.minecraft.client.gui.narration.NarrationElementOutput
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Inventory
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
@@ -240,7 +240,7 @@ class BlueprintResearchTableScreen(
     }
 
     companion object {
-        val TEXTURE: ResourceLocation = Mod.loc("textures/gui/blueprint_research_table.png")
+        val TEXTURE: Identifier = Mod.loc("textures/gui/blueprint_research_table.png")
         const val PAGE_SIZE = 27
     }
 

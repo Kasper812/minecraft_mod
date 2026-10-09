@@ -12,7 +12,7 @@ import com.atsuishio.superbwarfare.serialization.kserializer.SerializedResourceL
 import com.atsuishio.superbwarfare.serialization.kserializer.SerializedVec3
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.math.max
 import kotlin.math.min
 
@@ -507,7 +507,7 @@ data class DefaultGunData(
     }
 
     companion object {
-        val DEFAULT_ICON: ResourceLocation = loc("textures/gun_icon/default_icon.png")
+        val DEFAULT_ICON: Identifier = loc("textures/gun_icon/default_icon.png")
 
     }
 }

@@ -1,10 +1,12 @@
 package com.atsuishio.superbwarfare.client.renderer.block
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.block.ChargingStationBlock
 import com.atsuishio.superbwarfare.block.entity.ChargingStationBlockEntity
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3

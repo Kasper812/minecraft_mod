@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.renderer.SmartTextureBrightener
 import com.atsuishio.superbwarfare.client.renderer.TextureBrightnessHandler
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
@@ -10,12 +12,12 @@ import com.atsuishio.superbwarfare.tools.SpritePixelHelper
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.phys.AABB
 import net.minecraft.world.phys.Vec3
@@ -33,10 +35,10 @@ abstract class VehicleRenderer<T>(renderManager: EntityRendererProvider.Context,
 
     override fun getRenderType(
         vehicle: T,
-        texture: ResourceLocation,
+        texture: Identifier,
         bufferSource: MultiBufferSource?,
         partialTick: Float
-    ): RenderType? = RenderType.entityTranslucent(getTextureLocation(vehicle))
+    ): RenderType? = RenderTypes.entityTranslucent(getTextureLocation(vehicle))
 
 
     override fun render(
@@ -86,7 +88,7 @@ abstract class VehicleRenderer<T>(renderManager: EntityRendererProvider.Context,
                 val pose = poseStack.last()
                 val lastMatrix = pose.pose()
                 val vertexConsumer =
-                    bufferSource.getBuffer(RenderType.entityCutoutNoCull(SpritePixelHelper.getDogTagIcon(list, animatable.uuid.toString())))
+                    bufferSource.getBuffer(RenderTypes.entityCutout(SpritePixelHelper.getDogTagIcon(list, animatable.uuid.toString())))
 
                 val scale = bone.cubes[0].size
                 val xSize = scale.x.toFloat() / 16
@@ -98,7 +100,7 @@ abstract class VehicleRenderer<T>(renderManager: EntityRendererProvider.Context,
                 vertex(vertexConsumer, lastMatrix, pose, packedLight, -0.5f * xSize, 0.5f * ySize, 0, 0)
                 poseStack.popPose()
 
-                bufferSource.getBuffer(RenderType.entityTranslucent(getTextureLocation(animatable)))
+                bufferSource.getBuffer(RenderTypes.entityTranslucent(getTextureLocation(animatable)))
             }
         }
 
@@ -195,7 +197,7 @@ abstract class VehicleRenderer<T>(renderManager: EntityRendererProvider.Context,
         }
     }
 
-    override fun getTextureLocation(animatable: T): ResourceLocation {
+    override fun getTextureLocation(animatable: T): Identifier {
         val res = super.getTextureLocation(animatable)
         if (ClientEventHandler.activeThermalImaging) {
             return SmartTextureBrightener.getSmartBrightenedTexture(res, 3f)

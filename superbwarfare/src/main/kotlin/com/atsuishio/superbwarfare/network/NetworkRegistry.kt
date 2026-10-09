@@ -55,7 +55,7 @@ private inline fun <reified T : PacketPayload> buildType(): Pair<CustomPacketPay
  */
 internal inline fun <reified T : ServerPacketPayload> playToServer() {
     val (type, codec) = buildType<T>()
-    PayloadTypeRegistry.playC2S().register(type, codec)
+    PayloadTypeRegistry.serverboundPlay().register(type, codec)
     ServerPlayNetworking.registerGlobalReceiver(type) { msg, context ->
         with(msg) { PayloadContext(context.player()).handler() }
     }
@@ -68,7 +68,7 @@ internal inline fun <reified T : ServerPacketPayload> playToServer() {
  */
 internal inline fun <reified T : ClientPacketPayload> playToClient() {
     val (type, codec) = buildType<T>()
-    PayloadTypeRegistry.playS2C().register(type, codec)
+    PayloadTypeRegistry.clientboundPlay().register(type, codec)
 }
 
 /**

@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.projectile.C4Entity
 import net.minecraft.ChatFormatting
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import snownee.jade.api.EntityAccessor
 import snownee.jade.api.IEntityComponentProvider
 import snownee.jade.api.ITooltip
@@ -35,7 +35,7 @@ object C4InfoProvider : IEntityComponentProvider {
         }
     }
 
-    override fun getUid(): ResourceLocation {
+    override fun getUid(): Identifier {
         return ID
     }
 

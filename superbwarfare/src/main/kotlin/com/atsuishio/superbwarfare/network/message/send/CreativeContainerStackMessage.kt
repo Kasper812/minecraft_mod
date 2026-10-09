@@ -13,7 +13,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.BlockItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.storage.loot.LootTable
@@ -47,7 +47,7 @@ data class CreativeContainerStackMessage(
             }
             ModItems.SMALL_CONTAINER -> {
                 if (!tag.contains("LootTable", 8)) return
-                val location = ResourceLocation.tryParse(tag.getString("LootTable")) ?: return
+                val location = Identifier.tryParse(tag.getString("LootTable")) ?: return
                 val lootTable = ResourceKey.create(Registries.LOOT_TABLE, location)
                 SmallContainerBlockItem.createInstance(lootTable, tag.getLong("LootTableSeed"))
             }

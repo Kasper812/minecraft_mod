@@ -11,7 +11,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.crafting.Ingredient
 import java.util.regex.Matcher
@@ -59,9 +59,9 @@ class VehicleAssemblingIngredient : DeserializeFromString {
 
         val id = matcher.group("id")
         ingredientObject = if (matcher.group("prefix") == "#") {
-            Ingredient.of(TagKey.create(Registries.ITEM, ResourceLocation.parse(id)))
+            Ingredient.of(TagKey.create(Registries.ITEM, Identifier.parse(id)))
         } else {
-            Ingredient.of(BuiltInRegistries.ITEM.get(ResourceLocation.parse(id)))
+            Ingredient.of(BuiltInRegistries.ITEM.get(Identifier.parse(id)))
         }
     }
 

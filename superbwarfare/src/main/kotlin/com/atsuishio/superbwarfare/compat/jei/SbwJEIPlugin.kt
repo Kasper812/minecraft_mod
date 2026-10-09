@@ -21,7 +21,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.alchemy.Potion
@@ -32,7 +32,7 @@ import javax.annotation.ParametersAreNonnullByDefault
 
 @JeiPlugin
 class SbwJEIPlugin : IModPlugin {
-    override fun getPluginUid(): ResourceLocation {
+    override fun getPluginUid(): Identifier {
         return loc("jei_plugin")
     }
 

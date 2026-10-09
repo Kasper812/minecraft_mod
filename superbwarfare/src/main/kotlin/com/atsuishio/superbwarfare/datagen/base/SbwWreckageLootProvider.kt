@@ -9,7 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.CachedOutput
 import net.minecraft.data.DataProvider
 import net.minecraft.data.PackOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EntityType
 import java.util.concurrent.CompletableFuture
 
@@ -28,7 +28,7 @@ abstract class SbwWreckageLootProvider(val output: PackOutput) : DataProvider {
 
         val list = mutableListOf<CompletableFuture<*>>()
         val pathProvider = output.createPathProvider(PackOutput.Target.DATA_PACK, "sbw/loot")
-        val generated = mutableSetOf<ResourceLocation>()
+        val generated = mutableSetOf<Identifier>()
 
         val consumer = { data: WreckageLootData ->
             val id = data.id

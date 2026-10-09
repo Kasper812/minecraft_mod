@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.client.animation.entity
 import com.atsuishio.superbwarfare.entity.projectile.BasicGeoProjectileEntity
 import com.maydaymemory.mae.basic.Pose
 import com.maydaymemory.mae.control.statemachine.AnimationStateMachine
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 
 open class BasicProjectileAnimationInstance<T>(
@@ -23,8 +23,8 @@ open class BasicProjectileAnimationInstance<T>(
         return stateMachine.getPose()
     }
 
-    open fun getAnimationLocation(entity: T): ResourceLocation {
+    open fun getAnimationLocation(entity: T): Identifier {
         val (_,  namespace, id) = entity.type.descriptionId.split(".")
-        return ResourceLocation.fromNamespaceAndPath(namespace, "animations/bedrock/projectile/$id.animation.json")
+        return Identifier.fromNamespaceAndPath(namespace, "animations/bedrock/projectile/$id.animation.json")
     }
 }

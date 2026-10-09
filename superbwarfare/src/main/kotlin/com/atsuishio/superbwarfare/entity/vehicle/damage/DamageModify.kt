@@ -9,7 +9,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.core.registries.Registries
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.damagesource.DamageType
@@ -226,17 +226,17 @@ class DamageModify : DeserializeFromString {
     private fun generateSourceType() {
         if (source.startsWith("#")) {
             sourceType = SourceType.TAG_KEY
-            this.sourceTagKey = TagKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse(source.substring(1)))
+            this.sourceTagKey = TagKey.create(Registries.DAMAGE_TYPE, Identifier.parse(source.substring(1)))
         } else if (source.startsWith("@#")) {
             sourceType = SourceType.ENTITY_TAG
             this.entityTag =
-                TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.parse(source.substring(2)))
+                TagKey.create(Registries.ENTITY_TYPE, Identifier.parse(source.substring(2)))
         } else if (source.startsWith("@")) {
             sourceType = SourceType.ENTITY_ID
             this.entityId = source.substring(1)
         } else if (source != "All") {
             sourceType = SourceType.RESOURCE_KEY
-            this.sourceKey = ResourceKey.create(Registries.DAMAGE_TYPE, ResourceLocation.parse(source))
+            this.sourceKey = ResourceKey.create(Registries.DAMAGE_TYPE, Identifier.parse(source))
         } else {
             sourceType = SourceType.ALL
         }

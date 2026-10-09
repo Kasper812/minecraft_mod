@@ -11,7 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.recipes.RecipeBuilder
 import net.minecraft.data.recipes.RecipeCategory
 import net.minecraft.data.recipes.RecipeOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.Item
@@ -68,7 +68,7 @@ class VehicleAssemblingRecipeBuilder : RecipeBuilder {
         return this.result
     }
 
-    override fun save(recipeOutput: RecipeOutput, pRecipeId: ResourceLocation) {
+    override fun save(recipeOutput: RecipeOutput, pRecipeId: Identifier) {
         this.ensureValid(pRecipeId)
         val builder =
             recipeOutput.advancement().addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(pRecipeId))
@@ -87,7 +87,7 @@ class VehicleAssemblingRecipeBuilder : RecipeBuilder {
         )
     }
 
-    private fun ensureValid(id: ResourceLocation?) {
+    private fun ensureValid(id: Identifier?) {
         check(!this.criteria.isEmpty()) { "No way of obtaining recipe $id" }
     }
 

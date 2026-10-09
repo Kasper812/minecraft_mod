@@ -1,13 +1,15 @@
 package com.atsuishio.superbwarfare.client.renderer.item
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.item.weapon.MilitaryShovelItem
 import com.atsuishio.superbwarfare.resource.model.ItemModelReloadListener
 import com.mojang.blaze3d.vertex.PoseStack
 import net.minecraft.client.model.geom.EntityModelSet
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
@@ -30,7 +32,7 @@ class MilitaryShovelRenderer(dispatcher: BlockEntityRenderDispatcher, set: Entit
 
         instance.renderToBuffer(
             poseStack,
-            buffer.getBuffer(RenderType.entityCutout(TEXTURE)),
+            buffer.getBuffer(RenderTypes.entityCutout(TEXTURE)),
             packedLight,
             packedOverlay
         )

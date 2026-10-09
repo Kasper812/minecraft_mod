@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.armor
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.tools.deltaFrameTime
 import com.atsuishio.superbwarfare.tools.mc
@@ -8,10 +10,10 @@ import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBed
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.FastColor
+import net.minecraft.resources.Identifier
+import net.minecraft.util.ARGB
 import net.minecraft.world.entity.EquipmentSlot
 import java.io.IOException
 
@@ -25,9 +27,9 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         /**
          * 预计算的色相偏移帧纹理，索引为帧号 (0..79)。
          * 参考 GeckoLib 的动态贴图方案：预先将所有帧计算好并注册到 TextureManager，
-         * 运行时只需切换 ResourceLocation，无需每 tick 做 CPU 像素处理或 GPU 上传。
+         * 运行时只需切换 Identifier，无需每 tick 做 CPU 像素处理或 GPU 上传。
          */
-        private var flowFrames: Array<ResourceLocation?> = arrayOfNulls(CYCLE_TICKS)
+        private var flowFrames: Array<Identifier?> = arrayOfNulls(CYCLE_TICKS)
         private var flowTexturesReady = false
 
         @Synchronized
@@ -56,10 +58,10 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         }
 
         /**
-         * 根据 tickCount 获取当前帧对应的预计算纹理 ResourceLocation。
+         * 根据 tickCount 获取当前帧对应的预计算纹理 Identifier。
          * 无需任何 CPU 像素处理或 GPU 上传——直接返回已注册的纹理。
          */
-        private fun getFlowFrame(tickCount: Int): ResourceLocation {
+        private fun getFlowFrame(tickCount: Int): Identifier {
             val frame = tickCount % CYCLE_TICKS
             return flowFrames[frame] ?: GLASS
         }
@@ -155,10 +157,10 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         val mc = mc
         val bufferSource = mc.renderBuffers().bufferSource()
         val partialTick = mc.deltaFrameTime
-        val r = FastColor.ARGB32.red(color) / 255f
-        val g = FastColor.ARGB32.green(color) / 255f
-        val b = FastColor.ARGB32.blue(color) / 255f
-        val a = FastColor.ARGB32.alpha(color) / 255f
+        val r = ARGB.red(color) / 255f
+        val g = ARGB.green(color) / 255f
+        val b = ARGB.blue(color) / 255f
+        val a = ARGB.alpha(color) / 255f
 
         poseStack.pushPose()
         if (this.livingEntity != null && this.equipmentSlot != null && this.original != null) {
@@ -167,7 +169,7 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
 
         this.instance.renderToBuffer(
             poseStack,
-            bufferSource.getBuffer(RenderType.entityTranslucent(TEXTURE)),
+            bufferSource.getBuffer(RenderTypes.entityTranslucent(TEXTURE)),
             light,
             packedOverlay,
             r,
@@ -177,7 +179,7 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         )
         this.instance.renderToBuffer(
             poseStack,
-            bufferSource.getBuffer(RenderType.eyes(this.texture)),
+            bufferSource.getBuffer(RenderTypes.eyes(this.texture)),
             light,
             packedOverlay,
             r,
@@ -188,7 +190,7 @@ class HandsomeGogglesRenderer(model: TreeBedrockModel, slot: EquipmentSlot) : Ge
         poseStack.popPose()
     }
 
-    override fun getTexture(): ResourceLocation {
+    override fun getTexture(): Identifier {
         ensureFlowTexturesLoaded()
         val tickCount = mc.level?.gameTime?.toInt() ?: 0
         return if (flowTexturesReady) {

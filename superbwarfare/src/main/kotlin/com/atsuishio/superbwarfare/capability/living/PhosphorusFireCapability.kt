@@ -6,7 +6,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.minecraft.core.HolderLookup
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.LivingEntity
 import org.ladysnake.cca.api.v3.component.Component
 import org.ladysnake.cca.api.v3.component.sync.AutoSyncedComponent
@@ -28,7 +28,7 @@ data class PhosphorusFireCapability(
 
     companion object {
         @JvmField
-        val ID: ResourceLocation = loc("phosphorus_fire_capability")
+        val ID: Identifier = loc("phosphorus_fire_capability")
         const val TAG_PHOSPHORUS_FIRE: String = "SbwPhosphorusFire"
 
         @JvmStatic

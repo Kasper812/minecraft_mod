@@ -18,7 +18,7 @@ import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.components.PlayerFaceRenderer
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import net.minecraft.world.entity.player.Player
@@ -65,7 +65,7 @@ class MapEntityRenderer {
         private val ICON_MISSILE = loc("textures/overlay/tactical_map/vehicle/missile.png")
         private val ICON_MAID = loc("textures/overlay/tactical_map/vehicle/maid.png")
 
-        private val playerFaceCache = WeakHashMap<UUID, ResourceLocation>()
+        private val playerFaceCache = WeakHashMap<UUID, Identifier>()
 
         /** 绘制玩家头像贴图，优先使用缓存，缺失时从 SkinManager 获取 */
         fun drawPlayerFace(guiGraphics: GuiGraphics, uuid: java.util.UUID, name: String, x: Int, y: Int, size: Int) {
@@ -663,7 +663,7 @@ class MapEntityRenderer {
     //  Vehicle icon lookup
     // ═══════════════════════════════════════════════════════════════
 
-    fun getVehicleIcon(entity: Entity): ResourceLocation {
+    fun getVehicleIcon(entity: Entity): Identifier {
         return if (entity is Boat) {
             ICON_BOAT
         } else if (entity is VehicleEntity) {

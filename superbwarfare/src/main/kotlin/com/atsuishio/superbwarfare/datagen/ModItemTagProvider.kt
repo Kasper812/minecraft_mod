@@ -13,7 +13,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.data.PackOutput
 import net.minecraft.data.tags.ItemTagsProvider
 import net.minecraft.data.tags.TagsProvider.TagLookup
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.ItemTags
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
@@ -46,12 +46,12 @@ class ModItemTagProvider(
             .addTag(commonItemTag("ingots/silver"))
         this.tag(commonItemTag("ingots/lead")).add(ModItems.LEAD_INGOT)
         this.tag(commonItemTag("ingots/steel")).add(ModItems.STEEL_INGOT)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "fukamizu_bread_ingot"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "fukamizu_bread_ingot"))
         this.tag(commonItemTag("ingots/tungsten")).add(ModItems.TUNGSTEN_INGOT)
         this.tag(commonItemTag("ingots/silver")).add(ModItems.SILVER_INGOT)
 
         this.tag(ModTags.Items.INGOTS_CEMENTED_CARBIDE).add(ModItems.CEMENTED_CARBIDE_INGOT)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "hqss_bread_ingot"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "hqss_bread_ingot"))
 
         this.tag(ModTags.Items.STORAGE_BLOCKS)
             .addTag(commonItemTag("storage_blocks/lead"))
@@ -64,7 +64,7 @@ class ModItemTagProvider(
             .addTag(commonItemTag("storage_blocks/raw_scheelite"))
         this.tag(commonItemTag("storage_blocks/lead")).add(ModItems.LEAD_BLOCK)
         this.tag(commonItemTag("storage_blocks/steel")).add(ModItems.STEEL_BLOCK)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "fukamizu_bread_bricks"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "fukamizu_bread_bricks"))
         this.tag(commonItemTag("storage_blocks/tungsten")).add(ModItems.TUNGSTEN_BLOCK)
         this.tag(commonItemTag("storage_blocks/silver")).add(ModItems.SILVER_BLOCK)
 
@@ -74,7 +74,7 @@ class ModItemTagProvider(
         this.tag(commonItemTag("storage_blocks/raw_scheelite")).add(ModItems.RAW_SCHEELITE_BLOCK)
 
         this.tag(ModTags.Items.STORAGE_BLOCK_CEMENTED_CARBIDE).add(ModItems.CEMENTED_CARBIDE_BLOCK)
-            .addOptional(ResourceLocation.fromNamespaceAndPath("dreamaticvoyage", "hqss_bread_bricks"))
+            .addOptional(Identifier.fromNamespaceAndPath("dreamaticvoyage", "hqss_bread_bricks"))
 
         this.tag(ModTags.Items.ORES)
             .addTag(commonItemTag("ores/lead"))

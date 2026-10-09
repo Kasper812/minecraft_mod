@@ -28,7 +28,7 @@ object FuMO25ScreenHelper {
     @Suppress("unused")
     fun onClientTick() {
         val player = mc.player ?: return
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         val cameraPos = camera.position
 
         val menu = player.containerMenu as? FuMO25Menu ?: return

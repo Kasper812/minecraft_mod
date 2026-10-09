@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.ClientRenderHandler
 import com.atsuishio.superbwarfare.client.animation.AnimationCurves
 import com.atsuishio.superbwarfare.client.animation.gun.GeoGunAnimationInstance
@@ -65,11 +67,11 @@ import com.mojang.math.Axis
 import cn.sh1rocu.simplebedrockmodel.api.event.ViewportEvent
 import net.minecraft.client.Minecraft
 import net.minecraft.client.player.LocalPlayer
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry
-import net.minecraft.resources.ResourceLocation
+import com.atsuishio.portlib.render.BuiltinItemRendererRegistry
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.entity.Entity
@@ -87,7 +89,7 @@ import org.lwjgl.opengl.GL11
 import java.util.*
 import kotlin.math.roundToInt
 
-open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegistry.DynamicItemRenderer {
+open class GeoGunRenderer : AbstractGeoItemRendererV2(), com.atsuishio.portlib.render.DynamicItemRenderer {
 
     override fun render(
         stack: ItemStack,
@@ -107,7 +109,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
     protected val muzzleEmitterLocators =
         mutableMapOf<InteractionHand, MutableMap<ParticleEmitterInstance, String>>()
 
-    private var handledScopeAttachment: ResourceLocation? = null
+    private var handledScopeAttachment: Identifier? = null
     private var gunStencilCulling = false
     private val scopeViewSmoothing = mutableMapOf<InteractionHand, ScopeViewSmoothState>()
 
@@ -124,11 +126,11 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
 
     data class ScopeRenderData(
         val model: BedrockAttachmentModel,
-        val texture: ResourceLocation,
+        val texture: Identifier,
         val scopeMode: ScopeMode,
         val scopeModeIndex: Int,
         val companionSightMode: ScopeMode? = null,
-        val attachmentId: ResourceLocation,
+        val attachmentId: Identifier,
         val slotTransform: Matrix4f,
         val bindSlotTransform: Matrix4f,
         // 弹药显示配置；实际的余弹数与比例在渲染调用点按需计算，避免每次解析配件都走一遍 PMC
@@ -138,7 +140,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
 
     data class AttachmentRenderData(
         val model: BedrockAttachmentModel,
-        val texture: ResourceLocation,
+        val texture: Identifier,
         val definition: AttachmentDefinition,
     )
 
@@ -154,10 +156,10 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
         return GeoGunAnimationInstance(stack, entity, hand)
     }
 
-    override fun getSlotTexture(stack: ItemStack): ResourceLocation? {
+    override fun getSlotTexture(stack: ItemStack): Identifier? {
         val resource = GunResource.compute(stack)
         val slotIcon = resource.slotIcon.ifEmpty { null } ?: return null
-        return ResourceLocation.tryParse(slotIcon)
+        return Identifier.tryParse(slotIcon)
     }
 
     override fun hasModel(stack: ItemStack): Boolean {
@@ -520,7 +522,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
                     model.builtinScopeRenderer.renderWithStencil(
                         poseStack,
                         bufferSource,
-                        RenderType.entityTranslucent(texture),
+                        RenderTypes.entityTranslucent(texture),
                         BedrockModelRenderTypes.polyMeshCutout(texture),
                         packedLight,
                         builtinScope
@@ -1360,7 +1362,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
     /** [resolveSubWeaponFollowPose] 的产物 */
     data class SubWeaponFollowPose(
         /** 这份修正属于哪个附件模型；渲染时用它确认"这个槽位的附件就是被修正的那一个" */
-        val modelPath: ResourceLocation,
+        val modelPath: Identifier,
         /** 只含宿主枪 `root` 一根骨骼的修正姿态，由调用方 merge 进渲染姿态 */
         val gunRoot: Pose,
     )
@@ -1785,7 +1787,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2(), BuiltinItemRendererRegi
     }
 
     open fun cameraRotationInverse(): Matrix4f {
-        val camera = Minecraft.getInstance().gameRenderer.mainCamera
+        val camera = Minecraft.getInstance().gameRenderer.mainCamera()
         return Matrix4f()
             .rotationX(Mth.DEG_TO_RAD * camera.xRot)
             .rotateY(Mth.DEG_TO_RAD * (camera.yRot + 180f))

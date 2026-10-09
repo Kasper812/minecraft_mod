@@ -42,7 +42,7 @@ fun BlockPos.toVec3f() = Vector3f(x.toFloat(), y.toFloat(), z.toFloat())
  */
 fun Vec3.worldToScreen(): Vec3 {
     val window = mc.window
-    val camera = mc.gameRenderer.mainCamera
+    val camera = mc.gameRenderer.mainCamera()
     val worldPosRel = Vector4d(camera.position.reverse().add(this).toVector3f(), 1.0)
 
     // Handle matrix nullability checks securely before multiplying
@@ -68,7 +68,7 @@ fun Vec3.worldToScreen(): Vec3 {
 
 @JvmName("canSee")
 fun Vec3.canBeSeen(): Boolean {
-    val camera = mc.gameRenderer.mainCamera
+    val camera = mc.gameRenderer.mainCamera()
     val cameraPos = camera.position
     val viewVec = Vec3(camera.lookVector)
     val v1 = cameraPos.vectorTo(this)

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.special
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.block.ContainerBlock
 import com.atsuishio.superbwarfare.block.entity.ContainerBlockEntity
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
@@ -65,7 +67,7 @@ object ContainerBlockPreview {
         val poseStack = context.matrixStack()
         poseStack?.pushPose()
         val pos = blockEntity.blockPos
-        val view = mc.gameRenderer.mainCamera.position
+        val view = mc.gameRenderer.mainCamera().position
         poseStack?.translate(pos.x - view.x, pos.y - view.y + 1, pos.z - view.z)
 
         // 什么b位置

@@ -8,7 +8,7 @@ import net.minecraft.client.particle.Particle
 import net.minecraft.client.particle.ParticleProvider
 import net.minecraft.client.particle.ParticleRenderType
 import net.minecraft.client.particle.TextureSheetParticle
-import net.minecraft.client.renderer.LightTexture
+import net.minecraft.util.LightCoordsUtil
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite
 import net.minecraft.client.renderer.texture.TextureAtlasSprite
 import net.minecraft.core.BlockPos
@@ -130,7 +130,7 @@ class BulletDecalParticle @JvmOverloads constructor(
         val v1 = this.v1
 
         val light = max(15 - this.age / 2, 0)
-        val lightColor = LightTexture.FULL_BRIGHT
+        val lightColor = LightCoordsUtil.FULL_BRIGHT
 
         val colorPercent = light / 15.0f
         val red = this.rCol * colorPercent

@@ -1,6 +1,6 @@
 package com.github.mcmodderanchor.simplebedrockmodel.v1.particle.world;
 
-import cn.sh1rocu.simplebedrockmodel.client.port.SbmRenderTypes;
+import com.atsuishio.portlib.render.SbmRenderTypes;
 import com.github.mcmodderanchor.simplebedrockmodel.v1.particle.data.ParticleDescription;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

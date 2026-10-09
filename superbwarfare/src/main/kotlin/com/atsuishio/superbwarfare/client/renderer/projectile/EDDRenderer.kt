@@ -1,17 +1,19 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.config.server.ExplosionConfig
 import com.atsuishio.superbwarfare.entity.projectile.EDDEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.Direction
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class EDDRenderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<EDDEntity>(renderManager) {
     override fun render(
@@ -45,7 +47,7 @@ class EDDRenderer(renderManager: EntityRendererProvider.Context) : EntityRendere
 
         instance.renderToBuffer(
             poseStack,
-            buffer.getBuffer(RenderType.entityCutout(this.getTextureLocation(entity))),
+            buffer.getBuffer(RenderTypes.entityCutout(this.getTextureLocation(entity))),
             packedLight,
             OverlayTexture.NO_OVERLAY
         )
@@ -53,7 +55,7 @@ class EDDRenderer(renderManager: EntityRendererProvider.Context) : EntityRendere
         poseStack.popPose()
     }
 
-    override fun getTextureLocation(entity: EDDEntity): ResourceLocation {
+    override fun getTextureLocation(entity: EDDEntity): Identifier {
         return if (entity.uuid.leastSignificantBits % 191 == 0L) TEXTURE_ALTER else TEXTURE
     }
 

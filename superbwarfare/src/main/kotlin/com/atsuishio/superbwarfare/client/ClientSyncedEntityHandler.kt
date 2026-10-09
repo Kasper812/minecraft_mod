@@ -12,7 +12,7 @@ import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonPrimitive
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.level.Level
 import net.minecraft.world.phys.Vec3
@@ -21,7 +21,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 object ClientSyncedEntityHandler {
 
-    data class SyncedKey(val dim: ResourceLocation, val id: Int)
+    data class SyncedKey(val dim: Identifier, val id: Int)
 
     data class ClientSyncedEntity(
         val entity: Entity,
@@ -34,7 +34,7 @@ object ClientSyncedEntityHandler {
         val shouldWorldRender: Boolean = false,
     )
 
-    data class SyncedPlayerKey(val dim: ResourceLocation, val uuid: UUID)
+    data class SyncedPlayerKey(val dim: Identifier, val uuid: UUID)
 
     data class ClientSyncedPlayer(
         val timeStamp: Long, val uuid: UUID, val pos: Vec3, val name: String,
@@ -73,7 +73,7 @@ object ClientSyncedEntityHandler {
      * 雷达将探测到的敌对/中立实体 ID 发送给友方。
      */
     @JvmStatic
-    fun syncEntityRelations(dim: ResourceLocation, friendly: List<Int>, hostile: List<Int>, neutral: List<Int>) {
+    fun syncEntityRelations(dim: Identifier, friendly: List<Int>, hostile: List<Int>, neutral: List<Int>) {
         val dimStr = dim.toString()
         val now = System.currentTimeMillis()
         fun addTo(pool: ConcurrentHashMap<String, ConcurrentHashMap<Int, Long>>, ids: List<Int>) {
@@ -89,7 +89,7 @@ object ClientSyncedEntityHandler {
     }
 
     @JvmStatic
-    fun syncPlayerInfo(dim: ResourceLocation, list: List<SyncedPlayerInfo>) {
+    fun syncPlayerInfo(dim: Identifier, list: List<SyncedPlayerInfo>) {
         if (mc.level == null) return
         val time = System.currentTimeMillis()
         for (info in list) {
@@ -171,7 +171,7 @@ object ClientSyncedEntityHandler {
      * 无条件同步实体到超视距世界渲染池。
      */
     @JvmStatic
-    fun syncWorldRender(dim: ResourceLocation, list: List<SyncedEntity>) {
+    fun syncWorldRender(dim: Identifier, list: List<SyncedEntity>) {
         val level = mc.level ?: return
         val time = System.currentTimeMillis()
         for (syncedEntity in list) {
@@ -351,7 +351,7 @@ object ClientSyncedEntityHandler {
     private val phantomStukaSounds = ConcurrentHashMap<Int, VehicleSoundInstance>()
 
     @JvmStatic
-    fun syncRadars(dim: ResourceLocation, radars: List<RadarSyncMessage.SyncedRadar>) {
+    fun syncRadars(dim: Identifier, radars: List<RadarSyncMessage.SyncedRadar>) {
         val time = System.currentTimeMillis()
         for (r in radars) {
             // 用 sourceId 作为 key，同一雷达每次更新覆盖旧位置，避免移动拖影

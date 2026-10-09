@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.client.renderer.entity
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.base.AutoAimableEntity
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 
 class WaveforceTowerRenderer(manager: EntityRendererProvider.Context) : BasicAutoAimableRenderer(manager) {

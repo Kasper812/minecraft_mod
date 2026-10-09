@@ -3,14 +3,14 @@ package com.atsuishio.superbwarfare.client.renderer
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.platform.NativeImage
 import net.minecraft.client.renderer.texture.DynamicTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import kotlin.math.min
 
 object TextureBrightnessHandler {
     // 缓存处理过的纹理，避免重复处理
-    private val BRIGHTENED_TEXTURES: MutableMap<ResourceLocation, ResourceLocation> = hashMapOf()
+    private val BRIGHTENED_TEXTURES: MutableMap<Identifier, Identifier> = hashMapOf()
 
-    fun getBrightenedTexture(originalTextureLoc: ResourceLocation, brightnessMultiplier: Float): ResourceLocation {
+    fun getBrightenedTexture(originalTextureLoc: Identifier, brightnessMultiplier: Float): Identifier {
         // 检查是否已缓存
         if (BRIGHTENED_TEXTURES.containsKey(originalTextureLoc)) {
             return BRIGHTENED_TEXTURES[originalTextureLoc]!!
@@ -26,7 +26,7 @@ object TextureBrightnessHandler {
             val brightenedImage = brightenImage(originalImage, brightnessMultiplier)
 
             // 3. 创建新的纹理资源
-            val newTextureLoc = ResourceLocation.fromNamespaceAndPath(
+            val newTextureLoc = Identifier.fromNamespaceAndPath(
                 originalTextureLoc.namespace,
                 originalTextureLoc.path.replace(".png", "_bright.png")
             )

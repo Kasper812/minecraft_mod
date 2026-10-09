@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.config.server.MiscConfig
 import com.atsuishio.superbwarfare.init.ModTags
 import com.atsuishio.superbwarfare.tools.NBTTool
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EquipmentSlot
 import net.minecraft.world.item.ItemStack
 import net.fabricmc.api.EnvType
@@ -39,12 +39,12 @@ object ArmorPlateOverlay : CommonOverlay("armor_plate") {
         val max = armorLevel * MiscConfig.ARMOR_POINT_PER_LEVEL.get()
         val amount = 60 * (NBTTool.getTag(stack).getDouble("ArmorPlate") / max)
 
-        val texture: ResourceLocation = when (armorLevel) {
+        val texture: Identifier = when (armorLevel) {
             2 -> BAR_2
             3 -> BAR_3
             else -> BAR_1
         }
-        val frame: ResourceLocation = when (armorLevel) {
+        val frame: Identifier = when (armorLevel) {
             2 -> BAR_FRAME_2
             3 -> BAR_FRAME_3
             else -> BAR_FRAME_1

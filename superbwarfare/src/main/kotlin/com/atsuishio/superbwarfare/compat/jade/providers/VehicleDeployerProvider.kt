@@ -6,7 +6,7 @@ import com.atsuishio.superbwarfare.block.entity.VehicleDeployerBlockEntity
 import net.minecraft.ChatFormatting
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EntityType
 import snownee.jade.api.BlockAccessor
 import snownee.jade.api.IBlockComponentProvider
@@ -38,7 +38,7 @@ object VehicleDeployerProvider : IBlockComponentProvider, IServerDataProvider<Bl
         }
     }
 
-    override fun getUid(): ResourceLocation {
+    override fun getUid(): Identifier {
         return ID
     }
 

@@ -10,7 +10,7 @@ import com.atsuishio.superbwarfare.tools.forceApplyEffect
 import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.util.Mth
@@ -138,7 +138,7 @@ open class MortarShellEntity : FastThrowableProjectile, BasicGeoProjectileEntity
 
         if (compound.contains("Potion", 8)) {
             val tagName = compound.getString("Potion")
-            this.potion = BuiltInRegistries.POTION.get(ResourceLocation.parse(tagName))
+            this.potion = BuiltInRegistries.POTION.get(Identifier.parse(tagName))
         }
 
         if (compound.contains("RColor")) {

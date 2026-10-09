@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.recipe
 import com.atsuishio.superbwarfare.init.ModRecipes
 import com.atsuishio.superbwarfare.item.IDyeableSmokeItem
 import net.minecraft.core.HolderLookup
-import net.minecraft.util.FastColor
+import net.minecraft.util.ARGB
 import net.minecraft.world.item.DyeItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.CraftingBookCategory
@@ -95,9 +95,9 @@ class SmokeDyeRecipe(pCategory: CraftingBookCategory) : CustomRecipe(pCategory) 
                 for (dyeItem in pDyes) {
                     val dyeColors = dyeItem.dyeColor.textureDiffuseColor
 
-                    val r = FastColor.ARGB32.red(dyeColors)
-                    val g = FastColor.ARGB32.green(dyeColors)
-                    val b = FastColor.ARGB32.blue(dyeColors)
+                    val r = ARGB.red(dyeColors)
+                    val g = ARGB.green(dyeColors)
+                    val b = ARGB.blue(dyeColors)
 
                     i += max(r, max(g, b))
                     colors[0] += r

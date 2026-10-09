@@ -1,23 +1,20 @@
 plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm")
-    id("com.google.devtools.ksp")
-}
-
-repositories {
-    mavenCentral()
 }
 
 dependencies {
-    implementation("com.google.devtools.ksp:symbol-processing-api:2.1.20-2.0.1")
+    implementation("com.google.devtools.ksp:symbol-processing-api:2.3.12")
 }
 
 java {
-    toolchain {
-        languageVersion.set(JavaLanguageVersion.of(21))
-    }
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
 
 kotlin {
-    jvmToolchain(21)
+    jvmToolchain(25)
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
 }

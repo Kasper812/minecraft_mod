@@ -42,7 +42,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.fabricmc.fabric.api.resource.ResourcePackActivationType
 import net.fabricmc.loader.api.FabricLoader
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.neoforged.fml.config.ModConfig
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -165,13 +165,13 @@ class Mod : ModInitializer {
         const val MODID: String = "superbwarfare"
 
         @JvmField
-        val ATTRIBUTE_MODIFIER: ResourceLocation = loc("attribute_modifier")
+        val ATTRIBUTE_MODIFIER: Identifier = loc("attribute_modifier")
 
         @JvmField
         val LOGGER: Logger = LogManager.getLogger(Mod::class.java)
 
         @JvmStatic
-        fun loc(path: String): ResourceLocation = ResourceLocation.fromNamespaceAndPath(MODID, path)
+        fun loc(path: String): Identifier = Identifier.fromNamespaceAndPath(MODID, path)
 
         private val SERVER_QUEUE: MutableCollection<Task> = ConcurrentLinkedQueue()
         private val CLIENT_QUEUE: MutableCollection<Task> = ConcurrentLinkedQueue()

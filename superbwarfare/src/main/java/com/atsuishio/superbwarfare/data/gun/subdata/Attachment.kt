@@ -8,7 +8,7 @@ import com.atsuishio.superbwarfare.data.gun.subdata.Attachment.Companion.NO_LASE
 import com.atsuishio.superbwarfare.data.gun.value.AttachmentType
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 /**
  * Manages attachment slot data for a single [GunData] instance.
@@ -45,11 +45,11 @@ class Attachment(private val gun: GunData) {
     /**
      * Returns the registered attachment id installed in [type].
      */
-    fun id(type: AttachmentType): ResourceLocation? {
+    fun id(type: AttachmentType): Identifier? {
         val tag = attachment.get(type.attachmentName) ?: return null
         return when (tag.id) {
-            Tag.TAG_STRING -> ResourceLocation.tryParse(attachment.getString(type.attachmentName))
-            Tag.TAG_COMPOUND -> ResourceLocation.tryParse(
+            Tag.TAG_STRING -> Identifier.tryParse(attachment.getString(type.attachmentName))
+            Tag.TAG_COMPOUND -> Identifier.tryParse(
                 attachment.getCompound(type.attachmentName).readId()
             )
 
@@ -233,7 +233,7 @@ class Attachment(private val gun: GunData) {
         }
     }
 
-    fun set(type: AttachmentType, id: ResourceLocation?) {
+    fun set(type: AttachmentType, id: Identifier?) {
         if (id == null) {
             remove(type)
             return
@@ -358,7 +358,7 @@ class Attachment(private val gun: GunData) {
 
 data class AttachmentInstance(
     val slot: AttachmentType,
-    val id: ResourceLocation,
+    val id: Identifier,
     val tag: CompoundTag,
     val definition: AttachmentDefinition,
 )

@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.client.model.gun.GeoGunModel
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.animation.BedrockAnimation
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.resource.pojo.BedrockModelPOJO
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.tree.TreeBedrockModel
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.profiling.ProfilerFiller
 
@@ -13,7 +13,7 @@ object GunLODModelReloadListener : BedrockModelReloadListener<GeoGunModel>(
     "animations/bedrock/gun_lod"
 ) {
     override fun apply(
-        map: Map<ResourceLocation, BedrockModelPOJO>,
+        map: Map<Identifier, BedrockModelPOJO>,
         resourceManager: ResourceManager,
         profiler: ProfilerFiller
     ) {

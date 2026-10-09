@@ -1,17 +1,19 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.FlareDecoyEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : EntityRenderer<FlareDecoyEntity>(pContext) {
     override fun getBlockLightLevel(pEntity: FlareDecoyEntity, pPos: BlockPos): Int {
@@ -30,7 +32,7 @@ class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : Entit
         pMatrixStack.mulPose(this.entityRenderDispatcher.cameraOrientation())
         pMatrixStack.mulPose(Axis.YP.rotationDegrees(180f))
         val lastPose = pMatrixStack.last()
-        val consumer = pBuffer.getBuffer(RenderType.entityCutoutNoCull(getTextureLocation(pEntity)))
+        val consumer = pBuffer.getBuffer(RenderTypes.entityCutout(getTextureLocation(pEntity)))
         vertex(consumer, lastPose, pPackedLight, -0.75f, -0.75f, 0, 1)
         vertex(consumer, lastPose, pPackedLight, 0.75f, -0.75f, 1, 1)
         vertex(consumer, lastPose, pPackedLight, 0.75f, 0.75f, 1, 0)
@@ -39,7 +41,7 @@ class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : Entit
         super.render(pEntity, pEntityYaw, pPartialTicks, pMatrixStack, pBuffer, pPackedLight)
     }
 
-    override fun getTextureLocation(entity: FlareDecoyEntity): ResourceLocation {
+    override fun getTextureLocation(entity: FlareDecoyEntity): Identifier {
         return TEXTURES[entity.tickCount % 8]
     }
 
@@ -61,6 +63,6 @@ class FlareDecoyEntityRenderer(pContext: EntityRendererProvider.Context) : Entit
                 .setNormal(pPose, 0f, 1f, 0f)
         }
 
-        val TEXTURES: List<ResourceLocation> = ArrayList((0..7).map { loc("textures/particle/fire_star_$it.png") })
+        val TEXTURES: List<Identifier> = ArrayList((0..7).map { loc("textures/particle/fire_star_$it.png") })
     }
 }

@@ -3,13 +3,13 @@ package com.atsuishio.superbwarfare.client.renderer.projectile
 import com.atsuishio.superbwarfare.entity.projectile.MelonBombEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.block.BlockRenderDispatcher
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.entity.TntMinecartRenderer
 import net.minecraft.client.renderer.texture.TextureAtlas
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.level.block.Blocks
 
 class MelonBombEntityRenderer(context: EntityRendererProvider.Context) : EntityRenderer<MelonBombEntity>(context) {
@@ -45,7 +45,7 @@ class MelonBombEntityRenderer(context: EntityRendererProvider.Context) : EntityR
     }
 
     @Suppress("DEPRECATION")
-    override fun getTextureLocation(entity: MelonBombEntity): ResourceLocation {
+    override fun getTextureLocation(entity: MelonBombEntity): Identifier {
         return TextureAtlas.LOCATION_BLOCKS
     }
 }

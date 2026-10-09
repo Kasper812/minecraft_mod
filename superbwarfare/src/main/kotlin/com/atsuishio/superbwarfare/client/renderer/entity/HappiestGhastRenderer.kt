@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
@@ -7,12 +9,12 @@ import com.atsuishio.superbwarfare.tools.mc
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
 import com.mojang.blaze3d.platform.NativeImage
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.DynamicTexture
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import java.io.IOException
 
@@ -58,8 +60,8 @@ class HappiestGhastRenderer(manager: EntityRendererProvider.Context) : BasicVehi
             GLASS
         }
 
-        val renderType = RenderType.entityTranslucent(texLocation)
-        val renderTypeLight = RenderType.eyes(texLocation)
+        val renderType = RenderTypes.entityTranslucent(texLocation)
+        val renderTypeLight = RenderTypes.eyes(texLocation)
         val polyMeshType = BedrockModelRenderTypes.polyMeshCutout(texLocation)
 
         instance.renderToBuffer(
@@ -84,9 +86,9 @@ class HappiestGhastRenderer(manager: EntityRendererProvider.Context) : BasicVehi
         /**
          * 预计算的色相偏移帧纹理，索引为帧号 (0..79)。
          * 参考 GeckoLib 的动态贴图方案：预先将所有帧计算好并注册到 TextureManager，
-         * 运行时只需切换 ResourceLocation，无需每 tick 做 CPU 像素处理或 GPU 上传。
+         * 运行时只需切换 Identifier，无需每 tick 做 CPU 像素处理或 GPU 上传。
          */
-        private var flowFrames: Array<ResourceLocation?> = arrayOfNulls(CYCLE_TICKS)
+        private var flowFrames: Array<Identifier?> = arrayOfNulls(CYCLE_TICKS)
         private var flowTexturesReady = false
 
         @Synchronized
@@ -115,10 +117,10 @@ class HappiestGhastRenderer(manager: EntityRendererProvider.Context) : BasicVehi
         }
 
         /**
-         * 根据 tickCount 获取当前帧对应的预计算纹理 ResourceLocation。
+         * 根据 tickCount 获取当前帧对应的预计算纹理 Identifier。
          * 无需任何 CPU 像素处理或 GPU 上传——直接返回已注册的纹理。
          */
-        private fun getFlowFrame(tickCount: Int): ResourceLocation {
+        private fun getFlowFrame(tickCount: Int): Identifier {
             val frame = tickCount % CYCLE_TICKS
             return flowFrames[frame] ?: GLASS
         }

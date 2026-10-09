@@ -1,18 +1,20 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.PrismaticBoltEntity
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class PrismaticBoltEntityRenderer(pContext: EntityRendererProvider.Context) :
     EntityRenderer<PrismaticBoltEntity>(pContext) {
@@ -35,7 +37,7 @@ class PrismaticBoltEntityRenderer(pContext: EntityRendererProvider.Context) :
         val lastPose = pMatrixStack.last()
         val lerpTick = pEntity.getLerpTick(pPartialTicks)
         val ySpeed = 5 - 2.5f * lerpTick
-        val consumer = pBuffer.getBuffer(RenderType.entityTranslucentEmissive(TEXTURE))
+        val consumer = pBuffer.getBuffer(RenderTypes.entityTranslucentEmissive(TEXTURE))
         vertex(consumer, lastPose, pPackedLight, -1.5f, -1.5f + ySpeed, 0, 1)
         vertex(consumer, lastPose, pPackedLight, 1.5f, -1.5f + ySpeed, 1, 1)
         vertex(consumer, lastPose, pPackedLight, 1.5f, 1.5f + ySpeed, 1, 0)
@@ -54,7 +56,7 @@ class PrismaticBoltEntityRenderer(pContext: EntityRendererProvider.Context) :
         return true
     }
 
-    override fun getTextureLocation(pEntity: PrismaticBoltEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: PrismaticBoltEntity): Identifier {
         return TEXTURE
     }
 

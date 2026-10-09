@@ -11,7 +11,7 @@ import com.atsuishio.superbwarfare.init.ModPerks
 import com.atsuishio.superbwarfare.item.misc.PerkItem
 import net.minecraft.ChatFormatting
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.damagesource.DamageSource
 import net.minecraft.world.entity.Entity
@@ -24,7 +24,7 @@ open class Perk(val descriptionId: String, val type: Type) : PropertyModifier<Gu
         .filter { it.isNotEmpty() }
         .joinToString("") { word -> word.replaceFirstChar { it.uppercase(Locale.ROOT) } }
 
-    fun getId(): ResourceLocation = Mod.loc(descriptionId)
+    fun getId(): Identifier = Mod.loc(descriptionId)
 
     // 默认不进行修改
     override fun modifyProperty(modifier: PMC<GunData, DefaultGunData>) {}
@@ -105,7 +105,7 @@ open class Perk(val descriptionId: String, val type: Type) : PropertyModifier<Gu
      */
     open fun onMeleeSwing(data: GunData, instance: PerkInstance, entity: Entity?) {}
 
-    private val perkKey = ResourceKey.create(ModPerks.PERK_KEY, ResourceLocation.parse(this.descriptionId))
+    private val perkKey = ResourceKey.create(ModPerks.PERK_KEY, Identifier.parse(this.descriptionId))
 
     /**
      * [onMeleeAttack] 的带上下文版本：本段动作 + 来源（主武器 / 副武器槽位）。

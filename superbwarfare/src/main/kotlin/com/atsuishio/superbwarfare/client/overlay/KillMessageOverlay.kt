@@ -19,8 +19,8 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.resources.Identifier
 import net.minecraft.world.damagesource.DamageTypes
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -179,7 +179,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
             }
 
             // 渲染伤害类型图标
-            val damageTypeIcon: ResourceLocation? = getDamageTypeIcon(record)
+            val damageTypeIcon: Identifier? = getDamageTypeIcon(record)
             if (damageTypeIcon != null) {
                 currentPosX -= 18f
                 RenderHelper.preciseBlit(
@@ -197,7 +197,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
             }
 
             // 渲染武器图标
-            val currentWeaponIcon: ResourceLocation? = getWeaponIcon(record)
+            val currentWeaponIcon: Identifier? = getWeaponIcon(record)
             if (currentWeaponIcon != null) {
                 currentPosX -= 36f
                 RenderHelper.preciseBlit(
@@ -255,7 +255,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
             currentPosX += (font.width(attackerName) + 6).toFloat()
 
             // 渲染武器图标
-            val currentWeaponIcon: ResourceLocation? = getWeaponIcon(record)
+            val currentWeaponIcon: Identifier? = getWeaponIcon(record)
             if (currentWeaponIcon != null) {
                 RenderHelper.preciseBlit(
                     guiGraphics,
@@ -273,7 +273,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
             }
 
             // 渲染伤害类型图标
-            val damageTypeIcon: ResourceLocation? = getDamageTypeIcon(record)
+            val damageTypeIcon: Identifier? = getDamageTypeIcon(record)
             if (damageTypeIcon != null) {
                 RenderHelper.preciseBlit(
                     guiGraphics,
@@ -318,8 +318,8 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
         return baseTop
     }
 
-    private fun getDamageTypeIcon(record: LivingKillRecord): ResourceLocation? {
-        var icon: ResourceLocation?
+    private fun getDamageTypeIcon(record: LivingKillRecord): Identifier? {
+        var icon: Identifier?
         // 渲染爆头图标
         if (record.headshot) {
             icon = HEADSHOT
@@ -401,7 +401,7 @@ object KillMessageOverlay : CommonOverlay("kill_message") {
         return name
     }
 
-    fun getWeaponIcon(record: LivingKillRecord): ResourceLocation? {
+    fun getWeaponIcon(record: LivingKillRecord): Identifier? {
         val attacker = record.attacker
         val vehicleEntity = attacker.vehicle
         val item = record.stack.item

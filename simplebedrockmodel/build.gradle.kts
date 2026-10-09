@@ -18,6 +18,7 @@ dependencies {
     minecraft("com.mojang:minecraft:${property("minecraft_version")}")
     implementation("net.fabricmc:fabric-loader:${property("loader_version")}")
     implementation("net.fabricmc.fabric-api:fabric-api:${property("fabric_api_version")}")
+    api(project(":portlib"))
     compileOnly("com.google.code.findbugs:jsr305:3.0.2")
     compileOnly("maven.modrinth:sodium:mc26.2-0.9.2-fabric")
     compileOnly("maven.modrinth:iris:1.11.4+26.2-fabric")

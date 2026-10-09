@@ -26,7 +26,7 @@ import com.atsuishio.superbwarfare.tools.FormatTool.format2D
 import com.atsuishio.superbwarfare.tools.postEvent
 import net.minecraft.network.chat.Component
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundSource
@@ -416,7 +416,7 @@ object LivingEventHandler {
         val soundInfo: SoundInfo = data.get(GunProp.SOUND_INFO)
         soundInfo.cancellableSounds.list
             .forEach { str ->
-                val location = ResourceLocation.tryParse(str)
+                val location = Identifier.tryParse(str)
                 if (location != null) {
                     player.connection.send(ClientboundStopSoundPacket(location, SoundSource.PLAYERS))
                 }

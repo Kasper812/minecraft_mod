@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.client.model.item;
 import com.atsuishio.superbwarfare.Mod;
 import com.atsuishio.superbwarfare.event.ClientEventHandler;
 import com.atsuishio.superbwarfare.item.LungeMineItem;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import software.bernie.geckolib.animation.AnimationState;
 import software.bernie.geckolib.cache.object.GeoBone;
@@ -12,17 +12,17 @@ import software.bernie.geckolib.model.GeoModel;
 public class LungeMineModel extends GeoModel<LungeMineItem> {
 
     @Override
-    public ResourceLocation getAnimationResource(LungeMineItem animatable) {
+    public Identifier getAnimationResource(LungeMineItem animatable) {
         return Mod.loc("animations/lunge_mine.animation.json");
     }
 
     @Override
-    public ResourceLocation getModelResource(LungeMineItem animatable) {
+    public Identifier getModelResource(LungeMineItem animatable) {
         return Mod.loc("geo/lunge_mine.geo.json");
     }
 
     @Override
-    public ResourceLocation getTextureResource(LungeMineItem animatable) {
+    public Identifier getTextureResource(LungeMineItem animatable) {
         return Mod.loc("textures/item/lunge_mine.png");
     }
 

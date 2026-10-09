@@ -9,17 +9,17 @@ import com.atsuishio.superbwarfare.tools.postEvent
 import kotlinx.serialization.serializer
 import net.fabricmc.fabric.api.resource.IdentifiableResourceReloadListener
 import net.minecraft.resources.FileToIdConverter
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener
 import net.minecraft.util.profiling.ProfilerFiller
 
 class ComplexJsonResourceReloadListener(
-    private val id: ResourceLocation,
+    private val id: Identifier,
     private val data: MutableMap<String, DataLoader.GeneralData<*>>
 ) : SimplePreparableReloadListener<Any>(), IdentifiableResourceReloadListener {
 
-    override fun getFabricId(): ResourceLocation {
+    override fun getFabricId(): Identifier {
         return id
     }
 

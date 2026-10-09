@@ -16,7 +16,7 @@ import net.minecraft.core.registries.Registries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket
 import net.minecraft.resources.ResourceKey
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.sounds.SoundEvents
@@ -73,7 +73,7 @@ open class SmallContainerBlockEntity(pos: BlockPos, state: BlockState) :
         if (tag.contains("LootTable", 8)) {
             this.lootTable = ResourceKey.create(
                 Registries.LOOT_TABLE,
-                ResourceLocation.parse(tag.getString("LootTable"))
+                Identifier.parse(tag.getString("LootTable"))
             )
             this.lootTableSeed = tag.getLong("LootTableSeed")
         }

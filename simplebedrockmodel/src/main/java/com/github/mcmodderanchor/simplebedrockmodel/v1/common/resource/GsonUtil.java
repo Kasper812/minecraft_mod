@@ -21,7 +21,7 @@ import org.joml.Vector3f;
 
 public class GsonUtil {
     public static final Gson CLIENT_GSON = new GsonBuilder()
-            .registerTypeAdapter(Identifier.class, new cn.sh1rocu.simplebedrockmodel.util.IdentifierSerializer())
+            .registerTypeAdapter(Identifier.class, new com.atsuishio.portlib.render.IdentifierSerializer())
             .registerTypeAdapter(CubesItem.class, new CubesItem.Deserializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fSerializer())
             .registerTypeAdapter(AnimationKeyframes.class, new AnimationKeyframesSerializer())
@@ -33,7 +33,7 @@ public class GsonUtil {
     public static final Gson SERVER_NORMAL_GSON = new GsonBuilder()
             .addDeserializationExclusionStrategy(new ServerNormalExclusionStrategy())
             .registerTypeAdapter(BedrockModelPOJO.class, new NullAdapter<>())
-            .registerTypeAdapter(Identifier.class, new cn.sh1rocu.simplebedrockmodel.util.IdentifierSerializer())
+            .registerTypeAdapter(Identifier.class, new com.atsuishio.portlib.render.IdentifierSerializer())
             .registerTypeAdapter(SoundEffectKeyframes.class, new SoundEffectKeyframesSerializer())
             .registerTypeAdapter(ParticleEffectKeyframes.class, new ParticleEffectKeyframesSerializer())
             .registerTypeAdapter(TimelineKeyframes.class, new TimelineKeyframesSerializer())
@@ -41,7 +41,7 @@ public class GsonUtil {
 
     public static final Gson SERVER_GSON_FOR_ROOT_MOTION = new GsonBuilder()
             .addDeserializationExclusionStrategy(new ServerExclusionStrategyForRootMotion())
-            .registerTypeAdapter(Identifier.class, new cn.sh1rocu.simplebedrockmodel.util.IdentifierSerializer())
+            .registerTypeAdapter(Identifier.class, new com.atsuishio.portlib.render.IdentifierSerializer())
             .registerTypeAdapter(Vector3f.class, new Vector3fSerializer())
             .registerTypeAdapter(AnimationKeyframes.class, new AnimationKeyframesSerializer())
             .registerTypeAdapter(SoundEffectKeyframes.class, new SoundEffectKeyframesSerializer())

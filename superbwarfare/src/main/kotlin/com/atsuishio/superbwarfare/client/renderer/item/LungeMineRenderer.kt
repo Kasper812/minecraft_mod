@@ -1,14 +1,16 @@
 package com.atsuishio.superbwarfare.client.renderer.item
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.client.animation.AnimationHelper
 import com.atsuishio.superbwarfare.client.model.item.LungeMineModel
 import com.atsuishio.superbwarfare.item.LungeMineItem
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import net.minecraft.client.Minecraft
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
-import net.minecraft.resources.ResourceLocation
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemDisplayContext
 import net.minecraft.world.item.ItemStack
 import software.bernie.geckolib.cache.`object`.BakedGeoModel
@@ -18,11 +20,11 @@ import software.bernie.geckolib.renderer.GeoItemRenderer
 open class LungeMineRenderer : GeoItemRenderer<LungeMineItem>(LungeMineModel()) {
     override fun getRenderType(
         animatable: LungeMineItem?,
-        texture: ResourceLocation?,
+        texture: Identifier?,
         bufferSource: MultiBufferSource?,
         partialTick: Float
     ): RenderType {
-        return RenderType.entityTranslucent(getTextureLocation(animatable))
+        return RenderTypes.entityTranslucent(getTextureLocation(animatable))
     }
 
     protected var renderArms: Boolean = false

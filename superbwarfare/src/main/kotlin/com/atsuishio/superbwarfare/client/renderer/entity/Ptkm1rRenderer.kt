@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.Ptkm1rEntity
 import com.maydaymemory.mae.basic.ArrayPoseBuilder
@@ -8,12 +10,12 @@ import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 
 class Ptkm1rRenderer(renderManager: EntityRendererProvider.Context) : EntityRenderer<Ptkm1rEntity>(renderManager) {
@@ -21,7 +23,7 @@ class Ptkm1rRenderer(renderManager: EntityRendererProvider.Context) : EntityRend
         return false
     }
 
-    override fun getTextureLocation(pEntity: Ptkm1rEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: Ptkm1rEntity): Identifier {
         return TEXTURE
     }
 
@@ -38,7 +40,7 @@ class Ptkm1rRenderer(renderManager: EntityRendererProvider.Context) : EntityRend
 
         poseStack.pushPose()
 
-        val renderType = RenderType.entityTranslucent(getTextureLocation(entity))
+        val renderType = RenderTypes.entityTranslucent(getTextureLocation(entity))
         val vertexConsumer = buffer.getBuffer(renderType)
 
         ani.context.partialTick = partialTick

@@ -86,7 +86,7 @@ import net.minecraft.network.protocol.game.ClientboundSoundPacket
 import net.minecraft.network.syncher.EntityDataAccessor
 import net.minecraft.network.syncher.EntityDataSerializers
 import net.minecraft.network.syncher.SynchedEntityData
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.server.level.TicketType
@@ -3462,7 +3462,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
     }
 
     open fun cameraDirection(): Vec3 {
-        return Vec3(mc.gameRenderer.mainCamera.lookVector)
+        return Vec3(mc.gameRenderer.mainCamera().lookVector)
     }
 
     open fun getRotationFromString(string: String?): Quaterniond {
@@ -4212,7 +4212,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         }
     }
 
-    open val vehicleIcon: ResourceLocation?
+    open val vehicleIcon: Identifier?
         get() = computed().vehicleIcon
 
     open fun allowFreeCam() = computed().allowFreeCam
@@ -4351,7 +4351,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
         ) sensitivity.y * original else sensitivity.z * original
     }
 
-    open val vehicleItemIcon: ResourceLocation?
+    open val vehicleItemIcon: Identifier?
         /**
          * 载具在集装箱物品上显示的贴图
          */

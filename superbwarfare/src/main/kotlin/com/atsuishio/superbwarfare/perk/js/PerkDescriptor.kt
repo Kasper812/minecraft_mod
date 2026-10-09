@@ -3,12 +3,12 @@ package com.atsuishio.superbwarfare.perk.js
 import com.atsuishio.superbwarfare.perk.Perk
 import com.mojang.serialization.Codec
 import com.mojang.serialization.codecs.RecordCodecBuilder
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import java.util.*
 
 class PerkDescriptor(
     val type: String,
-    val script: ResourceLocation?,
+    val script: Identifier?,
     val bypassArmorRate: Double,
     val damageRate: Double,
     val speedRate: Double,
@@ -30,7 +30,7 @@ class PerkDescriptor(
         val CODEC: Codec<PerkDescriptor> = RecordCodecBuilder.create { instance ->
             instance.group(
                 Codec.STRING.fieldOf("Type").forGetter { it.type },
-                ResourceLocation.CODEC.optionalFieldOf("Script").forGetter { it.script?.let { s -> Optional.of(s) } ?: Optional.empty() },
+                Identifier.CODEC.optionalFieldOf("Script").forGetter { it.script?.let { s -> Optional.of(s) } ?: Optional.empty() },
                 Codec.DOUBLE.optionalFieldOf("BypassArmorRate", 0.0).forGetter { it.bypassArmorRate },
                 Codec.DOUBLE.optionalFieldOf("DamageRate", 1.0).forGetter { it.damageRate },
                 Codec.DOUBLE.optionalFieldOf("SpeedRate", 1.0).forGetter { it.speedRate },

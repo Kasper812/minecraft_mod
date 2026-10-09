@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.laser
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
 import com.atsuishio.superbwarfare.client.renderer.laser.LaserSightRenderer.DOT_GROW_START_DISTANCE
@@ -8,7 +10,7 @@ import com.atsuishio.superbwarfare.tools.BedrockBoneCoordinateTool
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.entity.projectile.ProjectileUtil
@@ -88,7 +90,7 @@ object LaserSightRenderer {
 
         val level = mc.level ?: return
         val player = mc.player ?: return
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
 
         val viewToWorld = BedrockBoneCoordinateTool.cameraRotationInverse(camera)
         val eye = player.getEyePosition(partialTick)

@@ -1,6 +1,6 @@
 package com.github.mcmodderanchor.simplebedrockmodel.v1.client.model;
 
-import cn.sh1rocu.simplebedrockmodel.client.port.SubmitBufferSource;
+import com.atsuishio.portlib.render.SubmitBufferSource;
 
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.model.BedrockBone;
 import com.github.mcmodderanchor.simplebedrockmodel.v1.common.resource.pojo.BedrockModelPOJO;

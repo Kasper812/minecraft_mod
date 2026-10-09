@@ -61,7 +61,7 @@ public abstract class SteelCoilMoveSoundInstance extends AbstractTickableSoundIn
         this.z = this.entity.getZ();
 
         this.pitch = this.getPitch(this.entity);
-        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
+        Vec3 cameraPos = Minecraft.getInstance().gameRenderer.mainCamera().getPosition();
 
         if (player.getVehicle() != this.entity) {
             double distance = this.entity.position().subtract(cameraPos).length();

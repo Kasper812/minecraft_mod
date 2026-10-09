@@ -11,14 +11,14 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.CachedOutput
 import net.minecraft.data.DataProvider
 import net.minecraft.data.PackOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.level.block.Block
 import java.util.concurrent.CompletableFuture
 
 @Suppress("unused")
 class ModItemModelProvider(private val output: PackOutput) : DataProvider {
-    private val models = linkedMapOf<ResourceLocation, JsonObject>()
+    private val models = linkedMapOf<Identifier, JsonObject>()
 
     override fun run(pOutput: CachedOutput): CompletableFuture<*> {
         models.clear()
@@ -90,7 +90,7 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
         addModel(
             loc("item/${itemPath(ModItems.EMPTY_GUN)}"),
             model(
-                ResourceLocation.withDefaultNamespace("item/generated"),
+                Identifier.withDefaultNamespace("item/generated"),
                 mapOf("layer0" to loc("item/vehicle_gun"))
             )
         )
@@ -483,7 +483,7 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
         val path = itemPath(item)
         addModel(
             loc("item/$path"),
-            model(ResourceLocation.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/$location$path")))
+            model(Identifier.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/$location$path")))
         )
     }
 
@@ -496,7 +496,7 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
         addModel(
             loc("item/$path"),
             model(
-                ResourceLocation.withDefaultNamespace("item/generated"),
+                Identifier.withDefaultNamespace("item/generated"),
                 mapOf("layer0" to loc("item/$location$path")),
                 renderType = renderType
             )
@@ -511,14 +511,14 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
     private fun gunBlueprintItem(item: Item) {
         addModel(
             loc("item/${itemPath(item)}"),
-            model(ResourceLocation.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/gun_blueprint")))
+            model(Identifier.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/gun_blueprint")))
         )
     }
 
     private fun cannonBlueprintItem(item: Item) {
         addModel(
             loc("item/${itemPath(item)}"),
-            model(ResourceLocation.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/cannon_blueprint")))
+            model(Identifier.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/cannon_blueprint")))
         )
     }
 
@@ -526,14 +526,14 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
         val path = itemPath(item)
         addModel(
             loc("item/$path"),
-            model(ResourceLocation.withDefaultNamespace("item/handheld"), mapOf("layer0" to loc("item/$path")))
+            model(Identifier.withDefaultNamespace("item/handheld"), mapOf("layer0" to loc("item/$path")))
         )
     }
 
     private fun gunIcon(item: Item, name: String) {
         addModel(
             loc("item/${itemPath(item)}_icon"),
-            model(ResourceLocation.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/${name}_icon")))
+            model(Identifier.withDefaultNamespace("item/generated"), mapOf("layer0" to loc("item/${name}_icon")))
         )
     }
 
@@ -558,13 +558,13 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
         this.customSeparatedGunModel(item, name)
     }
 
-    private fun addModel(id: ResourceLocation, json: JsonObject) {
+    private fun addModel(id: Identifier, json: JsonObject) {
         check(models.put(id, json) == null) { "Duplicate item model: $id" }
     }
 
     private fun model(
-        parent: ResourceLocation,
-        textures: Map<String, ResourceLocation> = emptyMap(),
+        parent: Identifier,
+        textures: Map<String, Identifier> = emptyMap(),
         guiLight: String? = null,
         renderType: String? = null
     ): JsonObject {
@@ -595,7 +595,7 @@ class ModItemModelProvider(private val output: PackOutput) : DataProvider {
     private fun gunItemV2(item: Item) {
         addModel(
             loc("item/${itemPath(item)}"),
-            model(ResourceLocation.withDefaultNamespace("builtin/entity"), guiLight = "front")
+            model(Identifier.withDefaultNamespace("builtin/entity"), guiLight = "front")
         )
     }
 }

@@ -1,17 +1,19 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.C4Entity
 import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleVecUtils
 import com.atsuishio.superbwarfare.tools.mc
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.phys.Vec3
 import org.joml.Matrix4f
 import org.joml.Quaternionf
@@ -35,7 +37,7 @@ class C4Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer
         val q = Quaternionf(entityIn.getQuaternion(partialTicks))
         poseStack.rotateAround(q, 0f, 0f, 0f)
 
-        val renderType = RenderType.entityTranslucent(getTextureLocation(entityIn))
+        val renderType = RenderTypes.entityTranslucent(getTextureLocation(entityIn))
         val vertexConsumer = bufferIn.getBuffer(renderType)
 
         instance.renderToBuffer(
@@ -53,7 +55,7 @@ class C4Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer
         ) {
             val pose = poseStack.last()
             val matrix4f = poseStack.last().pose()
-            val buffer = bufferIn.getBuffer(RenderType.lines())
+            val buffer = bufferIn.getBuffer(RenderTypes.lines())
 
             val frontVec = VehicleVecUtils.getFrontVec(q)
             renderAxis(pose, matrix4f, frontVec, buffer, 0, 0, 255)
@@ -66,7 +68,7 @@ class C4Renderer(renderManager: EntityRendererProvider.Context) : EntityRenderer
         }
     }
 
-    override fun getTextureLocation(entity: C4Entity): ResourceLocation {
+    override fun getTextureLocation(entity: C4Entity): Identifier {
         val uuid = entity.getUUID()
         return if (uuid.leastSignificantBits % 114 == 0L) {
             TEXTURE_ALTER

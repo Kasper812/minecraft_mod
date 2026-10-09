@@ -22,7 +22,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.PackOutput
 import net.minecraft.data.recipes.*
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.ItemTags
 import net.minecraft.tags.TagKey
 import net.minecraft.world.entity.EntityType
@@ -105,7 +105,7 @@ class ModRecipeProvider(output: PackOutput, registries: CompletableFuture<Holder
                 .addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(key.location()))
                 .rewards(AdvancementRewards.Builder.recipe(key.location()))
                 .requirements(AdvancementRequirements.Strategy.OR)
-                .build(ResourceLocation.fromNamespaceAndPath(id.namespace, "recipes/combat/${id.path}"))
+                .build(Identifier.fromNamespaceAndPath(id.namespace, "recipes/combat/${id.path}"))
 
             writer.accept(
                 key.location(),
@@ -3594,7 +3594,7 @@ class ModRecipeProvider(output: PackOutput, registries: CompletableFuture<Holder
                 .save(writer, loc(getItemName(pResultItem) + "_smithing"))
         }
 
-        fun perkLoc(perk: Perk): ResourceLocation {
+        fun perkLoc(perk: Perk): Identifier {
             return loc("perk/" + getItemName(ModItems.PERK_ITEMS[perk]!!))
         }
 

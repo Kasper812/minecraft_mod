@@ -3,14 +3,14 @@ package com.atsuishio.superbwarfare.client;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.math.Axis;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import org.joml.Matrix4f;
 
@@ -27,7 +27,7 @@ public class RenderHelper {
      * @param uWidth        the width of the blitted portion in texture coordinates.
      * @param vHeight       the height of the blitted portion in texture coordinates.
      */
-    public static void preciseBlit(GuiGraphics gui, ResourceLocation atlasLocation, float x, float y, float uOffset, float vOffset, float uWidth, float vHeight) {
+    public static void preciseBlit(GuiGraphics gui, Identifier atlasLocation, float x, float y, float uOffset, float vOffset, float uWidth, float vHeight) {
         preciseBlit(gui, atlasLocation, x, y, 0, uOffset, vOffset, uWidth, vHeight, 256, 256);
     }
 
@@ -46,7 +46,7 @@ public class RenderHelper {
      * @param textureHeight the height of the texture.
      */
     public static void preciseBlit(
-            GuiGraphics gui, ResourceLocation atlasLocation,
+            GuiGraphics gui, Identifier atlasLocation,
             float x, float y,
             float blitOffset,
             float uOffset, float vOffset,
@@ -82,7 +82,7 @@ public class RenderHelper {
      * @param textureHeight the height of the texture.
      */
     public static void preciseBlit(
-            GuiGraphics gui, ResourceLocation atlasLocation,
+            GuiGraphics gui, Identifier atlasLocation,
             float x, float y,
             float width, float height,
             float uOffset, float vOffset,
@@ -111,7 +111,7 @@ public class RenderHelper {
      */
     public static void preciseBlit(
             GuiGraphics gui,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             float x, float y,
             float uOffset, float vOffset,
             float width, float height,
@@ -122,7 +122,7 @@ public class RenderHelper {
 
     public static void preciseBlitWithColor(
             GuiGraphics gui,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             float x, float y,
             float uOffset, float vOffset,
             float width, float height,
@@ -134,7 +134,7 @@ public class RenderHelper {
 
     public static void preciseBlitWithColor(
             GuiGraphics gui,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             float x, float y,
             float uOffset, float vOffset,
             float blitOffset,
@@ -174,7 +174,7 @@ public class RenderHelper {
      * @param textureHeight the height of the texture.
      */
     public static void preciseBlit(
-            GuiGraphics gui, ResourceLocation atlasLocation,
+            GuiGraphics gui, Identifier atlasLocation,
             float x1, float x2,
             float y1, float y2,
             float blitOffset,
@@ -212,7 +212,7 @@ public class RenderHelper {
      */
     public static void innerBlit(
             GuiGraphics gui,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             float x1, float x2,
             float y1, float y2,
             float blitOffset,
@@ -249,7 +249,7 @@ public class RenderHelper {
      */
     public static void innerBlit(
             GuiGraphics gui,
-            ResourceLocation atlasLocation,
+            Identifier atlasLocation,
             float x1, float x2,
             float y1, float y2,
             float blitOffset,

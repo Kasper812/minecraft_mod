@@ -14,7 +14,7 @@ import com.atsuishio.superbwarfare.tools.NBTTool
 import com.atsuishio.superbwarfare.tools.VectorTool.lerpGetEntityBoundingBoxCenter
 import com.atsuishio.superbwarfare.tools.canBeSeen
 import com.atsuishio.superbwarfare.tools.worldToScreen
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.network.chat.Component
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.OwnableEntity

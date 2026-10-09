@@ -1,7 +1,7 @@
 package cn.sh1rocu.simplebedrockmodel.mixin.client;
 
 import cn.sh1rocu.simplebedrockmodel.api.event.RenderHandEvent;
-import cn.sh1rocu.simplebedrockmodel.client.port.SubmitBufferSource;
+import com.atsuishio.portlib.render.SubmitBufferSource;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.inventory.menu.AbstractVehicleContainerMenu
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Inventory
 
 abstract class AbstractVehicleContainerScreen<T : AbstractVehicleContainerMenu>(
@@ -38,6 +38,6 @@ abstract class AbstractVehicleContainerScreen<T : AbstractVehicleContainerMenu>(
     }
 
     companion object {
-        val INV: ResourceLocation = Mod.loc("textures/gui/vehicle/inventory/player_inventory.png")
+        val INV: Identifier = Mod.loc("textures/gui/vehicle/inventory/player_inventory.png")
     }
 }

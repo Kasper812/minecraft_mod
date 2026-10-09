@@ -77,7 +77,7 @@ object RadarScanner {
     }
 
     data class ScanResult(
-        val dim: net.minecraft.resources.ResourceLocation,
+        val dim: net.minecraft.resources.Identifier,
         val hostileIds: List<Int>,
         val neutralIds: List<Int>,
         /** 检测到的敌对/中立玩家信息，用于在客户端渲染玩家图标 */

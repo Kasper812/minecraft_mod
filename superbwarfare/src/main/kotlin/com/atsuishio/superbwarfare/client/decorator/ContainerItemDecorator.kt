@@ -9,7 +9,7 @@ import net.minecraft.client.Minecraft
 import net.minecraft.client.gui.Font
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.core.component.DataComponents
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
@@ -36,7 +36,7 @@ class ContainerItemDecorator {
         }
 
         // 回退：使用载具自带的小角标图标（8×8）
-        var icon: ResourceLocation?
+        var icon: Identifier?
         if (ICON_CACHE.containsKey(typeString)) {
             icon = ICON_CACHE[typeString]
         } else {
@@ -57,22 +57,22 @@ class ContainerItemDecorator {
     }
 
     companion object {
-        private val ICON_CACHE = hashMapOf<String, ResourceLocation>()
+        private val ICON_CACHE = hashMapOf<String, Identifier>()
 
         /**
          * 缓存已检查过的车辆自定义图标路径，null表示已检查且未找到
          */
-        private val CUSTOM_ICON_CACHE = hashMapOf<String, ResourceLocation>()
+        private val CUSTOM_ICON_CACHE = hashMapOf<String, Identifier>()
 
         /**
          * 根据ItemStack获取自定义载具图标纹理路径
          * 检查 textures/vehicle_icon/container/<vehicleId>.png 是否存在
          */
-        fun getCustomIcon(stack: ItemStack): ResourceLocation? {
+        fun getCustomIcon(stack: ItemStack): Identifier? {
             val tag = stack.get(DataComponents.BLOCK_ENTITY_DATA)?.copyTag() ?: return null
             if (!tag.contains("EntityType")) return null
             val entityType = tag.getString("EntityType")
-            val id = ResourceLocation.tryParse(entityType) ?: return null
+            val id = Identifier.tryParse(entityType) ?: return null
             val vehicleId = id.path
 
             val cached = CUSTOM_ICON_CACHE[vehicleId]

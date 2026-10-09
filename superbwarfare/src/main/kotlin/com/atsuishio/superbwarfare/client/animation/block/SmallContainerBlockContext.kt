@@ -11,7 +11,7 @@ import com.maydaymemory.mae.basic.Keyframe
 import com.maydaymemory.mae.basic.Pose
 import com.maydaymemory.mae.control.runner.AnimationContext
 import com.maydaymemory.mae.control.runner.AnimationRunner
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import net.minecraft.sounds.SoundSource
 
@@ -25,7 +25,7 @@ class SmallContainerBlockContext(val entity: SmallContainerBlockEntity) {
         init(ANIM)
     }
 
-    fun init(location: ResourceLocation) {
+    fun init(location: Identifier) {
         val ani = BlockModelReloadListener.getAnimation(location) ?: return
         for (entry in ani) {
             animations[entry.name] = entry
@@ -35,14 +35,14 @@ class SmallContainerBlockContext(val entity: SmallContainerBlockEntity) {
     fun tick() {
         if (animationRunner != null) {
             animationRunner!!.tick()
-            val namedSounds = animationRunner!!.clip<ResourceLocation>(BedrockAnimation.SOUND_CHANNEL_NAME)
+            val namedSounds = animationRunner!!.clip<Identifier>(BedrockAnimation.SOUND_CHANNEL_NAME)
             if (namedSounds != null) {
                 processSounds(namedSounds)
             }
         }
     }
 
-    fun processSounds(sounds: Iterable<Keyframe<ResourceLocation>>) {
+    fun processSounds(sounds: Iterable<Keyframe<Identifier>>) {
         for (keyframe in sounds) {
             val soundLocation = keyframe.getValue()
             val soundEvent = SoundEvent.createVariableRangeEvent(soundLocation)

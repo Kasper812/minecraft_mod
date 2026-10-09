@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
 import com.atsuishio.superbwarfare.entity.vehicle.AnnihilatorEntity
@@ -7,8 +9,8 @@ import com.atsuishio.superbwarfare.entity.vehicle.base.ArtilleryEntity
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockModelRenderTypes
 import com.github.mcmodderanchor.simplebedrockmodel.v2.common.model.runtime.BoneState
 import com.mojang.blaze3d.vertex.PoseStack
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
 import net.minecraft.util.Mth
@@ -85,7 +87,7 @@ class AnnihilatorRenderer(manager: EntityRendererProvider.Context) : BasicArtill
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.entityTranslucent(TEXTURE_POWER),
+            RenderTypes.entityTranslucent(TEXTURE_POWER),
             BedrockModelRenderTypes.polyMeshCutout(TEXTURE_POWER),
             packedLight,
             OverlayTexture.NO_OVERLAY, red, green, 0f, 1f
@@ -94,7 +96,7 @@ class AnnihilatorRenderer(manager: EntityRendererProvider.Context) : BasicArtill
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.eyes(TEXTURE_POWER),
+            RenderTypes.eyes(TEXTURE_POWER),
             BedrockModelRenderTypes.polyMeshCutout(TEXTURE_POWER),
             packedLight,
             OverlayTexture.NO_OVERLAY, red, green, 0f, 1f
@@ -103,7 +105,7 @@ class AnnihilatorRenderer(manager: EntityRendererProvider.Context) : BasicArtill
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.eyes(TEXTURE_GLOW),
+            RenderTypes.eyes(TEXTURE_GLOW),
             BedrockModelRenderTypes.polyMeshCutout(TEXTURE_GLOW),
             packedLight,
             OverlayTexture.NO_OVERLAY

@@ -6,7 +6,7 @@ import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundEvent
 import java.util.regex.Pattern
 
@@ -34,7 +34,7 @@ object SoundEventSerializer : KSerializer<SoundEvent> {
             locationGroup = "minecraft:$locationGroup"
         }
 
-        val location = ResourceLocation.tryParse(locationGroup)
+        val location = Identifier.tryParse(locationGroup)
         requireNotNull(location) { "invalid resource location for SoundEvent $str!" }
 
         val rangeGroup = matcher.group("range")

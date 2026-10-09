@@ -16,7 +16,7 @@ import net.minecraft.core.component.DataComponents
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.chat.Component
 import net.minecraft.network.chat.Style
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.sounds.SoundSource
 import net.minecraft.world.InteractionHand
 import net.minecraft.world.ItemInteractionResult
@@ -132,7 +132,7 @@ open class ContainerBlock :
         val tag = if (data != null) data.copyTag() else CompoundTag()
         if (tag.contains("EntityType")) {
             val type = tag.getString("EntityType")
-            val location = ResourceLocation.tryParse(type) ?: return
+            val location = Identifier.tryParse(type) ?: return
             var entity: Entity? = null
 
             val info = Component.translatableWithFallback("info." + location.namespace + "." + location.path, "")

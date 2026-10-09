@@ -19,7 +19,7 @@ import net.minecraft.commands.SharedSuggestionProvider
 import net.minecraft.commands.arguments.EntityArgument
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
 import java.util.*
@@ -275,7 +275,7 @@ val ATTACHMENT_COMMAND = buildCommand("attachment") {
  * 弹匣槽位决定弹匣容量，换掉之前先把已装填的弹药退还给 [ammoSupplier]；
  * 槽位内容没有变化时（`set` 同一个配件、`clear` 空槽位）什么都不做。
  */
-private fun applyAttachment(data: GunData, ammoSupplier: Entity, type: AttachmentType, id: ResourceLocation?) {
+private fun applyAttachment(data: GunData, ammoSupplier: Entity, type: AttachmentType, id: Identifier?) {
     if (data.attachment.id(type) == id) return
 
     if (AttachmentSlots.of(type).withdrawAmmoOnChange) {
@@ -313,7 +313,7 @@ private fun parseRgb(raw: String): Int? {
 }
 
 /** 在 [type] 槽位的可用配件里随机抽一个，该槽位没有可用配件时返回 `null` */
-private fun randomAttachment(data: GunData, type: AttachmentType): ResourceLocation? =
+private fun randomAttachment(data: GunData, type: AttachmentType): Identifier? =
     installableAttachments(data, type).randomOrNull()
 
 /**
@@ -338,14 +338,14 @@ private fun randomAttachment(data: GunData, type: AttachmentType): ResourceLocat
  *
  * @return `槽位 to 配件 id`，按挂点组顺序（注册表顺序）；没有任何可用配件时为空列表。
  */
-private fun rollAllSlots(data: GunData): List<Pair<AttachmentType, ResourceLocation>> {
+private fun rollAllSlots(data: GunData): List<Pair<AttachmentType, Identifier>> {
     if (AttachmentConfig.freeAttachmentMode) {
         return AttachmentType.entries.mapNotNull { type ->
             randomAttachment(data, type)?.let { type to it }
         }
     }
 
-    val rolls = mutableListOf<Pair<AttachmentType, ResourceLocation>>()
+    val rolls = mutableListOf<Pair<AttachmentType, Identifier>>()
 
     for ((_, slots) in AttachmentType.entries.groupBy { AttachmentSlots.mountOf(it) }) {
         val type = slots.filter { installableAttachments(data, it).isNotEmpty() }.randomOrNull() ?: continue
@@ -369,7 +369,7 @@ private fun rollAllSlots(data: GunData): List<Pair<AttachmentType, ResourceLocat
  * 可用列表本身随自由改装配置变化（见 [GunData.availableAttachments]），所以 `set` 的校验
  * 与 `random` / 补全的候选**永远共用这一份判定**，不会出现"补全里有、指令说装不上"的分叉。
  */
-private fun installableAttachments(data: GunData, type: AttachmentType): List<ResourceLocation> =
+private fun installableAttachments(data: GunData, type: AttachmentType): List<Identifier> =
     data.availableAttachments(type).filter { attachmentDefinitionOf(it) != null && data.canInstall(type, it) }
 
 /**
@@ -426,7 +426,7 @@ private fun mainHandGunData(entity: Entity): GunData? {
 }
 
 /** 查找 [id] 对应的配件物品与配件数据，两者缺一不可 */
-private fun attachmentDefinitionOf(id: ResourceLocation): AttachmentDefinition? {
+private fun attachmentDefinitionOf(id: Identifier): AttachmentDefinition? {
     if (BuiltInRegistries.ITEM.get(id) !is AttachmentProvider) return null
     return AttachmentDefinition.from(id)
 }

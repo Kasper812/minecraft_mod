@@ -3,7 +3,7 @@ package com.atsuishio.superbwarfare.compat.jade.providers
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.block.CatapultControllerBlock
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import snownee.jade.api.BlockAccessor
 import snownee.jade.api.IBlockComponentProvider
 import snownee.jade.api.ITooltip
@@ -21,7 +21,7 @@ object CatapultControllerProvider : IBlockComponentProvider {
         )
     }
 
-    override fun getUid(): ResourceLocation {
+    override fun getUid(): Identifier {
         return ID
     }
 }

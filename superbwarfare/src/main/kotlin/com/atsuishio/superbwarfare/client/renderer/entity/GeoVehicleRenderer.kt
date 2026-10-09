@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelBoneGroups
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModelInstance
@@ -35,14 +37,14 @@ import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.LightTexture
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import net.minecraft.util.LightCoordsUtil
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.phys.AABB
@@ -72,12 +74,12 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
 
     private var seatsCache: MutableList<SeatInfo>? = null
 
-    override fun getTextureLocation(entity: T): ResourceLocation {
+    override fun getTextureLocation(entity: T): Identifier {
         val (_, namespace, id) = entity.type.descriptionId.split(".")
-        return ResourceLocation.fromNamespaceAndPath(namespace, "textures/bedrock/vehicle/$id.png")
+        return Identifier.fromNamespaceAndPath(namespace, "textures/bedrock/vehicle/$id.png")
     }
 
-    open fun getEmissiveTextureLocation(poseStack: PoseStack, entity: T): ResourceLocation? {
+    open fun getEmissiveTextureLocation(poseStack: PoseStack, entity: T): Identifier? {
         return getCurrentModelEntry(poseStack, entity)?.emissiveTexture
     }
 
@@ -106,7 +108,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
         if (!isLOD) {
             val skinInfo = VehicleSkin.getSkin(entity)
             if (skinInfo != null) {
-                val skinTexture = ResourceLocation.tryParse(skinInfo.texture)
+                val skinTexture = Identifier.tryParse(skinInfo.texture)
                 if (skinTexture != null) {
                     texture = skinTexture
                 }
@@ -172,7 +174,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.entityTranslucent(texture),
+            RenderTypes.entityTranslucent(texture),
             BedrockModelRenderTypes.polyMeshCutout(texture),
             packedLight,
             OverlayTexture.NO_OVERLAY
@@ -186,7 +188,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
             instance.renderSingleBonePass(
                 poseStack,
                 waterMaskIndex,
-                buffer.getBuffer(RenderType.waterMask()),
+                buffer.getBuffer(RenderTypes.waterMask()),
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
                 1f, 1f, 1f, 1f,
@@ -215,7 +217,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
                     flareModel.renderToBuffer(
                         poseStack,
                         buffer,
-                        RenderType.entityTranslucentEmissive(MUZZLE_FLARE),
+                        RenderTypes.entityTranslucentEmissive(MUZZLE_FLARE),
                         ModRenderTypes.POLY_MESH_TRANSLUCENT_EMISSIVE.apply(MUZZLE_FLARE),
                         packedLight,
                         OverlayTexture.NO_OVERLAY,
@@ -260,13 +262,13 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
 
                 val scale = entity.laserBaseScale.toFloat()
 
-                val consumerOut = buffer.getBuffer(RenderType.eyes(LASER_TEX))
+                val consumerOut = buffer.getBuffer(RenderTypes.eyes(LASER_TEX))
                 repeat(6) {
                     renderLaser(consumerOut, pose, lastPose, scale, color)
                     poseStack.mulPose(Axis.ZP.rotationDegrees(60f))
                 }
 
-                val consumerIn = buffer.getBuffer(RenderType.eyes(LASER_TEX_IN))
+                val consumerIn = buffer.getBuffer(RenderTypes.eyes(LASER_TEX_IN))
                 repeat(6) {
                     renderLaser(consumerIn, pose, lastPose, scale, colorW)
                     poseStack.mulPose(Axis.ZP.rotationDegrees(60f))
@@ -294,7 +296,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
                     val pose = poseStack.last()
                     val lastMatrix = pose.pose()
                     val vertexConsumer =
-                        buffer.getBuffer(RenderType.entityCutoutNoCull(dogTagTexture))
+                        buffer.getBuffer(RenderTypes.entityCutout(dogTagTexture))
 
                     val (xSize, ySize) = size
 
@@ -305,7 +307,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
                     poseStack.popPose()
                 }
 
-                buffer.getBuffer(RenderType.entityTranslucent(getTextureLocation(entity)))
+                buffer.getBuffer(RenderTypes.entityTranslucent(getTextureLocation(entity)))
             }
         }
 
@@ -328,7 +330,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
             instance.renderToBuffer(
                 poseStack,
                 buffer,
-                RenderType.eyes(emissiveTexture),
+                RenderTypes.eyes(emissiveTexture),
                 BedrockModelRenderTypes.polyMeshCutout(emissiveTexture),
                 packedLight,
                 OverlayTexture.NO_OVERLAY
@@ -808,7 +810,7 @@ open class GeoVehicleRenderer<T>(manager: EntityRendererProvider.Context) :
                 .setColor(color.x.toInt(), color.y.toInt(), color.z.toInt(), color.w.toInt())
                 .setUv(pU.toFloat(), pV.toFloat())
                 .setOverlay(OverlayTexture.NO_OVERLAY)
-                .setLight(LightTexture.FULL_BRIGHT)
+                .setLight(LightCoordsUtil.FULL_BRIGHT)
                 .setNormal(pNormal, 0f, 1f, 0f)
         }
     }

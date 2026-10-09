@@ -7,7 +7,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 /**
  * 一只生物使用枪械的配置（`sbw/mob_guns` 的 `Guns` 项）。
@@ -112,7 +112,7 @@ data class GunSpawnData(
 ) {
     /** 解析并校验枪械物品；id 非法或不是 [GunItem] 时返回 `null` */
     fun gunItem(): GunItem? {
-        val location = ResourceLocation.tryParse(id) ?: return null
+        val location = Identifier.tryParse(id) ?: return null
         return BuiltInRegistries.ITEM.get(location) as? GunItem
     }
 

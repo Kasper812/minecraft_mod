@@ -9,7 +9,7 @@ import com.atsuishio.superbwarfare.tools.ServerSyncedEntityHandler.BVR_BROADCAST
 import com.atsuishio.superbwarfare.tools.ServerSyncedEntityHandler.register
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.MinecraftServer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.LivingEntity
@@ -46,7 +46,7 @@ object ServerSyncedEntityHandler {
         val eyePos: Vec3,
         val yRot: Float,
         val xRot: Float,
-        val entityType: ResourceLocation,
+        val entityType: Identifier,
         val nbt: CompoundTag,
         /** Registration timestamp (system time ms) for expiration checks. */
         val timeStamp: Long,
@@ -61,7 +61,7 @@ object ServerSyncedEntityHandler {
     private val entities = ConcurrentHashMap<String, ConcurrentHashMap<Int, Entry>>()
 
     /** Queue of entity removals waiting to be broadcasted to clients on the next tick. */
-    private val pendingRemovals = ConcurrentHashMap<String, MutableSet<Pair<Int, ResourceLocation>>>()
+    private val pendingRemovals = ConcurrentHashMap<String, MutableSet<Pair<Int, Identifier>>>()
 
     /**
      * Registers or updates an entity for BVR long-range synchronization.
@@ -130,7 +130,7 @@ object ServerSyncedEntityHandler {
      * @return collection of active entries.
      */
     @JvmStatic
-    fun getEntries(dim: ResourceLocation): Collection<Entry> {
+    fun getEntries(dim: Identifier): Collection<Entry> {
         return entities[dim.toString()]?.values ?: emptyList()
     }
 

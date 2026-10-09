@@ -17,7 +17,7 @@ import com.atsuishio.superbwarfare.tools.tag
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.item.ItemStack
@@ -34,7 +34,7 @@ object SubWeaponRuntime {
      */
     class Instance(
         val slot: AttachmentType,
-        val attachmentId: ResourceLocation,
+        val attachmentId: Identifier,
         val info: SubWeaponInfo,
         val clientSide: Boolean,
         val stack: ItemStack,
@@ -149,7 +149,7 @@ object SubWeaponRuntime {
 
     private fun assemble(
         slot: AttachmentType,
-        attachmentId: ResourceLocation,
+        attachmentId: Identifier,
         info: SubWeaponInfo,
         item: SubWeaponItem,
         client: Boolean,
@@ -173,13 +173,13 @@ object SubWeaponRuntime {
 
     /** 副武器实际使用的枪数据 id：`SubWeapon.Data` 非空就用它，否则回落到附件自己的注册 id */
     @JvmStatic
-    fun baselineIdOf(attachmentId: ResourceLocation, info: SubWeaponInfo): String =
+    fun baselineIdOf(attachmentId: Identifier, info: SubWeaponInfo): String =
         info.data?.takeIf { it.isNotBlank() } ?: attachmentId.toString()
 
     /**
      * 把枪数据 id 写进合成栈（`SubWeaponInfo.Data` 的落地）
      */
-    private fun applyBaselineId(stack: ItemStack, attachmentId: ResourceLocation, info: SubWeaponInfo) {
+    private fun applyBaselineId(stack: ItemStack, attachmentId: Identifier, info: SubWeaponInfo) {
         GunData.setDefaultDataId(stack, baselineIdOf(attachmentId, info))
     }
 

@@ -9,7 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.CachedOutput
 import net.minecraft.data.DataProvider
 import net.minecraft.data.PackOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.StringRepresentable
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties
 import java.util.concurrent.CompletableFuture
 
 class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
-    private val blockStates = linkedMapOf<ResourceLocation, JsonObject>()
-    private val models = linkedMapOf<ResourceLocation, JsonObject>()
+    private val blockStates = linkedMapOf<Identifier, JsonObject>()
+    private val models = linkedMapOf<Identifier, JsonObject>()
 
     override fun run(pOutput: CachedOutput): CompletableFuture<*> {
         blockStates.clear()
@@ -146,19 +146,19 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
         simpleBlock(ModBlocks.FUMO_25, blockModel("fumo_25"))
     }
 
-    private fun simpleBlock(block: Block, model: ResourceLocation) {
+    private fun simpleBlock(block: Block, model: Identifier) {
         variantsBlock(block, model, RotationMode.NONE)
     }
 
-    private fun horizontalBlock(block: Block, model: ResourceLocation) {
+    private fun horizontalBlock(block: Block, model: Identifier) {
         variantsBlock(block, model, RotationMode.HORIZONTAL)
     }
 
-    private fun directionalBlock(block: Block, model: ResourceLocation) {
+    private fun directionalBlock(block: Block, model: Identifier) {
         variantsBlock(block, model, RotationMode.DIRECTIONAL)
     }
 
-    private fun variantsBlock(block: Block, model: ResourceLocation, rotationMode: RotationMode) {
+    private fun variantsBlock(block: Block, model: Identifier, rotationMode: RotationMode) {
         val variants = JsonObject()
         for (state in block.stateDefinition.possibleStates) {
             val variant = JsonObject()
@@ -185,24 +185,24 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
         addModel(loc("item/$path"), model(model))
     }
 
-    private fun cubeAll(name: String): ResourceLocation {
+    private fun cubeAll(name: String): Identifier {
         return addModel(
             loc("block/$name"),
-            model(ResourceLocation.withDefaultNamespace("block/cube_all"), mapOf("all" to texture(name)))
+            model(Identifier.withDefaultNamespace("block/cube_all"), mapOf("all" to texture(name)))
         )
     }
 
     private fun cubeBottomTop(
         name: String,
-        side: ResourceLocation,
-        bottom: ResourceLocation,
-        top: ResourceLocation,
-        particle: ResourceLocation
-    ): ResourceLocation {
+        side: Identifier,
+        bottom: Identifier,
+        top: Identifier,
+        particle: Identifier
+    ): Identifier {
         return addModel(
             loc("block/$name"),
             model(
-                ResourceLocation.withDefaultNamespace("block/cube_bottom_top"),
+                Identifier.withDefaultNamespace("block/cube_bottom_top"),
                 linkedMapOf("bottom" to bottom, "particle" to particle, "side" to side, "top" to top)
             )
         )
@@ -210,18 +210,18 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
 
     private fun cube(
         name: String,
-        down: ResourceLocation,
-        up: ResourceLocation,
-        north: ResourceLocation,
-        south: ResourceLocation,
-        east: ResourceLocation,
-        west: ResourceLocation,
-        particle: ResourceLocation
-    ): ResourceLocation {
+        down: Identifier,
+        up: Identifier,
+        north: Identifier,
+        south: Identifier,
+        east: Identifier,
+        west: Identifier,
+        particle: Identifier
+    ): Identifier {
         return addModel(
             loc("block/$name"),
             model(
-                ResourceLocation.withDefaultNamespace("block/cube"),
+                Identifier.withDefaultNamespace("block/cube"),
                 linkedMapOf(
                     "down" to down,
                     "east" to east,
@@ -235,7 +235,7 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
         )
     }
 
-    private fun model(parent: ResourceLocation, textures: Map<String, ResourceLocation> = emptyMap()): JsonObject {
+    private fun model(parent: Identifier, textures: Map<String, Identifier> = emptyMap()): JsonObject {
         val json = JsonObject()
         json.addProperty("parent", parent.toString())
         if (textures.isNotEmpty()) {
@@ -251,7 +251,7 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
         check(blockStates.put(id, json) == null) { "Duplicate blockstate: $id" }
     }
 
-    private fun addModel(id: ResourceLocation, json: JsonObject): ResourceLocation {
+    private fun addModel(id: Identifier, json: JsonObject): Identifier {
         check(models.put(id, json) == null) { "Duplicate model: $id" }
         return id
     }
@@ -294,15 +294,15 @@ class ModBlockStateProvider(private val output: PackOutput) : DataProvider {
         return if (value is StringRepresentable) value.serializedName else value.toString()
     }
 
-    private fun blockModel(name: String): ResourceLocation {
+    private fun blockModel(name: String): Identifier {
         return loc("block/$name")
     }
 
-    private fun texture(name: String): ResourceLocation {
+    private fun texture(name: String): Identifier {
         return loc("block/$name")
     }
 
-    private fun blockKey(block: Block): ResourceLocation {
+    private fun blockKey(block: Block): Identifier {
         return BuiltInRegistries.BLOCK.getKey(block)
     }
 

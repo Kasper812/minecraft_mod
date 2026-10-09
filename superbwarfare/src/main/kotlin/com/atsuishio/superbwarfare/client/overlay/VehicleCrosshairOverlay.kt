@@ -19,7 +19,7 @@ import net.minecraft.client.CameraType
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
@@ -154,7 +154,7 @@ object VehicleCrosshairOverlay : CommonOverlay("vehicle_crosshair") {
             val texture = if (crosshairPath.startsWith("@")) {
                 CROSSHAIR_MAP[crosshairPath]
             } else {
-                ResourceLocation.tryParse(crosshairPath)
+                Identifier.tryParse(crosshairPath)
             }
 
             if (texture == null) {
@@ -191,7 +191,7 @@ object VehicleCrosshairOverlay : CommonOverlay("vehicle_crosshair") {
                         x - 7.5f + (2 * (Math.random() - 0.5f)).toFloat(),
                         y - 7.5f + (2 * (Math.random() - 0.5f)).toFloat()
                     )
-                    val fixedTexture: ResourceLocation? = CROSSHAIR_MAP["@VehicleFixedPoint"]
+                    val fixedTexture: Identifier? = CROSSHAIR_MAP["@VehicleFixedPoint"]
                     RenderHelper.preciseBlitWithColor(
                         guiGraphics,
                         fixedTexture,
@@ -269,7 +269,7 @@ object VehicleCrosshairOverlay : CommonOverlay("vehicle_crosshair") {
                     )
 
                 } else if (crosshairPath == "@VehicleCnHpjZooming") {
-                    val dynamicTexture: ResourceLocation? = CROSSHAIR_MAP["@VehicleDynamicCross"]
+                    val dynamicTexture: Identifier? = CROSSHAIR_MAP["@VehicleDynamicCross"]
                     RenderHelper.preciseBlitWithColor(
                         guiGraphics,
                         dynamicTexture,

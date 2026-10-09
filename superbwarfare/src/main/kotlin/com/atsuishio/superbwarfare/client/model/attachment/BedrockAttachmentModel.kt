@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.model.attachment
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.charm.CharmRig
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoDisplayRenderer
@@ -18,10 +20,10 @@ import com.mojang.blaze3d.systems.RenderSystem
 import com.mojang.blaze3d.vertex.*
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import org.joml.Matrix4f
 import org.joml.Vector3f
@@ -239,7 +241,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
     fun renderToBuffer(
         poseStack: PoseStack,
         bufferSource: MultiBufferSource,
-        texture: ResourceLocation,
+        texture: Identifier,
         packedLight: Int,
         packedOverlay: Int,
         companionSightMode: ScopeMode? = null,
@@ -259,7 +261,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         restoreScopeBodyVisibility()
         markIlluminatedBones()
         val ammoBarState = ammo.applyBars(readout.bars, readout.progress)
-        val quadType = RenderType.entityTranslucent(texture)
+        val quadType = RenderTypes.entityTranslucent(texture)
         val triangleType = BedrockModelRenderTypes.polyMeshCutout(texture)
         baseModel.renderToBuffer(
             instance,
@@ -297,7 +299,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
     fun renderWithStencil(
         poseStack: PoseStack,
         bufferSource: MultiBufferSource.BufferSource,
-        texture: ResourceLocation,
+        texture: Identifier,
         packedLight: Int,
         partialTicks: Float,
         info: ScopeMode,
@@ -308,7 +310,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         updateDynamicDivisionScale()
         val ammoBarState = ammo.applyBars(readout.bars, readout.progress)
         val texts = ammo.buildTexts(readout.texts, readout.count, readout.progress, readout.range)
-        val quadType = RenderType.entityTranslucent(texture)
+        val quadType = RenderTypes.entityTranslucent(texture)
         val triangleType = BedrockModelRenderTypes.polyMeshCutout(texture)
 
         when (info.type) {

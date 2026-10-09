@@ -2,7 +2,7 @@ import os
 import re
 import sys
 
-SHIM = "cn.sh1rocu.simplebedrockmodel.client.port.MultiBufferSource"
+SHIM = "com.atsuishio.portlib.render.MultiBufferSource"
 
 RT_FACTORIES = [
     "armorCutoutNoCull", "armorTranslucent", "entitySolid", "entitySolidZOffsetForward", "entityCutoutCull",
@@ -29,6 +29,7 @@ RT_RENAMES = {
 
 SIMPLE = [
     (r"\bnet\.minecraft\.resources\.ResourceLocation\b", "net.minecraft.resources.Identifier"),
+    (r"\bResourceLocation\.Serializer\(\)", "com.atsuishio.portlib.render.IdentifierSerializer()"),
     (r"\bResourceLocation\b", "Identifier"),
     (r"\bnet\.minecraft\.client\.renderer\.MultiBufferSource\b", SHIM),
     (r"\bnet\.minecraft\.client\.renderer\.RenderType\b", "net.minecraft.client.renderer.rendertype.RenderType"),
@@ -43,6 +44,21 @@ SIMPLE = [
     (r"\bLightTexture\.block\(", "LightCoordsUtil.block("),
     (r"\bLightTexture\.sky\(", "LightCoordsUtil.sky("),
     (r"\bLightTexture\b(?=[\s;])", "LightCoordsUtil"),
+    (r"\bnet\.minecraft\.Util\b", "net.minecraft.util.Util"),
+    (r"\.options\.hideGui\b", ".gui.hud.isHidden()"),
+    (r"\bgetTimer\(\)", "getDeltaTracker()"),
+    (r"\bgetMainCamera\(\)", "mainCamera()"),
+    (r"\bgameRenderer\.mainCamera\b(?!\()", "gameRenderer.mainCamera()"),
+    (r"\bPayloadTypeRegistry\.playS2C\(\)", "PayloadTypeRegistry.clientboundPlay()"),
+    (r"\bPayloadTypeRegistry\.playC2S\(\)", "PayloadTypeRegistry.serverboundPlay()"),
+    (r"\bPlayerLookup\.world\(", "PlayerLookup.level("),
+    (r"\bnet\.minecraft\.commands\.arguments\.ResourceLocationArgument\b", "net.minecraft.commands.arguments.IdentifierArgument"),
+    (r"\bResourceLocationArgument\b", "IdentifierArgument"),
+    (r"\bClientCommandManager\b", "ClientCommands"),
+    (r"\bgetInventory\(\)\.selected\b(?!Slot)", "getInventory().getSelectedSlot()"),
+    (r"\binventory\.selected\b(?!Slot)", "inventory.selectedSlot"),
+    (r"\bnet\.fabricmc\.fabric\.api\.client\.rendering\.v1\.BuiltinItemRendererRegistry\b", "com.atsuishio.portlib.render.BuiltinItemRendererRegistry"),
+    (r"\bBuiltinItemRendererRegistry\.DynamicItemRenderer\b", "com.atsuishio.portlib.render.DynamicItemRenderer"),
 ]
 
 

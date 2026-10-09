@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.projectile.BasicGeoProjectileEntity
 import com.atsuishio.superbwarfare.entity.projectile.FastThrowableProjectile
@@ -12,20 +14,20 @@ import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 
 open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) :
     EntityRenderer<T>(manager) where T : Entity, T : BasicGeoProjectileEntity {
-    override fun getTextureLocation(entity: T): ResourceLocation {
+    override fun getTextureLocation(entity: T): Identifier {
         val (_, namespace, id) = entity.type.descriptionId.split(".")
-        return ResourceLocation.fromNamespaceAndPath(namespace, "textures/bedrock/projectile/$id.png")
+        return Identifier.fromNamespaceAndPath(namespace, "textures/bedrock/projectile/$id.png")
     }
 
     override fun shouldShowName(pEntity: T): Boolean {
@@ -83,7 +85,7 @@ open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) :
         instance.renderToBuffer(
             poseStack,
             buffer,
-            RenderType.entityCutout(getTextureLocation(entity)),
+            RenderTypes.entityCutout(getTextureLocation(entity)),
             BedrockModelRenderTypes.polyMeshCutout(getTextureLocation(entity)),
             packedLight,
             OverlayTexture.NO_OVERLAY
@@ -94,7 +96,7 @@ open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) :
             instance.renderToBuffer(
                 poseStack,
                 buffer,
-                RenderType.entityCutout(getTextureLocation(entity)),
+                RenderTypes.entityCutout(getTextureLocation(entity)),
                 BedrockModelRenderTypes.polyMeshCutout(getTextureLocation(entity)),
                 packedLight,
                 OverlayTexture.NO_OVERLAY
@@ -116,7 +118,7 @@ open class BasicProjectileRenderer<T>(manager: EntityRendererProvider.Context) :
             instance.renderSingleBonePass(
                 poseStack,
                 instance.getIndex("flare"),
-                buffer.getBuffer(RenderType.eyes(FLARE_TEXTURE)),
+                buffer.getBuffer(RenderTypes.eyes(FLARE_TEXTURE)),
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
                 1f, 1f, 1f, 1f,

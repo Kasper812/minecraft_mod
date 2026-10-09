@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.model.entity.VehicleModel
 import com.atsuishio.superbwarfare.entity.vehicle.TurretWreckEntity
@@ -10,13 +12,13 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.BedrockMo
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
-import net.minecraft.util.FastColor
+import net.minecraft.resources.Identifier
+import net.minecraft.util.ARGB
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.phys.Vec3
@@ -75,7 +77,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
                 }
 
                 val tBone = optionalBone.get()
-                val renderType = RenderType.entityTranslucent(textureResource)
+                val renderType = RenderTypes.entityTranslucent(textureResource)
                 val source = bufferSource.getBuffer(renderType)
 
                 renderer.renderCubesOfBone(
@@ -84,7 +86,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
                     source,
                     packedLight,
                     packedOverlay,
-                    FastColor.ARGB32.colorFromFloat(1.0f, 0.3f, 0.3f, 0.3f)
+                    ARGB.colorFromFloat(1.0f, 0.3f, 0.3f, 0.3f)
                 )
                 renderer.renderChildBones(
                     poseStack,
@@ -97,7 +99,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
                     partialTick,
                     packedLight,
                     packedOverlay,
-                    FastColor.ARGB32.colorFromFloat(1.0f, 0.3f, 0.3f, 0.3f)
+                    ARGB.colorFromFloat(1.0f, 0.3f, 0.3f, 0.3f)
                 )
                 poseStack.popPose()
             } else if (renderer is GeoVehicleRenderer) {
@@ -134,7 +136,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
                     poseStack,
                     turretIndex,
                     bufferSource,
-                    RenderType.entityTranslucent(entry.texture),
+                    RenderTypes.entityTranslucent(entry.texture),
                     BedrockModelRenderTypes.polyMeshCutout(entry.texture),
                     packedLight,
                     OverlayTexture.NO_OVERLAY,
@@ -174,7 +176,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
         ) {
             val matrix4f = poseStack.last().pose()
             val pose = poseStack.last()
-            val buffer = bufferIn.getBuffer(RenderType.lines())
+            val buffer = bufferIn.getBuffer(RenderTypes.lines())
 
             val frontVec = entityIn.getFrontVec(partialTicks)
             renderAxis(entityIn, pose, matrix4f, frontVec, buffer, 0, 0, 255)
@@ -187,7 +189,7 @@ class TurretWreckRenderer(renderManager: EntityRendererProvider.Context) :
         }
     }
 
-    override fun getTextureLocation(pEntity: TurretWreckEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: TurretWreckEntity): Identifier {
         return TEXTURE
     }
 

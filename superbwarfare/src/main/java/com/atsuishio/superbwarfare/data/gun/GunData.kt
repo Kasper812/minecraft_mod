@@ -64,7 +64,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.nbt.Tag
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.StreamCodec
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.util.Mth
 import net.minecraft.world.entity.Entity
@@ -1287,7 +1287,7 @@ class GunData private constructor(
      * 而这里问的是"这个物品算不算一把能被改装的枪"。
      * 相关门禁见 `GunItem.canEditAttachments` 与 `SubWeaponItem` 的覆写。
      */
-    fun availableAttachments(slot: AttachmentType): List<ResourceLocation> {
+    fun availableAttachments(slot: AttachmentType): List<Identifier> {
         if (item is SubWeaponItem) return emptyList()
 
         if (AttachmentConfig.fullyFreeAttachmentMode) return AttachmentSlots.registeredIds(slot)
@@ -1298,13 +1298,13 @@ class GunData private constructor(
     }
 
     /** Returns the weapon-level option for [id] installed in [slot], if declared. */
-    fun attachmentOption(slot: AttachmentType, id: ResourceLocation): AttachmentOption? {
+    fun attachmentOption(slot: AttachmentType, id: Identifier): AttachmentOption? {
         val entry = AvailableAttachments.resolve(this, slot).firstOrNull { it.id == id } ?: return null
         return AttachmentOption(id.toString(), entry.override)
     }
 
     /** Checks whether [id] can be installed in [slot] for this gun. */
-    fun canInstall(slot: AttachmentType, id: ResourceLocation): Boolean {
+    fun canInstall(slot: AttachmentType, id: Identifier): Boolean {
         if (id !in availableAttachments(slot)) return false
         val definition = AttachmentDefinition.from(id) ?: return false
         // 按 `acceptedSlots` 判定，不是 `definition.slot`：一件配件可以同时装进多根导轨（`ExtraSlots`）

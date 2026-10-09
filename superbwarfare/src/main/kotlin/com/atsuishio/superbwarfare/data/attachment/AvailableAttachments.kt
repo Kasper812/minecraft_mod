@@ -9,14 +9,14 @@ import kotlinx.serialization.json.JsonObject
 import net.fabricmc.fabric.api.event.lifecycle.v1.CommonLifecycleEvents
 import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.core.registries.Registries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.jvm.optionals.getOrNull
 
 /** `AvailableAttachments` 里的一条已解析条目；标签展开出来的条目没有 [override]。 */
 data class ResolvedAttachmentEntry(
-    val id: ResourceLocation,
+    val id: Identifier,
     val override: JsonObject? = null,
 )
 
@@ -68,8 +68,8 @@ object AvailableAttachments {
     }
 
     private fun build(declarations: List<StringOrObject<AttachmentOption>>): List<ResolvedAttachmentEntry> {
-        val accepted = LinkedHashMap<ResourceLocation, JsonObject?>()
-        val excluded = mutableSetOf<ResourceLocation>()
+        val accepted = LinkedHashMap<Identifier, JsonObject?>()
+        val excluded = mutableSetOf<Identifier>()
 
         for (declaration in declarations) {
             val option = declaration.value
@@ -83,7 +83,7 @@ object AvailableAttachments {
             val target = (if (tagged) body.substring(1) else body).trim()
             if (target.isEmpty()) continue
 
-            val id = ResourceLocation.tryParse(target)
+            val id = Identifier.tryParse(target)
             if (id == null) {
                 Mod.LOGGER.warn(
                     "AvailableAttachments: '{}' is not a valid {}",
@@ -120,7 +120,7 @@ object AvailableAttachments {
     }
 
     /** 标签里的全部物品 id；注册表还没就绪时返回空集合，不抛异常。 */
-    private fun tagMembers(id: ResourceLocation): List<ResourceLocation> {
+    private fun tagMembers(id: Identifier): List<Identifier> {
         return BuiltInRegistries.ITEM.getTag(TagKey.create(Registries.ITEM, id))
             .map { items -> items.map { BuiltInRegistries.ITEM.getKey(it.value()) } }
             .getOrNull() ?: mutableListOf()

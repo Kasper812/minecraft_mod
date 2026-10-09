@@ -17,7 +17,7 @@ import mezz.jei.api.recipe.RecipeType
 import mezz.jei.api.recipe.category.IRecipeCategory
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.crafting.Ingredient
 
@@ -115,7 +115,7 @@ class ResearchingCategory(helper: IGuiHelper) : IRecipeCategory<ResearchingRecip
     }
 
     companion object {
-        val TEXTURE: ResourceLocation = loc("textures/gui/jei_blueprint_research_table.png")
+        val TEXTURE: Identifier = loc("textures/gui/jei_blueprint_research_table.png")
         val TYPE: RecipeType<ResearchingRecipe> =
             RecipeType<ResearchingRecipe>(loc("researching"), ResearchingRecipe::class.java)
     }

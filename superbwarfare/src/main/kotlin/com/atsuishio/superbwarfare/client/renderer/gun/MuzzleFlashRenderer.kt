@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.gun
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.client.model.gun.GeoGunModel
 import com.atsuishio.superbwarfare.client.renderer.ModRenderTypes
@@ -13,7 +15,7 @@ import com.atsuishio.superbwarfare.resource.gun.GunResource
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.blaze3d.vertex.VertexConsumer
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
+import com.atsuishio.portlib.render.MultiBufferSource
 import net.minecraft.world.item.ItemStack
 import org.joml.Matrix4f
 

@@ -76,7 +76,7 @@ import com.mojang.blaze3d.vertex.PoseStack
 import dev.emi.trinkets.api.client.TrinketRendererRegistry
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents
 import net.fabricmc.fabric.api.client.rendering.v1.EntityModelLayerRegistry
-import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry
+import com.atsuishio.portlib.render.BuiltinItemRendererRegistry
 import net.fabricmc.fabric.api.client.rendering.v1.TooltipComponentCallback
 import net.minecraft.client.DeltaTracker
 import net.minecraft.client.Minecraft

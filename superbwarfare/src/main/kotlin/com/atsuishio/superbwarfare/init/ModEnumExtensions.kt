@@ -1,9 +1,6 @@
 package com.atsuishio.superbwarfare.init
 
 import com.atsuishio.superbwarfare.Mod
-import fuzs.extensibleenums.api.v2.BuiltInEnumFactories
-import fuzs.extensibleenums.api.v2.core.EnumAppender
-import net.minecraft.ChatFormatting
 import net.minecraft.client.model.HumanoidModel
 import net.minecraft.client.model.HumanoidModel.ArmPose
 import net.minecraft.util.Mth
@@ -11,28 +8,16 @@ import net.minecraft.world.item.Rarity
 
 object ModEnumExtensions {
     @JvmField
-    val SUPERBWARFARE_LEGENDARY: Rarity = BuiltInEnumFactories.INSTANCE.createRarity(
-        Mod.loc("superbwarfare_legendary"),
-        ChatFormatting.GOLD
-    )
+    val SUPERBWARFARE_LEGENDARY: Rarity = Rarity.valueOf("SUPERBWARFARE_LEGENDARY")
 
     @JvmField
-    val SUPERBWARFARE_SUPERB: Rarity = BuiltInEnumFactories.INSTANCE.createRarity(
-        Mod.loc("superbwarfare_superb"),
-        ChatFormatting.RED
-    )
+    val SUPERBWARFARE_SUPERB: Rarity = Rarity.valueOf("SUPERBWARFARE_SUPERB")
 
     @JvmField
-    val SUPERBWARFARE_BEAST: Rarity = BuiltInEnumFactories.INSTANCE.createRarity(
-        Mod.loc("superbwarfare_beast"),
-        ChatFormatting.DARK_RED
-    )
+    val SUPERBWARFARE_BEAST: Rarity = Rarity.valueOf("SUPERBWARFARE_BEAST")
 
     @JvmField
-    val SUPERBWARFARE_VIRTUAL: Rarity = BuiltInEnumFactories.INSTANCE.createRarity(
-        Mod.loc("superbwarfare_virtual"),
-        ChatFormatting.WHITE
-    )
+    val SUPERBWARFARE_VIRTUAL: Rarity = Rarity.valueOf("SUPERBWARFARE_VIRTUAL")
 
     @JvmStatic
     val legendary: Rarity get() = SUPERBWARFARE_LEGENDARY
@@ -62,12 +47,7 @@ object ModEnumExtensions {
         @JvmField
         val REPAIR_TOOL_POSE: ArmPose = createArmPose("SUPERBWARFARE_REPAIR_TOOL_POSE")
 
-        private fun createArmPose(name: String): ArmPose {
-            EnumAppender.create(ArmPose::class.java, Boolean::class.java)
-                .addEnumConstant(name, false)
-                .applyTo(HumanoidModel::class.java)
-            return ArmPose.valueOf(name)
-        }
+        private fun createArmPose(name: String): ArmPose = ArmPose.valueOf(name)
 
         @JvmStatic
         val lungeMinePose: ArmPose get() = SUPERBWARFARE_LUNGE_MINE_POSE

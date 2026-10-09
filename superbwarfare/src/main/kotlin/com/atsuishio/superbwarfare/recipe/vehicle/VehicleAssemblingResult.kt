@@ -13,7 +13,7 @@ import net.minecraft.nbt.CompoundTag
 import net.minecraft.network.RegistryFriendlyByteBuf
 import net.minecraft.network.codec.ByteBufCodecs
 import net.minecraft.network.codec.StreamCodec
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.EntityType
 import net.minecraft.world.item.ItemStack
 import kotlin.jvm.optionals.getOrNull
@@ -50,7 +50,7 @@ data class VehicleAssemblingResult(
                 result = createInstance(type).copyWithCount(count)
             }
         } else if (itemString.isNotEmpty()) {
-            val itemKey = ResourceLocation.parse(itemString)
+            val itemKey = Identifier.parse(itemString)
             val item = BuiltInRegistries.ITEM.getOptional(itemKey).getOrNull()
             if (item == null) {
                 Mod.LOGGER.warn("invalid item: {}", itemString)

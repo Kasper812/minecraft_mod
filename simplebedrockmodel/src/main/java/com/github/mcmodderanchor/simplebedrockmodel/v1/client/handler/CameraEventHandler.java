@@ -6,7 +6,7 @@ import com.github.mcmodderanchor.simplebedrockmodel.v1.client.event.RenderItemIn
 import com.github.mcmodderanchor.simplebedrockmodel.v1.client.renderer.IFPGeoItemRenderer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import cn.sh1rocu.simplebedrockmodel.client.port.BuiltinItemRendererRegistry;
+import com.atsuishio.portlib.render.BuiltinItemRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import org.joml.*;

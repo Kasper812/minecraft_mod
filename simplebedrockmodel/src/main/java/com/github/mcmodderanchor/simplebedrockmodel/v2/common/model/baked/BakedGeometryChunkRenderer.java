@@ -54,7 +54,7 @@ public class BakedGeometryChunkRenderer {
         float[] positions = quads.positions();
         float[] normals = quads.normals();
         float[] uvs = quads.uvs();
-        boolean cull = !skipNormalVisibilityCull && cn.sh1rocu.simplebedrockmodel.client.port.SbmRenderContext.normalCullingEnabled();
+        boolean cull = !skipNormalVisibilityCull && com.atsuishio.portlib.render.SbmRenderContext.normalCullingEnabled();
         for (int i = 0; i < quads.quadCount(); i++) {
             int pb = i * BakedQuadData.POSITION_STRIDE;
             int nb = i * BakedQuadData.NORMAL_STRIDE;

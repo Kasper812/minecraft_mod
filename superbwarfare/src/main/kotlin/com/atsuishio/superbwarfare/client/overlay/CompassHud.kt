@@ -5,7 +5,7 @@ import com.atsuishio.superbwarfare.client.RenderHelper
 import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity
 import com.mojang.math.Axis
 import net.minecraft.client.gui.GuiGraphics
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.fabricmc.api.EnvType
 import net.fabricmc.api.Environment
 
@@ -17,15 +17,15 @@ import net.fabricmc.api.Environment
 @Environment(EnvType.CLIENT)
 class CompassHud {
     companion object {
-        val DEFAULT_BASE: ResourceLocation = loc("textures/overlay/vehicle/common/compass_base.png")
-        val DEFAULT_NEEDLE: ResourceLocation = loc("textures/overlay/vehicle/common/compass_needle.png")
+        val DEFAULT_BASE: Identifier = loc("textures/overlay/vehicle/common/compass_base.png")
+        val DEFAULT_NEEDLE: Identifier = loc("textures/overlay/vehicle/common/compass_needle.png")
     }
 
     /** 表盘贴图 */
-    var baseTexture: ResourceLocation = DEFAULT_BASE
+    var baseTexture: Identifier = DEFAULT_BASE
 
     /** 指针贴图 */
-    var needleTexture: ResourceLocation = DEFAULT_NEEDLE
+    var needleTexture: Identifier = DEFAULT_NEEDLE
 
     /**
      * X坐标（屏幕坐标）。

@@ -1,9 +1,8 @@
 {
   "required": true,
   "package": "com.atsuishio.superbwarfare.mixins",
-  "compatibilityLevel": "JAVA_21",
+  "compatibilityLevel": "JAVA_25",
   "plugin": "com.atsuishio.superbwarfare.mixins.plugin.MixinPlugin",
-  "refmap": "superbwarfare.mixins.refmap.json",
   "mixins": [
     "AnvilMenuMixin",
     "AttributeSupplierAccessor",
@@ -32,7 +31,8 @@
     "ResultSlotMixin",
     "ServerPlayerMenuMixin",
     "SteelPipeFallMixin",
-    "VillagerMixin"
+    "VillagerMixin",
+    "enums.RarityMixin"
   ],
   "client": [
     "BlockLightEngineMixin",
@@ -72,7 +72,8 @@
     "PlayerRendererMixin",
     "PostPassMixin",
     "RenderTargetMixin",
-    "ScreenAccessor"
+    "ScreenAccessor",
+    "enums.ArmPoseMixin"
   ],
   "injectors": {
     "defaultRequire": 1

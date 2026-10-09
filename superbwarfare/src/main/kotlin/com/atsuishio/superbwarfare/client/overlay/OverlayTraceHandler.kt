@@ -70,7 +70,7 @@ object OverlayTraceHandler {
 
     @JvmStatic
     fun handleCameraTrace(player: Player) {
-        val camera = mc.gameRenderer.mainCamera
+        val camera = mc.gameRenderer.mainCamera()
         var viewPos = camera.position
         var viewVec = Vec3(camera.lookVector)
         val distance = try {

@@ -10,7 +10,7 @@ import net.fabricmc.fabric.api.resource.ResourceManagerHelper
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener
 import net.minecraft.client.Minecraft
 import net.minecraft.client.renderer.PostChain
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.server.packs.PackType
 import net.minecraft.server.packs.resources.ResourceManager
 import net.minecraft.util.Mth
@@ -20,7 +20,7 @@ import net.minecraft.world.entity.Entity
  * Code based on YWZJ Team
  */
 class ThermalShaderHandler : SimpleSynchronousResourceReloadListener {
-    override fun getFabricId(): ResourceLocation {
+    override fun getFabricId(): Identifier {
         return loc("thermal_shader_handler")
     }
 
@@ -143,7 +143,7 @@ class ThermalShaderHandler : SimpleSynchronousResourceReloadListener {
 
             thermalBuffer.bindWrite(true)
 
-            val camera = mc.gameRenderer.mainCamera
+            val camera = mc.gameRenderer.mainCamera()
             val cameraPos = camera.position
 
             poseStack.pushPose()

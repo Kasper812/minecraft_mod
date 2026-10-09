@@ -9,7 +9,7 @@ import net.minecraft.core.registries.BuiltInRegistries
 import net.minecraft.data.recipes.RecipeBuilder
 import net.minecraft.data.recipes.RecipeCategory
 import net.minecraft.data.recipes.RecipeOutput
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.tags.TagKey
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Items
@@ -61,7 +61,7 @@ open class ResearchingRecipeBuilder private constructor(
 
     override fun save(
         recipeOutput: RecipeOutput,
-        id: ResourceLocation
+        id: Identifier
     ) {
         this.ensureValid(id)
         val builder =
@@ -83,7 +83,7 @@ open class ResearchingRecipeBuilder private constructor(
         )
     }
 
-    private fun ensureValid(id: ResourceLocation?) {
+    private fun ensureValid(id: Identifier?) {
         check(!this.criteria.isEmpty()) { "No way of obtaining recipe $id" }
     }
 
@@ -152,7 +152,7 @@ open class ResearchingRecipeBuilder private constructor(
     }
 
 //    class Result(
-//        val recipeId: ResourceLocation,
+//        val recipeId: Identifier,
 //        val input: Ingredient,
 //        val base: Ingredient? = null,
 //        val addition: Ingredient? = null,
@@ -164,7 +164,7 @@ open class ResearchingRecipeBuilder private constructor(
 //        val time: Int = 1200,
 //        val color: Int = 0,
 //        val advancement: Advancement.Builder,
-//        val advancementLocation: ResourceLocation
+//        val advancementLocation: Identifier
 //    ) : FinishedRecipe {
 //        override fun serializeRecipeData(json: JsonObject) {
 //            json.add("input", input.toJson())
@@ -196,12 +196,12 @@ open class ResearchingRecipeBuilder private constructor(
 //            json.add("result", res)
 //        }
 //
-//        override fun getId(): ResourceLocation = this.recipeId
+//        override fun getId(): Identifier = this.recipeId
 //
 //        override fun getType(): RecipeSerializer<*> = ModRecipes.RESEARCHING_SERIALIZER
 //
 //        override fun serializeAdvancement(): JsonObject = this.advancement.serializeToJson()
 //
-//        override fun getAdvancementId(): ResourceLocation = this.advancementLocation
+//        override fun getAdvancementId(): Identifier = this.advancementLocation
 //    }
 }

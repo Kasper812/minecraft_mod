@@ -7,8 +7,8 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.util.LightCoordsUtil;
+import com.atsuishio.portlib.render.MultiBufferSource;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
@@ -31,7 +31,7 @@ public class LevelRendererMixin {
     // https://github.com/LukenSkyne/Minecraft-Ping-Wheel/blob/ede72b18f57bd9dfe55ef44afe61190421fbc084/common/src/main/java/nx/pingwheel/common/mixin/LevelRendererMixin.java
 
     @Inject(method = "renderLevel", at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;applyModelViewMatrix()V", ordinal = 0, shift = At.Shift.AFTER))
-    private void onStartRenderLevel(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightTexture lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
+    private void onStartRenderLevel(DeltaTracker deltaTracker, boolean bl, Camera camera, GameRenderer gameRenderer, LightCoordsUtil lightTexture, Matrix4f matrix4f, Matrix4f matrix4f2, CallbackInfo ci) {
         ClientEventHandler.modelViewMatrix = RenderSystem.getModelViewMatrix();
         ClientEventHandler.projectionMatrix = RenderSystem.getProjectionMatrix();
     }
@@ -48,7 +48,7 @@ public class LevelRendererMixin {
             double d2 = Mth.lerp(pPartialTick, pEntity.zOld, pEntity.getZ());
             float f = Mth.lerp(pPartialTick, pEntity.yRotO, pEntity.getYRot());
             this.entityRenderDispatcher.render(pEntity, d0 - pCamX, d1 - pCamY, d2 - pCamZ, f, pPartialTick, pPoseStack,
-                    pBufferSource, LightTexture.FULL_BRIGHT);
+                    pBufferSource, LightCoordsUtil.FULL_BRIGHT);
         }
     }
 }

@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.projectile
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.client.ClientRenderHandler
 import com.atsuishio.superbwarfare.entity.projectile.ProjectileEntity
@@ -7,8 +9,8 @@ import com.atsuishio.superbwarfare.entity.vehicle.utils.VehicleVecUtils
 import com.atsuishio.superbwarfare.tools.localPlayer
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.culling.Frustum
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
@@ -55,7 +57,7 @@ class ProjectileEntityRenderer(manager: EntityRendererProvider.Context) : Entity
         poseStack.scale(width, width, length.toFloat())
 
         if (entity.tickCount >= 2 || distance > 4.0) {
-            val type = RenderType.energySwirl(TEXTURE, 15.0f, 15.0f)
+            val type = RenderTypes.energySwirl(TEXTURE, 15.0f, 15.0f)
             instance.renderToBuffer(
                 poseStack,
                 buffer.getBuffer(type),

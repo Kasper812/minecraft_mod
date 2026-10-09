@@ -236,7 +236,7 @@ object CharmRuntime {
         state.params.response = state.baseResponse * (1f - zoom) + state.aimResponse * zoom
         state.params.turnResponse = state.baseTurnResponse * (1f - zoom) + state.aimResponse * zoom
 
-        val cameraPos = mc.gameRenderer.mainCamera.position
+        val cameraPos = mc.gameRenderer.mainCamera().position
         // ⚠ 相机位置基线必须在 [updateFrame] **之前**立好：它是"帧间位移"的零点，
         // 缺了它第一次差分就会拿 (0,0,0) 当上一帧位置，得到一个上万方块/秒的速度。
         if (!state.hasCamera) {

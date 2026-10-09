@@ -15,7 +15,7 @@ import com.mojang.blaze3d.platform.GlStateManager
 import com.mojang.blaze3d.systems.RenderSystem
 import net.minecraft.client.Camera
 import net.minecraft.client.renderer.GameRenderer
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.Entity
 import net.minecraft.world.entity.player.Player
 import net.minecraft.world.entity.vehicle.Boat
@@ -248,7 +248,7 @@ object IFFOverlay : CommonOverlay("iff") {
         poseStack.popPose()
     }
 
-    private fun getResourceLocation(entity: Entity): ResourceLocation {
+    private fun getResourceLocation(entity: Entity): Identifier {
         return if (entity is Boat) {
             FRIENDLY_BOAT
         } else if (entity is VehicleEntity) {

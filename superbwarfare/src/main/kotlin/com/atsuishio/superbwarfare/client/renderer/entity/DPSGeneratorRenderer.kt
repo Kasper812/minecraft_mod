@@ -1,5 +1,7 @@
 package com.atsuishio.superbwarfare.client.renderer.entity
 
+import net.minecraft.client.renderer.rendertype.RenderTypes
+
 import com.atsuishio.superbwarfare.Mod.Companion.loc
 import com.atsuishio.superbwarfare.entity.living.DPSGeneratorEntity
 import com.atsuishio.superbwarfare.tools.renderSingleBonePass
@@ -9,16 +11,16 @@ import com.maydaymemory.mae.blend.EulerAdditiveBlender
 import com.maydaymemory.mae.blend.SimpleEulerAdditiveBlender
 import com.mojang.blaze3d.vertex.PoseStack
 import com.mojang.math.Axis
-import net.minecraft.client.renderer.MultiBufferSource
-import net.minecraft.client.renderer.RenderType
+import com.atsuishio.portlib.render.MultiBufferSource
+import net.minecraft.client.renderer.rendertype.RenderType
 import net.minecraft.client.renderer.entity.EntityRenderer
 import net.minecraft.client.renderer.entity.EntityRendererProvider
 import net.minecraft.client.renderer.texture.OverlayTexture
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 
 class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) :
     EntityRenderer<DPSGeneratorEntity>(renderManager) {
-    override fun getTextureLocation(pEntity: DPSGeneratorEntity): ResourceLocation {
+    override fun getTextureLocation(pEntity: DPSGeneratorEntity): Identifier {
         return TEXTURES[pEntity.generatorLevel.coerceIn(0, 7)]
     }
 
@@ -37,7 +39,7 @@ class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) :
         poseStack.mulPose(Axis.YP.rotationDegrees(180f))
         poseStack.mulPose(Axis.YP.rotationDegrees(-entity.getViewYRot(partialTick)))
 
-        val renderType = RenderType.entityTranslucent(getTextureLocation(entity))
+        val renderType = RenderTypes.entityTranslucent(getTextureLocation(entity))
         val vertexConsumer = buffer.getBuffer(renderType)
 
         ani.context.partialTick = partialTick
@@ -53,7 +55,7 @@ class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) :
 
         poseStack.pushPose()
         val boneIndex = instance.getIndex("move_ba")
-        val boneConsumer = buffer.getBuffer(RenderType.eyes(TEXTURE_E))
+        val boneConsumer = buffer.getBuffer(RenderTypes.eyes(TEXTURE_E))
         instance.renderSingleBonePass(
             poseStack,
             boneIndex,
@@ -74,7 +76,7 @@ class DPSGeneratorRenderer(renderManager: EntityRendererProvider.Context) :
 
     companion object {
         val TEXTURES =
-            ArrayList<ResourceLocation>((0..7).map { loc("textures/bedrock/entity/dps_generator_tier_${it}.png") })
+            ArrayList<Identifier>((0..7).map { loc("textures/bedrock/entity/dps_generator_tier_${it}.png") })
         val TEXTURE_E = loc("textures/bedrock/entity/dps_generator_e.png")
         val BLENDER: EulerAdditiveBlender = SimpleEulerAdditiveBlender(ZYXBoneTransformFactory()) { ArrayPoseBuilder() }
     }

@@ -12,7 +12,7 @@ import net.minecraft.core.dispenser.BlockSource
 import net.minecraft.core.dispenser.DispenseItemBehavior
 import net.minecraft.network.chat.Component
 import net.minecraft.sounds.SoundSource
-import net.minecraft.util.FastColor
+import net.minecraft.util.ARGB
 import net.minecraft.world.entity.projectile.Projectile
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.item.TooltipFlag
@@ -73,7 +73,7 @@ class PotionMortarShellItem : MortarShellItem(), DispenserLaunchable {
         fun registerColorHandler() {
             ColorProviderRegistry.ITEM.register(
                 { stack, layer ->
-                    if (layer == 1) FastColor.ARGB32.opaque(
+                    if (layer == 1) ARGB.opaque(
                         stack.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY).color
                     ) else -1
                 },

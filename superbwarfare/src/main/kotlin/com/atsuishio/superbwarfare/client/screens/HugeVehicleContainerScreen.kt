@@ -4,7 +4,7 @@ import com.atsuishio.superbwarfare.Mod
 import com.atsuishio.superbwarfare.inventory.menu.HugeVehicleContainerMenu
 import net.minecraft.client.gui.GuiGraphics
 import net.minecraft.network.chat.Component
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.entity.player.Inventory
 
 class HugeVehicleContainerScreen(menu: HugeVehicleContainerMenu, inventory: Inventory, title: Component) :
@@ -30,6 +30,6 @@ class HugeVehicleContainerScreen(menu: HugeVehicleContainerMenu, inventory: Inve
     }
 
     companion object {
-        val TEXTURE: ResourceLocation = Mod.loc("textures/gui/vehicle/inventory/huge.png")
+        val TEXTURE: Identifier = Mod.loc("textures/gui/vehicle/inventory/huge.png")
     }
 }

@@ -10,7 +10,7 @@ import net.fabricmc.loader.api.FabricLoader
 import net.fabricmc.loader.api.ModContainer
 import net.minecraft.core.Registry
 import net.minecraft.core.registries.BuiltInRegistries
-import net.minecraft.resources.ResourceLocation
+import net.minecraft.resources.Identifier
 import net.minecraft.world.item.Item
 import net.minecraft.world.item.Rarity
 import org.objectweb.asm.AnnotationVisitor
@@ -106,7 +106,7 @@ object TestLoader {
         itemSupplier: (Item.Properties) -> Item = { Item(it) }
     ) {
         for ((id, item) in itemEntry) {
-            val location = ResourceLocation.fromNamespaceAndPath(namespace, id)
+            val location = Identifier.fromNamespaceAndPath(namespace, id)
 
             // 所属 mod 自己注册了同名物品时让给它：我们只是"代注册"，不抢所有权。
             if (BuiltInRegistries.ITEM.containsKey(location)) {
@@ -292,7 +292,7 @@ object TestLoader {
                 )
             }
 
-            if (!ResourceLocation.isValidPath(id)) {
+            if (!Identifier.isValidPath(id)) {
                 fail(
                     "Items['$id'] is not a valid item path " +
                             "(lowercase a-z, 0-9, '_', '-', '.')"
