@@ -39,8 +39,8 @@ dependencies {
         exclude("net.fabricmc.fabric-api")
     }
     implementation("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${property("forge_config_api_port_version")}")
-    implementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cardinal_components_version")}")
-    implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cardinal_components_version")}")
+    implementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cardinal_components_version")}") { exclude(group = "net.fabricmc.fabric-api") }
+    implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cardinal_components_version")}") { exclude(group = "net.fabricmc.fabric-api") }
     implementation("teamreborn:energy:5.0.0")
     implementation("local.sbw:rhino:1.8.1")
     implementation("com.maydaymemory:mae:1.1.4") {

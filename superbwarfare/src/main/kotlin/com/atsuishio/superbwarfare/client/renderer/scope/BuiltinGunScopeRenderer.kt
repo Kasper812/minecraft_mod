@@ -19,7 +19,11 @@ import net.fabricmc.api.Environment
 import net.minecraft.util.Mth
 import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.lwjgl.opengl.GL11
+import com.atsuishio.portlib.render.clip.ClippingBufferSource
+import com.atsuishio.portlib.render.clip.HandProjection
+import com.atsuishio.portlib.render.clip.PositionCapture
+import com.atsuishio.portlib.render.clip.ScreenClipRegion
+import org.joml.Vector4f
 import java.util.regex.Pattern
 
 /**
@@ -169,121 +173,66 @@ class BuiltinGunScopeRenderer(
         triangleType: RenderType,
         light: Int,
         info: BuiltinScopeInfo
-    ) {
-        if (!available) return
+    ): List<ScreenClipRegion?> {
+        if (!available) return emptyList()
 
-        ScopeStencilRenderHelper.enableItemEntityStencilTest()
-        RenderSystem.clearStencil(0)
+        val projection = HandProjection.projection()
+        val modelView = HandProjection.modelView()
+        val viewProjection = Matrix4f(projection).mul(modelView)
 
-        // 镜圈：永远实心，画在写模板之前，所以它不吃窗口的亏。
         if (ringIndex >= 0) {
-            RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF)
-            RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
             renderBoneImmediate(ringIndex, poseStack, bufferSource, quadType, triangleType, light)
         }
 
-        writeWindowStencil(poseStack, bufferSource, quadType, triangleType, light)
-        carveDisc(poseStack, info)
-        drawWallsAndReticle(poseStack, bufferSource, quadType, triangleType, light)
-
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF)
-        ScopeStencilRenderHelper.disableItemEntityStencilTest()
-    }
-
-    /**
-     * 把镜筒口那片轮廓写进模板。
-     *
-     * 由内向外画（`reversed()`）并配 `GL_GREATER i + 1`：**只有还没被写过的像素**才被写上 —— 也就是
-     * 每一根 `ocular` 只写自己比前面几根多出来的那部分。单根时结果就是"轮廓=1"，多根时是同心圈。
-     * 颜色与深度都关掉，这一遍纯粹是往模板里塞值。
-     */
-    private fun writeWindowStencil(
-        poseStack: PoseStack,
-        bufferSource: MultiBufferSource.BufferSource,
-        quadType: RenderType,
-        triangleType: RenderType,
-        light: Int
-    ) {
-        RenderSystem.colorMask(false, false, false, false)
-        RenderSystem.depthMask(false)
-        RenderSystem.stencilMask(0xFF)
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE)
-
+        val hulls = HashMap<Int, ScreenClipRegion?>()
         for (i in ocularIndices.indices.reversed()) {
-            RenderSystem.stencilFunc(GL11.GL_GREATER, i + 1, 0xFF)
-            renderBoneImmediate(ocularIndices[i], poseStack, bufferSource, quadType, triangleType, light)
+            val capture = PositionCapture(viewProjection)
+            renderBoneImmediate(ocularIndices[i], poseStack, capture, quadType, triangleType, light)
+            hulls[i] = capture.hull()
         }
-
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
-        RenderSystem.depthMask(true)
-        RenderSystem.colorMask(true, true, true, true)
-    }
-
-    /**
-     * 在屏幕空间画一个大圆盘，用 `GL_INVERT` 把窗口**内部**的模板值翻成 `~(i + 1)`。
-     *
-     * 圆盘贴在 `ocular` 所在的深度上，半径 = `80 × 倍率 × 开镜进度 / 90 × 深度`，也就是 1.20 那个
-     * `atan(80 × 倍率 / 90)` 的视角：倍率 1.0 推满时约 41.6°，比屏幕还大，于是**整片镜筒口**都被翻成
-     * 窗口，镜片与镜筒壁的贴图一张都画不出来，外框只剩枪身自己的几何。倍率调小才会在窗口边缘留一圈。
-     */
-    private fun carveDisc(poseStack: PoseStack, info: BuiltinScopeInfo) {
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_INVERT)
-        RenderSystem.colorMask(false, false, false, false)
-        RenderSystem.depthMask(false)
 
         val aimingProgress = ClientEventHandler.zoomTime.coerceIn(0.0, 1.0).toFloat()
         val rad = 80f * info.viewRadiusModifier * aimingProgress
-        val modelViewMatrix = Matrix4f(RenderSystem.getModelViewMatrix())
-
-        val modelViewStack = RenderSystem.getModelViewStack()
-        modelViewStack.pushMatrix()
-        modelViewStack.identity()
-        RenderSystem.applyModelViewMatrix()
+        val circles = HashMap<Int, ScreenClipRegion?>()
         for (i in ocularIndices.indices) {
-            RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-            val center = getBoneCenter(poseStack, ocularIndices[i], modelViewMatrix)
-            // 圆心在相机背后时这根 `ocular` 不参与：透视除法会把圆盘翻到屏幕另一侧去。
+            if (hulls[i] == null) continue
+            val center = getBoneCenter(poseStack, ocularIndices[i], modelView)
             val depth = -center.z()
-            if (!depth.isFinite() || depth <= 0f) continue
-
+            if (!depth.isFinite() || depth <= 0f || rad <= 0f) continue
             val radius = rad * depth / DISC_DISTANCE
-
+            val centerClip = projection.transform(Vector4f(center.x(), center.y(), center.z(), 1f))
+            if (centerClip.w <= 1.0e-6f) continue
+            val radiusX = projection.m00() * radius / centerClip.w
+            val radiusY = projection.m11() * radius / centerClip.w
+            circles[i] = ScreenClipRegion.ellipse(
+                viewProjection,
+                centerClip.x / centerClip.w,
+                centerClip.y / centerClip.w,
+                radiusX,
+                radiusY,
+                90
+            )
         }
-        modelViewStack.popMatrix()
-        RenderSystem.applyModelViewMatrix()
 
-        RenderSystem.depthMask(true)
-        RenderSystem.colorMask(true, true, true, true)
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
-    }
-
-    /**
-     * 圆盘**之外**画镜筒壁，圆盘**之内**画准星。
-     *
-     * 圆盘已经把窗口内部翻成了 `~(i + 1)`，所以 `EQUAL i + 1` 剩下的正好是"轮廓减去圆盘"那一圈
-     * （镜筒壁，永远画），`EQUAL ~(i + 1)` 则正好是窗口本身（准星）。
-     *
-     * 准星额外等一个 [DIVISION_MIN_ZOOM]：它是贴在镜筒前方一块透明板上的准星纹理，镜筒还没抬到位时
-     * 就已经悬在枪身前面了，等开镜推到四成再出现才不会穿帮（与配件瞄准镜同一个门槛）。
-     */
-    private fun drawWallsAndReticle(
-        poseStack: PoseStack,
-        bufferSource: MultiBufferSource.BufferSource,
-        quadType: RenderType,
-        triangleType: RenderType,
-        light: Int
-    ) {
         val divisionDue = divisionIndex >= 0 && ClientEventHandler.zoomTime >= DIVISION_MIN_ZOOM
-
         for (i in ocularIndices.indices) {
-            RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-            renderBoneImmediate(ocularIndices[i], poseStack, bufferSource, quadType, triangleType, light)
-
-            if (divisionDue) {
-                RenderSystem.stencilFunc(GL11.GL_EQUAL, (i + 1).inv() and 0xFF, 0xFF)
-                renderBoneImmediate(divisionIndex, poseStack, bufferSource, quadType, triangleType, light)
+            val hull = hulls[i] ?: continue
+            val circle = circles[i]
+            renderBoneImmediate(
+                ocularIndices[i], poseStack,
+                ClippingBufferSource.of(bufferSource, emptyList(), listOf(circle)),
+                quadType, triangleType, light
+            )
+            if (divisionDue && circle != null) {
+                renderBoneImmediate(
+                    divisionIndex, poseStack,
+                    ClippingBufferSource.of(bufferSource, listOf(hull, circle), emptyList()),
+                    quadType, triangleType, light
+                )
             }
         }
+
+        return hulls.values.toList()
     }
 
     /**

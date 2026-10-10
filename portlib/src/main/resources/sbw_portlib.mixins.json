@@ -7,7 +7,8 @@
     "EntityRendererMixin",
     "FogRendererMixin",
     "EditBoxMixin",
-    "GuiSetScreenMixin"
+    "GuiSetScreenMixin",
+    "CameraHudFovAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

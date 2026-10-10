@@ -10,7 +10,10 @@ import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoDisplayRenderer
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoDisplayRenderer.AmmoBarState
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoDisplayRenderer.AmmoText
 import com.atsuishio.superbwarfare.client.renderer.ammo.AmmoReadout
-import com.atsuishio.superbwarfare.client.renderer.scope.ScopeStencilRenderHelper
+import com.atsuishio.portlib.render.clip.ClippingBufferSource
+import com.atsuishio.portlib.render.clip.HandProjection
+import com.atsuishio.portlib.render.clip.PositionCapture
+import com.atsuishio.portlib.render.clip.ScreenClipRegion
 import com.atsuishio.superbwarfare.data.attachment.ScopeMode
 import com.atsuishio.superbwarfare.data.attachment.ScopeType
 import com.atsuishio.superbwarfare.event.ClientEventHandler
@@ -29,7 +32,6 @@ import net.minecraft.resources.Identifier
 import net.minecraft.util.Mth
 import org.joml.Matrix4f
 import org.joml.Vector3f
-import org.lwjgl.opengl.GL11
 import java.util.regex.Pattern
 
 class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
@@ -307,7 +309,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         info: ScopeMode,
         companionSightMode: ScopeMode? = null,
         readout: AmmoReadout = AmmoReadout()
-    ) {
+    ): List<ScreenClipRegion?> {
         markIlluminatedBones()
         updateDynamicDivisionScale()
         val ammoBarState = ammo.applyBars(readout.bars, readout.progress)
@@ -315,7 +317,7 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         val quadType = RenderTypes.entityTranslucent(texture)
         val triangleType = BedrockModelRenderTypes.polyMeshCutout(texture)
 
-        when (info.type) {
+        val lensHulls = when (info.type) {
             ScopeType.SIGHT -> renderSight(
                 poseStack,
                 bufferSource,
@@ -351,7 +353,19 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         )
 
         ammo.restoreBars(ammoBarState)
+        return lensHulls
     }
+
+    private class StencilEmulation(val viewProjection: Matrix4f) {
+        val lensHulls = HashMap<Int, ScreenClipRegion?>()
+        val viewCircles = HashMap<Int, ScreenClipRegion?>()
+    }
+
+    private fun clipped(
+        bufferSource: MultiBufferSource.BufferSource,
+        inside: List<ScreenClipRegion?>,
+        outside: List<ScreenClipRegion?>
+    ): MultiBufferSource.BufferSource = ClippingBufferSource.of(bufferSource, inside, outside)
 
     private fun renderSight(
         poseStack: PoseStack,
@@ -361,12 +375,11 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         light: Int,
         info: ScopeMode,
         texts: List<AmmoText>
-    ) {
-        ScopeStencilRenderHelper.enableItemEntityStencilTest()
-        RenderSystem.clearStencil(0)
-
-        renderOcularStencil(poseStack, bufferSource, quadType, triangleType, light, false, info)
+    ): List<ScreenClipRegion?> {
+        val emulation = StencilEmulation(HandProjection.viewProjection())
+        markOculars(emulation, poseStack, quadType, triangleType, light, false, info)
         renderDivisionOnly(
+            emulation,
             poseStack,
             bufferSource,
             quadType,
@@ -376,12 +389,10 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
             texts
         )
 
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF)
-        ScopeStencilRenderHelper.disableItemEntityStencilTest()
-
         for (bodyIndex in scopeBodyIndices(info)) {
             renderBoneImmediate(bodyIndex, poseStack, bufferSource, quadType, triangleType, light)
         }
+        return emptyList()
     }
 
     private fun renderScope(
@@ -393,94 +404,60 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         partialTicks: Float,
         info: ScopeMode,
         texts: List<AmmoText>
-    ) {
-        ScopeStencilRenderHelper.enableItemEntityStencilTest()
-        RenderSystem.clearStencil(0)
+    ): List<ScreenClipRegion?> {
+        val emulation = StencilEmulation(HandProjection.viewProjection())
 
         val ringIndex = ocularRingIndex(info)
         if (ringIndex >= 0) {
-            RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF)
-            RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
             renderBoneImmediate(ringIndex, poseStack, bufferSource, quadType, triangleType, light)
         }
 
-        renderOcularStencil(poseStack, bufferSource, quadType, triangleType, light, false, info)
+        markOculars(emulation, poseStack, quadType, triangleType, light, false, info)
 
         val bodyIndices = scopeBodyIndices(info)
         if (bodyIndices.isNotEmpty()) {
-            RenderSystem.stencilFunc(GL11.GL_EQUAL, 0, 0xFF)
+            val bodySource = clipped(bufferSource, emptyList(), emulation.lensHulls.values.toList())
             for (bodyIndex in bodyIndices) {
-                renderBoneImmediate(bodyIndex, poseStack, bufferSource, quadType, triangleType, light)
+                renderBoneImmediate(bodyIndex, poseStack, bodySource, quadType, triangleType, light)
             }
         }
 
         renderOcularAndDivision(
+            emulation,
             poseStack,
             bufferSource,
             quadType,
             triangleType,
             light,
-            partialTicks,
             info,
             false,
             texts
         )
-
-        RenderSystem.stencilFunc(GL11.GL_ALWAYS, 0, 0xFF)
-        ScopeStencilRenderHelper.disableItemEntityStencilTest()
+        return emulation.lensHulls.values.toList()
     }
 
-    private fun renderOcularStencil(
+    private fun markOculars(
+        emulation: StencilEmulation,
         poseStack: PoseStack,
-        bufferSource: MultiBufferSource.BufferSource,
         quadType: RenderType,
         triangleType: RenderType,
         light: Int,
         selectScope: Boolean,
         info: ScopeMode
     ) {
-        renderOcularStencilInternal(
-            poseStack,
-            bufferSource,
-            quadType,
-            triangleType,
-            light,
-            selectScope,
-            ocularIndicesFor(info),
-            isScopeOcularFor(info)
-        )
-    }
-
-    private fun renderOcularStencilInternal(
-        poseStack: PoseStack,
-        bufferSource: MultiBufferSource.BufferSource,
-        quadType: RenderType,
-        triangleType: RenderType,
-        light: Int,
-        selectScope: Boolean,
-        ocularIndices: List<Int>,
-        isScopeOcular: List<Boolean>
-    ) {
-        if (ocularIndices.isEmpty()) return
-
-        RenderSystem.colorMask(false, false, false, false)
-        RenderSystem.depthMask(false)
-        RenderSystem.stencilMask(0xFF)
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_REPLACE)
-
+        val ocularIndices = ocularIndicesFor(info)
+        val isScopeOcular = isScopeOcularFor(info)
         for (i in ocularIndices.indices.reversed()) {
             if (selectScope == isScopeOcular[i]) {
-                RenderSystem.stencilFunc(GL11.GL_GREATER, i + 1, 0xFF)
-                renderBoneImmediate(ocularIndices[i], poseStack, bufferSource, quadType, triangleType, light)
+                val capture = PositionCapture(emulation.viewProjection)
+                renderBoneImmediate(ocularIndices[i], poseStack, capture, quadType, triangleType, light)
+                emulation.lensHulls[i] = capture.hull()
             }
         }
-
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
-        RenderSystem.depthMask(true)
-        RenderSystem.colorMask(true, true, true, true)
     }
 
     private fun renderDivisionOnly(
+        emulation: StencilEmulation,
         poseStack: PoseStack,
         bufferSource: MultiBufferSource.BufferSource,
         quadType: RenderType,
@@ -494,98 +471,66 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
         // for the zoom. See DIVISION_MIN_ZOOM.
         if (ClientEventHandler.zoomTime < DIVISION_MIN_ZOOM) return
 
-        RenderSystem.disableDepthTest()
         for (i in divisions.indices) {
-            RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-            renderBoneImmediate(divisions[i], poseStack, bufferSource, quadType, triangleType, light)
+            val hull = emulation.lensHulls[i] ?: continue
+            val source = clipped(bufferSource, listOf(hull), emptyList())
+            renderBoneImmediate(divisions[i], poseStack, source, quadType, triangleType, light)
             // Same stencil value and depth state as the reticle it sits next to.
             for (text in texts) {
                 if (text.divisionIndex == divisions[i]) {
-                    ammo.renderText(text, poseStack, bufferSource)
+                    ammo.renderText(text, poseStack, source)
                 }
             }
+            source.endBatch()
         }
-        RenderSystem.enableDepthTest()
+    }
+
+    private fun viewCircle(
+        emulation: StencilEmulation,
+        poseStack: PoseStack,
+        boneIndex: Int,
+        info: ScopeMode
+    ): ScreenClipRegion? {
+        val aimingProgress = ClientEventHandler.zoomTime.coerceIn(0.0, 1.0).toFloat()
+        val rad = 80f * info.viewRadiusModifier * aimingProgress
+        if (!rad.isFinite() || rad <= 0f) return null
+
+        val center = Matrix4f(poseStack.last().pose())
+            .mul(instance.getGlobalTransform(boneIndex))
+            .getTranslation(Vector3f())
+        val ndc = ScreenClipRegion.project(emulation.viewProjection, center.x(), center.y(), center.z()) ?: return null
+        val window = Minecraft.getInstance().window
+        return ScreenClipRegion.ellipse(
+            emulation.viewProjection,
+            ndc[0],
+            ndc[1],
+            2f * rad / window.guiScaledWidth,
+            2f * rad / window.guiScaledHeight,
+            90
+        )
     }
 
     private fun renderOcularAndDivision(
+        emulation: StencilEmulation,
         poseStack: PoseStack,
         bufferSource: MultiBufferSource.BufferSource,
         quadType: RenderType,
         triangleType: RenderType,
         light: Int,
-        partialTicks: Float,
         info: ScopeMode,
         selective: Boolean,
         texts: List<AmmoText>
     ) {
-        renderOcularAndDivisionInternal(
-            poseStack,
-            bufferSource,
-            quadType,
-            triangleType,
-            light,
-            partialTicks,
-            info,
-            ocularIndicesFor(info),
-            isScopeOcularFor(info),
-            divisionIndices(info),
-            selective,
-            texts
-        )
-    }
-
-    private fun renderOcularAndDivisionInternal(
-        poseStack: PoseStack,
-        bufferSource: MultiBufferSource.BufferSource,
-        quadType: RenderType,
-        triangleType: RenderType,
-        light: Int,
-        partialTicks: Float,
-        info: ScopeMode,
-        ocularIndices: List<Int>,
-        isScopeOcular: List<Boolean>,
-        divisions: List<Int>,
-        selective: Boolean,
-        texts: List<AmmoText> = emptyList()
-    ) {
+        val ocularIndices = ocularIndicesFor(info)
+        val isScopeOcular = isScopeOcularFor(info)
+        val divisions = divisionIndices(info)
         if (ocularIndices.isEmpty()) return
 
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_INVERT)
-        RenderSystem.colorMask(false, false, false, false)
-        RenderSystem.depthMask(false)
-
-        val aimingProgress = ClientEventHandler.zoomTime.coerceIn(0.0, 1.0).toFloat()
-        val rad = 80f * info.viewRadiusModifier * aimingProgress
-
-        val window = Minecraft.getInstance().window
-        val projectionMatrix = Matrix4f(RenderSystem.getProjectionMatrix())
-        val modelViewMatrix = Matrix4f(RenderSystem.getModelViewMatrix())
-
-        val modelViewStack = RenderSystem.getModelViewStack()
-        modelViewStack.pushMatrix()
-        modelViewStack.identity()
-        RenderSystem.applyModelViewMatrix()
         for (i in ocularIndices.indices) {
             if (selective && !isScopeOcular[i]) continue
-
-            RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-            val ocularCenter = getBoneCenter(poseStack, ocularIndices[i], modelViewMatrix)
-            val depth = -ocularCenter.z()
-            if (!depth.isFinite() || depth <= 0f) continue
-
-            val radiusX = rad * depth * 2f /
-                    (projectionMatrix.m00() * window.guiScaledWidth)
-            val radiusY = rad * depth * 2f /
-                    (projectionMatrix.m11() * window.guiScaledHeight)
-
+            if (emulation.lensHulls[i] == null) continue
+            emulation.viewCircles[i] = viewCircle(emulation, poseStack, ocularIndices[i], info)
         }
-        modelViewStack.popMatrix()
-        RenderSystem.applyModelViewMatrix()
-
-        RenderSystem.depthMask(true)
-        RenderSystem.colorMask(true, true, true, true)
-        RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
 
         // Reticle and readout come in together, so both wait for the zoom. The ocular itself does not:
         // it is the window, and it is what the reticle is drawn through. See DIVISION_MIN_ZOOM.
@@ -595,24 +540,26 @@ class BedrockAttachmentModel(internal val baseModel: TreeBedrockModel) {
                 throw IllegalArgumentException("Index of oculus is out of range for 127")
             }
             if (i >= divisions.size) break
+            val hull = emulation.lensHulls[i] ?: continue
+            val circle = emulation.viewCircles[i]
 
             if (selective && !isScopeOcular[i]) {
                 if (!divisionDue) continue
-                RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-                renderBoneImmediate(divisions[i], poseStack, bufferSource, quadType, triangleType, light)
+                val source = clipped(bufferSource, listOf(hull), listOf(circle))
+                renderBoneImmediate(divisions[i], poseStack, source, quadType, triangleType, light)
             } else {
-                RenderSystem.stencilFunc(GL11.GL_EQUAL, i + 1, 0xFF)
-                renderBoneImmediate(ocularIndices[i], poseStack, bufferSource, quadType, triangleType, light)
+                val ocularSource = clipped(bufferSource, emptyList(), listOf(circle))
+                renderBoneImmediate(ocularIndices[i], poseStack, ocularSource, quadType, triangleType, light)
 
-                if (!divisionDue) continue
-                val b = (i + 1).inv() and 0xFF
-                RenderSystem.stencilFunc(GL11.GL_EQUAL, b, 0xFF)
-                renderBoneImmediate(divisions[i], poseStack, bufferSource, quadType, triangleType, light)
+                if (!divisionDue || circle == null) continue
+                val source = clipped(bufferSource, listOf(hull, circle), emptyList())
+                renderBoneImmediate(divisions[i], poseStack, source, quadType, triangleType, light)
                 for (text in texts) {
                     if (text.divisionIndex == divisions[i]) {
-                        ammo.renderText(text, poseStack, bufferSource)
+                        ammo.renderText(text, poseStack, source)
                     }
                 }
+                source.endBatch()
             }
         }
     }

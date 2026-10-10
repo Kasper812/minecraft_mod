@@ -23,7 +23,8 @@ import com.atsuishio.superbwarfare.client.renderer.gun.GeoGunRenderer.Companion.
 import com.atsuishio.superbwarfare.client.renderer.gun.GeoGunRenderer.Companion.OEM_MUZZLE_BONE
 import com.atsuishio.superbwarfare.client.renderer.laser.LaserSightCapture
 import com.atsuishio.superbwarfare.client.renderer.laser.LaserSightRenderer
-import com.atsuishio.superbwarfare.client.renderer.scope.ScopeStencilRenderHelper
+import com.atsuishio.portlib.render.clip.ClippingBufferSource
+import com.atsuishio.portlib.render.clip.ScreenClipRegion
 import com.atsuishio.superbwarfare.compat.acceleratedrendering.AcceleratedRenderingCompat
 import com.atsuishio.superbwarfare.config.client.DisplayConfig
 import com.atsuishio.superbwarfare.data.attachment.*
@@ -87,7 +88,6 @@ import org.joml.Matrix4f
 import org.joml.Quaternionf
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW
-import org.lwjgl.opengl.GL11
 import java.util.*
 import kotlin.math.roundToInt
 
@@ -466,6 +466,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
                 && bufferSource is MultiBufferSource.BufferSource
         val stencilScope = if (canStencil) findStencilScope(stack, model) else null
         var gunCulled = false
+        var cullRegions: List<ScreenClipRegion?> = emptyList()
         var builtinScopeActive = false
         // 装了加速渲染时，下面这一整段（瞄具 + 枪身 + 收尾）都要让 AR 走**原版管线**：
         // AR 会把顶点收进缓存、推迟到这一帧的 flush 才画，而模板蒙版要求"写模板 → 裁镜身 →
@@ -482,7 +483,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
                 handledScopeAttachment = stencilScope.attachmentId
                 poseStack.pushPose()
                 mulPoseWithNormal(poseStack, stencilScope.slotTransform)
-                stencilScope.model.renderWithStencil(
+                val lensHulls = stencilScope.model.renderWithStencil(
                     poseStack,
                     bufferSource as MultiBufferSource.BufferSource,
                     stencilScope.texture,
@@ -495,9 +496,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
                 poseStack.popPose()
 
                 if (stencilScope.scopeMode.isScope()) {
-                    ScopeStencilRenderHelper.enableItemEntityStencilTest()
-                    RenderSystem.stencilFunc(GL11.GL_EQUAL, 0, 0xFF)
-                    RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
+                    cullRegions = lensHulls
                     gunCulled = true
                 }
             } else if (canStencil) {
@@ -510,7 +509,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
                     // ⚠ 这里**不做任何额外变换** —— 用的就是下面画枪身那一个 poseStack。
                     // 窗口、准星、被剔除的枪身三者靠共用同一份变换才咬得死，Z 轴压缩量怎么变都不会错位。
                     poseStack.pushPose()
-                    model.builtinScopeRenderer.renderWithStencil(
+                    cullRegions = model.builtinScopeRenderer.renderWithStencil(
                         poseStack,
                         bufferSource,
                         RenderTypes.entityTranslucent(texture),
@@ -522,12 +521,15 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
 
                     // 与上面配件那一支逐字相同的三行：接下来画的枪身只在窗口**之外**留下。
                     // 那圈几何体本身就是黑色外框，仓库里没有任何 2D 遮罩贴图。
-                    ScopeStencilRenderHelper.enableItemEntityStencilTest()
-                    RenderSystem.stencilFunc(GL11.GL_EQUAL, 0, 0xFF)
-                    RenderSystem.stencilOp(GL11.GL_KEEP, GL11.GL_KEEP, GL11.GL_KEEP)
                     gunCulled = true
                 }
             }
+            val bodySource: MultiBufferSource =
+                if (gunCulled && bufferSource is MultiBufferSource.BufferSource) {
+                    ClippingBufferSource.outside(bufferSource, cullRegions)
+                } else {
+                    bufferSource
+                }
 
             // 部署副武器期间的手臂接管（[resolveDeployedSubWeaponArmAnchors]）。
             // ⚠ 采样点必须尽可能晚：挂点取自本帧最终骨骼，排在 `applyPose` / `applyCameraShake` /
@@ -536,7 +538,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
                 resolveDeployedSubWeaponArmAnchors(stack, model, handForContext(transformType))
             }
 
-            renderAttachments(stack, model, transformType, poseStack, bufferSource, packedLight, packedOverlay)
+            renderAttachments(stack, model, transformType, poseStack, bodySource, packedLight, packedOverlay)
 
             // 内置瞄具的准星板：**任何时候**都要藏（腰射、GUI、第三人称、展示框全都走这里），
             // 否则 `renderToBuffer` 会把它那块 200×200 的透明大板当普通几何体画出来 —— 看上去
@@ -553,7 +555,7 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
             val savedOcularBones = if (builtinScopeActive) model.builtinScopeRenderer.hideOcularBones() else null
             try {
                 model.renderToBuffer(
-                    poseStack, bufferSource, texture, packedLight, packedOverlay,
+                    poseStack, bodySource, texture, packedLight, packedOverlay,
                     resolveGunAmmoReadout(stack, resource),
                     // ⚠ 必须在 `renderAttachments` 之后算：副武器换弹那份锚点是在里面填的，优先级更高
                     resolveArmAnchorsForDraw(model, transformType),
@@ -578,7 +580,10 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
             // 那一族）正好落在 AR 会加速的那批格式里 —— 走出这个块，它的顶点会被 AR 推迟到帧尾，
             // 那时模板状态早就换了，光束就会整根盖到镜筒里外。
             if (transformType.firstPerson() || transformType == ItemDisplayContext.THIRD_PERSON_RIGHT_HAND) {
-                LaserSightRenderer.render(poseStack, bufferSource, partialTick)
+                LaserSightRenderer.render(poseStack, bodySource, partialTick)
+            }
+            if (bodySource is ClippingBufferSource) {
+                bodySource.finish()
             }
         } finally {
             if (vanillaAcceleration) {
@@ -1002,8 +1007,6 @@ open class GeoGunRenderer : AbstractGeoItemRendererV2() {
 //            }
         }
 
-        ScopeStencilRenderHelper.disableItemEntityStencilTest()
-        RenderSystem.clearStencil(0)
     }
 
     open fun renderStock(
