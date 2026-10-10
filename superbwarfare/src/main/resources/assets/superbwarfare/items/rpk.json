@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "sbw_portlib:builtin",
+    "base": "superbwarfare:item/rpk"
+  }
+}

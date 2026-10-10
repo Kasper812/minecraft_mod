@@ -1,6 +1,5 @@
 {
   "credit": "Made with Blockbench",
-  "parent": "builtin/entity",
   "texture_size": [
     128,
     128
@@ -97,5 +96,6 @@
         1.1
       ]
     }
-  }
+  },
+  "sbw_builtin": true
 }

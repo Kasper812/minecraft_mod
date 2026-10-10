@@ -1,6 +1,7 @@
 {
-  "parent": "superbwarfare:item/fumo_25",
+  "parent": "minecraft:item/generated",
   "textures": {
+    "layer0": "superbwarfare:block/fumo_25",
     "particle": "minecraft:block/orange_terracotta"
   }
 }

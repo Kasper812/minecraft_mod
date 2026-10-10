@@ -84,7 +84,6 @@ public final class BuiltinItemModel implements ItemModel {
             SubmitBufferSource buffers = new SubmitBufferSource(collector);
             CURRENT_OWNER.set(argument.owner());
             poseStack.pushPose();
-            poseStack.translate(-0.5F, -0.5F, -0.5F);
             boolean gui = argument.context() == ItemDisplayContext.GUI;
             if (gui) {
                 SbmRenderContext.pushGui();

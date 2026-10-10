@@ -1,6 +1,5 @@
 {
   "credit": "Made with Blockbench",
-  "parent": "builtin/entity",
   "texture_size": [
     32,
     32
@@ -110,5 +109,6 @@
   },
   "textures": {
     "particle": "superbwarfare:item/lunge_mine_icon"
-  }
+  },
+  "sbw_builtin": true
 }

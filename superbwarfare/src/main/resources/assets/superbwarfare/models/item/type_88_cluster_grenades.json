@@ -1,5 +1,4 @@
 {
-  "parent": "builtin/entity",
   "texture_size": [
     256,
     256
@@ -92,5 +91,9 @@
         1.2
       ]
     }
+  },
+  "sbw_builtin": true,
+  "textures": {
+    "particle": "minecraft:block/iron_block"
   }
 }

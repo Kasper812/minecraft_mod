@@ -40,14 +40,12 @@ public final class ModRenderTypes {
             "poly_mesh_translucent_emissive",
             RenderSetup.builder(ModPipelines.POLY_MESH_TRANSLUCENT_EMISSIVE)
                     .withTexture("Sampler0", location)
-                    .sortOnUpload()
                     .createRenderSetup()));
 
     public static final Function<Identifier, RenderType> POLY_MESH_EYES = Util.memoize(location -> RenderType.create(
             "poly_mesh_eyes",
             RenderSetup.builder(ModPipelines.POLY_MESH_EYES)
                     .withTexture("Sampler0", location)
-                    .sortOnUpload()
                     .createRenderSetup()));
 
     public static final Function<Identifier, RenderType> MUZZLE_FLASH_TYPE = Util.memoize(location -> RenderType.create(

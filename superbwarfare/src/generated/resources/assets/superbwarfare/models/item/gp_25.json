@@ -1,4 +1,7 @@
 {
-  "parent": "minecraft:builtin/entity",
-  "gui_light": "front"
+  "gui_light": "front",
+  "sbw_builtin": true,
+  "textures": {
+    "particle": "superbwarfare:item/gp_25"
+  }
 }

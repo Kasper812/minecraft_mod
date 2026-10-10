@@ -58,6 +58,10 @@ def click(x, y, b=1):
     d.sync()
 
 
+SHIFTED = {"!": "1", "#": "3", "$": "4", "%": "5", "^": "6", "&": "7", "*": "8", "(": "9", ")": "0", "{": "bracketleft", "}": "bracketright", "\"": "apostrophe", "<": "comma", ">": "period", "?": "slash", "|": "backslash", "+": "equal"}
+PLAIN = {"'": "apostrophe", ";": "semicolon", "\\": "backslash"}
+
+
 def type_text(s):
     for ch in s:
         if ch == " ":
@@ -84,6 +88,10 @@ def type_text(s):
             key("comma")
         elif ch == "~":
             down("Shift_L"); key("grave"); up("Shift_L")
+        elif ch in SHIFTED:
+            down("Shift_L"); key(SHIFTED[ch]); up("Shift_L")
+        elif ch in PLAIN:
+            key(PLAIN[ch])
         elif ch.isupper():
             down("Shift_L"); key(ch.lower()); up("Shift_L")
         else:
@@ -107,6 +115,12 @@ for a in sys.argv[1:]:
         move(int(x), int(y))
     elif op == "type":
         type_text(arg)
+    elif op == "mdown":
+        xtest.fake_input(d, X.ButtonPress, int(arg)); d.sync()
+    elif op == "mup":
+        xtest.fake_input(d, X.ButtonRelease, int(arg)); d.sync()
+    elif op == "shot":
+        os.system("/home/user/sbw-port/tools/client_dump.sh " + arg + " > /dev/null")
     elif op == "sleep":
         time.sleep(float(arg))
     elif op == "cmd":

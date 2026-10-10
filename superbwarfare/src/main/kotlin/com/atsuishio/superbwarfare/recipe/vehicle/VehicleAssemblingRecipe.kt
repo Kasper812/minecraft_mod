@@ -76,6 +76,8 @@ class VehicleAssemblingRecipe : Recipe<RecipeInput> {
 
     override fun placementInfo(): PlacementInfo = PlacementInfo.NOT_PLACEABLE
 
+    override fun isSpecial(): Boolean = true
+
     override fun recipeBookCategory(): RecipeBookCategory = RecipeBookCategories.CRAFTING_MISC
 
 

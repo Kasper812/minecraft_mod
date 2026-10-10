@@ -1,0 +1,16 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:component",
+    "predicate": "minecraft:custom_data",
+    "value": "{Infinite:1b}",
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "superbwarfare:item/armor_plate_infinite"
+    },
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "superbwarfare:item/armor_plate"
+    }
+  }
+}

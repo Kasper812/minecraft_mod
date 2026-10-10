@@ -1,5 +1,4 @@
 {
-  "parent": "builtin/entity",
   "texture_size": [
     32,
     32
@@ -87,6 +86,8 @@
     }
   },
   "textures": {
-    "layer0": "superbwarfare:item/ptkm_1r"
-  }
+    "layer0": "superbwarfare:item/ptkm_1r",
+    "particle": "superbwarfare:item/ptkm_1r"
+  },
+  "sbw_builtin": true
 }
