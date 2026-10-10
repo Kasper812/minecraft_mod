@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:cell"
-    }
+    "a": "superbwarfare:cell"
   },
   "pattern": [
     "aa",

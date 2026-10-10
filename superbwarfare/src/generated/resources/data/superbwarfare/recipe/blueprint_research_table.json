@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "a": {
-      "item": "minecraft:iron_ingot"
-    },
-    "b": {
-      "item": "superbwarfare:battery"
-    },
-    "c": {
-      "item": "minecraft:cartography_table"
-    },
-    "d": {
-      "tag": "c:storage_blocks/redstone"
-    },
-    "e": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "minecraft:iron_ingot",
+    "b": "superbwarfare:battery",
+    "c": "minecraft:cartography_table",
+    "d": "#c:storage_blocks/redstone",
+    "e": "#c:ingots/steel"
   },
   "pattern": [
     "aaa",

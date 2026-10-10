@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:tripwire_hook"
-    },
-    "b": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "minecraft:tripwire_hook",
+    "b": "#c:ingots/steel"
   },
   "pattern": [
     "a",

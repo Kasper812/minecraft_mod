@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:chain"
-    },
-    "b": {
-      "item": "minecraft:lead"
-    },
-    "c": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "minecraft:iron_chain",
+    "b": "minecraft:lead",
+    "c": "#c:ingots/steel"
   },
   "pattern": [
     " a ",

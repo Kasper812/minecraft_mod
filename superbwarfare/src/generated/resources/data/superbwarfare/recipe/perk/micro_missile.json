@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "superbwarfare:grain"
-    },
-    "c": {
-      "item": "minecraft:firework_rocket"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "superbwarfare:grain",
+    "c": "minecraft:firework_rocket"
   },
   "pattern": [
     "cbc",

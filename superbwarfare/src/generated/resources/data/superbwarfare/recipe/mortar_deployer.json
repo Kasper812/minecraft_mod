@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:mortar_barrel"
-    },
-    "b": {
-      "item": "superbwarfare:mortar_bipod"
-    },
-    "c": {
-      "item": "superbwarfare:mortar_base_plate"
-    }
+    "a": "superbwarfare:mortar_barrel",
+    "b": "superbwarfare:mortar_bipod",
+    "c": "superbwarfare:mortar_base_plate"
   },
   "pattern": [
     "a ",

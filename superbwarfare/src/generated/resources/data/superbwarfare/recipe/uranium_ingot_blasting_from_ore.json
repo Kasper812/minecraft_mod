@@ -4,12 +4,8 @@
   "cookingtime": 100,
   "experience": 0.7,
   "ingredient": [
-    {
-      "item": "superbwarfare:uranium_ore"
-    },
-    {
-      "item": "superbwarfare:deepslate_uranium_ore"
-    }
+    "superbwarfare:uranium_ore",
+    "superbwarfare:deepslate_uranium_ore"
   ],
   "result": {
     "count": 1,

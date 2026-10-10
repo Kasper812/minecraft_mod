@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:ingots/steel"
-    },
-    "c": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "d": {
-      "item": "superbwarfare:primer"
-    }
+    "a": "#c:ingots/steel",
+    "c": "superbwarfare:high_energy_explosives",
+    "d": "superbwarfare:primer"
   },
   "pattern": [
     " a ",

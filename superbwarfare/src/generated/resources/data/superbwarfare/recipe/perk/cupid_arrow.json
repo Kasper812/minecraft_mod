@@ -2,20 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:bow"
-    },
-    "c": {
-      "tag": "minecraft:arrows"
-    },
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:bow",
+    "c": "#minecraft:arrows",
     "d": {
       "fabric:type": "fabric:components",
-      "base": {
-        "item": "minecraft:potion"
-      },
+      "base": "minecraft:potion",
       "components": {
         "minecraft:potion_contents": {
           "potion": "minecraft:healing"

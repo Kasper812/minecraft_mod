@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/tungsten"
-    },
-    {
-      "tag": "superbwarfare:hammer"
-    }
+    "#c:ingots/tungsten",
+    "#superbwarfare:hammer"
   ],
   "result": {
     "count": 1,

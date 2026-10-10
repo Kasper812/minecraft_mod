@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:amethyst_shard"
-    },
-    "b": {
-      "item": "minecraft:diamond"
-    },
-    "c": {
-      "item": "minecraft:redstone"
-    },
-    "d": {
-      "tag": "c:ingots/steel"
-    },
-    "e": {
-      "item": "minecraft:copper_ingot"
-    }
+    "a": "minecraft:amethyst_shard",
+    "b": "minecraft:diamond",
+    "c": "minecraft:redstone",
+    "d": "#c:ingots/steel",
+    "e": "minecraft:copper_ingot"
   },
   "pattern": [
     "eae",

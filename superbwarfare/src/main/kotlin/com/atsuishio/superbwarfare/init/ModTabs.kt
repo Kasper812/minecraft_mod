@@ -157,7 +157,7 @@ object ModTabs {
                 output.accept(ModItems.CROWBAR)
                 output.accept(ModItems.VEHICLE_ASSEMBLING_TABLE)
 
-                RegisterContainersEvent.CONTAINERS.forEach { output.acceptSingle(it) }
+                RegisterContainersEvent.CONTAINERS.forEach { output.acceptSingle(it()) }
 
                 output.accept(ModItems.LUCKY_CONTAINER)
                 LuckyContainerBlockItem.LUCKY_CONTAINERS.stream()

@@ -1,16 +1,10 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "tag": "c:plates/plastic"
-  },
-  "base": {
-    "item": "superbwarfare:rare_material_pack"
-  },
+  "addition": "#c:plates/plastic",
+  "base": "superbwarfare:rare_material_pack",
   "result": {
     "count": 1,
     "id": "superbwarfare:glock_18"
   },
-  "template": {
-    "item": "superbwarfare:glock_18_blueprint"
-  }
+  "template": "superbwarfare:glock_18_blueprint"
 }

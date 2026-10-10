@@ -26,8 +26,7 @@
               "name": "superbwarfare:vehicle_assembling_table"
             },
             {
-              "type": "minecraft:item",
-              "name": "minecraft:air"
+              "type": "minecraft:empty"
             }
           ]
         }

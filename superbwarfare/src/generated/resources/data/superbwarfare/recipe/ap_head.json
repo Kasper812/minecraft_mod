@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:gunpowder"
-    },
-    "b": {
-      "tag": "c:plates/steel"
-    },
-    "d": {
-      "item": "superbwarfare:tungsten_rod"
-    },
-    "e": {
-      "item": "superbwarfare:fusee"
-    }
+    "a": "minecraft:gunpowder",
+    "b": "#c:plates/steel",
+    "d": "superbwarfare:tungsten_rod",
+    "e": "superbwarfare:fusee"
   },
   "pattern": [
     " e ",

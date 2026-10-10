@@ -2,33 +2,15 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "minecraft:wool"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    {
-      "item": "superbwarfare:nitrocellulose"
-    }
+    "#minecraft:wool",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose",
+    "superbwarfare:nitrocellulose"
   ],
   "result": {
     "count": 2,

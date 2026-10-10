@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:lightning_rod"
-    },
-    "b": {
-      "item": "minecraft:lever"
-    },
-    "c": {
-      "tag": "c:plates/plastic"
-    },
-    "d": {
-      "item": "minecraft:amethyst_shard"
-    },
-    "e": {
-      "tag": "c:glass_panes"
-    }
+    "a": "minecraft:lightning_rod",
+    "b": "minecraft:lever",
+    "c": "#c:plates/plastic",
+    "d": "minecraft:amethyst_shard",
+    "e": "#c:glass_panes"
   },
   "pattern": [
     "a a",

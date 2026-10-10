@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "b": {
-      "item": "minecraft:clock"
-    }
+    "a": "superbwarfare:high_energy_explosives",
+    "b": "minecraft:clock"
   },
   "pattern": [
     "aaa",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:flint"
-    },
-    "b": {
-      "tag": "c:plates/copper"
-    }
+    "a": "minecraft:flint",
+    "b": "#c:plates/copper"
   },
   "pattern": [
     "a",

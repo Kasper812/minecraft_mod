@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    {
-      "item": "minecraft:blaze_powder"
-    },
-    {
-      "item": "minecraft:gunpowder"
-    },
-    {
-      "tag": "c:dusts/iron"
-    }
+    "minecraft:blaze_powder",
+    "minecraft:gunpowder",
+    "#c:dusts/iron"
   ],
   "result": {
     "count": 16,

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "minecraft:planks"
-    },
-    "b": {
-      "item": "minecraft:iron_bars"
-    }
+    "a": "#minecraft:planks",
+    "b": "minecraft:iron_bars"
   },
   "pattern": [
     "aba"

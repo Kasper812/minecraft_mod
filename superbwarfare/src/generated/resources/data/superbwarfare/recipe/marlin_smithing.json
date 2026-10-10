@@ -1,16 +1,10 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "tag": "minecraft:logs"
-  },
-  "base": {
-    "item": "superbwarfare:common_material_pack"
-  },
+  "addition": "#minecraft:logs",
+  "base": "superbwarfare:common_material_pack",
   "result": {
     "count": 1,
     "id": "superbwarfare:marlin"
   },
-  "template": {
-    "item": "superbwarfare:marlin_blueprint"
-  }
+  "template": "superbwarfare:marlin_blueprint"
 }

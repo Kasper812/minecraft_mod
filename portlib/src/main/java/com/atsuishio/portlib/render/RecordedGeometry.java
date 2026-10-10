@@ -47,6 +47,16 @@ public final class RecordedGeometry implements VertexConsumer, SubmitNodeCollect
         return new float[]{minX, minY, maxX, maxY};
     }
 
+    public void fillMissingColor(int color) {
+        for (int i = 0; i < count; i++) {
+            int b = i * I_STRIDE;
+            if ((ints[b] & COLOR) == 0) {
+                ints[b] |= COLOR;
+                ints[b + 1] = color;
+            }
+        }
+    }
+
     private void ensure() {
         if ((count + 1) * F_STRIDE > floats.length) {
             floats = Arrays.copyOf(floats, floats.length * 2);
@@ -144,17 +154,25 @@ public final class RecordedGeometry implements VertexConsumer, SubmitNodeCollect
             }
             if ((mask & COLOR) != 0) {
                 buffer.setColor(ints[b + 1]);
+            } else {
+                buffer.setColor(-1);
             }
             if ((mask & UV0) != 0) {
                 buffer.setUv(floats[f + 3], floats[f + 4]);
+            } else {
+                buffer.setUv(0.0F, 0.0F);
             }
             if ((mask & UV1) != 0) {
                 int p = ints[b + 2];
                 buffer.setUv1(p & 65535, p >>> 16);
+            } else {
+                buffer.setUv1(0, 10);
             }
             if ((mask & UV2) != 0) {
                 int p = ints[b + 3];
                 buffer.setUv2(p & 65535, p >>> 16);
+            } else {
+                buffer.setUv2(240, 240);
             }
             if ((mask & NORMAL) != 0) {
                 if (identity) {
@@ -162,9 +180,13 @@ public final class RecordedGeometry implements VertexConsumer, SubmitNodeCollect
                 } else {
                     buffer.setNormal(pose, floats[f + 5], floats[f + 6], floats[f + 7]);
                 }
+            } else {
+                buffer.setNormal(0.0F, 1.0F, 0.0F);
             }
             if ((mask & LINE_WIDTH) != 0) {
                 buffer.setLineWidth(floats[f + 8]);
+            } else {
+                buffer.setLineWidth(1.0F);
             }
         }
     }

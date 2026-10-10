@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:plates/copper"
-    },
-    "b": {
-      "item": "minecraft:amethyst_shard"
-    },
-    "d": {
-      "item": "minecraft:iron_ingot"
-    }
+    "a": "#c:plates/copper",
+    "b": "minecraft:amethyst_shard",
+    "d": "minecraft:iron_ingot"
   },
   "pattern": [
     "dad",

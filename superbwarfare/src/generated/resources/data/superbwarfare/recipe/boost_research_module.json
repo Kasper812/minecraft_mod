@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    },
-    "b": {
-      "tag": "c:ingots/gold"
-    },
-    "c": {
-      "item": "superbwarfare:data_chip_substrate"
-    },
-    "d": {
-      "tag": "c:gems/emerald"
-    }
+    "a": "#superbwarfare:ingots/cemented_carbide",
+    "b": "#c:ingots/gold",
+    "c": "superbwarfare:data_chip_substrate",
+    "d": "#c:gems/emerald"
   },
   "pattern": [
     "ada",

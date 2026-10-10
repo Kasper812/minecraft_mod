@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:steel_barrel"
-    },
-    {
-      "item": "superbwarfare:steel_action"
-    },
-    {
-      "item": "superbwarfare:steel_spring"
-    },
-    {
-      "item": "superbwarfare:steel_trigger"
-    }
+    "superbwarfare:steel_barrel",
+    "superbwarfare:steel_action",
+    "superbwarfare:steel_spring",
+    "superbwarfare:steel_trigger"
   ],
   "result": {
     "count": 1,

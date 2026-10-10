@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:nitrocellulose"
-    },
-    "b": {
-      "item": "minecraft:sugar"
-    },
-    "c": {
-      "tag": "c:sands"
-    }
+    "a": "superbwarfare:nitrocellulose",
+    "b": "minecraft:sugar",
+    "c": "#c:sands"
   },
   "pattern": [
     "aba",

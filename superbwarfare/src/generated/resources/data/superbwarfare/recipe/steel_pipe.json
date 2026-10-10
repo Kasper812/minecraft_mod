@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:steel_barrel"
-    }
+    "a": "superbwarfare:steel_barrel"
   },
   "pattern": [
     " a",

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:spyglass"
-    },
-    "b": {
-      "item": "superbwarfare:monitor"
-    },
-    "c": {
-      "item": "superbwarfare:firing_parameters"
-    }
+    "a": "minecraft:spyglass",
+    "b": "superbwarfare:monitor",
+    "c": "superbwarfare:firing_parameters"
   },
   "pattern": [
     " b ",

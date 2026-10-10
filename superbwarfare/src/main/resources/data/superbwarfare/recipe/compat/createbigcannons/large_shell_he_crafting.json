@@ -7,15 +7,9 @@
     "b"
   ],
   "key": {
-    "a": {
-      "item": "createbigcannons:he_shell"
-    },
-    "b": {
-      "tag": "createbigcannons:big_cannon_propellant_bags"
-    },
-    "c": {
-      "item": "createbigcannons:impact_fuze"
-    }
+    "a": "createbigcannons:he_shell",
+    "b": "#createbigcannons:big_cannon_propellant_bags",
+    "c": "createbigcannons:impact_fuze"
   },
   "result": {
     "id": "superbwarfare:large_shell_he",

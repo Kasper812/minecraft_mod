@@ -2,9 +2,7 @@
   "type": "minecraft:smelting",
   "cookingtime": 200,
   "experience": 0.3,
-  "ingredient": {
-    "tag": "c:dusts/lead"
-  },
+  "ingredient": "#c:dusts/lead",
   "result": {
     "count": 1,
     "id": "superbwarfare:lead_ingot"
@@ -12,6 +10,8 @@
   "fabric:load_conditions": {
     "condition": "fabric:tags_populated",
     "registry": "minecraft:item",
-    "values": ["c:dusts/lead"]
+    "values": [
+      "c:dusts/lead"
+    ]
   }
 }

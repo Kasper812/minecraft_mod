@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:gunpowder"
-    },
-    "b": {
-      "tag": "c:plates/steel"
-    },
-    "d": {
-      "tag": "c:ingots/lead"
-    }
+    "a": "minecraft:gunpowder",
+    "b": "#c:plates/steel",
+    "d": "#c:ingots/lead"
   },
   "pattern": [
     "ddd",

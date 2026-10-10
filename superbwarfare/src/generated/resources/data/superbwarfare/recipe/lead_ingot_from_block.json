@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:lead_block"
-    }
+    "superbwarfare:lead_block"
   ],
   "result": {
     "count": 9,

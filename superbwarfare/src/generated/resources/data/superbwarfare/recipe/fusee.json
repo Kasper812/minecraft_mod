@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:stone_button"
-    },
-    "b": {
-      "tag": "c:dusts/redstone"
-    },
-    "c": {
-      "tag": "c:nuggets/iron"
-    }
+    "a": "minecraft:stone_button",
+    "b": "#c:dusts/redstone",
+    "c": "#c:nuggets/iron"
   },
   "pattern": [
     "a",

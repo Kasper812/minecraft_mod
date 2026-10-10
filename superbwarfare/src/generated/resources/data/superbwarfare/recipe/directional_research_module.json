@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    },
-    "b": {
-      "tag": "c:ingots/gold"
-    },
-    "c": {
-      "item": "superbwarfare:ancient_cpu"
-    },
-    "d": {
-      "tag": "c:gems/diamond"
-    }
+    "a": "#superbwarfare:ingots/cemented_carbide",
+    "b": "#c:ingots/gold",
+    "c": "superbwarfare:ancient_cpu",
+    "d": "#c:gems/diamond"
   },
   "pattern": [
     "ada",

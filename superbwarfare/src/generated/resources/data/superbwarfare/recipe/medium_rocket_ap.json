@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:ap_head"
-    },
-    "b": {
-      "item": "superbwarfare:small_rocket"
-    }
+    "a": "superbwarfare:ap_head",
+    "b": "superbwarfare:small_rocket"
   },
   "pattern": [
     "a",

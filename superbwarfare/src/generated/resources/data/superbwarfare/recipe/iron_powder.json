@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:ingots/iron"
-    },
-    {
-      "tag": "superbwarfare:hammer"
-    }
+    "#c:ingots/iron",
+    "#superbwarfare:hammer"
   ],
   "result": {
     "count": 1,

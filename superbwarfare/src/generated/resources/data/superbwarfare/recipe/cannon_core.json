@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:ingots/steel"
-    },
-    "b": {
-      "item": "minecraft:dispenser"
-    },
-    "c": {
-      "item": "superbwarfare:cemented_carbide_action"
-    },
-    "d": {
-      "item": "minecraft:piston"
-    }
+    "a": "#c:ingots/steel",
+    "b": "minecraft:dispenser",
+    "c": "superbwarfare:cemented_carbide_action",
+    "d": "minecraft:piston"
   },
   "pattern": [
     "aaa",

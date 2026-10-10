@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:redstone_torch"
-    },
-    "b": {
-      "item": "minecraft:stone_button"
-    },
-    "c": {
-      "tag": "c:plates/plastic"
-    }
+    "a": "minecraft:redstone_torch",
+    "b": "minecraft:stone_button",
+    "c": "#c:plates/plastic"
   },
   "pattern": [
     " a",

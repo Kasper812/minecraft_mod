@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "tag": "c:storage_blocks/lead"
-    },
-    "c": {
-      "item": "minecraft:spider_eye"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "#c:storage_blocks/lead",
+    "c": "minecraft:spider_eye"
   },
   "pattern": [
     "cbc",

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "tag": "c:ingots/netherite"
-    },
-    "c": {
-      "item": "superbwarfare:ap_head"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "#c:ingots/netherite",
+    "c": "superbwarfare:ap_head"
   },
   "pattern": [
     "cbc",

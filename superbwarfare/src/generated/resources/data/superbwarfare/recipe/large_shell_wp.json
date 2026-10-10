@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:wp_head"
-    },
-    "b": {
-      "item": "superbwarfare:grain"
-    }
+    "a": "superbwarfare:wp_head",
+    "b": "superbwarfare:grain"
   },
   "pattern": [
     "a",

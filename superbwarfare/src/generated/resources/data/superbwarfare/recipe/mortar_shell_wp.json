@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:fusee"
-    },
-    "b": {
-      "tag": "c:ingots/steel"
-    },
-    "c": {
-      "item": "minecraft:gunpowder"
-    },
-    "d": {
-      "item": "superbwarfare:grain"
-    },
-    "e": {
-      "item": "minecraft:blaze_powder"
-    },
-    "f": {
-      "item": "minecraft:bone_meal"
-    }
+    "a": "superbwarfare:fusee",
+    "b": "#c:ingots/steel",
+    "c": "minecraft:gunpowder",
+    "d": "superbwarfare:grain",
+    "e": "minecraft:blaze_powder",
+    "f": "minecraft:bone_meal"
   },
   "pattern": [
     "eaf",

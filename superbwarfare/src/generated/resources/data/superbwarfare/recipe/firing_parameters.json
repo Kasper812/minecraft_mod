@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:target"
-    },
-    "b": {
-      "item": "minecraft:paper"
-    },
-    "c": {
-      "tag": "minecraft:planks"
-    }
+    "a": "minecraft:target",
+    "b": "minecraft:paper",
+    "c": "#minecraft:planks"
   },
   "pattern": [
     "a",

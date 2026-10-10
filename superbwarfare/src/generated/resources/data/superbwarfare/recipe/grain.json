@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:plates/copper"
-    },
-    "b": {
-      "item": "minecraft:gunpowder"
-    },
-    "c": {
-      "item": "superbwarfare:primer"
-    }
+    "a": "#c:plates/copper",
+    "b": "minecraft:gunpowder",
+    "c": "superbwarfare:primer"
   },
   "pattern": [
     "aba",

@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:fusee"
-    },
-    "b": {
-      "item": "minecraft:iron_ingot"
-    },
-    "c": {
-      "tag": "c:plates/copper"
-    },
-    "d": {
-      "item": "superbwarfare:grain"
-    },
-    "e": {
-      "item": "minecraft:gunpowder"
-    }
+    "a": "superbwarfare:fusee",
+    "b": "minecraft:iron_ingot",
+    "c": "#c:plates/copper",
+    "d": "superbwarfare:grain",
+    "e": "minecraft:gunpowder"
   },
   "pattern": [
     " a ",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "a": {
-      "tag": "c:ingots/tungsten"
-    },
-    "b": {
-      "item": "superbwarfare:tungsten_ingot"
-    }
+    "a": "#c:ingots/tungsten",
+    "b": "superbwarfare:tungsten_ingot"
   },
   "pattern": [
     "aaa",

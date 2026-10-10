@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:medium_battery_pack"
-    }
+    "a": "superbwarfare:medium_battery_pack"
   },
   "pattern": [
     "aa",

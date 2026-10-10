@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    },
-    "b": {
-      "tag": "superbwarfare:storage_blocks/cemented_carbide"
-    },
-    "c": {
-      "item": "minecraft:stick"
-    }
+    "a": "#superbwarfare:ingots/cemented_carbide",
+    "b": "#superbwarfare:storage_blocks/cemented_carbide",
+    "c": "minecraft:stick"
   },
   "pattern": [
     "aba",

@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:ingots/steel"
-    },
-    "b": {
-      "item": "minecraft:hopper"
-    },
-    "c": {
-      "item": "minecraft:tinted_glass"
-    },
-    "d": {
-      "item": "minecraft:cauldron"
-    },
-    "e": {
-      "item": "superbwarfare:cell"
-    },
-    "f": {
-      "item": "minecraft:blast_furnace"
-    }
+    "a": "#c:ingots/steel",
+    "b": "minecraft:hopper",
+    "c": "minecraft:tinted_glass",
+    "d": "minecraft:cauldron",
+    "e": "superbwarfare:cell",
+    "f": "minecraft:blast_furnace"
   },
   "pattern": [
     "aba",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:plates/plastic"
-    },
-    "b": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    }
+    "a": "#c:plates/plastic",
+    "b": "#superbwarfare:ingots/cemented_carbide"
   },
   "pattern": [
     "aba",

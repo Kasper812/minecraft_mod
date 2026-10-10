@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:amethyst_shard"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "minecraft:compass"
-    },
-    "d": {
-      "tag": "c:gems/quartz"
-    },
-    "e": {
-      "item": "minecraft:comparator"
-    }
+    "a": "minecraft:amethyst_shard",
+    "b": "#c:ingots/iron",
+    "c": "minecraft:compass",
+    "d": "#c:gems/quartz",
+    "e": "minecraft:comparator"
   },
   "pattern": [
     " a ",

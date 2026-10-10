@@ -1,16 +1,10 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "item": "superbwarfare:battery"
-  },
-  "base": {
-    "item": "superbwarfare:virtual_material_pack"
-  },
+  "addition": "superbwarfare:battery",
+  "base": "superbwarfare:virtual_material_pack",
   "result": {
     "count": 1,
     "id": "superbwarfare:ql_1031"
   },
-  "template": {
-    "item": "superbwarfare:ql_1031_blueprint"
-  }
+  "template": "superbwarfare:ql_1031_blueprint"
 }

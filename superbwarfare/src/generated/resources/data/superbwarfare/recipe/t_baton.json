@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:ingots/iron"
-    },
-    "b": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "#c:ingots/iron",
+    "b": "#c:ingots/steel"
   },
   "pattern": [
     "  a",

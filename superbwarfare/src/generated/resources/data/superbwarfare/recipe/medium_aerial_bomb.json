@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "minecraft:tnt"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "superbwarfare:fusee"
-    },
-    "d": {
-      "item": "superbwarfare:high_energy_explosives"
-    }
+    "a": "minecraft:tnt",
+    "b": "#c:ingots/iron",
+    "c": "superbwarfare:fusee",
+    "d": "superbwarfare:high_energy_explosives"
   },
   "pattern": [
     " c ",

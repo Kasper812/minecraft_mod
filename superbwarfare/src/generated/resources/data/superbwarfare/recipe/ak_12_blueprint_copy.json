@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:lapis_lazuli"
-    },
-    "B": {
-      "item": "minecraft:paper"
-    },
-    "C": {
-      "item": "superbwarfare:ak_12_blueprint"
-    }
+    "A": "minecraft:lapis_lazuli",
+    "B": "minecraft:paper",
+    "C": "superbwarfare:ak_12_blueprint"
   },
   "pattern": [
     "ABA",

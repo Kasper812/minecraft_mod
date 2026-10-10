@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:stone_pressure_plate"
-    },
-    "b": {
-      "item": "minecraft:lime_concrete"
-    },
-    "c": {
-      "item": "minecraft:piston"
-    }
+    "a": "minecraft:stone_pressure_plate",
+    "b": "minecraft:lime_concrete",
+    "c": "minecraft:piston"
   },
   "pattern": [
     " a ",

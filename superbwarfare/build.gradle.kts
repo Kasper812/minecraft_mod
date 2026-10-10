@@ -16,6 +16,7 @@ base {
 
 repositories {
     flatDir { dirs("libs") }
+    maven(uri("libs/maven")) { name = "LocalLibs" }
     maven("https://maven.terraformersmc.com/") { name = "Terraformers" }
 }
 
@@ -61,8 +62,7 @@ dependencies {
     include(implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cardinal_components_version")}")!!)
     include(api("teamreborn:energy:5.0.0")!!)
 
-    implementation(files("libs/rhino-1.8.1-SNAPSHOT.jar"))
-    include(files("libs/rhino-1.8.1-SNAPSHOT.jar"))
+    include(implementation("local.sbw:rhino:1.8.1")!!)
 
     implementation("com.maydaymemory:mae:1.1.4") {
         exclude("com.google.code.gson", "gson")

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:plates/plastic"
-    },
-    "b": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "#c:plates/plastic",
+    "b": "#c:ingots/steel"
   },
   "pattern": [
     "aba",

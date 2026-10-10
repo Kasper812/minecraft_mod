@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:nuggets/iron"
-    },
-    "b": {
-      "item": "minecraft:paper"
-    },
-    "c": {
-      "tag": "minecraft:planks"
-    }
+    "a": "#c:nuggets/iron",
+    "b": "minecraft:paper",
+    "c": "#minecraft:planks"
   },
   "pattern": [
     "a",

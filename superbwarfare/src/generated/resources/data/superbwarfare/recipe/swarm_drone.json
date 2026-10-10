@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:seeker"
-    },
-    "b": {
-      "item": "superbwarfare:propeller"
-    },
-    "c": {
-      "item": "superbwarfare:motor"
-    },
-    "d": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "e": {
-      "item": "superbwarfare:cell"
-    }
+    "a": "superbwarfare:seeker",
+    "b": "superbwarfare:propeller",
+    "c": "superbwarfare:motor",
+    "d": "superbwarfare:high_energy_explosives",
+    "e": "superbwarfare:cell"
   },
   "pattern": [
     " a ",

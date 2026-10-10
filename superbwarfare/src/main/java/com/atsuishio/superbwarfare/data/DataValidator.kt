@@ -157,9 +157,11 @@ object DataValidator {
     private fun validateDerivedState(decoded: Any, warn: (String) -> Unit = {}) {
         when (decoded) {
             is DefaultGunData -> {
-                for (entry in decoded.ammoConsumers) {
-                    // 强制求值 lazy 派生出来的 sources
-                    entry.value.primary.type
+                if (net.minecraft.core.registries.BuiltInRegistries.ITEM.wrapAsHolder(net.minecraft.world.item.Items.STONE).areComponentsBound()) {
+                    for (entry in decoded.ammoConsumers) {
+                        // 强制求值 lazy 派生出来的 sources
+                        entry.value.primary.type
+                    }
                 }
 
                 decoded.fireModes.size

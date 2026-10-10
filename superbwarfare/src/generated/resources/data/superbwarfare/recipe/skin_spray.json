@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:iron_nugget"
-    },
-    "b": {
-      "item": "minecraft:tripwire_hook"
-    },
-    "c": {
-      "tag": "c:plates/steel"
-    },
-    "d": {
-      "tag": "c:dyes"
-    }
+    "a": "minecraft:iron_nugget",
+    "b": "minecraft:tripwire_hook",
+    "c": "#c:plates/steel",
+    "d": "#c:dyes"
   },
   "pattern": [
     " ab",

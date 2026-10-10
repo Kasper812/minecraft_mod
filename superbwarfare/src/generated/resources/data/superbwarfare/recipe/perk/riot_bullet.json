@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:slime_block"
-    },
-    "c": {
-      "item": "minecraft:cobweb"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:slime_block",
+    "c": "minecraft:cobweb"
   },
   "pattern": [
     "cbc",

@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:iron_bars"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "superbwarfare:motor"
-    },
-    "d": {
-      "item": "minecraft:observer"
-    },
-    "e": {
-      "item": "superbwarfare:cell"
-    }
+    "a": "minecraft:iron_bars",
+    "b": "#c:ingots/iron",
+    "c": "superbwarfare:motor",
+    "d": "minecraft:observer",
+    "e": "superbwarfare:cell"
   },
   "pattern": [
     "ada",

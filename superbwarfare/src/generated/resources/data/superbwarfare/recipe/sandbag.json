@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "a": {
-      "item": "minecraft:paper"
-    },
-    "b": {
-      "tag": "c:sands"
-    }
+    "a": "minecraft:paper",
+    "b": "#c:sands"
   },
   "pattern": [
     "aba"

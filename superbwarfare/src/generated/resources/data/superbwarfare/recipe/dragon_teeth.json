@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:nuggets/iron"
-    },
-    "b": {
-      "item": "minecraft:smooth_stone"
-    }
+    "a": "#c:nuggets/iron",
+    "b": "minecraft:smooth_stone"
   },
   "pattern": [
     " a ",

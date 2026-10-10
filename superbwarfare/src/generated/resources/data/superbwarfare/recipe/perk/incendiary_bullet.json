@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:blaze_powder"
-    },
-    "c": {
-      "item": "minecraft:dragon_breath"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:blaze_powder",
+    "c": "minecraft:dragon_breath"
   },
   "pattern": [
     "bbb",

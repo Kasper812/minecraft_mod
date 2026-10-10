@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "equipment",
   "ingredients": [
-    {
-      "item": "superbwarfare:javelin_missile"
-    }
+    "superbwarfare:javelin_missile"
   ],
   "result": {
     "count": 1,

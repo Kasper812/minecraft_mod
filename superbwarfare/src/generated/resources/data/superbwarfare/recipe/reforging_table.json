@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:ingots/gold"
-    },
-    "b": {
-      "tag": "c:gems/diamond"
-    },
-    "c": {
-      "tag": "c:dusts/redstone"
-    },
-    "d": {
-      "item": "minecraft:polished_basalt"
-    },
-    "e": {
-      "item": "superbwarfare:ancient_cpu"
-    }
+    "a": "#c:ingots/gold",
+    "b": "#c:gems/diamond",
+    "c": "#c:dusts/redstone",
+    "d": "minecraft:polished_basalt",
+    "e": "superbwarfare:ancient_cpu"
   },
   "pattern": [
     "abc",

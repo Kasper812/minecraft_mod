@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:epic_material_pack"
-    },
-    {
-      "item": "minecraft:nether_star"
-    }
+    "superbwarfare:epic_material_pack",
+    "minecraft:nether_star"
   ],
   "result": {
     "count": 1,

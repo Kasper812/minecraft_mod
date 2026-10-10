@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:dusts/redstone"
-    },
-    "b": {
-      "tag": "c:plates/copper"
-    },
-    "c": {
-      "tag": "c:glass_panes"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    }
+    "a": "#c:dusts/redstone",
+    "b": "#c:plates/copper",
+    "c": "#c:glass_panes",
+    "d": "#c:ingots/iron"
   },
   "pattern": [
     " b ",

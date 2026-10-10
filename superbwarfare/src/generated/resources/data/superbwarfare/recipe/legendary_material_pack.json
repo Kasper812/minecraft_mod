@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:netherite_barrel"
-    },
-    {
-      "item": "superbwarfare:netherite_action"
-    },
-    {
-      "item": "superbwarfare:netherite_spring"
-    },
-    {
-      "item": "superbwarfare:netherite_trigger"
-    }
+    "superbwarfare:netherite_barrel",
+    "superbwarfare:netherite_action",
+    "superbwarfare:netherite_spring",
+    "superbwarfare:netherite_trigger"
   ],
   "result": {
     "count": 1,

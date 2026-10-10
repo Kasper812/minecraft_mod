@@ -4,12 +4,8 @@
   "cookingtime": 200,
   "experience": 0.7,
   "ingredient": [
-    {
-      "item": "superbwarfare:sulfur_ore"
-    },
-    {
-      "item": "superbwarfare:deepslate_sulfur_ore"
-    }
+    "superbwarfare:sulfur_ore",
+    "superbwarfare:deepslate_sulfur_ore"
   ],
   "result": {
     "count": 1,

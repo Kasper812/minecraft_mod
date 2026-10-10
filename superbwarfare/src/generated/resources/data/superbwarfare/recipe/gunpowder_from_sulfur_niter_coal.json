@@ -2,24 +2,12 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:dusts/sulfur"
-    },
-    {
-      "tag": "c:gems/niter"
-    },
-    {
-      "tag": "c:gems/niter"
-    },
-    {
-      "tag": "minecraft:coals"
-    },
-    {
-      "tag": "minecraft:coals"
-    },
-    {
-      "tag": "minecraft:coals"
-    }
+    "#c:dusts/sulfur",
+    "#c:gems/niter",
+    "#c:gems/niter",
+    "#minecraft:coals",
+    "#minecraft:coals",
+    "#minecraft:coals"
   ],
   "result": {
     "count": 6,

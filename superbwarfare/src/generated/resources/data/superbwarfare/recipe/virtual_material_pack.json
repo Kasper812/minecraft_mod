@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:crystal_barrel"
-    },
-    {
-      "item": "superbwarfare:crystal_action"
-    },
-    {
-      "item": "superbwarfare:crystal_spring"
-    },
-    {
-      "item": "superbwarfare:crystal_trigger"
-    }
+    "superbwarfare:crystal_barrel",
+    "superbwarfare:crystal_action",
+    "superbwarfare:crystal_spring",
+    "superbwarfare:crystal_trigger"
   ],
   "result": {
     "count": 1,

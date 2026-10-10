@@ -15,16 +15,14 @@ import org.jetbrains.annotations.ApiStatus
 class RegisterContainersEvent {
     companion object {
         @JvmField
-        val CONTAINERS = arrayListOf<ItemStack>()
+        val CONTAINERS = arrayListOf<() -> ItemStack>()
     }
 
     fun <T : Entity> add(type: EntityType<T>) {
-        val stack = ContainerBlockItem.createInstance(type)
-        CONTAINERS.add(stack)
+        CONTAINERS.add { ContainerBlockItem.createInstance(type) }
     }
 
     fun add(entity: Entity) {
-        val stack = ContainerBlockItem.createInstance(entity)
-        CONTAINERS.add(stack)
+        CONTAINERS.add { ContainerBlockItem.createInstance(entity) }
     }
 }

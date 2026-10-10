@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "superbwarfare:cell"
-    },
-    "c": {
-      "item": "minecraft:lightning_rod"
-    },
-    "d": {
-      "tag": "c:dusts/coal_coke"
-    },
-    "e": {
-      "tag": "c:ingots/iron"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "superbwarfare:cell",
+    "c": "minecraft:lightning_rod",
+    "d": "#c:dusts/coal_coke",
+    "e": "#c:ingots/iron"
   },
   "pattern": [
     "cec",

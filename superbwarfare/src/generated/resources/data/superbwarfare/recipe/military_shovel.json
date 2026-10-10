@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:ingots/steel"
-    },
-    "b": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    }
+    "a": "#c:ingots/steel",
+    "b": "#superbwarfare:ingots/cemented_carbide"
   },
   "pattern": [
     " aa",

@@ -61,7 +61,7 @@ class VehicleAssemblingIngredient : DeserializeFromString {
 
         val id = matcher.group("id")
         ingredientObject = if (matcher.group("prefix") == "#") {
-            Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(TagKey.create(Registries.ITEM, Identifier.parse(id))))
+            Ingredient.of(com.atsuishio.superbwarfare.tools.RecipeParseContext.itemGetter().getOrThrow(TagKey.create(Registries.ITEM, Identifier.parse(id))))
         } else {
             BuiltInRegistries.ITEM.getOptional(Identifier.parse(id)).map { Ingredient.of(it) }.orElse(com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY)
         }

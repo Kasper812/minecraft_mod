@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "superbwarfare:cemented_carbide_barrel"
-    },
-    {
-      "item": "superbwarfare:cemented_carbide_action"
-    },
-    {
-      "item": "superbwarfare:cemented_carbide_spring"
-    },
-    {
-      "item": "superbwarfare:cemented_carbide_trigger"
-    }
+    "superbwarfare:cemented_carbide_barrel",
+    "superbwarfare:cemented_carbide_action",
+    "superbwarfare:cemented_carbide_spring",
+    "superbwarfare:cemented_carbide_trigger"
   ],
   "result": {
     "count": 1,

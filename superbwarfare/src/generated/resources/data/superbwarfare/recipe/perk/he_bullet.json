@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:tnt"
-    },
-    "c": {
-      "item": "superbwarfare:high_energy_explosives"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:tnt",
+    "c": "superbwarfare:high_energy_explosives"
   },
   "pattern": [
     "cbc",

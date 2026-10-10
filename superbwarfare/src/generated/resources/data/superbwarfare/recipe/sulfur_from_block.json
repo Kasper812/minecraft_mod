@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:storage_blocks/sulfur"
-    }
+    "#c:storage_blocks/sulfur"
   ],
   "result": {
     "count": 9,

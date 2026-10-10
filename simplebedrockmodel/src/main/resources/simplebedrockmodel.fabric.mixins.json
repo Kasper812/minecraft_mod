@@ -9,6 +9,7 @@
   "client": [
     "client.CameraMixin",
     "client.GameRendererMixin",
+    "client.GameRendererFrameMixin",
     "client.ItemInHandRendererMixin",
     "client.MinecraftMixin"
   ],

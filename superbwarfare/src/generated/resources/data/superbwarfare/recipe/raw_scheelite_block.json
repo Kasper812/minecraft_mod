@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "building",
   "key": {
-    "a": {
-      "tag": "c:raw_materials/tungsten"
-    }
+    "a": "#c:raw_materials/tungsten"
   },
   "pattern": [
     "aaa",

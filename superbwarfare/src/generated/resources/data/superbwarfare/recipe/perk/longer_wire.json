@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:string"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:string"
   },
   "pattern": [
     "bbb",

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "superbwarfare:ancient_cpu"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "superbwarfare:ancient_cpu"
   },
   "pattern": [
     "bbb",

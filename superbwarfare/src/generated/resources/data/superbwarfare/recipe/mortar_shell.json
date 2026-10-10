@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:fusee"
-    },
-    "b": {
-      "tag": "c:ingots/steel"
-    },
-    "c": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "d": {
-      "item": "superbwarfare:grain"
-    }
+    "a": "superbwarfare:fusee",
+    "b": "#c:ingots/steel",
+    "c": "superbwarfare:high_energy_explosives",
+    "d": "superbwarfare:grain"
   },
   "pattern": [
     " a ",

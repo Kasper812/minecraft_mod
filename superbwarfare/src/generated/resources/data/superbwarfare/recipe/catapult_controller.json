@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "redstone",
   "key": {
-    "a": {
-      "item": "minecraft:comparator"
-    },
-    "c": {
-      "tag": "c:ingots/copper"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    }
+    "a": "minecraft:comparator",
+    "c": "#c:ingots/copper",
+    "d": "#c:ingots/iron"
   },
   "pattern": [
     "ddd",

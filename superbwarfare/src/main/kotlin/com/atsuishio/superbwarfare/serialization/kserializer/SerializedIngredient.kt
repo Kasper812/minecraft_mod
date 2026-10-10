@@ -34,7 +34,7 @@ object IngredientSerializer : KSerializer<Ingredient> {
             encoder.encodeJsonElement(kotlinx.serialization.json.JsonNull)
             return
         }
-        val json = Ingredient.CODEC.encodeStart(JsonOps.INSTANCE, value)
+        val json = Ingredient.CODEC.encodeStart(com.atsuishio.superbwarfare.tools.RecipeParseContext.jsonOps(), value)
             .result()
             .orElseThrow { IllegalArgumentException("Unable to encode ingredient") }
         encoder.encodeJsonElement(json.toKxJson())
@@ -49,7 +49,7 @@ object IngredientSerializer : KSerializer<Ingredient> {
         val upgraded = com.atsuishio.superbwarfare.port.LegacyIngredients.upgradeJson(element.toGson())
             ?: return com.atsuishio.superbwarfare.port.LegacyIngredients.EMPTY
 
-        return Ingredient.CODEC.parse(JsonOps.INSTANCE, upgraded)
+        return Ingredient.CODEC.parse(com.atsuishio.superbwarfare.tools.RecipeParseContext.jsonOps(), upgraded)
             .result()
             .orElseThrow { IllegalArgumentException("Unable to decode ingredient: $element") }
     }

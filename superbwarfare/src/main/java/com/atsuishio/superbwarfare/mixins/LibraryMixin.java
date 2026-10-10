@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Modifies the maximum sound source limits in {@link Library#init(String, boolean)}.
+ * Modifies the maximum sound source limits in {@link Library#init}.
  * <p>
  * Minecraft by default caps static sound sources at 255 and streaming sources at 8.
  * This mixin redirects the {@link Mth#clamp} calls to use higher limits.
@@ -34,8 +34,8 @@ public class LibraryMixin {
     /**
      * Verify the mixin is being applied at all.
      */
-    @Inject(method = "init(Ljava/lang/String;Z)V", at = @At("HEAD"))
-    private void onInitHead(String deviceSpecifier, boolean enableHrtf, CallbackInfo ci) {
+    @Inject(method = "init(Ljava/lang/String;Lcom/mojang/blaze3d/audio/DeviceList;Z)V", at = @At("HEAD"))
+    private void onInitHead(String deviceSpecifier, com.mojang.blaze3d.audio.DeviceList devices, boolean enableHrtf, CallbackInfo ci) {
         LOGGER.info("LibraryMixin: init called, will patch sound limits (static={}, streaming={})",
                 SoundLimit.maxSourcesCount, SoundLimit.maxStreamingSources);
     }
@@ -46,7 +46,7 @@ public class LibraryMixin {
      * Patched: uses maxStreamingSources as the upper bound.
      */
     @Redirect(
-            method = "init(Ljava/lang/String;Z)V",
+            method = "init(Ljava/lang/String;Lcom/mojang/blaze3d/audio/DeviceList;Z)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/Mth;clamp(III)I",
@@ -63,7 +63,7 @@ public class LibraryMixin {
      * Patched: uses maxSourcesCount as the upper bound.
      */
     @Redirect(
-            method = "init(Ljava/lang/String;Z)V",
+            method = "init(Ljava/lang/String;Lcom/mojang/blaze3d/audio/DeviceList;Z)V",
             at = @At(
                     value = "INVOKE",
                     target = "Lnet/minecraft/util/Mth;clamp(III)I",

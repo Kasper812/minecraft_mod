@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "tag": "c:storage_blocks/steel"
-    },
-    "c": {
-      "item": "superbwarfare:barbed_wire"
-    },
-    "d": {
-      "item": "superbwarfare:knife"
-    },
-    "e": {
-      "item": "superbwarfare:claymore_mine"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "#c:storage_blocks/steel",
+    "c": "superbwarfare:barbed_wire",
+    "d": "superbwarfare:knife",
+    "e": "superbwarfare:claymore_mine"
   },
   "pattern": [
     "dbd",

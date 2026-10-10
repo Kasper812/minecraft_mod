@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "c:dusts/iron"
-    },
-    {
-      "tag": "c:dusts/coal_coke"
-    }
+    "#c:dusts/iron",
+    "#c:dusts/coal_coke"
   ],
   "result": {
     "count": 1,

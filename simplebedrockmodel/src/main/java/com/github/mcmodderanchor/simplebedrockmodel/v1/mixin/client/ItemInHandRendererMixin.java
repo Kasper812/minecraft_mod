@@ -35,13 +35,13 @@ public class ItemInHandRendererMixin {
      */
     @WrapOperation(
             method = "tick",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;matches(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z")
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ItemInHandRenderer;shouldInstantlyReplaceVisibleItem(Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/item/ItemStack;)Z")
     )
-    private boolean sbm$matchesHeldItem(ItemStack a, ItemStack b, Operation<Boolean> original) {
+    private boolean sbm$matchesHeldItem(ItemInHandRenderer instance, ItemStack a, ItemStack b, Operation<Boolean> original) {
         if (FirstPersonRenderHandler.hasCustomRenderer(a) || FirstPersonRenderHandler.hasCustomRenderer(b)) {
             return FirstPersonRenderHandler.isSameHeldItem(a, b);
         }
-        return original.call(a, b);
+        return original.call(instance, a, b);
     }
 
     /**

@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "minecraft:tripwire_hook"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "d": {
-      "item": "minecraft:stick"
-    }
+    "a": "minecraft:tripwire_hook",
+    "b": "#c:ingots/iron",
+    "c": "superbwarfare:high_energy_explosives",
+    "d": "minecraft:stick"
   },
   "pattern": [
     " a ",

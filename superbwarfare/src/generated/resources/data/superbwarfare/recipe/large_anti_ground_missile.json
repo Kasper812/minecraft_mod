@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:plates/copper"
-    },
-    "b": {
-      "item": "superbwarfare:seeker"
-    },
-    "c": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "d": {
-      "item": "minecraft:tnt"
-    },
-    "e": {
-      "item": "superbwarfare:missile_engine"
-    }
+    "a": "#c:plates/copper",
+    "b": "superbwarfare:seeker",
+    "c": "superbwarfare:high_energy_explosives",
+    "d": "minecraft:tnt",
+    "e": "superbwarfare:missile_engine"
   },
   "pattern": [
     " b ",

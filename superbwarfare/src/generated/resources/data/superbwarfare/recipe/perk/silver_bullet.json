@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "tag": "c:storage_blocks/silver"
-    },
-    "c": {
-      "tag": "c:ingots/silver"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "#c:storage_blocks/silver",
+    "c": "#c:ingots/silver"
   },
   "pattern": [
     "cbc",

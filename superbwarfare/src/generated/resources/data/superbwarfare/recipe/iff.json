@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:dusts/redstone"
-    },
-    "b": {
-      "tag": "c:gems/lapis"
-    },
-    "c": {
-      "tag": "c:plates/copper"
-    }
+    "a": "#c:dusts/redstone",
+    "b": "#c:gems/lapis",
+    "c": "#c:plates/copper"
   },
   "pattern": [
     "ab",

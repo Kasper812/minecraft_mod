@@ -4,12 +4,8 @@
   "cookingtime": 100,
   "experience": 0.7,
   "ingredient": [
-    {
-      "item": "superbwarfare:niter_ore"
-    },
-    {
-      "item": "superbwarfare:deepslate_niter_ore"
-    }
+    "superbwarfare:niter_ore",
+    "superbwarfare:deepslate_niter_ore"
   ],
   "result": {
     "count": 1,

@@ -85,12 +85,20 @@ fun <T : Any> serializerToJsonMapCodec(serializer: KSerializer<T>): MapCodec<T> 
                     return DataResult.error { "serializerToJsonMapCodec: expected a JSON object" }
                 }
 
-                DataResult.success(
-                    Pair(
-                        DataLoader.JSON.decodeFromJsonElement(serializer, json.toKxJson()),
-                        ops.empty()
-                    )
+                val previous = RecipeParseContext.ops.get()
+                RecipeParseContext.ops.set(
+                    if (ops is net.minecraft.resources.RegistryOps<*>) ops.withParent(JsonOps.INSTANCE) else null
                 )
+                try {
+                    DataResult.success(
+                        Pair(
+                            DataLoader.JSON.decodeFromJsonElement(serializer, json.toKxJson()),
+                            ops.empty()
+                        )
+                    )
+                } finally {
+                    RecipeParseContext.ops.set(previous)
+                }
             } catch (e: Exception) {
                 DataResult.error { "serializerToJsonMapCodec: ${e.message}" }
             }
@@ -98,4 +106,25 @@ fun <T : Any> serializerToJsonMapCodec(serializer: KSerializer<T>): MapCodec<T> 
     }
 
     return MapCodec.assumeMapUnsafe(Codec.of(encoder, decoder))
+}
+
+object RecipeParseContext {
+    @JvmField
+    val ops: ThreadLocal<net.minecraft.resources.RegistryOps<com.google.gson.JsonElement>?> = ThreadLocal()
+
+    fun jsonOps(): DynamicOps<com.google.gson.JsonElement> =
+        ops.get() ?: currentRegistryAccess()?.createSerializationContext(JsonOps.INSTANCE) ?: JsonOps.INSTANCE
+
+    fun itemGetter(): net.minecraft.core.HolderGetter<net.minecraft.world.item.Item> =
+        ops.get()?.getter(net.minecraft.core.registries.Registries.ITEM)?.orElse(null)
+            ?: net.minecraft.core.registries.BuiltInRegistries.ITEM
+}
+
+fun currentRegistryAccess(): net.minecraft.core.RegistryAccess? {
+    val server = try {
+        net.fabricmc.loader.api.FabricLoader.getInstance().gameInstance as? net.minecraft.server.MinecraftServer
+    } catch (_: Throwable) {
+        null
+    }
+    return server?.registryAccess()
 }

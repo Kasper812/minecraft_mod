@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "minecraft:stone_pressure_plate"
-    },
-    "b": {
-      "item": "superbwarfare:high_energy_explosives"
-    },
-    "c": {
-      "tag": "c:plates/plastic"
-    }
+    "a": "minecraft:stone_pressure_plate",
+    "b": "superbwarfare:high_energy_explosives",
+    "c": "#c:plates/plastic"
   },
   "pattern": [
     "a",

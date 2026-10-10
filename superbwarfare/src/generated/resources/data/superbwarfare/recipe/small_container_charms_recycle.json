@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "superbwarfare:attachment/charm"
-    }
+    "a": "#superbwarfare:attachment/charm"
   },
   "pattern": [
     " a ",

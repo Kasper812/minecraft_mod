@@ -2,9 +2,7 @@
   "type": "minecraft:smelting",
   "cookingtime": 200,
   "experience": 0.3,
-  "ingredient": {
-    "tag": "c:dusts/silver"
-  },
+  "ingredient": "#c:dusts/silver",
   "result": {
     "count": 1,
     "id": "superbwarfare:silver_ingot"
@@ -12,6 +10,8 @@
   "fabric:load_conditions": {
     "condition": "fabric:tags_populated",
     "registry": "minecraft:item",
-    "values": ["c:dusts/silver"]
+    "values": [
+      "c:dusts/silver"
+    ]
   }
 }

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:chain"
-    },
-    "b": {
-      "item": "minecraft:name_tag"
-    }
+    "a": "minecraft:iron_chain",
+    "b": "minecraft:name_tag"
   },
   "pattern": [
     "a",

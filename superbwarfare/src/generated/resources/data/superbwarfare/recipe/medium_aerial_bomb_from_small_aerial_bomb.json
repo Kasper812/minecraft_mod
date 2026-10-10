@@ -2,9 +2,7 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:small_aerial_bomb"
-    }
+    "a": "superbwarfare:small_aerial_bomb"
   },
   "pattern": [
     "aa",

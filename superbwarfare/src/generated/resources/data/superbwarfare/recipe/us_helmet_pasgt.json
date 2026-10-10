@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "superbwarfare:ingots/cemented_carbide"
-    },
-    "b": {
-      "tag": "c:sands"
-    },
-    "c": {
-      "item": "superbwarfare:cemented_carbide_ingot"
-    }
+    "a": "#superbwarfare:ingots/cemented_carbide",
+    "b": "#c:sands",
+    "c": "superbwarfare:cemented_carbide_ingot"
   },
   "pattern": [
     "aca",

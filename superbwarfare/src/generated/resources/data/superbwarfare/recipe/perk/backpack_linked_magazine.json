@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:subsistence"
-    },
-    "b": {
-      "tag": "c:chests/ender"
-    },
-    "c": {
-      "tag": "c:chests/wooden"
-    }
+    "a": "superbwarfare:subsistence",
+    "b": "#c:chests/ender",
+    "c": "#c:chests/wooden"
   },
   "pattern": [
     "cbc",

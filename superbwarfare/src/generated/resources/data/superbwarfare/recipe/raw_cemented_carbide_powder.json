@@ -2,73 +2,63 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
-    [
-      {
-        "tag": "c:dusts/tungsten"
-      },
-      {
-        "tag": "c:dusts/scheelite"
-      }
-    ],
     {
-      "tag": "c:dusts/iron"
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
     },
-    [
-      {
-        "tag": "c:dusts/coal_coke"
-      },
-      {
-        "tag": "c:dusts/coal"
-      }
-    ]
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/tungsten",
+        "#c:dusts/scheelite"
+      ]
+    },
+    "#c:dusts/iron",
+    {
+      "fabric:type": "fabric:any",
+      "ingredients": [
+        "#c:dusts/coal_coke",
+        "#c:dusts/coal"
+      ]
+    }
   ],
   "result": {
     "count": 8,

@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:ingots/gold"
-    },
-    "b": {
-      "item": "minecraft:observer"
-    },
-    "c": {
-      "item": "minecraft:note_block"
-    },
-    "d": {
-      "tag": "c:ingots/iron"
-    }
+    "a": "#c:ingots/gold",
+    "b": "minecraft:observer",
+    "c": "minecraft:note_block",
+    "d": "#c:ingots/iron"
   },
   "pattern": [
     "aba",

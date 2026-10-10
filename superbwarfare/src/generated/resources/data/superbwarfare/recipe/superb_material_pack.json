@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "superbwarfare:common_material_pack"
-    },
-    "B": {
-      "item": "superbwarfare:rare_material_pack"
-    },
-    "C": {
-      "item": "superbwarfare:epic_material_pack"
-    },
-    "D": {
-      "item": "superbwarfare:legendary_material_pack"
-    },
-    "E": {
-      "item": "minecraft:nether_star"
-    }
+    "A": "superbwarfare:common_material_pack",
+    "B": "superbwarfare:rare_material_pack",
+    "C": "superbwarfare:epic_material_pack",
+    "D": "superbwarfare:legendary_material_pack",
+    "E": "minecraft:nether_star"
   },
   "pattern": [
     " A ",

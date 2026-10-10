@@ -164,7 +164,15 @@ object LegacyIngredients {
                 val up = upgradeJson(e) ?: continue
                 if (up.isJsonArray) up.asJsonArray.forEach { out.add(it) } else out.add(up)
             }
-            return if (out.isEmpty) null else if (out.size() == 1) out[0] else out
+            if (out.isEmpty) return null
+            if (out.size() == 1) return out[0]
+            if (out.any { it.isJsonObject || (it.isJsonPrimitive && it.asString.startsWith("#")) }) {
+                val any = com.google.gson.JsonObject()
+                any.addProperty("fabric:type", "fabric:any")
+                any.add("ingredients", out)
+                return any
+            }
+            return out
         }
         if (element.isJsonObject) {
             val obj = element.asJsonObject

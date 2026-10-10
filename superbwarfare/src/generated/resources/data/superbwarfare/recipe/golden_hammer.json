@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:ingots/gold"
-    },
-    "b": {
-      "tag": "c:storage_blocks/gold"
-    },
-    "c": {
-      "item": "minecraft:stick"
-    }
+    "a": "#c:ingots/gold",
+    "b": "#c:storage_blocks/gold",
+    "c": "minecraft:stick"
   },
   "pattern": [
     "aba",

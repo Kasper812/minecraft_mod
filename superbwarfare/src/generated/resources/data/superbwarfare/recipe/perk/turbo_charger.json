@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "item": "minecraft:piston"
-    },
-    "c": {
-      "tag": "c:ingots/steel"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "minecraft:piston",
+    "c": "#c:ingots/steel"
   },
   "pattern": [
     "cbc",

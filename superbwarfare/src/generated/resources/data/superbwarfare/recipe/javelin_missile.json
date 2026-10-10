@@ -2,18 +2,10 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "item": "superbwarfare:seeker"
-    },
-    "b": {
-      "tag": "c:ingots/iron"
-    },
-    "c": {
-      "item": "superbwarfare:ap_head"
-    },
-    "d": {
-      "item": "superbwarfare:missile_engine"
-    }
+    "a": "superbwarfare:seeker",
+    "b": "#c:ingots/iron",
+    "c": "superbwarfare:ap_head",
+    "d": "superbwarfare:missile_engine"
   },
   "pattern": [
     " a ",

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "A": {
-      "item": "minecraft:lapis_lazuli"
-    },
-    "B": {
-      "item": "minecraft:paper"
-    },
-    "C": {
-      "item": "superbwarfare:mosin_nagant_blueprint"
-    }
+    "A": "minecraft:lapis_lazuli",
+    "B": "minecraft:paper",
+    "C": "superbwarfare:mosin_nagant_blueprint"
   },
   "pattern": [
     "ABA",

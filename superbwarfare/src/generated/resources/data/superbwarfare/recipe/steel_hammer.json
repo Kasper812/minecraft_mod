@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "equipment",
   "key": {
-    "a": {
-      "tag": "c:ingots/steel"
-    },
-    "b": {
-      "tag": "c:storage_blocks/steel"
-    },
-    "c": {
-      "item": "minecraft:stick"
-    }
+    "a": "#c:ingots/steel",
+    "b": "#c:storage_blocks/steel",
+    "c": "minecraft:stick"
   },
   "pattern": [
     "aba",

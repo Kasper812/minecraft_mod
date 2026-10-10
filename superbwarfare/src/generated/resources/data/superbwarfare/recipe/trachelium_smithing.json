@@ -1,16 +1,10 @@
 {
   "type": "minecraft:smithing_transform",
-  "addition": {
-    "tag": "superbwarfare:ingots/cemented_carbide"
-  },
-  "base": {
-    "item": "superbwarfare:virtual_material_pack"
-  },
+  "addition": "#superbwarfare:ingots/cemented_carbide",
+  "base": "superbwarfare:virtual_material_pack",
   "result": {
     "count": 1,
     "id": "superbwarfare:trachelium"
   },
-  "template": {
-    "item": "superbwarfare:trachelium_blueprint"
-  }
+  "template": "superbwarfare:trachelium_blueprint"
 }

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "minecraft:target"
-    },
-    "b": {
-      "tag": "c:plates/steel"
-    },
-    "c": {
-      "item": "minecraft:armor_stand"
-    }
+    "a": "minecraft:target",
+    "b": "#c:plates/steel",
+    "c": "minecraft:armor_stand"
   },
   "pattern": [
     "a",

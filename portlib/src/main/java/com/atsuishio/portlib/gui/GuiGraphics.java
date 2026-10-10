@@ -343,6 +343,7 @@ public class GuiGraphics {
         if (geometry.isEmpty()) {
             return;
         }
+        geometry.fillMissingColor(LegacyRenderSystem.shaderColorArgb());
         ScreenRectangle scissor = extractor.scissorStack.peek();
         float[] b = geometry.bounds2d();
         ScreenRectangle bounds = new ScreenRectangle((int) Math.floor(b[0]), (int) Math.floor(b[1]),

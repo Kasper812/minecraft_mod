@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "tag": "minecraft:coals"
-    },
-    {
-      "tag": "superbwarfare:hammer"
-    }
+    "#minecraft:coals",
+    "#superbwarfare:hammer"
   ],
   "result": {
     "count": 1,

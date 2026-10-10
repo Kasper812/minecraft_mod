@@ -2,21 +2,11 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "item": "superbwarfare:empty_perk"
-    },
-    "b": {
-      "tag": "c:ender_pearls"
-    },
-    "c": {
-      "tag": "c:ingots/iron"
-    },
-    "d": {
-      "tag": "c:dusts/redstone"
-    },
-    "e": {
-      "tag": "c:gems/lapis"
-    }
+    "a": "superbwarfare:empty_perk",
+    "b": "#c:ender_pearls",
+    "c": "#c:ingots/iron",
+    "d": "#c:dusts/redstone",
+    "e": "#c:gems/lapis"
   },
   "pattern": [
     "dbe",

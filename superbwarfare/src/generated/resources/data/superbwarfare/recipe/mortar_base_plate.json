@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "a": {
-      "tag": "c:plates/steel"
-    },
-    "b": {
-      "item": "minecraft:iron_nugget"
-    }
+    "a": "#c:plates/steel",
+    "b": "minecraft:iron_nugget"
   },
   "pattern": [
     "b",

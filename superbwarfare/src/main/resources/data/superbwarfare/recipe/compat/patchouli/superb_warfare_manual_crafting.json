@@ -2,16 +2,14 @@
   "type": "minecraft:crafting_shapeless",
   "fabric:load_conditions": {
     "condition": "fabric:all_mods_loaded",
-    "values": ["patchouli"]
+    "values": [
+      "patchouli"
+    ]
   },
   "group": "something",
   "ingredients": [
-    {
-      "item": "minecraft:book"
-    },
-    {
-      "item": "superbwarfare:empty_perk"
-    }
+    "minecraft:book",
+    "superbwarfare:empty_perk"
   ],
   "result": {
     "id": "patchouli:guide_book",
