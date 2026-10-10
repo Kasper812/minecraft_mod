@@ -53,10 +53,13 @@ dependencies {
     implementation(project(":geckolib4"))
     include(project(":geckolib4"))
     implementation("maven.modrinth:trinkets-updated:4.1.1+26.2")
+    include("maven.modrinth:trinkets-updated:4.1.1+26.2")
     implementation("me.shedaniel.cloth:cloth-config-fabric:${property("cloth_config_version")}") {
         exclude("net.fabricmc.fabric-api")
     }
+    include("me.shedaniel.cloth:cloth-config-fabric:${property("cloth_config_version")}")
     api("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${property("forge_config_api_port_version")}")
+    include("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${property("forge_config_api_port_version")}")
 
     include(implementation("org.ladysnake.cardinal-components-api:cardinal-components-base:${property("cardinal_components_version")}")!!)
     include(implementation("org.ladysnake.cardinal-components-api:cardinal-components-entity:${property("cardinal_components_version")}")!!)
