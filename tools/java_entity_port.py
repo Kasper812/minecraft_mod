@@ -100,9 +100,9 @@ def getters(s):
     s = re.sub(r"\.getList\(%s,\s*[\w.]+\)" % ARG, lambda m: ".getListOrEmpty(%s)" % m.group(1), s)
     s = re.sub(r"\.getIntArray\(%s\)" % ARG, lambda m: ".getIntArray(%s).orElseGet(() -> new int[0])" % m.group(1), s)
     s = re.sub(r"\.contains\(%s,\s*(?:\d+|Tag\.TAG_\w+)\)" % ARG, lambda m: ".contains(%s)" % m.group(1), s)
-    s = re.sub(r"(\w+)\.hasUUID\(%s\)" % ARG, lambda m: "LegacyNbt.hasUUID(%s, %s)" % (m.group(1), m.group(2)), s)
-    s = re.sub(r"(\w+)\.getUUID\(%s\)" % ARG, lambda m: "LegacyNbt.getUUID(%s, %s)" % (m.group(1), m.group(2)), s)
-    s = re.sub(r"(\w+)\.putUUID\(%s,\s*" % ARG, lambda m: "LegacyNbt.putUUID(%s, %s, " % (m.group(1), m.group(2)), s)
+    s = re.sub(r"(?!LegacyNbt\b)(\b\w+)\.hasUUID\(%s\)" % ARG, lambda m: "LegacyNbt.hasUUID(%s, %s)" % (m.group(1), m.group(2)), s)
+    s = re.sub(r"(?!LegacyNbt\b)(\b\w+)\.getUUID\(%s\)" % ARG, lambda m: "LegacyNbt.getUUID(%s, %s)" % (m.group(1), m.group(2)), s)
+    s = re.sub(r"(?!LegacyNbt\b)(\b\w+)\.putUUID\(%s,\s*" % ARG, lambda m: "LegacyNbt.putUUID(%s, %s, " % (m.group(1), m.group(2)), s)
     if "LegacyNbt." in s:
         s = add_import(s, "com.atsuishio.portlib.nbt.LegacyNbt")
     return s
@@ -251,6 +251,8 @@ def sbw_api2(s):
         s = re.sub(r"public\s+float\s+getGravity\(\)", "public float getCustomGravity()", s)
         s = re.sub(r"\bsuper\.getGravity\(\)", "super.getCustomGravity()", s)
         for name, getter, setter in (("distracted", "isDistracted", "setDistracted"), ("lostTarget", "isLostTarget", "setLostTarget")):
+            if re.search(r"\b(?:boolean|var|Boolean)\s+%s\b" % name, s):
+                continue
             s = re.sub(r"(?<![\w.])(?:this\.)?%s\s*=(?!=)\s*([^;]+);" % name, r"%s(\1);" % setter, s)
             s = re.sub(r"(?<![\w])(?:this\.)%s\b(?!\s*\()" % name, "this.%s()" % getter, s)
             s = re.sub(r"(?<![\w.])%s\b(?!\s*\(|\s*=[^=])" % name, "%s()" % getter, s)
@@ -301,8 +303,32 @@ def screens(s):
     return s
 
 
+def mc_misc3(s):
+    s = re.sub(r"\bLevelRenderer\.renderLineBox\(", "com.atsuishio.portlib.render.LegacyLines.renderLineBox(", s)
+    s = re.sub(r"([\w.]+(?:\(\))?)\.(?:getEntityRenderDispatcher\(\)|entityRenderDispatcher)\.shouldRenderHitBoxes\(\)",
+               r"com.atsuishio.superbwarfare.port.GuiCompatKt.shouldRenderHitBoxes(\1.getEntityRenderDispatcher())", s)
+    s = re.sub(r"(?<![\w.])entityRenderDispatcher\.shouldRenderHitBoxes\(\)",
+               "com.atsuishio.superbwarfare.port.GuiCompatKt.shouldRenderHitBoxes(entityRenderDispatcher)", s)
+    s = re.sub(r"\bItemStack\.isSameItemSameTags\(", "ItemStack.isSameItemSameComponents(", s)
+    s = re.sub(r"\b([a-zA-Z_]\w*(?:\.\w+\(\))*)\.getPersistentData\(\)",
+               r"com.atsuishio.superbwarfare.capability.PersistentDataKt.getPersistentData(\1)", s)
+    s = re.sub(r"\b([a-zA-Z_]\w*(?:\.\w+\(\))*)\.hasPermissions\((\d)\)",
+               r"com.atsuishio.superbwarfare.port.Compat262Kt.hasPermissions(\1, \2)", s)
+    s = re.sub(r"\b([a-zA-Z_]\w*(?:\.\w+\(\))*)\.hasPermission\((\d)\)",
+               r"com.atsuishio.superbwarfare.port.Compat262Kt.hasPermission(\1, \2)", s)
+    s = re.sub(r"\b(\w+)\.server\b(?!\s*\()(?=\.|\)|,|;)", lambda m: m.group(0) if m.group(1) in ("this", "super", "minecraft", "mc") else m.group(1) + ".level().getServer()", s) if re.search(r"\bServerPlayer\b", s) else s
+    s = re.sub(r"\bServerLifecycleHooks\.getCurrentServer\(\)", "com.atsuishio.portlib.forge.network.PacketDistributor.server()", s)
+    s = re.sub(r"^import net\.minecraftforge\.server\.ServerLifecycleHooks;\n", "", s, flags=re.M)
+    s = re.sub(r"\bFMLPaths\.CONFIGDIR\.get\(\)", "net.fabricmc.loader.api.FabricLoader.getInstance().getConfigDir()", s)
+    s = re.sub(r"^import net\.minecraftforge\.fml\.loading\.FMLPaths;\n", "", s, flags=re.M)
+    s = re.sub(r"\.alwaysEat\(\)", ".alwaysEdible()", s)
+    s = re.sub(r"\bnet\.minecraftforge\.registries\.BuiltInRegistries\.", "net.minecraft.core.registries.BuiltInRegistries.", s)
+    return s
+
+
 def migrate(src):
     out = particle_providers(src)
+    out = mc_misc3(out)
     out = screens(out)
     out = mc_misc2(out)
     out = particles(out)

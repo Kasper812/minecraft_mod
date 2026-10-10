@@ -54,6 +54,8 @@ public final class BuiltinItemModel implements ItemModel {
     public void update(ItemStackRenderState output, ItemStack item, ItemModelResolver resolver, ItemDisplayContext displayContext,
                        @Nullable ClientLevel level, @Nullable ItemOwner owner, int seed) {
         output.appendModelIdentityElement(this);
+        output.appendModelIdentityElement(item.getItem());
+        output.appendModelIdentityElement(item.getComponentsPatch());
         output.setAnimated();
         ItemStackRenderState.LayerRenderState layer = output.newLayer();
         if (item.hasFoil()) {

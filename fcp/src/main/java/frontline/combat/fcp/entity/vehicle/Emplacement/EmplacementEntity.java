@@ -1,0 +1,195 @@
+package frontline.combat.fcp.entity.vehicle.Emplacement;
+
+import net.minecraft.world.level.storage.ValueInput;
+import com.atsuishio.portlib.nbt.LegacyNbt;
+import net.minecraft.world.level.storage.ValueOutput;
+import com.atsuishio.superbwarfare.data.gun.GunData;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import com.atsuishio.superbwarfare.init.ModSounds;
+import frontline.combat.fcp.entity.vehicle.CamoEmplacementEntity;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.UUID;
+
+/**
+ * Shared base for TOW-style emplacements (TOW, Kornet): reloaded like the base SBW TOW.
+ * Firing starts an RPM-based reload cooldown but leaves the round shown. The dismounted gunner's
+ * FIRST right-click clears the spent round (LOADED=false, Magazine bone hides); once the cooldown
+ * has elapsed, right-clicking with the ammo item reloads (LOADED=true, Magazine bone reappears).
+ * Unlike the base TOW there is NO cooldown countdown message and NO reload sound.
+ */
+public abstract class EmplacementEntity extends CamoEmplacementEntity {
+    public static final EntityDataAccessor<Boolean> LOADED =
+            SynchedEntityData.defineId(EmplacementEntity.class, EntityDataSerializers.BOOLEAN);
+    public static final EntityDataAccessor<Integer> RELOAD_COOLDOWN =
+            SynchedEntityData.defineId(EmplacementEntity.class, EntityDataSerializers.INT);
+
+    public EmplacementEntity(EntityType<? extends VehicleEntity> type, Level world) {
+        super(type, world);
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(LOADED, false);
+        builder.define(RELOAD_COOLDOWN, 0);
+    }
+
+    public boolean isLoaded() { return this.entityData.get(LOADED); }
+    public void setLoaded(boolean v) { this.entityData.set(LOADED, v); }
+    public int getReloadCooldown() { return this.entityData.get(RELOAD_COOLDOWN); }
+    public void setReloadCooldown(int v) { this.entityData.set(RELOAD_COOLDOWN, v); }
+
+    @Override
+    public void addAdditionalSaveData(ValueOutput cIo) {
+        CompoundTag c = LegacyNbt.tagOf(cIo);
+        super.addAdditionalSaveData(cIo);
+        c.putBoolean("Loaded", isLoaded());
+        c.putInt("ReloadCoolDown", getReloadCooldown());
+    }
+
+    @Override
+    public void readAdditionalSaveData(ValueInput cIo) {
+        CompoundTag c = LegacyNbt.tagOf(cIo);
+        super.readAdditionalSaveData(cIo);
+        if (c.contains("Loaded")) setLoaded(c.getBooleanOr("Loaded", false));
+        if (c.contains("ReloadCoolDown")) setReloadCooldown(c.getIntOr("ReloadCoolDown", 0));
+    }
+
+    private int reloadCoolDownTicks() {
+        int rpm = vehicleWeaponRpm(0);
+        if (rpm <= 0) return 20;
+        return (int) Math.ceil(20f / (rpm / 60f));
+    }
+
+    /** Emplacements are fixed installations — nothing can shove them. */
+    @Override
+    public boolean isPushable() { return false; }
+
+    @Override
+    public void push(double x, double y, double z) { /* fixed installation - ignore all external push */ }
+
+    @Override
+    public void push(net.minecraft.world.entity.Entity entity) { /* fixed installation - never shoved by entities */ }
+
+    private net.minecraft.world.phys.Vec3 lockPos;
+
+    @Override
+    public void tick() {
+        super.tick();
+        tickEmplacementReload(0);
+        if (this.lockPos == null) {
+            this.lockPos = new net.minecraft.world.phys.Vec3(this.getX(), this.getY(), this.getZ());
+        } else if (this.getX() != this.lockPos.x || this.getZ() != this.lockPos.z) {
+            this.setPos(this.lockPos.x, this.getY(), this.lockPos.z);
+            this.setDeltaMovement(0, this.getDeltaMovement().y, 0);
+        }
+    }
+
+    /** TOW-style get-out reload. Clamped MG/grenade turrets override this to false (normal inventory reload). */
+    protected boolean needsManualReload() { return true; }
+
+    /**
+     * Whether a hand-loaded gun takes its round from the HELD stack only.
+     *
+     * The default path uses reloadAmmo(), which draws from anywhere in the player's inventory.
+     * For a gun that is loaded shell by shell, that is the wrong feel - and it means ammo the
+     * player is not holding gets consumed.
+     */
+    protected boolean loadsFromHeldItemOnly() {
+        return false;
+    }
+
+    @Override
+    public InteractionResult interact(Player player, InteractionHand hand, net.minecraft.world.phys.Vec3 interactLocation) {
+        if (!needsManualReload()) {
+            return super.interact(player, hand, interactLocation);
+        }
+        GunData gunData = getGunData(0);
+        // Magazine-fed guns (M2, MG3, Mk19, AGS-17, DShK) reload automatically on a timer via
+        // tickEmplacementReload(). Sending them down this manual path made a single right-click
+        // call reloadAmmo() directly, which instantly swallowed a whole magazine's worth of ammo
+        // from the player (up to 200 rounds) with no reload time. Only the single-shot weapons
+        // (TOW, Kornet, ZiS-3) use the load-a-round-by-hand flow below.
+        if (gunData != null
+                && !gunData.useBackpackAmmo()
+                && gunData.get(com.atsuishio.superbwarfare.data.gun.GunProp.MAGAZINE) > 1) {
+            return super.interact(player, hand, interactLocation);
+        }
+        if (gunData != null) {
+            ItemStack stack = player.getMainHandItem();
+            if (gunData.hasEnoughAmmoToShoot(player)) {
+                setLoaded(true);
+                return super.interact(player, hand, interactLocation);
+            }
+            if (!isLoaded()) {
+                // Multi-ammo aware: find the consumer whose ammo item matches what's held (any accepted type).
+                java.util.List<com.atsuishio.superbwarfare.data.gun.AmmoConsumer> consumers =
+                        gunData.get(com.atsuishio.superbwarfare.data.gun.GunProp.AMMO_CONSUMER);
+                int matchIndex = -1;
+                for (int i = 0; i < consumers.size(); i++) {
+                    if (consumers.get(i).isAmmoItem(stack)) { matchIndex = i; break; }
+                }
+                if (matchIndex < 0) {
+                    return super.interact(player, hand, interactLocation);
+                }
+                int coolDown = reloadCoolDownTicks();
+                if (level() instanceof ServerLevel serverLevel && getReloadCooldown() == 0) {
+                    final int idx = matchIndex;
+                    if (loadsFromHeldItemOnly()) {
+                        // Consume exactly the round being held, rather than reloadAmmo() sweeping
+                        // the whole inventory. Keeps hand-loaded guns to "one right-click, one
+                        // round out of your hand".
+                        modifyGunData(0, data -> {
+                            data.changeAmmoConsumer(idx, player);
+                            data.ammo.set(data.get(com.atsuishio.superbwarfare.data.gun.GunProp.MAGAZINE));
+                        });
+                        if (!player.isCreative()) stack.shrink(1);
+                    } else {
+                        modifyGunData(0, data -> { data.changeAmmoConsumer(idx, player); data.reloadAmmo(player, false); });
+                    }
+                    setLoaded(true);
+                    serverLevel.playSound(null, blockPosition(), ModSounds.TYPE_63_RELOAD,
+                            SoundSource.PLAYERS, 1f, this.random.nextFloat() * 0.1f + 0.9f);
+                } else {
+                    player.sendOverlayMessage(Component.literal(String.format("%.1f / %.1f",
+                            (coolDown - getReloadCooldown()) / 20f, coolDown / 20f)));
+                }
+            } else {
+                // First right-click after firing clears the spent round.
+                setLoaded(false);
+            }
+            return InteractionResult.SUCCESS;
+        }
+        return super.interact(player, hand, interactLocation);
+    }
+
+    @Override
+    public void baseTick() {
+        super.baseTick();
+        int cd = getReloadCooldown();
+        if (cd > 0 && !this.level().isClientSide()) setReloadCooldown(cd - 1);
+    }
+
+    @Override
+    public void vehicleShoot(LivingEntity living, UUID uuid, Vec3 targetPos) {
+        super.vehicleShoot(living, uuid, targetPos);
+        // Start the reload cooldown; keep the round shown until the first post-fire right-click.
+        setReloadCooldown(reloadCoolDownTicks());
+    }
+}

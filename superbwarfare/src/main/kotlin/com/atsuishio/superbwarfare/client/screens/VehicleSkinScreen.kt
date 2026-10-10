@@ -91,7 +91,7 @@ class VehicleSkinScreen(private val entity: Entity) : LegacyScreen(Component.emp
         val startY = j + 4
 
         for ((index, entry) in skinEntries.withIndex()) {
-            if ((index + 1) !in this.currentPage * 4..this.currentPage * 4 + 4) continue
+            if ((index + 1) !in this.currentPage * 4 + 1..this.currentPage * 4 + 4) continue
 
             val (skinId, skinInfo) = entry
             val offset = index % 4

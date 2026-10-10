@@ -1,0 +1,13 @@
+package frontline.combat.fcp.client.renderer.Bmp.Bmp2;
+
+import com.atsuishio.superbwarfare.client.renderer.entity.VehicleRenderer;
+import frontline.combat.fcp.client.model.Bmp.Bmp2.BMP2DModel;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2DEntity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.Identifier;
+import frontline.combat.fcp.client.renderer.FcpVehicleTexture;
+
+public class BMP2DRenderer extends VehicleRenderer<BMP2DEntity> {
+    public BMP2DRenderer(EntityRendererProvider.Context c) { super(c, new BMP2DModel()); }
+    @Override public Identifier getTextureLocation(BMP2DEntity e) { return FcpVehicleTexture.resolve(e, e.getCurrentTexture()); }
+}

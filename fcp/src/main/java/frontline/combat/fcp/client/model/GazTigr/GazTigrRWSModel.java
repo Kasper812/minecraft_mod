@@ -1,0 +1,42 @@
+package frontline.combat.fcp.client.model.GazTigr;
+
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.client.model.FCPVehicleModel;
+import frontline.combat.fcp.client.model.Util.WheelRotationTransforms;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrMGEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrRWSEntity;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+
+public class GazTigrRWSModel extends FCPVehicleModel<GazTigrRWSEntity> {
+
+    @Override
+    public Identifier getModelResource(GazTigrRWSEntity animatable) {
+        return Identifier.fromNamespaceAndPath(FCP.MODID, "geo/gaz_tigr_rws.geo.json");
+    }
+
+    @Override
+    public boolean hideForTurretControllerWhileZooming() {
+        return false;
+    }
+
+    @Override
+    public @Nullable TransformContext<GazTigrRWSEntity> collectTransform(String boneName) {
+
+        VehicleModel.TransformContext<GazTigrRWSEntity> turn =
+                WheelRotationTransforms.matchAnyTurn(boneName, 0.5155, 30f,
+                        "wheelL0Turn", "wheelR0Turn");
+        if (turn != null) return turn;
+
+        VehicleModel.TransformContext<GazTigrRWSEntity> wheels =
+                WheelRotationTransforms.matchAny(boneName, 0.5155,
+                        "wheelL0", "wheelR0");
+        if (wheels != null) return wheels;
+
+        return super.collectTransform(boneName);
+    }
+
+}

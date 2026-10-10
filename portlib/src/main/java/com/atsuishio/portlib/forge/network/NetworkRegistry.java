@@ -24,6 +24,10 @@ public final class NetworkRegistry {
             this.name = name;
         }
 
+        public static ChannelBuilder named(Identifier name) {
+            return new ChannelBuilder(name);
+        }
+
         public ChannelBuilder networkProtocolVersion(Supplier<String> v) {
             return this;
         }

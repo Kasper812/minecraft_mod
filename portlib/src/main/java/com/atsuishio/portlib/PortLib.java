@@ -8,6 +8,8 @@ public final class PortLib implements ModInitializer {
     @Override
     public void onInitialize() {
         ServerLifecycleEvents.SERVER_STARTING.register(PacketDistributor::setServer);
+        net.fabricmc.fabric.api.event.player.UseEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
+                com.atsuishio.portlib.forge.event.PlayerInteractEvent.dispatch(player, hand, entity, hit == null ? null : hit.getLocation()));
         String dump = System.getProperty("portlib.dumpItems");
         if (dump != null) {
             ServerLifecycleEvents.SERVER_STARTED.register(server -> {

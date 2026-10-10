@@ -66,6 +66,18 @@ public abstract class LegacyContainerScreen<T extends AbstractContainerMenu> ext
         super.extractTooltip(guiGraphics.extractor(), mouseX, mouseY);
     }
 
+    public void renderBackground(GuiGraphics guiGraphics) {
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return this.mouseScrolled(mouseX, mouseY, scrollY);
+    }
+
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
+    }
+
     public void renderTransparentBackground(GuiGraphics guiGraphics) {
         this.extractTransparentBackground(guiGraphics.extractor());
     }

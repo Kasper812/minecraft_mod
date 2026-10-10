@@ -1,0 +1,166 @@
+package frontline.combat.fcp.init;
+
+
+import com.atsuishio.superbwarfare.item.container.ContainerBlockItem;
+import frontline.combat.fcp.FCP;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import com.atsuishio.portlib.forge.DeferredRegister;
+import com.atsuishio.portlib.forge.RegistryObject;
+
+public class ModTabs {
+
+    public static final DeferredRegister<CreativeModeTab> TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, FCP.MODID);
+
+    // Single merged tab. Icon uses an animated texture (fc_tab_cycle) that cycles the three old
+    // tab icons (yellow/red/blue) every 10 ticks (0.5s).
+    public static final RegistryObject<CreativeModeTab> FCP_TAB = TABS.register("fcp_tab", () -> net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab.builder()
+            .icon(() -> new ItemStack(ModItems.FC_TAB_ICON.get()))
+            .title(Component.translatable("fcptab.fcp_tab"))
+            .displayItems((parameters, output) -> {
+
+                // ---- Custom Items ----
+                output.accept(ModItems.SPRAY.get());
+                output.accept(ModItems.REDBULL.get());
+                output.accept(ModItems.DELICIOUS_SNACK.get());
+
+                // ---- Stationary Turrets ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_M2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_MG3.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_DSHK.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_MK19.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_AGS17.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_TOW.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_KORNET.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.EMPL_ZIS3.get()));
+
+                // ---- American Vehicles ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_MGS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_M2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_DRAGOON.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_MK19.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_TOW.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.STRYKER_MORTAR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LAV25.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.AAVP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_UNARMED.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_M2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_M2_SHIELD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_M2_TURRET.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_TOW.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_UNARMORED_TOW_TURRET.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_ARMORED_UNARMED.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_ARMORED_M2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_ARMORED_MK19.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_AVENGER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_ASRAD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_AMBULANCE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_CARGO.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_SHELTER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_SOFT_TOP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HMMWV_SOFT_TOP_NO_DOORS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MATV.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.RG_33.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MATV_CROW.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MATV_TOW.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M939.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.FMTV.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M109.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.KOZAK5.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.KOZAK2M1.get()));
+
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.M1A2.get()));
+
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TYPE10.get()));
+
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LITTLEBIRD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LITTLEBIRD_ARMED.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.LITTLEBIRD_HEAVY.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUEY.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUEY_M60_DOOR_GUNS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUEY_M60_GUNSHIP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUEY_M134_DOOR_GUNS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.HUEY_M134_GUNSHIP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.VENOM.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.VENOM_GUNSHIP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.VENOM_DOOR_GUNS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.VIPER.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.CH53A.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.CH53E.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MH53.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UH60_MINIGUN.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MH60L.get()));
+
+                // ---- Japanese Vehicles ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.OH1.get()));
+
+                // ---- Civilian Vehicles ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.COMBINE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.JOHN_DEERE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.CULTIVATOR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.SEEDER.get()));
+
+                // ---- Russian Vehicles ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UAZ.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UAZ_DSHKA.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UAZ_SPG9.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UAZ_452.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.UAZ_3303.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.URAL.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.URAL_FUEL.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.URAL_KUNG.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.URAL_GRAD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.KAMAZ.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.KAMAZ_KUNG.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.KAMAZ_LONG.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR_RWS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR_MG.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR_GL.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.GAZ_TIGR_DUAL.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.NOVATOR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.NOVATOR_UNARMED.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR80_COPE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR82.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR82AT.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR82_COPE.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR3E.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BTR4MV1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BRDM2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.PANTSIR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI17.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI8.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI17_DOOR_GUNS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI8_DOOR_GUNS.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI8_MTV.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MI8_AMTSH.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.MSTA.get()));
+
+                // ---- Terrorist Vehicles ----
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP1.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP1U.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP1AM.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP1P.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP2.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP2D.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP2M.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP2MD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.BMP2_NOATGM.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.T72AV.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX_ZU23.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX_BMP.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX_SPG9.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX_ROCKET_POD.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.TOYOTA_HILUX_MORTAR.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.DPV_M240.get()));
+                output.accept(ContainerBlockItem.createInstance(ModEntities.DPV_MINIGUN.get()));
+
+            }).build());
+
+}

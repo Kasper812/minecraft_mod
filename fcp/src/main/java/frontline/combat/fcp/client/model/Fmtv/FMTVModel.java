@@ -1,0 +1,51 @@
+package frontline.combat.fcp.client.model.Fmtv;
+
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.client.model.Util.WheelRotationTransforms;
+import frontline.combat.fcp.entity.vehicle.Fmtv.FMTVEntity;
+import frontline.combat.fcp.entity.vehicle.Ural.UralEntity;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.animation.AnimationState;
+
+public class FMTVModel extends VehicleModel<FMTVEntity> {
+
+    @Override
+    public Identifier getModelResource(FMTVEntity animatable) {
+        return Identifier.fromNamespaceAndPath(FCP.MODID, "geo/fmtv.geo.json");
+    }
+
+    @Override
+    public void setCustomAnimations(FMTVEntity vehicle, long instanceId, AnimationState<FMTVEntity> animationState) {
+        super.setCustomAnimations(vehicle, instanceId, animationState);
+        this.getBone("tent").ifPresent(bone -> setHiddenDeep(bone, !vehicle.hasTent()));
+    }
+
+    private static void setHiddenDeep(GeoBone bone, boolean hidden) {
+        bone.setHidden(hidden);
+        for (GeoBone child : bone.getChildBones()) setHiddenDeep(child, hidden);
+    }
+
+    @Override
+    public boolean hideForTurretControllerWhileZooming() {
+        return true;
+    }
+
+    @Override
+    public @Nullable TransformContext<FMTVEntity> collectTransform(String boneName) {
+
+        VehicleModel.TransformContext<FMTVEntity> turn =
+                WheelRotationTransforms.matchAnyTurn(boneName, 0.585, 30f,
+                        "WheelL0Turn", "WheelR0Turn", "WheelL1Turn", "WheelR1Turn");
+        if (turn != null) return turn;
+
+        VehicleModel.TransformContext<FMTVEntity> wheels =
+                WheelRotationTransforms.matchAny(boneName, 0.585,
+                        "WheelL0", "WheelR0", "WheelL1", "WheelR1");
+        if (wheels != null) return wheels;
+
+        return super.collectTransform(boneName);
+    }
+}

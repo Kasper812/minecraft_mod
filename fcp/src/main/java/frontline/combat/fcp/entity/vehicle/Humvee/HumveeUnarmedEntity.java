@@ -1,0 +1,215 @@
+package frontline.combat.fcp.entity.vehicle.Humvee;
+
+import net.minecraft.world.level.storage.ValueInput;
+import com.atsuishio.portlib.nbt.LegacyNbt;
+import net.minecraft.world.level.storage.ValueOutput;
+import com.atsuishio.superbwarfare.entity.vehicle.damage.DamageModifier;
+import frontline.combat.fcp.entity.vehicle.CamoVehicleBase;
+import frontline.combat.fcp.vehicle.humvee.HumveeAttachments;
+import frontline.combat.fcp.entity.vehicle.SteerableVehicle;
+import frontline.combat.fcp.vehicle.humvee.HumveeVehicle;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.level.Level;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * One entity class shared by every unarmed HMMWV variant. Each variant is a separate
+ * EntityType registered against this class; the variant is identified at runtime by its
+ * registry name (see {@link #humveeName()}), which selects the geo, textures and
+ * attachment data. Turret/weapon handling is intentionally omitted for now.
+ */
+public class HumveeUnarmedEntity extends CamoVehicleBase implements HumveeVehicle, SteerableVehicle {
+
+    public int INVENTORY_SIZE = 9;
+
+    @Override
+    public int inventorySize() {
+        return INVENTORY_SIZE;
+    }
+
+    @Override public InventoryStyle inventoryStyle() { return InventoryStyle.GRID; }
+
+    private static final EntityDataAccessor<Float> STEERING_ANGLE =
+            SynchedEntityData.defineId(HumveeUnarmedEntity.class, EntityDataSerializers.FLOAT);
+    // Selected attachment variants, encoded as "Category=idx;Category=idx;...".
+    private static final EntityDataAccessor<String> ATTACHMENTS =
+            SynchedEntityData.defineId(HumveeUnarmedEntity.class, EntityDataSerializers.STRING);
+
+    private float prevSteeringAngle = 0f;
+    private float wheelRotation = 0f;
+    private float prevWheelRotation = 0f;
+    // Whether this vehicle's attachments have been rolled yet. Fresh spawns get a random
+    // set once; loaded vehicles keep whatever was saved.
+    private boolean attachmentsInitialized = false;
+
+    public HumveeUnarmedEntity(EntityType<HumveeUnarmedEntity> type, Level world) {
+        super(type, world);
+    }
+
+    @Override
+    public String humveeName() {
+        return HumveeAttachments.vehicleName(this.getType());
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(STEERING_ANGLE, 0f);
+        builder.define(ATTACHMENTS, "");
+    }
+
+    // ---- attachment state ----
+
+    private Map<String, Integer> parseAttachments() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String raw = this.entityData.get(ATTACHMENTS);
+        if (raw == null || raw.isEmpty()) return map;
+        for (String part : raw.split(";")) {
+            int eq = part.indexOf('=');
+            if (eq > 0) {
+                try {
+                    map.put(part.substring(0, eq), Integer.parseInt(part.substring(eq + 1)));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        return map;
+    }
+
+    private void writeAttachments(Map<String, Integer> map) {
+        StringBuilder sb = new StringBuilder();
+        for (Map.Entry<String, Integer> e : map.entrySet()) {
+            if (sb.length() > 0) sb.append(';');
+            sb.append(e.getKey()).append('=').append(e.getValue());
+        }
+        this.entityData.set(ATTACHMENTS, sb.toString());
+    }
+
+    @Override
+    public int getAttachmentIndex(String category) {
+        return parseAttachments().getOrDefault(category, 0);
+    }
+
+    /** Pick a random variant for every category. Called once, on first spawn. */
+    private void randomizeAttachments() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        for (HumveeAttachments.Category c : HumveeAttachments.categories(humveeName())) {
+            if (c.variantCount > 0) {
+                map.put(c.name, this.random.nextInt(c.variantCount));
+            }
+        }
+        writeAttachments(map);
+    }
+
+    @Override
+    public void cycleAttachment(String category, int variantCount) {
+        if (variantCount <= 0) return;
+        Map<String, Integer> map = parseAttachments();
+        int next = (map.getOrDefault(category, 0) + 1) % variantCount;
+        map.put(category, next);
+        writeAttachments(map);
+    }
+
+    // ---- steering / wheels (identical to the base Humvee) ----
+
+    public float getSteeringAngle() {
+        return this.entityData.get(STEERING_ANGLE);
+    }
+
+    public void setSteeringAngle(float angle) {
+        this.entityData.set(STEERING_ANGLE, angle);
+    }
+
+    public float getPrevSteeringAngle() {
+        return prevSteeringAngle;
+    }
+
+    public float getWheelRotation() {
+        return wheelRotation;
+    }
+
+    public float getPrevWheelRotation() {
+        return prevWheelRotation;
+    }
+
+    @Override
+    public DamageModifier getDamageModifier() {
+        return super.getDamageModifier()
+                .custom((entity, source, damage) -> getSourceAngle(source, 0.4f) * damage);
+    }
+
+    @Override
+    public void addAdditionalSaveData(ValueOutput compoundIo) {
+        CompoundTag compound = LegacyNbt.tagOf(compoundIo);
+        super.addAdditionalSaveData(compoundIo);
+        compound.putFloat("SteeringAngle", this.getSteeringAngle());
+        compound.putString("Attachments", this.entityData.get(ATTACHMENTS));
+        compound.putBoolean("AttachmentsInit", this.attachmentsInitialized);
+    }
+
+    @Override
+    public void readAdditionalSaveData(ValueInput compoundIo) {
+        CompoundTag compound = LegacyNbt.tagOf(compoundIo);
+        super.readAdditionalSaveData(compoundIo);
+        if (compound.contains("SteeringAngle")) {
+            setSteeringAngle(compound.getFloatOr("SteeringAngle", 0.0F));
+        }
+        if (compound.contains("Attachments")) {
+            this.entityData.set(ATTACHMENTS, compound.getStringOr("Attachments", ""));
+        }
+        // Absent flag = pre-existing/older vehicle; treat as already initialized so its
+        // (possibly empty) selection is kept rather than being re-rolled on load.
+        this.attachmentsInitialized = compound.getBooleanOr("AttachmentsInit", false)
+                || compound.contains("Attachments");
+    }
+
+    @Override
+    public void baseTick() {
+        super.baseTick();
+
+        if (!this.level().isClientSide() && !this.attachmentsInitialized) {
+            randomizeAttachments();
+            this.attachmentsInitialized = true;
+        }
+
+        prevSteeringAngle = getSteeringAngle();
+        float currentAngle = getSteeringAngle();
+
+        double speed = Math.sqrt(this.getDeltaMovement().x * this.getDeltaMovement().x
+                + this.getDeltaMovement().z * this.getDeltaMovement().z);
+        boolean isMoving = speed > 0.05;
+        boolean turningLeft = this.leftInputDown();
+        boolean turningRight = this.rightInputDown();
+
+        if (turningLeft && !turningRight) {
+            currentAngle = Math.min(45f, currentAngle + 2.0f);
+            setSteeringAngle(currentAngle);
+        } else if (turningRight && !turningLeft) {
+            currentAngle = Math.max(-45f, currentAngle - 2.0f);
+            setSteeringAngle(currentAngle);
+        } else if (isMoving && Math.abs(currentAngle) > 0.5f) {
+            currentAngle *= 0.9f;
+            setSteeringAngle(currentAngle);
+        }
+
+        if (isMoving && Math.abs(currentAngle) > 1f) {
+            this.setYRot(this.getYRot() + currentAngle * 0.009f * (float) speed);
+        }
+
+        prevWheelRotation = wheelRotation;
+        double forwardComponent = this.getDeltaMovement().x * Math.sin(Math.toRadians(this.getYRot()))
+                + this.getDeltaMovement().z * Math.cos(Math.toRadians(this.getYRot()));
+        if (forwardComponent > 0) {
+            wheelRotation += (float) (speed * 20f);
+        } else if (forwardComponent < 0) {
+            wheelRotation -= (float) (speed * 20f);
+        }
+    }
+}

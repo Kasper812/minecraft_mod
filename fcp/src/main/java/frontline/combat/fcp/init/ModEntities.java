@@ -1,0 +1,413 @@
+package frontline.combat.fcp.init;
+
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.entity.projectile.Hellfire.LockOnHellfireEntity;
+import frontline.combat.fcp.entity.projectile.Hellfire.WireGuidedHellfireEntity;
+import frontline.combat.fcp.entity.projectile.Malyutka.MalyutkaEntity;
+import frontline.combat.fcp.entity.projectile.Sidewinder.SidewinderEntity;
+import frontline.combat.fcp.entity.vehicle.Aavp.AAVPEntity;
+import frontline.combat.fcp.entity.vehicle.Abrams.M1a1Entity;
+import frontline.combat.fcp.entity.vehicle.Abrams.M1a2Entity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp1.BMP1AMEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp1.BMP1Entity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp1.BMP1UEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2Entity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp1.BMP1PEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2DEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2MEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2NoAtgmEntity;
+import frontline.combat.fcp.entity.vehicle.Bmp.Bmp2.BMP2MDEntity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR82Entity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR82ATEntity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR3EEntity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR4MV1Entity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR80Entity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR80CopeEntity;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR82CopeEntity;
+import frontline.combat.fcp.entity.vehicle.Fmtv.FMTVEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrGLEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrDualEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrMGEntity;
+import frontline.combat.fcp.entity.vehicle.GazTigr.GazTigrRWSEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.HueyEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.HueyM60DoorGunsEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.HueyM60GunshipEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.HueyM134DoorGunsEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.HueyM134GunshipEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.VenomEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.VenomGunshipEntity;
+import frontline.combat.fcp.entity.vehicle.Huey.VenomDoorGunsEntity;
+import frontline.combat.fcp.entity.vehicle.JohnDeere.CombineEntity;
+import frontline.combat.fcp.entity.vehicle.JohnDeere.CultivatorEntity;
+import frontline.combat.fcp.entity.vehicle.Humvee.HumveeUnarmedEntity;
+import frontline.combat.fcp.entity.vehicle.JohnDeere.JohnDeereEntity;
+import frontline.combat.fcp.entity.vehicle.JohnDeere.SeederEntity;
+import frontline.combat.fcp.entity.vehicle.Kamaz.KamazEntity;
+import frontline.combat.fcp.entity.vehicle.Kamaz.KamazKungEntity;
+import frontline.combat.fcp.entity.vehicle.Kamaz.KamazLongEntity;
+import frontline.combat.fcp.entity.vehicle.Lav.Lav25Entity;
+import frontline.combat.fcp.entity.vehicle.Littlebird.LittlebirdHeavyEntity;
+import frontline.combat.fcp.entity.vehicle.Littlebird.LittlebirdArmedEntity;
+import frontline.combat.fcp.entity.vehicle.Littlebird.LittlebirdEntity;
+import frontline.combat.fcp.entity.vehicle.M109.M109Entity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATV9In1Entity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVCrowsEntity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVEntity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplTowEntity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplKornetEntity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplDshkEntity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplMk19Entity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplAgs17Entity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplM2Entity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplMg3Entity;
+import frontline.combat.fcp.entity.vehicle.Emplacement.EmplZis3Entity;
+import frontline.combat.fcp.entity.vehicle.Msta.MstaEntity;
+import frontline.combat.fcp.entity.vehicle.Pantsir.PantsirEntity;
+import frontline.combat.fcp.entity.vehicle.Brdm.Brdm2Entity;
+import frontline.combat.fcp.entity.vehicle.M939.M939Entity;
+import frontline.combat.fcp.entity.vehicle.ManHx58.ManHx58Entity;
+import frontline.combat.fcp.entity.vehicle.ManHx58.ManHx58Mg3Entity;
+import frontline.combat.fcp.entity.vehicle.ManHx60.ManHx60Entity;
+import frontline.combat.fcp.entity.vehicle.GenericSuv.GenericSuvEntity;
+import frontline.combat.fcp.entity.vehicle.Fmtv4x4.FMTV4x4Entity;
+import frontline.combat.fcp.entity.vehicle.Kozak.Kozak5Entity;
+import frontline.combat.fcp.entity.vehicle.Kozak.Kozak2m1Entity;
+import frontline.combat.fcp.entity.vehicle.Kozak.KozakAmbulanceEntity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVTOWEntity;
+import frontline.combat.fcp.entity.vehicle.Rg33.RG33Entity;
+import frontline.combat.fcp.entity.vehicle.MemeVehicles.BigBirdEntity;
+import frontline.combat.fcp.entity.vehicle.MemeVehicles.WolfEntity;
+import frontline.combat.fcp.entity.vehicle.Mi17.MI17Entity;
+import frontline.combat.fcp.entity.vehicle.Mi17.MI17DoorGunsEntity;
+import frontline.combat.fcp.entity.vehicle.Mi8.MI8Entity;
+import frontline.combat.fcp.entity.vehicle.Mi8.MI8DoorGunsEntity;
+import frontline.combat.fcp.entity.vehicle.Mi8.MI8MTVEntity;
+import frontline.combat.fcp.entity.vehicle.Mi8.MI8AMTShEntity;
+import frontline.combat.fcp.entity.vehicle.Novator.NovatorEntity;
+import frontline.combat.fcp.entity.vehicle.NovatorUnarmed.NovatorUnarmedEntity;
+import frontline.combat.fcp.entity.vehicle.Dpv.DpvM240Entity;
+import frontline.combat.fcp.entity.vehicle.Dpv.DpvMinigunEntity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerM2Entity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerMGSEntity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerDragoonEntity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerMk19Entity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerTowEntity;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerMortarEntity;
+import frontline.combat.fcp.entity.vehicle.T72av.T72AVEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxBMPEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxRocketPodEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxSpg9Entity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxMortarEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxZu23Entity;
+import frontline.combat.fcp.entity.vehicle.Trailers.ExampleTrailer.ExampleTrailerEntity;
+import frontline.combat.fcp.entity.vehicle.Type10.Type10Entity;
+import frontline.combat.fcp.entity.vehicle.Uaz.UAZDSHKAEntity;
+import frontline.combat.fcp.entity.vehicle.Uaz.UAZSPG9Entity;
+import frontline.combat.fcp.entity.vehicle.Uaz.UAZEntity;
+import frontline.combat.fcp.entity.vehicle.Uaz.UAZ452Entity;
+import frontline.combat.fcp.entity.vehicle.Uaz.UAZ3303Entity;
+import frontline.combat.fcp.entity.vehicle.Ural.UralEntity;
+import frontline.combat.fcp.entity.vehicle.Ural.UralFuelEntity;
+import frontline.combat.fcp.entity.vehicle.Ural.UralKungEntity;
+import frontline.combat.fcp.entity.vehicle.Ural.UralGradEntity;
+import frontline.combat.fcp.entity.vehicle.Viper.ViperEntity;
+import frontline.combat.fcp.entity.vehicle.Oh1.Oh1Entity;
+import frontline.combat.fcp.entity.vehicle.Ch53.Ch53aEntity;
+import frontline.combat.fcp.entity.vehicle.Ch53.Ch53eEntity;
+import frontline.combat.fcp.entity.vehicle.Ch53.Mh53Entity;
+import frontline.combat.fcp.entity.vehicle.Uh60.Uh60Entity;
+import frontline.combat.fcp.entity.vehicle.Uh60.Uh60MinigunEntity;
+import frontline.combat.fcp.entity.vehicle.Uh60.Mh60lEntity;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.MobCategory;
+import com.atsuishio.portlib.forge.DeferredRegister;
+import com.atsuishio.portlib.forge.ForgeRegistries;
+import com.atsuishio.portlib.forge.RegistryObject;
+
+public class ModEntities {
+    public static final DeferredRegister<EntityType<?>> ENTITY_TYPES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, FCP.MODID);
+
+    public static final RegistryObject<EntityType<ToyotaHiluxEntity>> TOYOTA_HILUX = register("toyota_hilux",
+            EntityType.Builder.of(ToyotaHiluxEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<DpvM240Entity>> DPV_M240 = register("dpv_m240",
+            EntityType.Builder.of(DpvM240Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<DpvMinigunEntity>> DPV_MINIGUN = register("dpv_minigun",
+            EntityType.Builder.of(DpvMinigunEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<ToyotaHiluxRocketPodEntity>> TOYOTA_HILUX_ROCKET_POD = register("toyota_hilux_rocket_pod",
+            EntityType.Builder.of(ToyotaHiluxRocketPodEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<ToyotaHiluxBMPEntity>> TOYOTA_HILUX_BMP = register("toyota_hilux_bmp",
+            EntityType.Builder.of(ToyotaHiluxBMPEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<ToyotaHiluxSpg9Entity>> TOYOTA_HILUX_SPG9 = register("toyota_hilux_spg9",
+            EntityType.Builder.of(ToyotaHiluxSpg9Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<ToyotaHiluxMortarEntity>> TOYOTA_HILUX_MORTAR = register("toyota_hilux_mortar",
+            EntityType.Builder.of(ToyotaHiluxMortarEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<ToyotaHiluxZu23Entity>> TOYOTA_HILUX_ZU23 = register("toyota_hilux_zu23",
+            EntityType.Builder.of(ToyotaHiluxZu23Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<UAZEntity>> UAZ = register("uaz",
+            EntityType.Builder.of(UAZEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<UAZDSHKAEntity>> UAZ_DSHKA = register("uaz_dshka",
+            EntityType.Builder.of(UAZDSHKAEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<UAZSPG9Entity>> UAZ_SPG9 = register("uaz_spg9",
+            EntityType.Builder.of(UAZSPG9Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<UAZ452Entity>> UAZ_452 = register("uaz_452",
+            EntityType.Builder.of(UAZ452Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<UAZ3303Entity>> UAZ_3303 = register("uaz_3303",
+            EntityType.Builder.of(UAZ3303Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<StrykerMGSEntity>> STRYKER_MGS = register("stryker_mgs",
+            EntityType.Builder.of(StrykerMGSEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<StrykerM2Entity>> STRYKER_M2 = register("stryker_m2",
+            EntityType.Builder.of(StrykerM2Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<StrykerDragoonEntity>> STRYKER_DRAGOON = register("stryker_dragoon",
+            EntityType.Builder.of(StrykerDragoonEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<StrykerMk19Entity>> STRYKER_MK19 = register("stryker_mk19",
+            EntityType.Builder.of(StrykerMk19Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<StrykerTowEntity>> STRYKER_TOW = register("stryker_tow",
+            EntityType.Builder.of(StrykerTowEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<StrykerMortarEntity>> STRYKER_MORTAR = register("stryker_mortar",
+            EntityType.Builder.of(StrykerMortarEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<LittlebirdEntity>> LITTLEBIRD = register("littlebird",
+            EntityType.Builder.of(LittlebirdEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<LittlebirdArmedEntity>> LITTLEBIRD_ARMED = register("littlebird_armed",
+            EntityType.Builder.of(LittlebirdArmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<LittlebirdHeavyEntity>> LITTLEBIRD_HEAVY = register("littlebird_heavy",
+            EntityType.Builder.of(LittlebirdHeavyEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<BMP1Entity>> BMP1 = register("bmp1",
+            EntityType.Builder.of(BMP1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP1UEntity>> BMP1U = register("bmp1u",
+            EntityType.Builder.of(BMP1UEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP1AMEntity>> BMP1AM = register("bmp1am",
+            EntityType.Builder.of(BMP1AMEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP2Entity>> BMP2 = register("bmp2",
+            EntityType.Builder.of(BMP2Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP1PEntity>> BMP1P = register("bmp1p",
+            EntityType.Builder.of(BMP1PEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP2DEntity>> BMP2D = register("bmp2d",
+            EntityType.Builder.of(BMP2DEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP2MEntity>> BMP2M = register("bmp2m",
+            EntityType.Builder.of(BMP2MEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP2NoAtgmEntity>> BMP2_NOATGM = register("bmp2_noatgm",
+            EntityType.Builder.of(BMP2NoAtgmEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BMP2MDEntity>> BMP2MD = register("bmp2md",
+            EntityType.Builder.of(BMP2MDEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<AAVPEntity>> AAVP = register("aavp",
+            EntityType.Builder.of(AAVPEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Lav25Entity>> LAV25 = register("lav25",
+            EntityType.Builder.of(Lav25Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<T72AVEntity>> T72AV = register("t72av",
+            EntityType.Builder.of(T72AVEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<UralEntity>> URAL = register("ural",
+            EntityType.Builder.of(UralEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<UralFuelEntity>> URAL_FUEL = register("ural_fuel",
+            EntityType.Builder.of(UralFuelEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<UralKungEntity>> URAL_KUNG = register("ural_kung",
+            EntityType.Builder.of(UralKungEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<UralGradEntity>> URAL_GRAD = register("ural_grad",
+            EntityType.Builder.of(UralGradEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<KamazEntity>> KAMAZ = register("kamaz",
+            EntityType.Builder.of(KamazEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<KamazKungEntity>> KAMAZ_KUNG = register("kamaz_kung",
+            EntityType.Builder.of(KamazKungEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<KamazLongEntity>> KAMAZ_LONG = register("kamaz_long",
+            EntityType.Builder.of(KamazLongEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<ViperEntity>> VIPER = register("viper",
+            EntityType.Builder.of(ViperEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Oh1Entity>> OH1 = register("oh1",
+            EntityType.Builder.of(Oh1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Ch53aEntity>> CH53A = register("ch53a",
+            EntityType.Builder.of(Ch53aEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Ch53eEntity>> CH53E = register("ch53e",
+            EntityType.Builder.of(Ch53eEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Mh53Entity>> MH53 = register("mh53",
+            EntityType.Builder.of(Mh53Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Uh60Entity>> UH60 = register("uh60",
+            EntityType.Builder.of(Uh60Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Uh60MinigunEntity>> UH60_MINIGUN = register("uh60_minigun",
+            EntityType.Builder.of(Uh60MinigunEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Mh60lEntity>> MH60L = register("mh60l",
+            EntityType.Builder.of(Mh60lEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<GazTigrEntity>> GAZ_TIGR = register("gaz_tigr",
+            EntityType.Builder.of(GazTigrEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<GazTigrRWSEntity>> GAZ_TIGR_RWS = register("gaz_tigr_rws",
+            EntityType.Builder.of(GazTigrRWSEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<GazTigrMGEntity>> GAZ_TIGR_MG = register("gaz_tigr_mg",
+            EntityType.Builder.of(GazTigrMGEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<GazTigrGLEntity>> GAZ_TIGR_GL = register("gaz_tigr_gl",
+            EntityType.Builder.of(GazTigrGLEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<GazTigrDualEntity>> GAZ_TIGR_DUAL = register("gaz_tigr_dual",
+            EntityType.Builder.of(GazTigrDualEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HueyEntity>> HUEY = register("huey",
+            EntityType.Builder.of(HueyEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HueyM60DoorGunsEntity>> HUEY_M60_DOOR_GUNS = register("huey_m60_door_guns",
+            EntityType.Builder.of(HueyM60DoorGunsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HueyM60GunshipEntity>> HUEY_M60_GUNSHIP = register("huey_m60_gunship",
+            EntityType.Builder.of(HueyM60GunshipEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HueyM134DoorGunsEntity>> HUEY_M134_DOOR_GUNS = register("huey_m134_door_guns",
+            EntityType.Builder.of(HueyM134DoorGunsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HueyM134GunshipEntity>> HUEY_M134_GUNSHIP = register("huey_m134_gunship",
+            EntityType.Builder.of(HueyM134GunshipEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<VenomEntity>> VENOM = register("venom",
+            EntityType.Builder.of(VenomEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<VenomGunshipEntity>> VENOM_GUNSHIP = register("venom_gunship",
+            EntityType.Builder.of(VenomGunshipEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<VenomDoorGunsEntity>> VENOM_DOOR_GUNS = register("venom_door_guns",
+            EntityType.Builder.of(VenomDoorGunsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<NovatorEntity>> NOVATOR = register("novator",
+            EntityType.Builder.of(NovatorEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<NovatorUnarmedEntity>> NOVATOR_UNARMED = register("novator_unarmed",
+            EntityType.Builder.of(NovatorUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MATVEntity>> MATV = register("matv",
+            EntityType.Builder.of(MATVEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<RG33Entity>> RG_33 = register("rg_33",
+            EntityType.Builder.of(RG33Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<EmplTowEntity>> EMPL_TOW = register("empl_tow",
+            EntityType.Builder.of(EmplTowEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,1.4f));
+    public static final RegistryObject<EntityType<EmplKornetEntity>> EMPL_KORNET = register("empl_kornet",
+            EntityType.Builder.of(EmplKornetEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,1.4f));
+    public static final RegistryObject<EntityType<EmplDshkEntity>> EMPL_DSHK = register("empl_dshk",
+            EntityType.Builder.of(EmplDshkEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,1.4f));
+    public static final RegistryObject<EntityType<EmplMk19Entity>> EMPL_MK19 = register("empl_mk19",
+            EntityType.Builder.of(EmplMk19Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,0.84f));
+    public static final RegistryObject<EntityType<EmplAgs17Entity>> EMPL_AGS17 = register("empl_ags17",
+            EntityType.Builder.of(EmplAgs17Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,0.84f));
+    public static final RegistryObject<EntityType<EmplM2Entity>> EMPL_M2 = register("empl_m2",
+            EntityType.Builder.of(EmplM2Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,0.84f));
+    public static final RegistryObject<EntityType<EmplMg3Entity>> EMPL_MG3 = register("empl_mg3",
+            EntityType.Builder.of(EmplMg3Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,0.84f));
+    public static final RegistryObject<EntityType<EmplZis3Entity>> EMPL_ZIS3 = register("empl_zis3",
+            EntityType.Builder.of(EmplZis3Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.8f,0.84f));
+    public static final RegistryObject<EntityType<PantsirEntity>> PANTSIR = register("pantsir",
+            EntityType.Builder.of(PantsirEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(4f,4f));
+    public static final RegistryObject<EntityType<Brdm2Entity>> BRDM2 = register("brdm2",
+            EntityType.Builder.of(Brdm2Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2.5f));
+    public static final RegistryObject<EntityType<M939Entity>> M939 = register("m939",
+            EntityType.Builder.of(M939Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<ManHx58Entity>> MAN_HX58 = register("man_hx58",
+            EntityType.Builder.of(ManHx58Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<ManHx58Mg3Entity>> MAN_HX58_MG3 = register("man_hx58_mg3",
+            EntityType.Builder.of(ManHx58Mg3Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<ManHx60Entity>> MAN_HX60 = register("man_hx60",
+            EntityType.Builder.of(ManHx60Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,3f));
+    public static final RegistryObject<EntityType<GenericSuvEntity>> GENERIC_SUV = register("generic_suv",
+            EntityType.Builder.of(GenericSuvEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2.5f));
+    public static final RegistryObject<EntityType<FMTV4x4Entity>> FMTV_4X4 = register("fmtv_4x4",
+            EntityType.Builder.of(FMTV4x4Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Kozak5Entity>> KOZAK5 = register("kozak5",
+            EntityType.Builder.of(Kozak5Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<Kozak2m1Entity>> KOZAK2M1 = register("kozak2m1",
+            EntityType.Builder.of(Kozak2m1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<KozakAmbulanceEntity>> KOZAK_AMBULANCE = register("kozak_ambulance",
+            EntityType.Builder.of(KozakAmbulanceEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MATVTOWEntity>> MATV_TOW = register("matv_tow",
+            EntityType.Builder.of(MATVTOWEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MATVCrowsEntity>> MATV_CROW = register("matv_crow",
+            EntityType.Builder.of(MATVCrowsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MATV9In1Entity>> MATV_9IN1 = register("matv_9in1",
+            EntityType.Builder.of(MATV9In1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_AMBULANCE = register("hmmwv_ambulance",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_ARMORED_M2 = register("hmmwv_armored_m2",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_ARMORED_MK19 = register("hmmwv_armored_mk19",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_ARMORED_UNARMED = register("hmmwv_armored_unarmed",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_ASRAD = register("hmmwv_asrad",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_AVENGER = register("hmmwv_avenger",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_CARGO = register("hmmwv_cargo",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_SHELTER = register("hmmwv_shelter",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_SOFT_TOP = register("hmmwv_soft_top",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_SOFT_TOP_NO_DOORS = register("hmmwv_soft_top_no_doors",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_M2 = register("hmmwv_unarmored_m2",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_M2_SHIELD = register("hmmwv_unarmored_m2_shield",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_M2_TURRET = register("hmmwv_unarmored_m2_turret",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_TOW = register("hmmwv_unarmored_tow",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_TOW_TURRET = register("hmmwv_unarmored_tow_turret",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<HumveeUnarmedEntity>> HMMWV_UNARMORED_UNARMED = register("hmmwv_unarmored_unarmed",
+            EntityType.Builder.of(HumveeUnarmedEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR3EEntity>> BTR3E = register("btr3e",
+            EntityType.Builder.of(BTR3EEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR4MV1Entity>> BTR4MV1 = register("btr4mv1",
+            EntityType.Builder.of(BTR4MV1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR82Entity>> BTR82 = register("btr82",
+            EntityType.Builder.of(BTR82Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR82ATEntity>> BTR82AT = register("btr82at",
+            EntityType.Builder.of(BTR82ATEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR80Entity>> BTR80 = register("btr80",
+            EntityType.Builder.of(BTR80Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR80CopeEntity>> BTR80_COPE = register("btr80_cope",
+            EntityType.Builder.of(BTR80CopeEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<BTR82CopeEntity>> BTR82_COPE = register("btr82_cope",
+            EntityType.Builder.of(BTR82CopeEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<FMTVEntity>> FMTV = register("fmtv",
+            EntityType.Builder.of(FMTVEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<M1a1Entity>> M1A1 = register("m1a1",
+            EntityType.Builder.of(M1a1Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<M1a2Entity>> M1A2 = register("m1a2",
+            EntityType.Builder.of(M1a2Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+
+    public static final RegistryObject<EntityType<Type10Entity>> TYPE10 = register("type10",
+            EntityType.Builder.of(Type10Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    // Projectiles
+    public static final RegistryObject<EntityType<LockOnHellfireEntity>> LOCK_ON_HELLFIRE = register("lock_on_hellfire",
+            EntityType.Builder.<LockOnHellfireEntity>of(LockOnHellfireEntity::new, MobCategory.MISC).alwaysUpdateVelocity(false).clientTrackingRange(256).updateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
+    public static final RegistryObject<EntityType<WireGuidedHellfireEntity>> WIRE_GUIDED_HELLFIRE = register("wire_guided_hellfire",
+            EntityType.Builder.<WireGuidedHellfireEntity>of(WireGuidedHellfireEntity::new, MobCategory.MISC).alwaysUpdateVelocity(false).clientTrackingRange(256).updateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
+    public static final RegistryObject<EntityType<SidewinderEntity>> SIDEWINDER = register("sidewinder",
+            EntityType.Builder.<SidewinderEntity>of(SidewinderEntity::new, MobCategory.MISC).alwaysUpdateVelocity(false).clientTrackingRange(256).updateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
+    public static final RegistryObject<EntityType<MalyutkaEntity>> MALYUTKA = register("malyutka",
+            EntityType.Builder.<MalyutkaEntity>of(MalyutkaEntity::new, MobCategory.MISC).alwaysUpdateVelocity(false).clientTrackingRange(256).updateInterval(1).noSave().fireImmune().sized(0.5f, 0.5f));
+    // Meme Vehicles
+    public static final RegistryObject<EntityType<BigBirdEntity>> BIGBIRD = register("bigbird",
+            EntityType.Builder.of(BigBirdEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f,2f));
+    public static final RegistryObject<EntityType<WolfEntity>> T14_ARMATA = register("t14_armata",
+            EntityType.Builder.of(WolfEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(0.5f,0.5f));
+    public static final RegistryObject<EntityType<M109Entity>> M109 = register("m109",
+            EntityType.Builder.of(M109Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MstaEntity>> MSTA = register("msta",
+            EntityType.Builder.of(MstaEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(4f, 3f));
+    public static final RegistryObject<EntityType<MI17Entity>> MI17 = register("mi17",
+            EntityType.Builder.of(MI17Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MI8Entity>> MI8 = register("mi8",
+            EntityType.Builder.of(MI8Entity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MI17DoorGunsEntity>> MI17_DOOR_GUNS = register("mi17_door_guns",
+            EntityType.Builder.of(MI17DoorGunsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MI8DoorGunsEntity>> MI8_DOOR_GUNS = register("mi8_door_guns",
+            EntityType.Builder.of(MI8DoorGunsEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MI8MTVEntity>> MI8_MTV = register("mi8_mtv",
+            EntityType.Builder.of(MI8MTVEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<MI8AMTShEntity>> MI8_AMTSH = register("mi8_amtsh",
+            EntityType.Builder.of(MI8AMTShEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(3f,2f));
+    public static final RegistryObject<EntityType<JohnDeereEntity>> JOHN_DEERE = register("john_deere",
+            EntityType.Builder.of(JohnDeereEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f, 3f));
+    public static final RegistryObject<EntityType<CombineEntity>> COMBINE = register("combine",
+            EntityType.Builder.of(CombineEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(2f, 3f));
+    public static final RegistryObject<EntityType<SeederEntity>> SEEDER = register("seeder",
+            EntityType.Builder.of(SeederEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(4f, 3f));
+    public static final RegistryObject<EntityType<CultivatorEntity>> CULTIVATOR = register("cultivator",
+            EntityType.Builder.of(CultivatorEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(4f, 3f));
+
+    private static <T extends Entity> RegistryObject<EntityType<T>> register(String name, EntityType.Builder<T> entityTypeBuilder) {
+        return ENTITY_TYPES.register(name, () -> entityTypeBuilder.build(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.ENTITY_TYPE, FCP.loc(name))));
+    }
+
+    // Trailers
+    public static final RegistryObject<EntityType<ExampleTrailerEntity>> EXAMPLE_TRAILER = register("example_trailer",
+            EntityType.Builder.of(ExampleTrailerEntity::new, MobCategory.MISC).clientTrackingRange(512).updateInterval(1).fireImmune().sized(5f, 3f));
+    public static void register(Object eventBus) {
+        ENTITY_TYPES.register(eventBus);
+    }
+}

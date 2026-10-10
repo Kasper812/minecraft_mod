@@ -1,0 +1,39 @@
+package frontline.combat.fcp.client.model.Toyota;
+
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.client.model.Util.WheelRotationTransforms;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxEntity;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxRocketPodEntity;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.Mth;
+import org.jetbrains.annotations.Nullable;
+
+public class ToyotaHiluxRocketPodModel extends VehicleModel<ToyotaHiluxRocketPodEntity> {
+    @Override
+    public Identifier getModelResource(ToyotaHiluxRocketPodEntity animatable) {
+        return Identifier.fromNamespaceAndPath(FCP.MODID, "geo/toyota_hilux_rocket_pod.geo.json");
+    }
+
+    @Override
+    public boolean hideForTurretControllerWhileZooming() {
+        return false;
+    }
+
+
+    @Override
+    public @Nullable VehicleModel.TransformContext<ToyotaHiluxRocketPodEntity> collectTransform(String boneName) {
+
+        VehicleModel.TransformContext<ToyotaHiluxRocketPodEntity> turn =
+                WheelRotationTransforms.matchAnyTurn(boneName, 0.392, 30f,
+                        "WheelL0Turn", "WheelR0Turn", "WheelL1Turn", "WheelR1Turn");
+        if (turn != null) return turn;
+
+        VehicleModel.TransformContext<ToyotaHiluxRocketPodEntity> wheels =
+                WheelRotationTransforms.matchAny(boneName, 0.392,
+                        "WheelL0", "WheelR0", "WheelL1", "WheelR1");
+        if (wheels != null) return wheels;
+
+        return super.collectTransform(boneName);
+    }
+}

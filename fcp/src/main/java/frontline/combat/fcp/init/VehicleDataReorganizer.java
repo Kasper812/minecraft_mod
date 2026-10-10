@@ -1,0 +1,158 @@
+package frontline.combat.fcp.init;
+
+import com.atsuishio.superbwarfare.data.DataLoader;
+import com.atsuishio.superbwarfare.data.IDBasedData;
+import com.atsuishio.superbwarfare.data.vehicle.VehicleData;
+import com.mojang.logging.LogUtils;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.FCPConfig;
+import frontline.combat.fcp.network.SetMulticrewPacket;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
+import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Reorganizes SBW's vehicle data map after it loads, enabling two things natively in
+ * data/<ns>/sbw/vehicles/ with no datapack:
+ *
+ *   CREW VARIANTS  — single_crew/ and multicrew/ as the FIRST folder select per the
+ *                    multicrew_vehicles config; the unselected side is dropped.
+ *   CATEGORIES     — any other folders are organization only: tanks/bmp2.json loads as
+ *                    if it were bmp2.json. Works inside the crew folders too
+ *                    (multicrew/tanks/bmp2.json).
+ *
+ * How: SBW's loader already scans subfolders (FileToIdConverter is recursive) but keys
+ * entries by their PATH ("fcp:tanks/bmp2"), which no entity registry id matches — so
+ * subfoldered files load as dead entries. This listener re-keys them to their basename
+ * ("fcp:bmp2") and applies the crew selection.
+ *
+ * Ordering is guaranteed, not hoped for: SBW's ComplexJsonResourceReloadListener does all
+ * its loading in the PREPARE phase; this listener works in APPLY, and vanilla runs every
+ * apply after all prepares complete. It also runs before OnDatapackSyncEvent, so the
+ * remapped map is exactly what SBW syncs to clients.
+ *
+ * Precedence for one vehicle id: selected crew variant > categorized shared file > flat
+ * file. Flat files (no folder) are untouched unless overridden — SBW's own vehicles and
+ * any not-yet-moved FCP files keep working as-is.
+ */
+public class VehicleDataReorganizer {
+
+    private static final Logger LOGGER = LogUtils.getLogger();
+    private static final String DIRECTORY = "sbw/vehicles";
+    private static final String SINGLE_CREW = "single_crew";
+    private static final String MULTICREW = "multicrew";
+    /**
+     * Explicit home for vehicles identical in both modes. Behaviourally the same as any
+     * category folder, but reserved by name so it reads as intent and can never collide
+     * with a future crew-folder name. Categories nest inside it (shared/farm/seeder.json).
+     */
+    private static final String SHARED = "shared";
+
+    /** Mode last applied to the data map; null until the first load of this session. */
+    private static Boolean lastAppliedMode = null;
+    private static final Object MARKER = new Object();
+
+    public static net.minecraft.server.packs.resources.PreparableReloadListener createReloadListener() {
+        return new SimplePreparableReloadListener<Object>() {
+            @Override
+            protected Object prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+                return MARKER;
+            }
+
+            @Override
+            protected void apply(Object prepared, ResourceManager resourceManager, ProfilerFiller profiler) {
+                reorganize();
+            }
+        };
+    }
+
+    private static void reorganize() {
+        DataLoader.GeneralData<?> general = DataLoader.INSTANCE.getLOADED_DATA().get(DIRECTORY);
+        if (general == null) return;
+        HashMap<String, Object> map = general.getDataMap();
+
+        boolean multicrew = FCPConfig.multicrewEnabled();
+
+        // Seat layouts change between modes: anyone still seated would be in a seat that
+        // may no longer exist (or now belongs to someone else), leaving them desynced or
+        // invisible-mounted. Eject BEFORE the new data lands, and only on a real change —
+        // this catches both the GUI toggle and a hand-edited config + /reload, since every
+        // path ends in this reload listener.
+        if (lastAppliedMode != null && lastAppliedMode != multicrew) {
+            ejectVehicleRiders();
+        }
+        lastAppliedMode = multicrew;
+
+        String selected = multicrew ? MULTICREW : SINGLE_CREW;
+        String rejected = multicrew ? SINGLE_CREW : MULTICREW;
+
+        Map<String, Object> shared = new HashMap<>(); // category folders only
+        Map<String, Object> crew = new HashMap<>();   // the selected crew folder
+        List<String> pathedKeys = new ArrayList<>();
+        int dropped = 0;
+
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            int colon = key.indexOf(':');
+            String namespace = colon < 0 ? "minecraft" : key.substring(0, colon);
+            String path = colon < 0 ? key : key.substring(colon + 1);
+
+            int firstSlash = path.indexOf('/');
+            if (firstSlash < 0) continue; // flat entry — leave untouched
+
+            pathedKeys.add(key);
+            String firstFolder = path.substring(0, firstSlash);
+            String finalKey = namespace + ":" + path.substring(path.lastIndexOf('/') + 1);
+
+            if (firstFolder.equals(selected)) {
+                crew.put(finalKey, entry.getValue());
+            } else if (firstFolder.equals(rejected)) {
+                dropped++;
+            } else {
+                // shared/ and plain category folders alike: applies in both modes
+                shared.put(finalKey, entry.getValue());
+            }
+        }
+
+        if (pathedKeys.isEmpty()) return;
+
+        pathedKeys.forEach(map::remove);
+        map.putAll(shared);
+        map.putAll(crew); // crew variant outranks a shared file for the same vehicle
+
+        // The loader stamped each entry's id with its PATH; restore the id entities look up.
+        map.forEach((key, value) -> {
+            if (value instanceof IDBasedData<?> idData && !key.equals(idData.getId())) {
+                idData.setId(key);
+            }
+        });
+
+        DataLoader.GeneralData<?> guns = DataLoader.INSTANCE.getLOADED_DATA().get("sbw/guns");
+        if (guns != null) {
+            VehicleData.registerWeaponDefaults(guns.getDataMap());
+        }
+        com.atsuishio.superbwarfare.data.gun.GunData.DATA_VERSION++;
+
+        // Same refresh SBW's own reload hook performs, so nothing serves stale data.
+        VehicleData.dataCache.invalidateAll();
+
+        LOGGER.info("[FCP] vehicle data reorganized: mode={}, {} crew-specific, {} shared/categorized, {} dropped ({})",
+                selected, crew.size(), shared.size(), dropped, rejected);
+    }
+
+    /**
+     * Safety net for mode changes that DIDN'T come through the config screen — a
+     * hand-edited config plus /reload. The screen's own path ejects before the reload
+     * starts, which is the right moment; by the time this runs the new data is already
+     * live, so it's a late catch rather than the primary mechanism.
+     */
+    private static void ejectVehicleRiders() {
+        SetMulticrewPacket.ejectAllVehicleOccupants(com.atsuishio.portlib.forge.network.PacketDistributor.server());
+    }
+}

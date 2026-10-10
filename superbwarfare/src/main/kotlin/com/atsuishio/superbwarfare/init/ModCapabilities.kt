@@ -100,42 +100,33 @@ object ModCapabilities {
             ModBlockEntities.BLUEPRINT_RESEARCH_TABLE
         )
 
-        for (item in BuiltInRegistries.ITEM) {
-            if (item is EnergyStorageItem) {
-                EnergyStorage.ITEM.registerForItems(
-                    { stack, context ->
-                        if (context == null) {
-                            ItemEnergyStorage(
-                                stack,
-                                item::getMaxEnergy,
-                                item::getMaxReceiveEnergy,
-                                item::getMaxExtractEnergy
-                            )
-                        } else {
-                            SimpleEnergyItem.createStorage(
-                                context,
-                                item.getMaxEnergy(stack).toLong(),
-                                item.getMaxReceiveEnergy(stack).toLong(),
-                                item.getMaxExtractEnergy(stack).toLong()
-                            )
-                        }
-                    },
-                    item
+        EnergyStorage.ITEM.registerFallback { stack, context ->
+            val item = stack.item
+            if (item !is EnergyStorageItem) {
+                null
+            } else if (context == null) {
+                ItemEnergyStorage(
+                    stack,
+                    item::getMaxEnergy,
+                    item::getMaxReceiveEnergy,
+                    item::getMaxExtractEnergy
+                )
+            } else {
+                SimpleEnergyItem.createStorage(
+                    context,
+                    item.getMaxEnergy(stack).toLong(),
+                    item.getMaxReceiveEnergy(stack).toLong(),
+                    item.getMaxExtractEnergy(stack).toLong()
                 )
             }
         }
 
-        for (entity in BuiltInRegistries.ENTITY_TYPE) {
-            ITEM_HANDLER_ENTITY.registerForType(
-                { obj, _ ->
-                    when {
-                        obj is Player -> InvWrapper(obj.inventory)
-                        obj is VehicleEntity && obj.hasContainer() -> obj.inventory
-                        else -> null
-                    }
-                },
-                entity
-            )
+        ITEM_HANDLER_ENTITY.registerFallback { obj, _ ->
+            when {
+                obj is Player -> InvWrapper(obj.inventory)
+                obj is VehicleEntity && obj.hasContainer() -> obj.inventory
+                else -> null
+            }
         }
     }
 

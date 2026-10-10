@@ -1,0 +1,18 @@
+package frontline.combat.fcp.client.renderer.Stryker;
+
+import com.atsuishio.superbwarfare.client.renderer.entity.VehicleRenderer;
+import frontline.combat.fcp.client.model.Stryker.StrykerM2Model;
+import frontline.combat.fcp.entity.vehicle.Stryker.StrykerM2Entity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.Identifier;
+import frontline.combat.fcp.client.renderer.FcpVehicleTexture;
+
+public class StrykerM2Renderer extends VehicleRenderer<StrykerM2Entity> {
+
+    public StrykerM2Renderer(EntityRendererProvider.Context renderManager) { super(renderManager, new StrykerM2Model());}
+
+    @Override
+    public Identifier getTextureLocation(StrykerM2Entity entity) {
+        return FcpVehicleTexture.resolve(entity, entity.getCurrentTexture());
+    }
+}

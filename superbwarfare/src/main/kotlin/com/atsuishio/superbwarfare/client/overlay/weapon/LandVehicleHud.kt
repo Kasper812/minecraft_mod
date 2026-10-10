@@ -325,16 +325,18 @@ object LandVehicleHud {
                 )
             }
 
-            VehicleMainWeaponHudOverlay.renderWeaponInfoFirst(
-                gui,
-                vehicle,
-                player,
-                vehicle.getGunData(player)!!,
-                mc.font,
-                screenWidth,
-                screenHeight,
-                color
-            )
+            vehicle.getGunData(player)?.let { weaponData ->
+                VehicleMainWeaponHudOverlay.renderWeaponInfoFirst(
+                    gui,
+                    vehicle,
+                    player,
+                    weaponData,
+                    mc.font,
+                    screenWidth,
+                    screenHeight,
+                    color
+                )
+            }
         }
         poseStack.popPose()
     }

@@ -1,0 +1,128 @@
+package frontline.combat.fcp.network;
+
+import frontline.combat.fcp.FCPConfig;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.entity.Entity;
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.repository.PackRepository;
+import com.atsuishio.portlib.forge.network.NetworkEvent;
+import com.atsuishio.portlib.forge.network.PacketDistributor;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.function.Supplier;
+
+/**
+ * C2S: toggle multicrew for the WHOLE server.
+ *
+ * Permission: operator level 2, OR being the singleplayer/LAN host — so singleplayer needs
+ * nothing (even with cheats off, where hasPermissions(2) is false), while on a server only
+ * ops can touch it. On success the config is saved and datapacks hot-reload (same discovery
+ * /reload uses), so the fcp_multicrew pack appears/disappears immediately. Every online
+ * player gets the new state so any open config screens stay truthful.
+ */
+public class SetMulticrewPacket {
+
+    private final boolean multicrew;
+
+    public SetMulticrewPacket(boolean multicrew) {
+        this.multicrew = multicrew;
+    }
+
+    public static void encode(SetMulticrewPacket msg, FriendlyByteBuf buf) {
+        buf.writeBoolean(msg.multicrew);
+    }
+
+    public static SetMulticrewPacket decode(FriendlyByteBuf buf) {
+        return new SetMulticrewPacket(buf.readBoolean());
+    }
+
+    public static void handle(SetMulticrewPacket msg, Supplier<NetworkEvent.Context> ctx) {
+        ctx.get().enqueueWork(() -> {
+            ServerPlayer player = ctx.get().getSender();
+            if (player == null) return;
+
+            if (!mayEdit(player)) {
+                player.sendOverlayMessage(Component.translatable("gui.fcp.config.denied"));
+                sendStateTo(player); // keep their screen honest
+                return;
+            }
+
+            // Seats differ between modes, so clear every vehicle FIRST — while the old
+            // layout is still live and dismounting is well-defined. Doing this after the
+            // reload leaves people seated in seats that no longer exist.
+            ejectAllVehicleOccupants(player.level().getServer());
+
+            FCPConfig.setMulticrew(msg.multicrew);
+            reloadDataPacks(player.level().getServer());
+
+            player.level().getServer().getPlayerList().getPlayers().forEach(SetMulticrewPacket::sendStateTo);
+            player.sendOverlayMessage(Component.translatable(
+                    msg.multicrew ? "gui.fcp.config.multicrew_on" : "gui.fcp.config.multicrew_off"));
+        });
+        ctx.get().setPacketHandled(true);
+    }
+
+    /** Ops on servers; the host in singleplayer/LAN regardless of the cheats setting. */
+    public static boolean mayEdit(ServerPlayer player) {
+        MinecraftServer server = player.level().getServer();
+        if (server != null && server.isSingleplayerOwner(player.nameAndId())) return true;
+        return com.atsuishio.superbwarfare.port.Compat262Kt.hasPermissions(player, 2);
+    }
+
+    static void sendStateTo(ServerPlayer player) {
+        FCPNetwork.FCP_HANDLER.send(PacketDistributor.PLAYER.with(() -> player),
+                new FcpConfigStatePacket(FCPConfig.multicrewEnabled(), mayEdit(player)));
+    }
+
+    /**
+     * Force everyone out of any SBW vehicle, and take that vehicle's other passengers with
+     * them. Ejecting the VEHICLE is what actually clears it: a per-rider stopRiding() leans
+     * on seat bookkeeping that is exactly what's about to change.
+     */
+    public static void ejectAllVehicleOccupants(MinecraftServer server) {
+        if (server == null) return;
+
+        Set<Entity> vehicles = new HashSet<>();
+        for (ServerPlayer player : server.getPlayerList().getPlayers()) {
+            Entity root = player.getRootVehicle();
+            if (root != player && root instanceof VehicleEntity) vehicles.add(root);
+        }
+
+        for (Entity vehicle : vehicles) {
+            List<Entity> riders = new ArrayList<>(vehicle.getPassengers());
+            vehicle.ejectPassengers();
+            for (Entity rider : riders) {
+                if (rider.isPassenger()) rider.stopRiding(); // belt and braces
+                if (rider instanceof ServerPlayer p) {
+                    p.sendOverlayMessage(Component.translatable("gui.fcp.config.reseat"));
+                }
+            }
+        }
+    }
+
+    /**
+     * The same pack rediscovery /reload performs: refresh sources (our config-gated pack
+     * finder re-runs here), auto-select newly available packs unless explicitly disabled,
+     * and reload server resources with the result.
+     */
+    private static void reloadDataPacks(MinecraftServer server) {
+        PackRepository repo = server.getPackRepository();
+        List<String> selected = new ArrayList<>(repo.getSelectedIds());
+        repo.reload();
+        Collection<String> disabled = server.getWorldData().getDataConfiguration().dataPacks().getDisabled();
+        for (String id : repo.getAvailableIds()) {
+            if (!disabled.contains(id) && !selected.contains(id)) selected.add(id);
+        }
+        server.reloadResources(selected).exceptionally(err -> {
+            org.slf4j.LoggerFactory.getLogger("fcp").error("Datapack reload failed", err);
+            return null;
+        });
+    }
+}

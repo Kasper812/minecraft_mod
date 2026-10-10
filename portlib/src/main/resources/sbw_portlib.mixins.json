@@ -6,7 +6,8 @@
   "client": [
     "EntityRendererMixin",
     "FogRendererMixin",
-    "EditBoxMixin"
+    "EditBoxMixin",
+    "GuiSetScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
@@ -19,6 +20,7 @@
     "BlockBehaviourMixin",
     "BlockPropertiesAccessor",
     "BlockItemMixin",
-    "InventoryTickMixin"
+    "InventoryTickMixin",
+    "EntityMountMixin"
   ]
 }

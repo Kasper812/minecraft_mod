@@ -1,0 +1,23 @@
+package frontline.combat.fcp.client.model.Btr;
+
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.client.model.FCPVehicleModel;
+import frontline.combat.fcp.client.model.Util.WheelRotationTransforms;
+import frontline.combat.fcp.entity.vehicle.Btr.BTR3EEntity;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
+
+public class BTR3EModel extends FCPVehicleModel<BTR3EEntity> {
+    @Override public Identifier getModelResource(BTR3EEntity a) { return Identifier.fromNamespaceAndPath(FCP.MODID, "geo/btr3e.geo.json"); }
+    @Override public boolean hideForTurretControllerWhileZooming() { return false; }
+    @Override public @Nullable VehicleModel.TransformContext<BTR3EEntity> collectTransform(String boneName) {
+        VehicleModel.TransformContext<BTR3EEntity> turn =
+                WheelRotationTransforms.matchAnyTurn(boneName, 0.626, 30f, "WheelTurnL1","WheelTurnL2","WheelTurnR1","WheelTurnR2");
+        if (turn != null) return turn;
+        VehicleModel.TransformContext<BTR3EEntity> wheels =
+                WheelRotationTransforms.matchAny(boneName, 0.626, "WheelL3","WheelL4","WheelR3","WheelR2");
+        if (wheels != null) return wheels;
+        return super.collectTransform(boneName);
+    }
+}

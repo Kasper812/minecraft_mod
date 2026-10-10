@@ -63,7 +63,7 @@ public final class PacketDistributor<T> {
         currentServer = server;
     }
 
-    static MinecraftServer server() {
+    public static MinecraftServer server() {
         return currentServer;
     }
 

@@ -84,16 +84,18 @@ class Ac130GunnerHud {
                 )
 
                 // 武器名
-                VehicleMainWeaponHudOverlay.renderWeaponInfoFirst(
-                    guiGraphics,
-                    vehicle,
-                    player,
-                    vehicle.getGunData(player)!!,
-                    mc.font,
-                    screenWidth,
-                    screenHeight,
-                    color
-                )
+                vehicle.getGunData(player)?.let { weaponData ->
+                    VehicleMainWeaponHudOverlay.renderWeaponInfoFirst(
+                        guiGraphics,
+                        vehicle,
+                        player,
+                        weaponData,
+                        mc.font,
+                        screenWidth,
+                        screenHeight,
+                        color
+                    )
+                }
 
                 RenderSystem.disableDepthTest()
                 RenderSystem.depthMask(false)

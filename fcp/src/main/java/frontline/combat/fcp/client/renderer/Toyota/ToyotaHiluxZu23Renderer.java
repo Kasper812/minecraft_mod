@@ -1,0 +1,18 @@
+package frontline.combat.fcp.client.renderer.Toyota;
+
+import com.atsuishio.superbwarfare.client.renderer.entity.VehicleRenderer;
+import frontline.combat.fcp.client.model.Toyota.ToyotaHiluxZu23Model;
+import frontline.combat.fcp.entity.vehicle.Toyota.ToyotaHiluxZu23Entity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.Identifier;
+import frontline.combat.fcp.client.renderer.FcpVehicleTexture;
+
+public class ToyotaHiluxZu23Renderer extends VehicleRenderer<ToyotaHiluxZu23Entity> {
+
+    public ToyotaHiluxZu23Renderer(EntityRendererProvider.Context renderManager) { super(renderManager, new ToyotaHiluxZu23Model());}
+
+    @Override
+    public Identifier getTextureLocation(ToyotaHiluxZu23Entity entity) {
+        return FcpVehicleTexture.resolve(entity, entity.getCurrentTexture());
+    }
+}

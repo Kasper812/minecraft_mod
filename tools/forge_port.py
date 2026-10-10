@@ -20,6 +20,9 @@ IMPORTS = {
     "net.minecraftforge.fml.DistExecutor": "com.atsuishio.portlib.forge.DistExecutor",
     "net.minecraftforge.client.gui.overlay.ForgeGui": "com.atsuishio.portlib.forge.client.ForgeGui",
     "net.minecraftforge.client.gui.overlay.IGuiOverlay": "com.atsuishio.portlib.forge.client.IGuiOverlay",
+    "net.minecraftforge.event.entity.player.PlayerInteractEvent": "com.atsuishio.portlib.forge.event.PlayerInteractEvent",
+    "net.minecraftforge.event.entity.EntityMountEvent": "com.atsuishio.portlib.forge.event.EntityMountEvent",
+    "net.minecraftforge.common.util.FakePlayer": "net.fabricmc.fabric.api.entity.FakePlayer",
 }
 PKG = [
     (r"\bsoftware\.bernie\.geckolib\.core\.animatable\.", "software.bernie.geckolib.animatable."),

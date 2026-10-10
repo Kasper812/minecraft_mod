@@ -1,0 +1,20 @@
+package frontline.combat.fcp.client.renderer.JohnDeere;
+
+import com.atsuishio.superbwarfare.client.renderer.entity.VehicleRenderer;
+import frontline.combat.fcp.client.model.JohnDeere.JohnDeereModel;
+import frontline.combat.fcp.client.model.Matv.MATVModel;
+import frontline.combat.fcp.entity.vehicle.JohnDeere.JohnDeereEntity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVEntity;
+import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.resources.Identifier;
+import frontline.combat.fcp.client.renderer.FcpVehicleTexture;
+
+public class JohnDeereRenderer extends VehicleRenderer<JohnDeereEntity> {
+
+    public JohnDeereRenderer(EntityRendererProvider.Context renderManager) { super(renderManager, new JohnDeereModel());}
+
+    @Override
+    public Identifier getTextureLocation(JohnDeereEntity entity) {
+        return FcpVehicleTexture.resolve(entity, entity.getCurrentTexture());
+    }
+}

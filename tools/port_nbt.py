@@ -84,9 +84,9 @@ def java_saves(s):
         return '%s%svoid saveAdditional(ValueOutput output) {\n%s    CompoundTag %s = LegacyNbt.tagOf(output);\n%s    HolderLookup.Provider %s = LegacyNbt.lookupOrEmpty(this.level != null ? this.level.registryAccess() : null);\n' % (indent, mods, indent, tag, indent, reg)
     s5 = re.sub(r'^(\s*)((?:@\w+\s+)*(?:public |protected )?)void saveAdditional\((?:@\w+ )?CompoundTag (\w+), (?:@\w+ )?HolderLookup\.Provider (\w+)\) \{\n', rs, s4, flags=re.M)
     s5 = re.sub(r'super\.saveAdditional\(\w+, \w+\)', 'super.saveAdditional(output)', s5)
-    s5 = re.sub(r'(\w+)\.putUUID\(', r'LegacyNbt.putUUID(\1, ', s5)
-    s5 = re.sub(r'(\w+)\.getUUID\(', r'LegacyNbt.getUUID(\1, ', s5)
-    s5 = re.sub(r'(\w+)\.hasUUID\(', r'LegacyNbt.hasUUID(\1, ', s5)
+    s5 = re.sub(r'(?!LegacyNbt\b)(\b\w+)\.putUUID\(', r'LegacyNbt.putUUID(\1, ', s5)
+    s5 = re.sub(r'(?!LegacyNbt\b)(\b\w+)\.getUUID\(', r'LegacyNbt.getUUID(\1, ', s5)
+    s5 = re.sub(r'(?!LegacyNbt\b)(\b\w+)\.hasUUID\(', r'LegacyNbt.hasUUID(\1, ', s5)
     if s5 != s:
         for imp in ['com.atsuishio.portlib.nbt.LegacyNbt', 'net.minecraft.world.level.storage.ValueInput', 'net.minecraft.world.level.storage.ValueOutput', 'net.minecraft.nbt.CompoundTag', 'net.minecraft.core.HolderLookup']:
             if 'import %s;' % imp not in s5:

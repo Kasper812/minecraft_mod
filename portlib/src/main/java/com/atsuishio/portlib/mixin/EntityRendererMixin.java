@@ -26,4 +26,11 @@ public abstract class EntityRendererMixin {
             cir.setReturnValue(true);
         }
     }
+
+    @Inject(method = "getBoundingBoxForCulling", at = @At("HEAD"), cancellable = true)
+    private void portlib$cullingBox(Entity entity, CallbackInfoReturnable<net.minecraft.world.phys.AABB> cir) {
+        if (entity instanceof com.atsuishio.portlib.entity.CullingBoxProvider provider) {
+            cir.setReturnValue(provider.sbw_portlib$getCullingBox());
+        }
+    }
 }

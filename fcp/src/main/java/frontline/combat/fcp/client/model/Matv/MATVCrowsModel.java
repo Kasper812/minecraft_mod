@@ -1,0 +1,55 @@
+package frontline.combat.fcp.client.model.Matv;
+
+import com.atsuishio.superbwarfare.client.model.entity.VehicleModel;
+import frontline.combat.fcp.FCP;
+import frontline.combat.fcp.client.model.FCPVehicleModel;
+import frontline.combat.fcp.client.model.Util.CannonRecoilTransforms;
+import frontline.combat.fcp.client.model.Util.ModelBoneTransforms;
+import frontline.combat.fcp.client.model.Util.WheelRotationTransforms;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVCrowsEntity;
+import frontline.combat.fcp.entity.vehicle.Matv.MATVTOWEntity;
+import net.minecraft.resources.Identifier;
+import org.jetbrains.annotations.Nullable;
+
+public class MATVCrowsModel extends FCPVehicleModel<MATVCrowsEntity> {
+
+    private static final String CANNON_WEAPON = "PassengerMachineGun";
+
+    @Override
+    public Identifier getModelResource(MATVCrowsEntity animatable) {
+        return Identifier.fromNamespaceAndPath(FCP.MODID, "geo/matv_crows.geo.json");
+    }
+
+    @Override
+    public boolean hideForTurretControllerWhileZooming() {
+        return false;
+    }
+
+    @Override
+    public @Nullable VehicleModel.TransformContext<MATVCrowsEntity> collectTransform(String boneName) {
+        VehicleModel.TransformContext<MATVCrowsEntity> turn =
+                WheelRotationTransforms.matchAnyTurn(boneName, 0.631, 30f,
+                        "WheelL0Turn", "WheelR0Turn", "WheelL1Turn", "WheelR1Turn");
+        if (turn != null) return turn;
+
+        VehicleModel.TransformContext<MATVCrowsEntity> wheels =
+                WheelRotationTransforms.matchAny(boneName, 0.631,
+                        "WheelL0", "WheelR0", "WheelL1", "WheelR1");
+        if (wheels != null) return wheels;
+
+        return super.collectTransform(boneName);
+    }
+
+    private VehicleModel.TransformContext<MATVCrowsEntity> barrelRecoil(int barrelIndex) {
+        return (bone, vehicle, state) -> {
+            ModelBoneTransforms.clearRecoilOffsets(bone);
+            if (vehicle.getCannonRecoilTime() <= 0) {
+                return;
+            }
+            if (!CANNON_WEAPON.equals(CannonRecoilTransforms.gunnerGunName(vehicle))) {
+                return;
+            }
+            CannonRecoilTransforms.apply(bone, vehicle, CannonRecoilTransforms.Profile.SIDETOSIDE);
+        };
+    }
+}
