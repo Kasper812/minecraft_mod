@@ -88,6 +88,7 @@ object VehicleDestroyUtils {
                     .attacker(vehicle.lastAttacker)
                     .radius(radius)
                     .damage(damage)
+                    .withParticleType(destroyInfo.particleType)
 
                 if (!destroyInfo.explodeBlocks) {
                     explosion.keepBlock()

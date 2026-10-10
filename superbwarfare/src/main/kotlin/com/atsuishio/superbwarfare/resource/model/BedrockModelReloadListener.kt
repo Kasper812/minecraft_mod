@@ -55,6 +55,8 @@ abstract class BedrockModelReloadListener<T> @JvmOverloads constructor(
         }
 
         if (this.animPath.isNotEmpty()) {
+            this.animFiles.clear()
+            this.animPathToIds.clear()
             val animConverter = FileToIdConverter.json(this.animPath)
 
             for ((location, resource) in animConverter.listMatchingResources(resourceManager).entries) {

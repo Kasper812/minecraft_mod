@@ -47,6 +47,22 @@ public final class RecordedGeometry implements VertexConsumer, SubmitNodeCollect
         return new float[]{minX, minY, maxX, maxY};
     }
 
+    public float x(int i) {
+        return floats[i * F_STRIDE];
+    }
+
+    public float y(int i) {
+        return floats[i * F_STRIDE + 1];
+    }
+
+    public float z(int i) {
+        return floats[i * F_STRIDE + 2];
+    }
+
+    public int color(int i) {
+        return (ints[i * I_STRIDE] & COLOR) != 0 ? ints[i * I_STRIDE + 1] : -1;
+    }
+
     public void fillMissingColor(int color) {
         for (int i = 0; i < count; i++) {
             int b = i * I_STRIDE;

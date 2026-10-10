@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": "#c:ingots/iron",
+    "b": "minecraft:gunpowder",
+    "c": "superbwarfare:primer",
+    "d": "superbwarfare:high_energy_explosives"
+  },
+  "pattern": [
+    " a ",
+    "ada",
+    "bcb"
+  ],
+  "result": {
+    "count": 1,
+    "id": "vvp:item_40_mm"
+  }
+}

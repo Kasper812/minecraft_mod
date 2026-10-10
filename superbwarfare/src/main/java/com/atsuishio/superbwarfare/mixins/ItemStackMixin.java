@@ -57,7 +57,7 @@ public class ItemStackMixin {
         double scale = Math.max(0.0, 1.0 - (double) stack.getDamageValue() / stack.getMaxDamage());
         return new ItemAttributeModifiers(modifiers.modifiers().stream().map(entry -> {
             AttributeModifier modifier = entry.modifier();
-            if (entry.attribute().value() != ModAttributes.BULLET_RESISTANCE || !modifier.is(Mod.ATTRIBUTE_MODIFIER)) {
+            if (entry.attribute().value() != ModAttributes.BULLET_RESISTANCE || !com.atsuishio.superbwarfare.port.PortExtensionsKt.isBulletResistanceModifier(modifier.id())) {
                 return entry;
             }
             return new ItemAttributeModifiers.Entry(

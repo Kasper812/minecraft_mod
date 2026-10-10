@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": "#c:storage_blocks/steel",
+    "b": "#c:plates/copper",
+    "c": "minecraft:gunpowder",
+    "d": "superbwarfare:primer",
+    "e": "superbwarfare:high_energy_explosives"
+  },
+  "pattern": [
+    "aaa",
+    "beb",
+    "cdc"
+  ],
+  "result": {
+    "count": 1,
+    "id": "vvp:shell_122mm"
+  }
+}

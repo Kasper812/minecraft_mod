@@ -1,0 +1,119 @@
+package tech.vvp.vvp.client.model;
+
+import com.atsuishio.superbwarfare.entity.vehicle.base.VehicleEntity;
+import net.minecraft.util.Mth;
+import tech.vvp.vvp.entity.vehicle.Bmp2BakhchaEntity;
+
+public class Bmp2BakhcaModel extends VvpVehicleModel<Bmp2BakhchaEntity> {
+
+    @Override
+    public boolean hideForTurretControllerWhileZooming() {
+        return true;
+    }
+
+
+    private static final int TRACK_COUNT = 62;
+    private static final int MAX_IDX = 62;
+    private static final float[][] KEYFRAMES = {
+            {176.06f, 21.18f, 53.69f},
+            {143.44f, 20.06f, 57.17f},
+            {109.31f, 17.13f, 59.35f},
+            {75.19f, 13.48f, 59.44f},
+            {35.61f, 10.46f, 57.39f},
+            {28.97f, 8.61f, 54.18f},
+            {28.97f, 6.81f, 50.93f},
+            {28.97f, 5.02f, 47.68f},
+            {28.97f, 3.22f, 44.43f},
+            {7.23f, 1.74f, 41.06f},
+            {0.00f, 1.68f, 37.35f},
+            {0.00f, 1.68f, 33.64f},
+            {0.00f, 1.68f, 29.92f},
+            {0.00f, 1.68f, 26.21f},
+            {0.00f, 1.68f, 22.50f},
+            {0.00f, 1.68f, 18.79f},
+            {0.00f, 1.68f, 15.08f},
+            {0.00f, 1.68f, 11.36f},
+            {0.00f, 1.68f, 7.65f},
+            {0.00f, 1.68f, 3.94f},
+            {0.00f, 1.68f, 0.23f},
+            {0.00f, 1.68f, -3.49f},
+            {0.00f, 1.68f, -7.20f},
+            {0.00f, 1.68f, -10.91f},
+            {0.00f, 1.68f, -14.62f},
+            {0.00f, 1.68f, -18.34f},
+            {0.00f, 1.68f, -22.05f},
+            {0.00f, 1.68f, -25.76f},
+            {-20.81f, 2.01f, -29.43f},
+            {-36.24f, 4.08f, -32.50f},
+            {-36.24f, 6.27f, -35.50f},
+            {-36.24f, 8.46f, -38.49f},
+            {-36.24f, 10.66f, -41.49f},
+            {-34.73f, 12.85f, -44.48f},
+            {-74.40f, 15.63f, -46.78f},
+            {-128.43f, 19.12f, -46.00f},
+            {-175.02f, 20.62f, -42.74f},
+            {-175.73f, 20.89f, -39.04f},
+            {-175.68f, 21.17f, -35.33f},
+            {-175.68f, 21.45f, -31.63f},
+            {-175.68f, 21.73f, -27.93f},
+            {-175.68f, 22.01f, -24.23f},
+            {-176.76f, 22.29f, -20.53f},
+            {-180.00f, 22.30f, -16.81f},
+            {-180.00f, 22.30f, -13.10f},
+            {-180.00f, 22.30f, -9.39f},
+            {-180.00f, 22.30f, -5.68f},
+            {-180.00f, 22.30f, -1.96f},
+            {-180.00f, 22.30f, 1.75f},
+            {-180.00f, 22.30f, 5.46f},
+            {-180.00f, 22.30f, 9.17f},
+            {-180.00f, 22.30f, 12.89f},
+            {-180.00f, 22.30f, 16.60f},
+            {-180.00f, 22.30f, 20.31f},
+            {-180.00f, 22.30f, 24.02f},
+            {-180.00f, 22.30f, 27.74f},
+            {-180.00f, 22.30f, 31.45f},
+            {179.11f, 22.30f, 35.16f},
+            {176.44f, 22.10f, 38.87f},
+            {176.44f, 21.87f, 42.57f},
+            {176.44f, 21.64f, 46.28f},
+            {176.44f, 21.41f, 49.98f},
+            {176.06f, 21.18f, 53.69f}
+    };
+
+    private static final float START_Y = 21.18f;
+    private static final float START_Z = 53.69f;
+
+    private float getKeyframeValue(float t, int component) {
+        int wrapRange = TRACK_COUNT * 2;
+        float normalized = (t / wrapRange) * MAX_IDX;
+        int idx1 = Mth.clamp((int) normalized, 0, MAX_IDX);
+        int idx2 = Mth.clamp(idx1 + 1, 0, MAX_IDX);
+        float frac = normalized - (int) normalized;
+
+        float p1 = KEYFRAMES[idx1][component];
+        float p2 = KEYFRAMES[idx2][component];
+
+        if (component == 0) {
+            float diff = p2 - p1;
+            if (diff > 180f) p2 -= 360f;
+            else if (diff < -180f) p2 += 360f;
+        }
+
+        return Mth.lerp(frac, p1, p2);
+    }
+
+    @Override
+    public float getBoneRotX(float t) {
+        return getKeyframeValue(t, 0);
+    }
+
+    @Override
+    public float getBoneMoveY(float t) {
+        return getKeyframeValue(t, 1) - START_Y;
+    }
+
+    @Override
+    public float getBoneMoveZ(float t) {
+        return getKeyframeValue(t, 2) - START_Z;
+    }
+}

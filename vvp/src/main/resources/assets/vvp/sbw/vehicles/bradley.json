@@ -1,0 +1,7 @@
+{
+  "ID": "vvp:bradley",
+  "Model": {
+    "Model": "vvp:geo/bradley.geo.json",
+    "Texture": "vvp:textures/entity/bradley_usa.png"
+  }
+}

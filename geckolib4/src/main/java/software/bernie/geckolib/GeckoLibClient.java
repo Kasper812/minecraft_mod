@@ -24,6 +24,10 @@ public class GeckoLibClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ResourceLoader.get(PackType.CLIENT_RESOURCES).registerReloadListener(GeckoLibConstants.id("models_animations"), GeckoLibCache::reload);
+        com.atsuishio.portlib.render.BuiltinItemRendererRegistry.INSTANCE.registerFallback(stack ->
+                stack.getItem() instanceof software.bernie.geckolib.animatable.GeoItem
+                        ? software.bernie.geckolib.animatable.client.GeoRenderProvider.of(stack).getGeoItemRenderer()
+                        : null);
     }
 
     @ApiStatus.Internal

@@ -25,6 +25,16 @@ public final class LegacyRenderSystem {
         SHADER_COLOR[3] = a;
     }
 
+    private static float lineWidth = 1.0F;
+
+    public static void lineWidth(float width) {
+        lineWidth = width;
+    }
+
+    public static float getShaderLineWidth() {
+        return lineWidth;
+    }
+
     public static float[] getShaderColor() {
         return SHADER_COLOR;
     }

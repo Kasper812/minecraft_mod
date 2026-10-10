@@ -34,6 +34,9 @@ class DestroyInfo {
     @SerialName("NoWreck")
     var noWreck: Boolean = false
 
+    @SerialName("ParticleType")
+    var particleType: com.atsuishio.superbwarfare.tools.ParticleTool.ParticleType? = null
+
     constructor(
         crashPassengers: Boolean,
         explodePassengers: Boolean,

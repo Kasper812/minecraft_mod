@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": "superbwarfare:ap_head",
+    "b": "#c:storage_blocks/steel",
+    "c": "minecraft:gunpowder",
+    "d": "superbwarfare:primer"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    " d "
+  ],
+  "result": {
+    "count": 1,
+    "id": "vvp:ap_shell"
+  }
+}

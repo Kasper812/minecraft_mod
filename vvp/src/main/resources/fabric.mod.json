@@ -1,0 +1,38 @@
+{
+  "schemaVersion": 1,
+  "id": "vvp",
+  "version": "${version}",
+  "name": "Vintage Vehicle Pack",
+  "description": "Modern military vehicles, helicopters and gear for Superb Warfare",
+  "authors": [
+    "Team VVP",
+    "ROIF",
+    "FL"
+  ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/sbw-vintage-vehicle-pack"
+  },
+  "license": "MIT",
+  "icon": "vvp_logo.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "tech.vvp.vvp.VVP"
+    ],
+    "client": [
+      "tech.vvp.vvp.client.VVPClient"
+    ]
+  },
+  "mixins": [
+    "vvp.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*",
+    "superbwarfare": ">=0.8.9",
+    "geckolib4": "*",
+    "sbw_portlib": "*"
+  }
+}

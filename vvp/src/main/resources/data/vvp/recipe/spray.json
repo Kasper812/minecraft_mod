@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "   ",
+    "bc ",
+    "   "
+  ],
+  "key": {
+    "b": "minecraft:dispenser",
+    "c": "#c:ingots/iron"
+  },
+  "result": {
+    "id": "vvp:spray"
+  }
+}

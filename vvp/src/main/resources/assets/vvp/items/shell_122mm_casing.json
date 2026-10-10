@@ -1,0 +1,6 @@
+{
+  "model": {
+    "type": "sbw_portlib:builtin",
+    "base": "vvp:item/shell_122mm_casing"
+  }
+}

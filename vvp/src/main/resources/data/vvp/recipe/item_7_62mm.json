@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": "#c:ingots/steel",
+    "b": "#c:plates/copper",
+    "c": "minecraft:gunpowder",
+    "d": "superbwarfare:primer"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    " d "
+  ],
+  "result": {
+    "count": 32,
+    "id": "vvp:item_7_62mm"
+  }
+}

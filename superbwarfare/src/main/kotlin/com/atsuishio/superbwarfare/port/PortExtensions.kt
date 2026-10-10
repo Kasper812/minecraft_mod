@@ -37,6 +37,13 @@ fun ItemStack.saveOptional(provider: HolderLookup.Provider): Tag = LegacyNbt.sav
 fun blockTag(tag: net.minecraft.tags.TagKey<net.minecraft.world.level.block.Block>): net.minecraft.core.HolderSet<net.minecraft.world.level.block.Block> =
     net.minecraft.core.registries.BuiltInRegistries.acquireBootstrapRegistrationLookup(net.minecraft.core.registries.BuiltInRegistries.BLOCK).getOrThrow(tag)
 
+fun bulletResistanceModifierId(slot: net.minecraft.world.entity.EquipmentSlot): net.minecraft.resources.Identifier =
+    com.atsuishio.superbwarfare.Mod.ATTRIBUTE_MODIFIER.withSuffix("/" + slot.getName())
+
+fun isBulletResistanceModifier(id: net.minecraft.resources.Identifier): Boolean =
+    id.namespace == com.atsuishio.superbwarfare.Mod.ATTRIBUTE_MODIFIER.namespace &&
+        (id.path == com.atsuishio.superbwarfare.Mod.ATTRIBUTE_MODIFIER.path || id.path.startsWith(com.atsuishio.superbwarfare.Mod.ATTRIBUTE_MODIFIER.path + "/"))
+
 fun net.minecraft.world.item.Item.Properties.bulletResistance(
     material: net.minecraft.world.item.equipment.ArmorMaterial,
     type: net.minecraft.world.item.equipment.ArmorType,
@@ -45,7 +52,7 @@ fun net.minecraft.world.item.Item.Properties.bulletResistance(
     material.createAttributes(type).withModifierAdded(
         com.atsuishio.superbwarfare.init.ModAttributes.bulletResistanceHolder(),
         net.minecraft.world.entity.ai.attributes.AttributeModifier(
-            com.atsuishio.superbwarfare.Mod.ATTRIBUTE_MODIFIER,
+            bulletResistanceModifierId(type.slot),
             value,
             net.minecraft.world.entity.ai.attributes.AttributeModifier.Operation.ADD_VALUE
         ),

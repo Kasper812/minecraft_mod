@@ -1,0 +1,7 @@
+{
+  "ID": "vvp:bmp_3",
+  "Model": {
+    "Model": "vvp:geo/bmp3.geo.json",
+    "Texture": "vvp:textures/entity/brm_green.png"
+  }
+}

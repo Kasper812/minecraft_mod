@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "a": "superbwarfare:he_head",
+    "b": "#c:ingots/iron",
+    "c": "minecraft:gunpowder",
+    "d": "superbwarfare:primer"
+  },
+  "pattern": [
+    " a ",
+    "bcb",
+    " d "
+  ],
+  "result": {
+    "count": 1,
+    "id": "vvp:he_shell"
+  }
+}

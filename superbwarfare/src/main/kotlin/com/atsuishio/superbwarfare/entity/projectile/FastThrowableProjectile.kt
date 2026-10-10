@@ -70,9 +70,9 @@ import kotlin.math.sqrt
 abstract class FastThrowableProjectile : ThrowableItemProjectile, IFastMotionSync,
     IBulletProperties, IAdvancedHitDetection {
     private var registeredInLevel = false
-    protected var damageValue: Float = 0f
-    protected var explosionDamageValue: Float = 0f
-    protected var explosionRadiusValue: Float = 0f
+    var damageValue: Float = 0f
+    var explosionDamageValue: Float = 0f
+    var explosionRadiusValue: Float = 0f
     protected var headShotValue = 1f
     protected var legShotValue = 1f
     protected var velocityValue = 4f

@@ -302,6 +302,10 @@ public class GuiGraphics {
     }
 
     void submitBuffer(LegacyGuiBuffer buffer) {
+        if (buffer.mode == Mode.LINES || buffer.mode == Mode.LINE_STRIP) {
+            submitLines(buffer);
+            return;
+        }
         RenderPipeline pipeline;
         if (buffer.textured) {
             pipeline = switch (buffer.mode) {
@@ -322,6 +326,31 @@ public class GuiGraphics {
             };
             submit(pipeline, TextureSetup.noTexture(), buffer.geometry());
         }
+    }
+
+    private void submitLines(LegacyGuiBuffer buffer) {
+        RecordedGeometry src = buffer.geometry();
+        int n = src.vertexCount();
+        int scale = Math.max(1, Minecraft.getInstance().getWindow().getGuiScale());
+        float half = Math.max(LegacyRenderSystem.getShaderLineWidth() / scale, 0.5F) * 0.5F;
+        RecordedGeometry quads = new RecordedGeometry();
+        int step = buffer.mode == Mode.LINES ? 2 : 1;
+        for (int i = 0; i + 1 < n; i += step) {
+            float x0 = src.x(i), y0 = src.y(i), x1 = src.x(i + 1), y1 = src.y(i + 1);
+            float dx = x1 - x0, dy = y1 - y0;
+            float len = (float) Math.sqrt(dx * dx + dy * dy);
+            if (len < 1.0E-4F) {
+                continue;
+            }
+            float nx = -dy / len * half, ny = dx / len * half;
+            int c0 = src.color(i);
+            int c1 = src.color(i + 1);
+            quads.addVertex(x0 + nx, y0 + ny, 0.0F).setColor(c0);
+            quads.addVertex(x0 - nx, y0 - ny, 0.0F).setColor(c0);
+            quads.addVertex(x1 - nx, y1 - ny, 0.0F).setColor(c1);
+            quads.addVertex(x1 + nx, y1 + ny, 0.0F).setColor(c1);
+        }
+        submit(LegacyRenderSystem.isAdditive() ? LegacyGuiPipelines.GUI_ADDITIVE : RenderPipelines.GUI, TextureSetup.noTexture(), quads);
     }
 
     private static TextureSetup textureSetup(Identifier texture) {
@@ -358,7 +387,7 @@ public class GuiGraphics {
     }
 
     public enum Mode {
-        QUADS, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, LINES
+        QUADS, TRIANGLES, TRIANGLE_STRIP, TRIANGLE_FAN, LINES, LINE_STRIP
     }
 
     public static final class LegacyGuiBuffer implements VertexConsumer {

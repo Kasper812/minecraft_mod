@@ -1,0 +1,8 @@
+{
+  "Animation": {
+    "Idle": "animation.at4.idle",
+    "ReloadEmpty": "animation.at4.reload",
+    "Fire": "animation.at4.fire",
+    "Run": "animation.at4.run"
+  }
+}
