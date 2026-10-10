@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    " B ",
+    " C "
+  ],
+  "key": {
+    "A": "minecraft:iron_ingot",
+    "B": "superbwarfare:high_energy_explosives",
+    "C": "superbwarfare:primer"
+  },
+  "result": {
+    "count": 16,
+    "id": "ashvehicle:20mmitem"
+  }
+}

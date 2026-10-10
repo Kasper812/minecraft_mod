@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "BCB",
+    " D "
+  ],
+  "key": {
+    "A": "superbwarfare:fusee",
+    "B": "minecraft:iron_ingot",
+    "C": "minecraft:tnt",
+    "D": "superbwarfare:grain"
+  },
+  "result": {
+    "count": 2,
+    "id": "ashvehicle:cbu87item"
+  }
+}

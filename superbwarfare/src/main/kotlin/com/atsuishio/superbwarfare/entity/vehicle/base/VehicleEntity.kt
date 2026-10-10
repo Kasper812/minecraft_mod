@@ -468,6 +468,9 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
     open var flap3RotO = 0f
 
     open var gearRot = 0f
+    open var gearRotO = 0f
+
+    fun gearRot(partialTicks: Float): Float = Mth.lerp(partialTicks, gearRotO, gearRot)
 
     open var engineStart = false
     open var engineStartOver = false
@@ -2487,6 +2490,7 @@ open class VehicleEntity(pEntityType: EntityType<*>, pLevel: Level) : Entity(pEn
 
         rudderRotO = this.rudderRot
         propellerRotO = this.propellerRot
+        gearRotO = this.gearRot
         recoilShakeO = this.recoilShake
 
         if (jumpCoolDown > 0 && onGround()) {

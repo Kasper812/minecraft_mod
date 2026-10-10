@@ -163,7 +163,7 @@ public class KornetEntity extends VvpVehicleBase {
         for (var entity : level().getEntities(EntityTypeTest.forClass(Entity.class), ab,
                 target -> target != this && target != getFirstPassenger() && target.getVehicle() == null)
         ) {
-            entity.hurt(ModDamageTypes.causeBurnDamage(entity.level().registryAccess(), living), 30 - 2 * entity.distanceTo(this));
+            entity.hurtOrSimulate(ModDamageTypes.causeBurnDamage(entity.level().registryAccess(), living), 30 - 2 * entity.distanceTo(this));
             double force = 4 - 0.7 * entity.distanceTo(this);
             entity.push(-force * barrelVector.x, -force * barrelVector.y, -force * barrelVector.z);
         }

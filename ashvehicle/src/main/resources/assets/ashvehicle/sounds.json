@@ -1,0 +1,52 @@
+{
+  "reaper-engine": {
+    "sounds": [
+      "ashvehicle:reaper-engine"
+    ]
+  },
+  "j-20_engine": {
+    "sounds": [
+      "ashvehicle:j-20-engine"
+    ]
+  },
+  "su57_engine": {
+    "sounds": [
+      "ashvehicle:su57-engine"
+    ]
+  },
+  "engine1_medium": {
+    "sounds": [
+      "ashvehicle:engine1_medium"
+    ]
+  },
+  "engine1_start": {
+    "sounds": [
+      "ashvehicle:engine1_start"
+    ]
+  },
+  "engine2_medium": {
+    "sounds": [
+      "ashvehicle:engine2_medium"
+    ]
+  },
+  "engine2_start": {
+    "sounds": [
+      "ashvehicle:engine2_start"
+    ]
+  },
+  "missile_shot": {
+    "sounds": [
+      "ashvehicle:missile_shot"
+    ]
+  },
+  "m61_fire": {
+    "sounds": [
+      "ashvehicle:m61_fire"
+    ]
+  },
+  "gsh30_fire": {
+    "sounds": [
+      "ashvehicle:gsh30_fire"
+    ]
+  }
+} 

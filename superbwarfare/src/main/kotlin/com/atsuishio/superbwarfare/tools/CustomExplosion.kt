@@ -67,6 +67,12 @@ open class CustomExplosion @JvmOverloads constructor(
 ) : Explosion {
     private val blockInteractionMode: Explosion.BlockInteraction = blockInteraction
     val toBlow: MutableList<BlockPos> = ArrayList()
+    private var damageMultiplier: Float? = null
+
+    fun setDamageMultiplier(damageMultiplier: Float): CustomExplosion {
+        this.damageMultiplier = damageMultiplier
+        return this
+    }
 
     fun interactsWithBlocks(): Boolean = blockInteractionMode != Explosion.BlockInteraction.KEEP
 
@@ -412,7 +418,12 @@ open class CustomExplosion @JvmOverloads constructor(
                         }
 
                         // Capture computed values for delayed application
-                        val capturedDamageFinal = damageFinal
+                        val multiplier = damageMultiplier
+                        val capturedDamageFinal = if (multiplier != null && entity is net.minecraft.world.entity.monster.Monster) {
+                            damageFinal * (1 + 0.2 * multiplier)
+                        } else {
+                            damageFinal
+                        }
                         val capturedDamageSource = this.damageSource
                         val capturedFireTime = this.fireTime
 
@@ -592,6 +603,12 @@ open class CustomExplosion @JvmOverloads constructor(
         private var damageSource: DamageSource? = null
         private var particlePosition: Vec3? = null
         private var beast = false
+        private var damageMultiplier: Float? = null
+
+        fun damageMultiplier(damageMultiplier: Float): Builder {
+            this.damageMultiplier = damageMultiplier
+            return this
+        }
         var position: Vec3
 
         init {
@@ -686,6 +703,7 @@ open class CustomExplosion @JvmOverloads constructor(
             )
                 .setFireTime(fireTime)
                 .setBeast(beast)
+            damageMultiplier?.let { customExplosion.setDamageMultiplier(it) }
 
             customExplosion.explode()
             customExplosion.finalizeExplosion(false)

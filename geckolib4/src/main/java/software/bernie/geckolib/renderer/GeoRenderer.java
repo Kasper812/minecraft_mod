@@ -159,6 +159,13 @@ public interface GeoRenderer<T extends GeoAnimatable> {
 	 */
 	default void reRender(BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource, T animatable,
 						  RenderType renderType, VertexConsumer buffer, float partialTick,
+						  int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
+		reRender(model, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay,
+				net.minecraft.util.ARGB.colorFromFloat(alpha, red, green, blue));
+	}
+
+	default void reRender(BakedGeoModel model, PoseStack poseStack, MultiBufferSource bufferSource, T animatable,
+						  RenderType renderType, VertexConsumer buffer, float partialTick,
 						  int packedLight, int packedOverlay, int colour) {
 		poseStack.pushPose();
 		preRender(poseStack, animatable, model, bufferSource, buffer, true, partialTick, packedLight, packedOverlay, colour);

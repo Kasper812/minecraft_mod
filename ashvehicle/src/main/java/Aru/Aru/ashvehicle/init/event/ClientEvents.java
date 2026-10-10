@@ -1,0 +1,87 @@
+package Aru.Aru.ashvehicle.init.event;
+
+import Aru.Aru.ashvehicle.AshVehicle;
+import Aru.Aru.ashvehicle.Packet.ToggleAc130OrbitPacket;
+import Aru.Aru.ashvehicle.Packet.TogglePodPacket;
+import Aru.Aru.ashvehicle.client.renderer.ThermalShaderManager;
+import Aru.Aru.ashvehicle.client.screen.CoordinateInputScreen;
+import Aru.Aru.ashvehicle.entity.vehicle.*;
+import Aru.Aru.ashvehicle.init.CoordinateTargetVehicle;
+import Aru.Aru.ashvehicle.init.ModNetwork;
+import Aru.Aru.ashvehicle.init.client.ClientKeyMappings;
+import com.atsuishio.superbwarfare.entity.vehicle.base.GeoVehicleEntity;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.Entity;
+import net.fabricmc.api.EnvType;
+import com.atsuishio.portlib.forge.network.PacketDistributor;
+
+public class ClientEvents {
+
+    public static void onClientTick() {
+
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.gui.screen() != null || mc.player == null) return;
+
+        Entity vehicle = mc.player.getVehicle();
+        
+        // Open coordinate screen
+        if (ClientKeyMappings.OPEN_COORDINATE_SCREEN != null && ClientKeyMappings.OPEN_COORDINATE_SCREEN.consumeClick()) {
+            if (vehicle instanceof CoordinateTargetVehicle targetable) {
+                mc.gui.setScreen(new CoordinateInputScreen(targetable));
+            }
+        }
+        
+        // Toggle pod (Ctrl key)
+        if (ClientKeyMappings.TOGGLE_POD != null && ClientKeyMappings.TOGGLE_POD.consumeClick()) {
+            if (vehicle instanceof SapsanEntity sapsan) {
+                ModNetwork.INSTANCE.send(PacketDistributor.SERVER.noArg(),
+                        new TogglePodPacket(sapsan.getId()));
+            }
+        }
+
+        // thermal vition (F key)
+        if (ClientKeyMappings.THERMAL_VISION != null
+                && ClientKeyMappings.THERMAL_VISION.consumeClick()) {
+
+            if (vehicle instanceof GeoVehicleEntity) {
+                if (ThermalShaderManager.isEnabled()) {
+                    ThermalShaderManager.disable();
+                } else {
+                    ThermalShaderManager.enable();
+                }
+            }
+        }
+
+        // auto disable
+        if (ThermalShaderManager.isEnabled()) {
+            if (!(vehicle instanceof GeoVehicleEntity)) {
+                ThermalShaderManager.disable();
+            }
+        }
+
+        // Toggle VTOL mode (V key)
+        if (ClientKeyMappings.VTOL_TOGGLE != null
+                && ClientKeyMappings.VTOL_TOGGLE.consumeClick()) {
+
+            if (vehicle instanceof F35Entity f35) {
+                f35.toggleVtolMode();
+            }
+            if (vehicle instanceof V22Entity v22) {
+                v22.toggleVtolMode();
+            }
+
+            if (vehicle instanceof C130Entity c130) {
+                c130.toggleHatchMode();
+            }
+        }
+
+        if (ClientKeyMappings.AC130_ORBIT_TOGGLE != null
+                && ClientKeyMappings.AC130_ORBIT_TOGGLE.consumeClick()) {
+
+            if (vehicle instanceof Ac130uEntity ac130) {
+                ModNetwork.INSTANCE.send(PacketDistributor.SERVER.noArg(),
+                        new ToggleAc130OrbitPacket(ac130.getId()));
+            }
+        }
+    }
+}

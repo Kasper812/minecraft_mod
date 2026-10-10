@@ -1,0 +1,301 @@
+{
+  "ID": "ashvehicle:v-22",
+  "MaxHealth": 250,
+  "MaxEnergy": 5000000,
+  "OBB": [
+    {
+      "Size": [1.21875, 0.25, 4.59375],
+      "Position": [0, 1, 2.90625]
+    },
+    {
+      "Size": [0.078125, 1.1875, 0.75],
+      "Position": [1.3125, 2.125, 6.8125]
+    },
+    {
+      "Size": [1.21875, 0.125, 7.25],
+      "Position": [0, 3.375, 0.3125]
+    },
+    {
+      "Size": [1.515625, 0.453125, 0.9375],
+      "Position": [0, 3.953125, 2.125]
+    },
+    {
+      "Size": [1.09375, 0.40625, 1.171875],
+      "Position": [0, 3.59375, 3.90625],
+      "RotationAngles": [24, 0, 0]
+    },
+    {
+      "Size": [1.453125, 0.21875, 2.0625],
+      "Position": [0, 3.75, -0.84375],
+      "RotationAngles": [-12, 0, 0]
+    },
+    {
+      "Size": [1.21875, 0.078125, 2.875],
+      "Position": [-0.0625, 1.875, -4.375],
+      "RotationAngles": [22.49, -1.07, 1.58]
+    },
+    {
+      "Size": [0.609375, 0.578125, 1.4375],
+      "Position": [2, 1.390625, 0.75]
+    },
+    {
+      "Size": [0.5625, 0.578125, 1.4375],
+      "Position": [1.484375, 1.375, 3.3125],
+      "RotationAngles": [0, -26, 0]
+    },
+    {
+      "Size": [0.5625, 0.578125, 1.4375],
+      "Position": [-1.484375, 1.375, 3.3125],
+      "RotationAngles": [0, 26, 0]
+    },
+    {
+      "Size": [0.5625, 0.578125, 1.4375],
+      "Position": [-1.484375, 1.765625, -1.75],
+      "RotationAngles": [17, -24, 0]
+    },
+    {
+      "Size": [0.5625, 0.578125, 1.4375],
+      "Position": [1.484375, 1.765625, -1.75],
+      "RotationAngles": [17, 24, 0]
+    },
+    {
+      "Size": [0.609375, 0.578125, 1.4375],
+      "Position": [-2, 1.390625, 0.75]
+    },
+    {
+      "Size": [1.21875, 0.40625, 1.5625],
+      "Position": [0, 3.5, -8.375]
+    },
+    {
+      "Size": [3.546875, 0.140625, 1.28125],
+      "Position": [0, 3.515625, -8.65625]
+    },
+    {
+      "Size": [0.140625, 2.109375, 1.375],
+      "Position": [-3.703125, 4.71875, -8.703125]
+    },
+    {
+      "Size": [0.140625, 2.109375, 1.375],
+      "Position": [3.703125, 4.71875, -8.703125]
+    },
+    {
+      "Size": [3.125, 0.453125, 1.171875],
+      "Position": [-4.4375, 4.125, 2.15625],
+      "RotationAngles": [0.42, 7.99, -2.97]
+    },
+    {
+      "Size": [3.125, 0.453125, 1.171875],
+      "Position": [4.4375, 4.125, 2.15625],
+      "RotationAngles": [0.42, -7.99, 2.97]
+    },
+    {
+      "Size": [1.015625, 0.125, 0.71875],
+      "Position": [-0.03125, 2.875, 7.984375],
+      "RotationAngles": [51.01, -0.27, -0.02]
+    },
+    {
+      "Size": [1.21875, 0.703125, 1.03125],
+      "Position": [0, 1.65625, 8.625]
+    },
+    {
+      "Size": [0.078125, 1.1875, 3.3125],
+      "Position": [1.3125, 2.125, 1.625]
+    },
+    {
+      "Size": [0.078125, 1.1875, 3.3125],
+      "Position": [-1.3125, 2.125, 1.625]
+    },
+    {
+      "Size": [0.078125, 1.1875, 0.75],
+      "Position": [-1.3125, 2.125, 6.8125]
+    }
+  ],
+  "Seats": [
+    {
+      "Transform": "Vehicle",
+      "Position": [0.6, 0.9, 7.2],
+      "Sensitivity": [0, 0, 0],
+      "CameraPos": {
+        "Transform": "Vehicle",
+        "Position": [0.6, 2.9, 7.2],
+        "UseFixedCameraPos": true,
+        "UseAircraftCamera": true,
+        "AircraftCameraPos": [-2.1, 2.45, -10]
+      },
+      "CanRotateHead": false,
+      "MinPitch": -80,
+      "MaxPitch": 80,
+      "MinYaw": -80,
+      "MaxYaw": 80,
+      "Weapons": [
+        "Cannon",
+        "Rocket"
+      ],
+      "DismountInfo": {
+        "Transform": "Vehicle",
+        "Position": [2, 1.2, 1]
+      }
+    },
+    {
+      "Transform": "Vehicle",
+      "Position": [-0.6, 0.9, 7.2],
+      "MinPitch": -80,
+      "MaxPitch": 80,
+      "MinYaw": -80,
+      "MaxYaw": 80,
+      "DismountInfo": {
+        "Transform": "Vehicle",
+        "Position": [-2, 1.2, 0]
+      },
+      "CameraPos": {}
+    }
+  ],
+  "Weapons": {
+    "Cannon": {
+      "DefaultFireMode": "Auto",
+      "AvailableFireModes": "Auto",
+      "Projectile": "superbwarfare:small_cannon_shell",
+      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/cannon_20mm.png",
+      "DefaultZoom": 2,
+      "RPM": 500,
+      "Velocity": 30,
+      "Damage": 45,
+      "ExplosionDamage": 12,
+      "ExplosionRadius": 3.5,
+      "HeatPerShoot": 5,
+      "NaturalCooldown": 1,
+      "Spread": 0.25,
+      "Name": "weapon.superbwarfare.20mm_cannon",
+      "SoundInfo": {
+        "Fire1P": "superbwarfare:ah_6_cannon_fire_1p",
+        "Fire3P": "superbwarfare:ah_6_cannon_fire_3p",
+        "Fire3PFar": "superbwarfare:ah_6_cannon_far",
+        "Fire3PVeryFar": "superbwarfare:ah_6_cannon_veryfar",
+        "Change": "superbwarfare:into_cannon"
+      },
+      "Crosshair": "@Empty",
+      "SoundRadius": 24,
+      "AmmoType": "superbwarfare:small_shell_ap",
+      "ShootPos": {
+        "Transform": "Vehicle",
+        "ShootPositionForHud": [0, 0.62, 0.8],
+        "ShootDirectionForHud": [0, 0.018, 1],
+        "Positions": [
+          [-1.15, 0.62, 0.8],
+          [1.15, 0.62, 0.8]
+        ],
+        "Directions": [
+          [0.003, 0.025, 1],
+          [-0.003, 0.025, 1]
+        ]
+      }
+    },
+    "Rocket": {
+      "AmmoType": "superbwarfare:small_rocket",
+      "Icon": "superbwarfare:textures/overlay/vehicle/weapon/icons/small_rocket.png",
+      "DefaultZoom": 2,
+      "DefaultFireMode": "Auto",
+      "AvailableFireModes": "Auto",
+      "Magazine": 14,
+      "EmptyReloadTime": 100,
+      "Projectile": "superbwarfare:small_rocket",
+      "HeatPerShoot": 0.5,
+      "Spread": 0.25,
+      "Name": "weapon.superbwarfare.70mm_rocket",
+      "RPM": 450,
+      "Damage": 80,
+      "ExplosionDamage": 40,
+      "ExplosionRadius": 5,
+      "Gravity": 0.02,
+      "Velocity": 16,
+      "ShootPos": {
+        "Transform": "Vehicle",
+        "ShootPositionForHud": [0, 0.62, 0.8],
+        "ShootDirectionForHud": [0, 0.018, 1],
+        "Positions": [
+          [-1.7, 0.62, 0.8],
+          [1.7, 0.62, 0.8]
+        ],
+        "Directions": [
+          [0.003, 0.025, 1],
+          [-0.003, 0.025, 1]
+        ]
+      },
+      "SoundInfo": {
+        "Fire1P": "superbwarfare:small_rocket_fire_1p",
+        "Fire3P": "superbwarfare:small_rocket_fire_3p",
+        "VehicleReload3p": "superbwarfare:missile_reload",
+        "VehicleReloadSoundTime": 7,
+        "Change": "superbwarfare:into_missile"
+      },
+      "Crosshair": "@Empty",
+      "SoundRadius": 12
+    }
+  },
+  "EngineType": "Empty",
+  "EngineInfo": {
+    "EnergyCostRate": 256,
+    "Increment": 1,
+    "Decrement": 1,
+    "PitchSpeed": 1,
+    "YawSpeed": 1,
+    "RollSpeed": 0.75,
+    "LiftSpeed": 1,
+    "EngineStartSound": "superbwarfare:ah_6_engine_start",
+    "EngineSoundVolume": 2
+  },
+  "EngineSound": "superbwarfare:ah_6_engine",
+  "ThirdPersonCameraPos": [0, 1, 7],
+  "UpStep": 1.1,
+  "RotateOffsetHeight": 1.45,
+  "Mass": 1.2,
+  "AllowFreeCam": true,
+  "HasDecoy": true,
+  "DamageModifiers": [
+    "minecraft:arrow * 0.2",
+    "minecraft:trident * 0.4",
+    "minecraft:mob_attack * 0.4",
+    "minecraft:mob_attack_no_aggro * 0.4",
+    "minecraft:mob_projectile * 0.4",
+    "minecraft:player_attack * 0.4",
+    "minecraft:lava - -2",
+    "minecraft:lava * 2.5",
+    "@minecraft:tnt * 6",
+    "@minecraft:tnt_minecart * 6",
+    "minecraft:explosion * 4",
+    "minecraft:player_explosion * 4",
+    "superbwarfare:projectile_hit * 0.8",
+    "superbwarfare:grapeshot_hit * 0.75",
+    "#superbwarfare:projectile * 0.16",
+    "superbwarfare:vehicle_strike * 7",
+    "superbwarfare:laser * 0.4",
+    "@superbwarfare:cannon_shell * 2",
+    "@superbwarfare:small_cannon_shell * 1.1",
+    "@superbwarfare:gun_grenade * 2.2",
+    "@superbwarfare:rgo_grenade * 6",
+    "@superbwarfare:hand_grenade * 5",
+    "@superbwarfare:mortar_shell * 3",
+    "@#superbwarfare:at_rocket * 3",
+    "@#superbwarfare:aerial_bomb * 2",
+    "All * 0.7",
+    "All - 2"
+  ],
+  "DestroyInfo": {
+    "ParticleType": "Huge",
+    "ExplosionDamage": 300,
+    "ExplosionRadius": 8,
+    "CrashPassengers": true
+  },
+  "VehicleIcon": "superbwarfare:textures/vehicle_icon/ah_6_icon.png",
+  "ContainerIcon": "superbwarfare:textures/gui/vehicle/type/aircraft.png",
+  "Type": "Airplane",
+  "TerrainCompat": [
+    [1.156, 0, 1.875],
+    [-1.156, 0, 1.875],
+    [1.156, 0, 0.875],
+    [-1.156, 0, 0.875],
+    [1.156, 0, -0.875],
+    [-1.156, 0, -0.875]
+  ],
+  "HudType": "@Aircraft"
+}

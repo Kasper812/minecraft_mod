@@ -41,6 +41,19 @@ public abstract class LegacyScreen extends Screen {
         super.extractBackground(guiGraphics.extractor(), mouseX, mouseY, partialTick);
     }
 
+    public void renderBackground(GuiGraphics guiGraphics) {
+        this.renderBackground(guiGraphics, 0, 0, 0.0F);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return this.mouseScrolled(mouseX, mouseY, scrollY);
+    }
+
+    public boolean mouseScrolled(double mouseX, double mouseY, double delta) {
+        return super.mouseScrolled(mouseX, mouseY, 0.0, delta);
+    }
+
     public void renderTransparentBackground(GuiGraphics guiGraphics) {
         this.extractTransparentBackground(guiGraphics.extractor());
     }

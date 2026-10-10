@@ -36,6 +36,9 @@ data class OBBInfo(
 
     @SerialName("Part")
     var part: OBB.Part = OBB.Part.BODY,
+
+    @SerialName("RotationAngles")
+    var rotationAngles: SerializedVec3? = null,
 ) {
     /**
      * Lazily built collision box, captured from [size] / [part] on first access.

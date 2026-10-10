@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "id": "ashvehicle",
+  "version": "${version}",
+  "name": "Ash Vehicle",
+  "description": "It is an addon based on SuperbWarfare",
+  "authors": [
+    "Arusan"
+  ],
+  "license": "GPL-3.0",
+  "icon": "AshVehicle.png",
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "Aru.Aru.ashvehicle.AshVehicle"
+    ],
+    "client": [
+      "Aru.Aru.ashvehicle.client.AshVehicleClient"
+    ]
+  },
+  "mixins": [
+    "ashvehicle.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.19.5",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*",
+    "superbwarfare": ">=0.8.9",
+    "geckolib4": "*",
+    "sbw_portlib": "*"
+  }
+}

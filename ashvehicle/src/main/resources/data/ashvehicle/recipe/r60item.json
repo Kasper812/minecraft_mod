@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    "BCB",
+    " D "
+  ],
+  "key": {
+    "A": "minecraft:comparator",
+    "B": "superbwarfare:steel_ingot",
+    "C": "superbwarfare:grain",
+    "D": "superbwarfare:missile_engine"
+  },
+  "result": {
+    "count": 2,
+    "id": "ashvehicle:r60item"
+  }
+}

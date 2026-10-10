@@ -1,0 +1,17 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "Aru.Aru.ashvehicle.mixin",
+  "compatibilityLevel": "JAVA_25",
+  "mixins": [
+    "VehicleEntityMixin",
+    "EntityCollisionMixin",
+    "VehicleEntityAccessor"
+  ],
+  "client": [
+    "EntityRenderThermalMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}

@@ -249,7 +249,7 @@ public class D30Entity extends VvpVehicleBase {
         Vec3 artilleryPos = this.position();
         serverLevel.players().forEach(p -> {
             if (p.distanceToSqr(artilleryPos) < 225) {
-                p.hurt(serverLevel.damageSources().explosion(this, player), 0.0f);
+                p.hurtOrSimulate(serverLevel.damageSources().explosion(this, player), 0.0f);
             }
         });
 

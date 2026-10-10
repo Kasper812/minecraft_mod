@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    " A ",
+    " B ",
+    " C "
+  ],
+  "key": {
+    "A": "superbwarfare:fusee",
+    "B": "superbwarfare:grain",
+    "C": "superbwarfare:primer"
+  },
+  "result": {
+    "count": 8,
+    "id": "ashvehicle:40mmitem"
+  }
+}

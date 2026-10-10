@@ -33,12 +33,14 @@ fun Projectile.customExplode(
 
 object ProjectileTool {
     @JvmStatic
+    @JvmOverloads
     fun causeCustomExplode(
         projectile: Projectile,
         source: DamageSource?,
         target: Entity,
         damage: Float,
-        radius: Float
+        radius: Float,
+        damageMultiplier: Float? = null
     ) {
         val explosion = CustomExplosion.Builder(projectile)
             .damageSource(source)
@@ -49,6 +51,9 @@ object ProjectileTool {
 
         if (projectile is IBulletProperties) {
             explosion.beast(projectile.isBeast())
+        }
+        if (damageMultiplier != null) {
+            explosion.damageMultiplier(damageMultiplier)
         }
         explosion.explode()
 
@@ -95,5 +100,22 @@ object ProjectileTool {
         radius: Float
     ) {
         causeCustomExplode(projectile, projectile, damage, radius)
+    }
+
+    @JvmStatic
+    fun causeCustomExplode(
+        projectile: Projectile,
+        damage: Float,
+        radius: Float,
+        damageMultiplier: Float
+    ) {
+        causeCustomExplode(
+            projectile,
+            ModDamageTypes.causeCustomExplosionDamage(projectile.level().registryAccess(), projectile, projectile.owner),
+            projectile,
+            damage,
+            radius,
+            damageMultiplier
+        )
     }
 }

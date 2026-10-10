@@ -1,0 +1,16 @@
+{
+  "key.ashvehicle.targeting_camera": "Прицельная камера",
+  "key.ashvehicle.thermal_toggle": "Тепловизор",
+  "key.ashvehicle.zoom_in": "Приблизить",
+  "key.ashvehicle.zoom_out": "Отдалить",
+  "key.categories.ashvehicle": "AshVehicle",
+  "key.category.ashvehicle.main": "AshVehicle",
+  "item.ashvehicle.ashvehicle-item": "AshVehicle",
+  "item.ashvehicle.ashvehicle-air-item": "AshVehicle: авиация",
+  "item.ashvehicle.ashvehicle-tank-item": "AshVehicle: наземная техника",
+  "item.ashvehicle.ashvehicle-ship-item": "AshVehicle: флот",
+  "item_group.ashvehicle.ash-air": "AshVehicle: авиация",
+  "item_group.ashvehicle.ash-ground": "AshVehicle: наземная техника",
+  "item_group.ashvehicle.ash-naval": "AshVehicle: флот",
+  "item_group.ashvehicle.ash-item": "AshVehicle: предметы"
+}

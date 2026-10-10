@@ -209,8 +209,105 @@ def hover_text(s):
     return out
 
 
+def hurt_methods(s):
+    pat = re.compile(r"public\s+boolean\s+hurt\(\s*(?:@\w+\s+)?(?:final\s+)?DamageSource\s+(\w+)\s*,\s*(?:final\s+)?float\s+(\w+)\s*\)")
+    out = s
+    while True:
+        m = pat.search(out)
+        if not m:
+            break
+        a, b = find_block(out, m.end())
+        body = out[a:b + 1]
+        body = re.sub(r"\bsuper\.hurt\(", "super.hurtServer(hurtLevel, ", body)
+        head = "public boolean hurtServer(net.minecraft.server.level.ServerLevel hurtLevel, DamageSource %s, float %s)" % (m.group(1), m.group(2))
+        out = out[:m.start()] + head + out[m.end():a] + body + out[b + 1:]
+    out = re.sub(r"(?<!super)(?<!\w)(\w+(?:\(\))?)\.hurt\(", lambda mm: mm.group(1) + ".hurtOrSimulate(" if mm.group(1) not in ("super",) else mm.group(0), out)
+    out = re.sub(r"\s*@Override\s*\n\s*public\s+Packet<ClientGamePacketListener>\s+getAddEntityPacket\(\)\s*\{\s*return\s+NetworkHooks\.getEntitySpawningPacket\(this\);\s*\}\n", "\n", out)
+    out = out.replace("import net.minecraftforge.network.NetworkHooks;\n", "")
+    return out
+
+
+MOB_EFFECTS = {"MOVEMENT_SLOWDOWN": "SLOWNESS", "MOVEMENT_SPEED": "SPEED", "DIG_SPEED": "HASTE", "DIG_SLOWDOWN": "MINING_FATIGUE",
+              "DAMAGE_BOOST": "STRENGTH", "HEAL": "INSTANT_HEALTH", "HARM": "INSTANT_DAMAGE", "JUMP": "JUMP_BOOST",
+              "CONFUSION": "NAUSEA", "DAMAGE_RESISTANCE": "RESISTANCE"}
+SBW_PROJECTILE = r"extends\s+(?:MissileProjectile|FastThrowableProjectile|\w*Missile\w*Entity|\w*ProjectileEntity|\w*ShellEntity|\w*BombEntity|\w*RocketEntity)"
+
+
+def sbw_api2(s):
+    for old, new in MOB_EFFECTS.items():
+        s = re.sub(r"\bMobEffects\.%s\b" % old, "MobEffects.%s" % new, s)
+    s = re.sub(r"\b(?:com\.atsuishio\.superbwarfare\.network\.)?NetworkRegistry\.PACKET_HANDLER\.send\(\s*PacketDistributor\.PLAYER\.with\(\s*\(\)\s*->\s*([^()]+?)\s*\)\s*,\s*",
+               r"com.atsuishio.superbwarfare.tools.MinecraftUtil.sendPacketTo(\1, ", s)
+    s = re.sub(r"\b(?:com\.atsuishio\.superbwarfare\.network\.)?NetworkRegistry\.PACKET_HANDLER\.send\(\s*PacketDistributor\.TRACKING_ENTITY(?:_AND_SELF)?\.with\(\s*\(\)\s*->\s*([^()]+?)\s*\)\s*,\s*",
+               r"com.atsuishio.superbwarfare.tools.MinecraftUtil.sendPacketToTrackingEntity(\1, ", s)
+    s = re.sub(r"\b(?:com\.atsuishio\.superbwarfare\.network\.)?NetworkRegistry\.PACKET_HANDLER\.send\(\s*PacketDistributor\.ALL\.noArg\(\)\s*,\s*",
+               r"com.atsuishio.superbwarfare.tools.MinecraftUtil.sendPacketToAll(", s)
+    s = re.sub(r"\b(?:com\.atsuishio\.superbwarfare\.network\.)?NetworkRegistry\.PACKET_HANDLER\.sendToServer\(",
+               r"com.atsuishio.superbwarfare.tools.MinecraftUtil.sendPacketToServer(", s)
+    s = re.sub(r"^import com\.atsuishio\.superbwarfare\.network\.NetworkRegistry;\n", "", s, flags=re.M)
+    s = re.sub(r"^\s*(?:this\.)?noCulling\s*=\s*(?:true|false)\s*;\s*\n", "", s, flags=re.M)
+    s = re.sub(r"\bprotected(\s+void\s+onHit(?:Entity|Block)\()", r"public\1", s)
+    if re.search(SBW_PROJECTILE, s):
+        s = re.sub(r"public\s+float\s+getGravity\(\)", "public float getCustomGravity()", s)
+        s = re.sub(r"\bsuper\.getGravity\(\)", "super.getCustomGravity()", s)
+        for name, getter, setter in (("distracted", "isDistracted", "setDistracted"), ("lostTarget", "isLostTarget", "setLostTarget")):
+            s = re.sub(r"(?<![\w.])(?:this\.)?%s\s*=(?!=)\s*([^;]+);" % name, r"%s(\1);" % setter, s)
+            s = re.sub(r"(?<![\w])(?:this\.)%s\b(?!\s*\()" % name, "this.%s()" % getter, s)
+            s = re.sub(r"(?<![\w.])%s\b(?!\s*\(|\s*=[^=])" % name, "%s()" % getter, s)
+    s = re.sub(r"(\b\w*[lL]evel(?:\(\))?)\.random\b(?!\()", r"\1.getRandom()", s)
+    return s
+
+
+def particles(s):
+    if "TextureSheetParticle" not in s and "ParticleRenderType" not in s:
+        return s
+    s = s.replace("import net.minecraft.client.particle.TextureSheetParticle;", "import com.atsuishio.portlib.render.LegacyTextureSheetParticle;")
+    s = re.sub(r"(?<![\w.])TextureSheetParticle\b", "LegacyTextureSheetParticle", s)
+    s = s.replace("import com.atsuishio.portlib.render.LegacyLegacyTextureSheetParticle;", "import com.atsuishio.portlib.render.LegacyTextureSheetParticle;")
+    s = s.replace("import net.minecraft.client.particle.ParticleRenderType;", "import com.atsuishio.portlib.render.LegacyParticleRenderType;")
+    s = re.sub(r"(?<![\w.])ParticleRenderType\b", "LegacyParticleRenderType", s)
+    s = s.replace("LegacyLegacyParticleRenderType", "LegacyParticleRenderType")
+    s = re.sub(r"protected(\s+int\s+getLightColor\()", r"public\1", s)
+    return s
+
+
+MC_RECV = r"(\b(?:mc|minecraft|Minecraft\.getInstance\(\)|this\.minecraft|this\.mc))"
+
+
+def mc_misc2(s):
+    s = re.sub(MC_RECV + r"\.screen\b(?!\()", r"\1.gui.screen()", s)
+    s = re.sub(MC_RECV + r"\.setScreen\(", r"\1.gui.setScreen(", s)
+    s = re.sub(r"(\b\w*[cC]amera(?:\(\))?)\.getPosition\(\)", r"\1.position()", s)
+    s = re.sub(r"(\b\w*[cC]amera(?:\(\))?)\.getYRot\(\)", r"\1.yRot()", s)
+    s = re.sub(r"(\b\w*[cC]amera(?:\(\))?)\.getXRot\(\)", r"\1.xRot()", s)
+    s = re.sub(r"(\b\w*[cC]amera(?:\(\))?)\.getLookVector\(\)", r"\1.forwardVector()", s)
+    s = re.sub(r"\bInteractionResult\.sidedSuccess\([^;]*?\)(?=\s*;)", "InteractionResult.SUCCESS", s)
+    s = re.sub(r"([\w.]+(?:\([^()]*\))?)\.getOrCreateTag\(\)", r"com.atsuishio.superbwarfare.tools.MinecraftUtil.getOrCreateTag(\1)", s)
+    s = re.sub(r"\.startRiding\(([^,()]+(?:\([^()]*\))?),\s*(true|false)\)", r".startRiding(\1, \2, true)", s)
+    s = re.sub(r"\.setNoRepair\(\)", "", s)
+    s = re.sub(r"\bnew\s+ChunkPos\(([^,()]+(?:\([^()]*\))?)\)", r"ChunkPos.containing(\1)", s)
+    s = re.sub(r"\bPoseStack\s+(\w+)\s*=\s*(\w+)\.pose\(\);", r"com.atsuishio.portlib.gui.LegacyPose \1 = \2.pose();", s)
+    s = re.sub(r"\bnew\s+SimpleParticleType\((true|false)\)", r"net.fabricmc.fabric.api.particle.v1.FabricParticleTypes.simple(\1)", s)
+    if "LegacyTextureSheetParticle" in s and "import com.atsuishio.portlib.render.LegacyTextureSheetParticle;" not in s:
+        s = add_import(s, "com.atsuishio.portlib.render.LegacyTextureSheetParticle")
+    if "LegacyParticleRenderType" in s and "import com.atsuishio.portlib.render.LegacyParticleRenderType;" not in s:
+        s = add_import(s, "com.atsuishio.portlib.render.LegacyParticleRenderType")
+    return s
+
+
+def screens(s):
+    if re.search(r"^import net\.minecraft\.client\.gui\.screens\.Screen;", s, re.M) and re.search(r"\bextends\s+Screen\b", s):
+        s = re.sub(r"\bextends\s+Screen\b", "extends com.atsuishio.portlib.gui.LegacyScreen", s)
+    return s
+
+
 def migrate(src):
     out = particle_providers(src)
+    out = screens(out)
+    out = mc_misc2(out)
+    out = particles(out)
+    out = sbw_api2(out)
+    out = hurt_methods(out)
     out = hover_text(out)
     out = entity_overrides(out)
     out = sbw_api(out)
